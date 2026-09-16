@@ -52,21 +52,39 @@ const CONSEQUENCE_LAYERS = {
 
 const SLR_OPTIONS = BCDC_WATER_LEVELS.map(v => ({ inches: v, label: v === 0 ? "No SLR" : `${v}"` }));
 
-// Storm-surge return-period baseline inches above MHHW, Bay-wide regional
-// average — taken from BCDC's own data/storm-surge.json ("regional" block).
-// Simplified: BCDC's live tool also applies per-county baselines and
-// scenario-specific corrections on top of this; we use the single
-// regional figure since this map doesn't have a county-selection step.
-const STORM_SURGE_OPTIONS = [
-  { key: "none", label: "No Storm Surge", inches: 0 },
-  { key: "1", label: "King Tide", inches: 14 },
-  { key: "2", label: "2-yr", inches: 18 },
-  { key: "5", label: "5-yr", inches: 23 },
-  { key: "10", label: "10-yr", inches: 27 },
-  { key: "25", label: "25-yr", inches: 32 },
-  { key: "50", label: "50-yr", inches: 37 },
-  { key: "100", label: "100-yr", inches: 42 }
+const STORM_SURGE_DEFS = [
+  { key: "none", label: "No Storm Surge" },
+  { key: "1", label: "King Tide" },
+  { key: "2", label: "2-yr" },
+  { key: "5", label: "5-yr" },
+  { key: "10", label: "10-yr" },
+  { key: "25", label: "25-yr" },
+  { key: "50", label: "50-yr" },
+  { key: "100", label: "100-yr" }
 ];
+
+// Storm-surge return-period baseline inches above MHHW, by planning area —
+// taken directly from BCDC's own data/storm-surge.json (fetched and
+// inspected from their site). Baselines only: BCDC's live tool also
+// applies per-scenario "exceptions"/"force" corrections on top of these
+// numbers per county, which we don't reproduce here.
+const STORM_SURGE_BY_AREA = {
+  "regional": { label: "SF Bay region (regional)", 1: 14, 2: 18, 5: 23, 10: 27, 25: 32, 50: 37, 100: 42 },
+  "marin county": { label: "Marin County", 1: 14, 2: 18, 5: 23, 10: 27, 25: 32, 50: 37, 100: 42 },
+  "sonoma county": { label: "Sonoma County", 1: 15, 2: 19, 5: 24, 10: 28, 25: 34, 50: 38, 100: 43 },
+  "napa county": { label: "Napa County", 1: 15, 2: 19, 5: 24, 10: 27, 25: 33, 50: 37, 100: 42 },
+  "solano county": { label: "Solano County", 1: 15, 2: 18, 5: 23, 10: 27, 25: 32, 50: 36, 100: 41 },
+  "contra costa county": { label: "Contra Costa County", 1: 14, 2: 18, 5: 23, 10: 27, 25: 32, 50: 36, 100: 41 },
+  "alameda county": { label: "Alameda County", 1: 15, 2: 19, 5: 24, 10: 27, 25: 32, 50: 37, 100: 42 },
+  "santa clara county": { label: "Santa Clara County", 1: 14, 2: 20, 5: 24, 10: 28, 25: 34, 50: 40, 100: 47 },
+  "san mateo county": { label: "San Mateo County", 1: 15, 2: 19, 5: 24, 10: 27, 25: 32, 50: 37, 100: 42 },
+  "san francisco county": { label: "San Francisco County", 1: 12, 2: 19, 5: 23, 10: 27, 25: 32, 50: 36, 100: 41 }
+};
+
+function stormInches(areaKey, defKey){
+  if(defKey === "none") return 0;
+  return STORM_SURGE_BY_AREA[areaKey][defKey];
+}
 
 function nearestLevelIndex(targetInches){
   let bestIdx = 0, bestDiff = Infinity;
@@ -77,12 +95,51 @@ function nearestLevelIndex(targetInches){
   return bestIdx;
 }
 
+// Point-in-polygon (ray casting), used to auto-detect which of the 9 Bay
+// Area counties a clicked/searched point falls in, reusing the same
+// bay-area-counties.geojson already loaded for the coverage-region layer.
+// No turf.js needed for this — just enough geometry math for one query.
+function pointInRing(pt, ring){
+  let inside = false;
+  for(let i = 0, j = ring.length - 1; i < ring.length; j = i++){
+    const xi = ring[i][0], yi = ring[i][1];
+    const xj = ring[j][0], yj = ring[j][1];
+    const intersect = ((yi > pt[1]) !== (yj > pt[1])) &&
+      (pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi);
+    if(intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function pointInPolygonCoords(pt, rings){
+  if(!pointInRing(pt, rings[0])) return false;
+  for(let k = 1; k < rings.length; k++){
+    if(pointInRing(pt, rings[k])) return false; // inside a hole
+  }
+  return true;
+}
+
+function pointInGeometry(pt, geometry){
+  if(geometry.type === "Polygon") return pointInPolygonCoords(pt, geometry.coordinates);
+  if(geometry.type === "MultiPolygon") return geometry.coordinates.some(poly => pointInPolygonCoords(pt, poly));
+  return false;
+}
+
+function findCountyAreaKey(lat, lng){
+  const fc = regionData["bay-area-counties"];
+  if(!fc) return null;
+  const pt = [lng, lat];
+  const feature = fc.features.find(f => pointInGeometry(pt, f.geometry));
+  return feature ? `${feature.properties.name.toLowerCase()} county` : null;
+}
+
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
 let bcdcLayers = {};        // BCDC_LAYER_TYPES id -> active Leaflet WMS layer, or absent
 let legalDeltaLayer = null;
 let consequenceLayer = null;
+let applyAreaFromPoint = () => {}; // set by initFloodOverlay; called with (lat, lng) on click/search
 
 async function loadRegionData(){
   const regionIds = Object.keys(REGION_FILES);
@@ -155,6 +212,7 @@ function initMap(){
   map.on("click", e => {
     if(marker) map.removeLayer(marker);
     marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+    applyAreaFromPoint(e.latlng.lat, e.latlng.lng);
   });
 }
 
@@ -173,10 +231,13 @@ function initFloodOverlay(){
   const impactConsequence = document.getElementById("impactConsequence");
   const consequenceSelect = document.getElementById("consequenceSelect");
   const consequenceNoteEl = document.getElementById("consequenceNote");
+  const areaSelect = document.getElementById("areaSelect");
+  const areaAutoNote = document.getElementById("areaAutoNote");
 
   let currentLevelIndex = Number(levelSlider.value);
+  let currentArea = "regional";
   let selectedSlrInches = null;
-  let selectedStormInches = null;
+  let selectedStormKey = null;
 
   const currentInches = () => BCDC_WATER_LEVELS[currentLevelIndex];
 
@@ -254,12 +315,14 @@ function initFloodOverlay(){
     });
   });
 
-  function buildButtonGrid(container, options, onPick){
+  function buildButtonGrid(container, options, keyOf, onPick){
+    container.innerHTML = "";
     options.forEach(opt => {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "scenario-btn";
       b.textContent = opt.label;
+      b.dataset.key = keyOf(opt);
       b.addEventListener("click", () => {
         container.querySelectorAll(".scenario-btn").forEach(x => x.classList.remove("active"));
         b.classList.add("active");
@@ -269,18 +332,50 @@ function initFloodOverlay(){
     });
   }
 
+  function reapplyActiveButton(container, key){
+    container.querySelectorAll(".scenario-btn").forEach(b => {
+      b.classList.toggle("active", key !== null && b.dataset.key === String(key));
+    });
+  }
+
+  function buildStormButtons(){
+    buildButtonGrid(stormButtonsEl, STORM_SURGE_DEFS, opt => opt.key, opt => {
+      selectedStormKey = opt.key;
+      updateScenarioResult();
+    });
+    reapplyActiveButton(stormButtonsEl, selectedStormKey);
+  }
+
   function updateScenarioResult(){
-    if(selectedSlrInches === null || selectedStormInches === null){
+    if(selectedSlrInches === null || selectedStormKey === null){
       scenarioResultEl.textContent = "Select a sea level rise and storm surge amount to see the closest matching Total Water Level.";
       return;
     }
-    const idx = nearestLevelIndex(selectedSlrInches + selectedStormInches);
+    const total = selectedSlrInches + stormInches(currentArea, selectedStormKey);
+    const idx = nearestLevelIndex(total);
     setLevelIndex(idx);
-    scenarioResultEl.textContent = `Closest matching Total Water Level: ${currentInches()}" above MHHW (regional approximation — BCDC's own tool uses county-specific storm-tide data).`;
+    scenarioResultEl.textContent = `Closest matching Total Water Level: ${currentInches()}" above MHHW, using the ${STORM_SURGE_BY_AREA[currentArea].label} storm-surge baseline (simplified — doesn't include BCDC's per-scenario corrections).`;
   }
 
-  buildButtonGrid(slrButtonsEl, SLR_OPTIONS, opt => { selectedSlrInches = opt.inches; updateScenarioResult(); });
-  buildButtonGrid(stormButtonsEl, STORM_SURGE_OPTIONS, opt => { selectedStormInches = opt.inches; updateScenarioResult(); });
+  function setArea(areaKey, auto){
+    currentArea = areaKey;
+    areaSelect.value = areaKey;
+    areaAutoNote.textContent = auto
+      ? `Auto-detected from your last click/search: ${STORM_SURGE_BY_AREA[areaKey].label}.`
+      : "Manually selected — click the map or search an address to auto-detect again.";
+    buildStormButtons();
+    if(selectedSlrInches !== null && selectedStormKey !== null) updateScenarioResult();
+  }
+
+  areaSelect.addEventListener("change", () => setArea(areaSelect.value, false));
+
+  applyAreaFromPoint = function(lat, lng){
+    const county = findCountyAreaKey(lat, lng);
+    setArea(county || "regional", true);
+  };
+
+  buildButtonGrid(slrButtonsEl, SLR_OPTIONS, opt => opt.inches, opt => { selectedSlrInches = opt.inches; updateScenarioResult(); });
+  buildStormButtons();
 }
 
 async function geocode(query){
@@ -301,6 +396,7 @@ async function geocode(query){
     map.setView([latN, lonN], 10);
     if(marker) map.removeLayer(marker);
     marker = L.marker([latN, lonN]).addTo(map);
+    applyAreaFromPoint(latN, lonN);
     statusEl.textContent = `Showing results for: ${display_name}`;
   } catch(err){
     statusEl.textContent = "Search failed — check your connection and try again.";

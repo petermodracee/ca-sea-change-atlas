@@ -42,6 +42,23 @@
 <div class="layer-group">
 <div class="layer-group-title">BCDC Flood Explorer <em>(Bay Shoreline Flood Explorer)</em></div>
 
+<div class="area-picker">
+<label for="areaSelect">Storm-surge baseline</label>
+<select id="areaSelect">
+<option value="regional">SF Bay region (regional)</option>
+<option value="marin county">Marin County</option>
+<option value="sonoma county">Sonoma County</option>
+<option value="napa county">Napa County</option>
+<option value="solano county">Solano County</option>
+<option value="contra costa county">Contra Costa County</option>
+<option value="alameda county">Alameda County</option>
+<option value="santa clara county">Santa Clara County</option>
+<option value="san mateo county">San Mateo County</option>
+<option value="san francisco county">San Francisco County</option>
+</select>
+<span class="area-auto-note" id="areaAutoNote">Click the map or search an address to auto-detect a county.</span>
+</div>
+
 <div class="mode-tabs" role="tablist">
 <button type="button" class="mode-tab active" data-mode="level" role="tab" aria-selected="true">Total Water Level</button>
 <button type="button" class="mode-tab" data-mode="scenario" role="tab" aria-selected="false">Choose a Scenario</button>
