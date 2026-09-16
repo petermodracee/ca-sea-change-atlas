@@ -233,6 +233,8 @@ function initFloodOverlay(){
   const consequenceNoteEl = document.getElementById("consequenceNote");
   const areaSelect = document.getElementById("areaSelect");
   const areaAutoNote = document.getElementById("areaAutoNote");
+  const equivCaptionEl = document.getElementById("equivCaption");
+  const equivScenariosEl = document.getElementById("equivScenarios");
 
   let currentLevelIndex = Number(levelSlider.value);
   let currentArea = "regional";
@@ -273,6 +275,54 @@ function initFloodOverlay(){
     levelSlider.value = idx;
     levelValue.textContent = `${currentInches()}"`;
     refreshAllChecked();
+    updateEquivalentScenarios();
+  }
+
+  // Combos within BCDC's own ±3" binning tolerance count as "matching."
+  function isWithinTolerance(sum){
+    return Math.abs(sum - BCDC_WATER_LEVELS[nearestLevelIndex(sum)]) <= 3;
+  }
+
+  function updateEquivalentScenarios(){
+    const twl = currentInches();
+    equivCaptionEl.textContent = `This level represents similar flooding under these Sea Level Rise + Storm Surge combinations (${STORM_SURGE_BY_AREA[currentArea].label}):`;
+    const rows = [];
+    SLR_OPTIONS.forEach(s => {
+      STORM_SURGE_DEFS.forEach(g => {
+        const sum = s.inches + stormInches(currentArea, g.key);
+        if(Math.abs(sum - twl) <= 3) rows.push({ slr: s.label, storm: g.label, sum });
+      });
+    });
+    rows.sort((a, b) => a.sum - b.sum || (b.storm === "No Storm Surge" ? -1 : 0));
+
+    equivScenariosEl.innerHTML = "";
+    if(!rows.length){
+      equivScenariosEl.innerHTML = '<p class="equiv-note">No combination matches this level within the usual ±3" tolerance for this baseline.</p>';
+      return;
+    }
+    const head = document.createElement("div");
+    head.className = "equiv-row equiv-head";
+    head.innerHTML = "<span>Sea Level Rise</span><span>Storm Surge</span>";
+    equivScenariosEl.appendChild(head);
+    rows.forEach(r => {
+      const row = document.createElement("div");
+      row.className = "equiv-row";
+      row.innerHTML = `<span>${r.slr}</span><span>${r.storm}</span>`;
+      equivScenariosEl.appendChild(row);
+    });
+  }
+
+  function updateGreying(){
+    stormButtonsEl.querySelectorAll(".scenario-btn").forEach(b => {
+      const disabled = selectedSlrInches !== null &&
+        !isWithinTolerance(selectedSlrInches + stormInches(currentArea, b.dataset.key));
+      b.disabled = disabled;
+    });
+    slrButtonsEl.querySelectorAll(".scenario-btn").forEach(b => {
+      const disabled = selectedStormKey !== null &&
+        !isWithinTolerance(Number(b.dataset.key) + stormInches(currentArea, selectedStormKey));
+      b.disabled = disabled;
+    });
   }
 
   impactTabs.forEach(btn => {
@@ -347,6 +397,7 @@ function initFloodOverlay(){
   }
 
   function updateScenarioResult(){
+    updateGreying();
     if(selectedSlrInches === null || selectedStormKey === null){
       scenarioResultEl.textContent = "Select a sea level rise and storm surge amount to see the closest matching Total Water Level.";
       return;
@@ -364,6 +415,7 @@ function initFloodOverlay(){
       ? `Auto-detected from your last click/search: ${STORM_SURGE_BY_AREA[areaKey].label}.`
       : "Manually selected — click the map or search an address to auto-detect again.";
     buildStormButtons();
+    updateGreying();
     if(selectedSlrInches !== null && selectedStormKey !== null) updateScenarioResult();
   }
 
@@ -376,6 +428,7 @@ function initFloodOverlay(){
 
   buildButtonGrid(slrButtonsEl, SLR_OPTIONS, opt => opt.inches, opt => { selectedSlrInches = opt.inches; updateScenarioResult(); });
   buildStormButtons();
+  updateEquivalentScenarios();
 
   document.getElementById("hideAllBcdc").addEventListener("click", () => {
     bcdcCheckboxes.forEach(cb => {

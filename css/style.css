@@ -184,7 +184,18 @@ body.map-page{min-height:100vh;display:flex;flex-direction:column;}
 }
 .scenario-btn:hover{border-color:var(--teal);}
 .scenario-btn.active{background:var(--teal);border-color:var(--teal-dark);color:#fff;}
+.scenario-btn:disabled{opacity:.35;cursor:not-allowed;}
+.scenario-btn:disabled:hover{border-color:var(--line);}
 .scenario-result{font-size:11.5px;color:var(--ink-soft);margin:8px 0 0;line-height:1.5;}
+
+.equiv-caption{font-size:11.5px;color:var(--ink-soft);margin:12px 0 6px;}
+.equiv-scenarios{border:1px solid var(--line);border-radius:5px;overflow:hidden;font-size:11.5px;}
+.equiv-row{display:grid;grid-template-columns:1fr 1fr;}
+.equiv-row span{padding:4px 8px;border-top:1px solid var(--line);}
+.equiv-row span:first-child{border-right:1px solid var(--line);}
+.equiv-row:first-child span{border-top:0;}
+.equiv-head{background:var(--sand);font-weight:600;color:var(--ink);}
+.equiv-note{font-size:11.5px;color:var(--ink-soft);margin:0;}
 
 .map-attribution{
   padding:10px 24px;font-size:11px;color:var(--ink-soft);border-top:1px solid var(--line);
