@@ -7,6 +7,10 @@ const REGION_FILES = {
 
 const NATIONAL_SCOPE = "national";
 
+const BCDC_WMS_URL = "https://mapserver.adaptingtorisingtides.org/cgi-bin/mapserv?map=/opt/slrviewer/mapfiles/bcdc.map";
+const BCDC_WATER_LEVELS = [0, 12, 24, 36, 48, 52, 66, 77, 84, 96, 108]; // inches above MHHW, matches BCDC's own "Total Water Level" slider
+let floodLayer = null;
+
 const state = {
   process: new Set(),
   exposure: new Set(),
@@ -55,10 +59,53 @@ function initMap(){
     { swatch: eccStyle.color, label: "East Contra Costa study area (approximate)", dashed: true },
     { swatch: statewideStyle.color, label: "California statewide tools (Cal-Adapt, CoSMoS, CREST)" },
     { swatch: nationalStyle.color, label: "National tools — CA portion shown (dashed)", dashed: true },
-    { swatch: orangeStyle.color, label: "Orange County / Newport Bay (FloodRISE)" }
+    { swatch: orangeStyle.color, label: "Orange County / Newport Bay (FloodRISE)" },
+    { swatch: "#2E6FA3", label: "BCDC flood-depth overlay (toggle above map), darker = deeper" }
   ]);
 
   map.on("click", e => handlePoint(e.latlng.lat, e.latlng.lng, null));
+}
+
+function buildFloodLayer(waterLevelIn){
+  return L.tileLayer.wms(BCDC_WMS_URL, {
+    layers: `inundation${waterLevelIn}`,
+    version: "1.3.0",
+    format: "image/png",
+    transparent: true,
+    opacity: 0.72,
+    attribution: 'Flood depth: <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Adapting to Rising Tides</a>'
+  });
+}
+
+function initFloodOverlay(){
+  const toggle = document.getElementById("floodToggle");
+  const levelWrap = document.getElementById("overlayLevelWrap");
+  const levelSlider = document.getElementById("floodLevel");
+  const levelValue = document.getElementById("floodLevelValue");
+
+  const currentInches = () => BCDC_WATER_LEVELS[Number(levelSlider.value)];
+  const updateLevelLabel = () => { levelValue.textContent = `${currentInches()}"`; };
+  updateLevelLabel();
+
+  toggle.addEventListener("change", () => {
+    levelWrap.hidden = !toggle.checked;
+    if(toggle.checked){
+      floodLayer = buildFloodLayer(currentInches());
+      floodLayer.addTo(map);
+    } else if(floodLayer){
+      map.removeLayer(floodLayer);
+      floodLayer = null;
+    }
+  });
+
+  levelSlider.addEventListener("input", () => {
+    updateLevelLabel();
+    if(floodLayer){
+      map.removeLayer(floodLayer);
+      floodLayer = buildFloodLayer(currentInches());
+      floodLayer.addTo(map);
+    }
+  });
 }
 
 function renderLegend(items){
@@ -394,6 +441,7 @@ function renderComparisonTable(){
 async function main(){
   await loadData();
   initMap();
+  initFloodOverlay();
   buildFieldset("f-process", uniqueSorted("processes"), "process");
   buildFieldset("f-exposure", uniqueSorted("exposure"), "exposure");
   buildFieldset("f-flood", uniqueSorted("floodInfo"), "flood");

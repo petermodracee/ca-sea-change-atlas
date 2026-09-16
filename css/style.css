@@ -103,6 +103,23 @@ h1,h2,h3{font-family:'Spectral',Georgia,serif;font-weight:600;margin:0 0 .4em;co
 .search-form button:hover{background:var(--teal-dark);}
 .search-status{font-size:12.5px;color:var(--ink-soft);padding:0 16px;min-height:1.6em;}
 .search-status.error{color:var(--rust-deep);}
+
+.overlay-toolbar{
+  display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;
+  padding:10px 16px;border-bottom:1px solid var(--line);
+  background:var(--paper);font-size:13px;
+}
+.overlay-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.overlay-toggle input{accent-color:var(--teal);}
+.overlay-toggle em{font-style:normal;color:var(--ink-soft);}
+.overlay-level{display:flex;align-items:center;gap:8px;flex:1;min-width:220px;}
+.overlay-level[hidden]{display:none;}
+.overlay-level label{font-size:12px;color:var(--ink-soft);white-space:nowrap;}
+.overlay-level input[type="range"]{flex:1;min-width:120px;accent-color:var(--rust);}
+.overlay-level-value{
+  font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;
+  color:var(--rust-deep);min-width:2.6em;text-align:right;
+}
 #map{height:460px;width:100%;}
 @media (max-width:640px){ #map{height:340px;} }
 

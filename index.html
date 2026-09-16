@@ -39,13 +39,28 @@ The original Sea the Future platform — built by the California State Coastal C
       <button type="submit">Search</button>
     </form>
   </div>
+  <div class="overlay-toolbar">
+    <label class="overlay-toggle">
+      <input type="checkbox" id="floodToggle">
+      <span>Show BCDC flood-depth overlay <em>(Bay Shoreline Flood Explorer)</em></span>
+    </label>
+    <div class="overlay-level" id="overlayLevelWrap" hidden>
+      <label for="floodLevel">Total water level, MHHW+</label>
+      <input type="range" id="floodLevel" min="0" max="10" step="1" value="3">
+      <span id="floodLevelValue" class="overlay-level-value">36"</span>
+    </div>
+  </div>
   <div id="map"></div>
   <div class="search-status" id="searchStatus"></div>
   <div class="legend" id="legend"></div>
   <div class="map-attribution">
     Coverage boundaries: county/state data from the
     <a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code> repository</a>
-    (MIT license), originally derived from U.S. Census TIGER data. Base map &copy;
+    (MIT license), originally derived from U.S. Census TIGER data. Flood-depth overlay: live map layers from
+    <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC's Adapting to Rising Tides Bay Shoreline Flood Explorer</a> —
+    planning-level only, not for parcel-scale, permitting, or engineering use; see
+    <a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">their full disclaimer</a>.
+    Base map &copy;
     <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors.
   </div>
 </div>
@@ -105,7 +120,7 @@ The original Sea the Future platform — built by the California State Coastal C
 <footer>
 <div class="wrap">
 Recreated from the tool specification published by the Georgetown Climate Center's Adaptation Clearinghouse. Tool descriptions, scopes, and links were compiled from each provider's own public materials as of September 2026 and may drift out of date — always verify against the live tool before using it for a real planning decision. Not affiliated with the California State Coastal Conservancy or NOAA.
-<div class="data-credit">Coverage-area boundaries derived from the <a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code> repository</a> (MIT License, © Plotly Technologies Inc.), originally sourced from U.S. Census Bureau TIGER data. Full license text and provenance: <a href="data/coverage/ATTRIBUTION.md">data/coverage/ATTRIBUTION.md</a>. Address search via <a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>.</div>
+<div class="data-credit">Coverage-area boundaries derived from the <a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code> repository</a> (MIT License, © Plotly Technologies Inc.), originally sourced from U.S. Census Bureau TIGER data. Full license text and provenance: <a href="data/coverage/ATTRIBUTION.md">data/coverage/ATTRIBUTION.md</a>. Address search via <a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>. Optional flood-depth overlay is loaded live from BCDC's own map server (<a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">Adapting to Rising Tides Bay Shoreline Flood Explorer</a>) — not hosted or modified by this project; verify against the source before relying on it.</div>
 </div>
 </footer>
 
