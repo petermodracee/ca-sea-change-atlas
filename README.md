@@ -23,6 +23,32 @@ anything the map computes (there's no more click-a-point-to-see-matching-
 tools feature — coverage is something you inspect visually on the map by
 toggling layers instead).
 
+## Implementation status
+
+"Implemented" here means the map page (`index.html`) actually renders that
+tool's own flood/hazard data as a layer — not just that it's listed as one
+of the 12 tools on `sources.html`. Only the ART Bay Shoreline Flood
+Explorer has real data wired up so far (its live BCDC WMS layer, added
+directly to the map's layer panel); the other 11 are cataloged on
+`sources.html` for comparison but don't yet contribute a data layer to the
+map. Each tool's card and comparison-table row on `sources.html` shows
+this same status.
+
+| Tool | Org | Status |
+|---|---|---|
+| Adapting to Rising Tides: Bay Shoreline Flood Explorer | BCDC / SFEI | ✅ Implemented |
+| East Contra Costa Shoreline Flood Explorer | BCDC / SFEI | Not implemented |
+| Sea Level Rise – Coastal Inundation Scenarios (Cal-Adapt) | Cal-Adapt | Not implemented |
+| Coastal Risk Screening Tool | Climate Central | Not implemented |
+| Surging Seas Risk Finder | Climate Central | Not implemented |
+| Coastal Resilience Evaluation and Siting Tool (CREST) | NFWF, with partners | Not implemented |
+| Coastal Flood Exposure Mapper | NOAA Office for Coastal Management | Not implemented |
+| Sea Level Rise Viewer | NOAA Office for Coastal Management | Not implemented |
+| Our Coast, Our Future / CoSMoS | Point Blue / USGS | Not implemented |
+| Coastal Resilience Mapping Portal | The Nature Conservancy | Not implemented |
+| FloodRISE | UC Irvine | Not implemented |
+| Hazard Exposure Reporting and Analytics (HERA) | USGS | Not implemented |
+
 ## Layout
 
 - `BRIEF.md` — the project brief: goals, map interaction spec, data

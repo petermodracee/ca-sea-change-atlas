@@ -212,6 +212,9 @@ legend{
   background:var(--paper);
 }
 .tag.scope{border-color:var(--teal);color:var(--teal-dark);background:var(--sand);}
+.tag.status{align-self:flex-start;border-radius:4px;font-weight:600;letter-spacing:.01em;}
+.tag.status-implemented{border-color:var(--teal);color:#fff;background:var(--teal);}
+.tag.status-not-implemented{border-color:var(--line);color:var(--ink-soft);background:var(--paper);}
 .card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding-top:12px;border-top:1px solid var(--line);}
 .card-foot .yr{font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
 .card-foot .actions{display:flex;gap:8px;align-items:center;}

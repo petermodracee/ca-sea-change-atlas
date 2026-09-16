@@ -84,6 +84,12 @@ function render(){
     desc.textContent = tool.description;
     card.appendChild(desc);
 
+    const statusTag = document.createElement("span");
+    const implemented = tool.implementationStatus === "implemented";
+    statusTag.className = "tag status " + (implemented ? "status-implemented" : "status-not-implemented");
+    statusTag.textContent = implemented ? "✓ Implemented on this map" : "Not implemented on this map";
+    card.appendChild(statusTag);
+
     const tags = document.createElement("div");
     tags.className = "tagrow";
     const scopeTag = document.createElement("span");
@@ -187,6 +193,7 @@ function renderComparisonTable(){
 
   const tools = state.compare.map(id => TOOLS.find(t=>t.id===id));
   const rows = [
+    ["Implemented on this map", t => t.implementationStatus === "implemented" ? "✓ Implemented" : "Not implemented"],
     ["Organization", t => t.org],
     ["Geographic scope", t => t.scopeLabel],
     ["Released", t => t.released],
