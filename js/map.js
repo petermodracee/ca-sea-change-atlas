@@ -376,6 +376,15 @@ function initFloodOverlay(){
 
   buildButtonGrid(slrButtonsEl, SLR_OPTIONS, opt => opt.inches, opt => { selectedSlrInches = opt.inches; updateScenarioResult(); });
   buildStormButtons();
+
+  document.getElementById("hideAllBcdc").addEventListener("click", () => {
+    bcdcCheckboxes.forEach(cb => {
+      if(cb.checked){ cb.checked = false; cb.dispatchEvent(new Event("change")); }
+    });
+    const legalDeltaToggle = document.querySelector('[data-static-layer="legaldelta"]');
+    if(legalDeltaToggle.checked){ legalDeltaToggle.checked = false; legalDeltaToggle.dispatchEvent(new Event("change")); }
+    if(consequenceSelect.value){ consequenceSelect.value = ""; consequenceSelect.dispatchEvent(new Event("change")); }
+  });
 }
 
 async function geocode(query){
