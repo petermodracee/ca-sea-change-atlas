@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sea the Future — California SLR tool comparison</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#122430;
+  --navy:#1B3A4B;
+  --navy-2:#234B5F;
+  --teal:#1F7A6C;
+  --teal-dark:#134F45;
+  --sand:#EFE6CF;
+  --sand-deep:#DCC79A;
+  --rust:#AE4A2C;
+  --rust-deep:#7C331D;
+  --paper:#FBF8F1;
+  --paper-2:#F3EEE0;
+  --line:#D9D0B8;
+  --ink-soft:#4A5A62;
+}
+[data-theme="dark"]{
+  --paper:#0F1D26;
+  --paper-2:#152833;
+  --line:#2C4552;
+  --ink:#EDE7D6;
+  --ink-soft:#A9BAC1;
+  --sand:#22394A;
+  --sand-deep:#2C4A5C;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1D26;
+    --paper-2:#152833;
+    --line:#2C4552;
+    --ink:#EDE7D6;
+    --ink-soft:#A9BAC1;
+    --sand:#22394A;
+    --sand-deep:#2C4A5C;
+  }
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'IBM Plex Sans',system-ui,sans-serif;
+  line-height:1.55;
+}
+a{color:var(--teal-dark);}
+[data-theme="dark"] a, @media (prefers-color-scheme: dark){ a{color:#6FD3BE;} }
+h1,h2,h3{font-family:'Spectral',Georgia,serif;font-weight:600;margin:0 0 .4em;color:var(--ink);}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+/* ---------- hero ---------- */
+.hero{
+  background:linear-gradient(180deg,var(--navy) 0%,var(--navy-2) 100%);
+  color:#F3EFE0;
+  padding:56px 0 64px;
+  position:relative;
+  overflow:hidden;
+}
+.hero svg.contours{position:absolute;inset:0;width:100%;height:100%;opacity:.16;}
+.hero .wrap{position:relative;z-index:1;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  letter-spacing:.02em;
+  color:#BFD9CF;
+  margin-bottom:14px;
+}
+.hero h1{font-size:clamp(34px,5vw,54px);color:#FBF8F1;max-width:16ch;}
+.hero p.lede{font-size:18px;max-width:62ch;color:#DCE6DE;margin:14px 0 0;}
+.hero .notice{
+  margin-top:28px;
+  border:1px solid rgba(243,239,224,.28);
+  border-left:3px solid var(--sand-deep);
+  border-radius:4px;
+  padding:14px 18px;
+  font-size:14.5px;
+  color:#E7E1CC;
+  max-width:70ch;
+  background:rgba(0,0,0,.12);
+}
+.notice a{color:#E9D9AE;}
+
+/* ---------- layout ---------- */
+.main{padding:40px 0 80px;}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:36px;align-items:start;}
+@media (max-width:860px){.layout{grid-template-columns:1fr;}}
+
+.filters{
+  position:sticky;top:16px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:18px 18px 6px;
+  background:var(--paper-2);
+}
+.filters h2{font-size:16px;margin-bottom:2px;}
+.filters .sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;}
+fieldset{border:0;padding:0;margin:0 0 18px;}
+legend{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;letter-spacing:.03em;
+  color:var(--ink-soft);
+  margin-bottom:8px;padding:0;
+  text-transform:uppercase;
+}
+.chk{display:flex;align-items:flex-start;gap:8px;font-size:13.5px;margin:6px 0;cursor:pointer;}
+.chk input{margin-top:3px;accent-color:var(--teal);}
+.clear-btn{
+  font-size:12.5px;background:none;border:1px solid var(--line);
+  border-radius:4px;padding:6px 10px;color:var(--ink-soft);cursor:pointer;
+  margin-bottom:16px;
+}
+.clear-btn:hover{border-color:var(--teal);color:var(--teal-dark);}
+
+.results-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.results-head h2{font-size:19px;}
+.count{font-size:13px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;}
+.card{
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:18px 18px 16px;
+  background:var(--paper-2);
+  display:flex;flex-direction:column;gap:10px;
+}
+.card .org{font-size:12px;color:var(--teal-dark);font-weight:600;letter-spacing:.01em;}
+.card h3{font-size:17px;line-height:1.3;}
+.card .desc{font-size:13.8px;color:var(--ink-soft);flex:1;}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px;font-size:11.5px;}
+.tag{
+  border:1px solid var(--line);
+  border-radius:12px;padding:3px 9px;
+  color:var(--ink-soft);
+  background:var(--paper);
+}
+.tag.scope{border-color:var(--teal);color:var(--teal-dark);background:var(--sand);}
+.card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:6px;padding-top:12px;border-top:1px solid var(--line);}
+.card-foot .yr{font-size:12px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;}
+.card-foot .actions{display:flex;gap:8px;align-items:center;}
+.linkbtn{font-size:13px;color:var(--teal-dark);text-decoration:none;font-weight:500;}
+.linkbtn:hover{text-decoration:underline;}
+.nolink{font-size:12px;color:var(--ink-soft);font-style:italic;}
+.cmp-btn{
+  font-size:12.5px;border:1px solid var(--line);border-radius:4px;
+  padding:6px 10px;background:var(--paper);cursor:pointer;color:var(--ink);
+}
+.cmp-btn.on{background:var(--teal);border-color:var(--teal-dark);color:#fff;}
+.cmp-btn:disabled{opacity:.4;cursor:not-allowed;}
+.empty{padding:40px 0;color:var(--ink-soft);font-size:14px;text-align:center;border:1px dashed var(--line);border-radius:8px;}
+
+/* ---------- comparison ---------- */
+.compare-bar{
+  position:sticky;bottom:14px;margin-top:28px;z-index:5;
+}
+.compare-bar-inner{
+  background:var(--navy);color:#F3EFE0;border-radius:8px;
+  padding:12px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  box-shadow:0 6px 18px rgba(0,0,0,.18);
+}
+.compare-bar .slots{display:flex;gap:8px;flex:1;flex-wrap:wrap;}
+.slot{
+  font-size:12.5px;border:1px solid rgba(243,239,224,.35);
+  border-radius:4px;padding:4px 9px;display:flex;align-items:center;gap:6px;
+}
+.slot button{background:none;border:0;color:#DCE6DE;cursor:pointer;font-size:13px;padding:0;line-height:1;}
+.compare-go{
+  background:var(--sand-deep);color:var(--ink);border:0;border-radius:4px;
+  padding:9px 16px;font-size:13.5px;font-weight:600;cursor:pointer;
+}
+.compare-go:disabled{opacity:.4;cursor:not-allowed;}
+
+.comparison{margin-top:44px;border-top:2px solid var(--teal);padding-top:28px;}
+.comparison h2{font-size:22px;}
+.comparison .sub{color:var(--ink-soft);font-size:14px;margin-bottom:20px;}
+.cmp-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;}
+table.cmp{border-collapse:collapse;width:100%;min-width:640px;font-size:13.6px;}
+table.cmp th, table.cmp td{
+  text-align:left;vertical-align:top;padding:12px 16px;
+  border-bottom:1px solid var(--line);border-right:1px solid var(--line);
+}
+table.cmp th:last-child, table.cmp td:last-child{border-right:0;}
+table.cmp thead th{
+  background:var(--sand);font-family:'Spectral',serif;font-size:16px;font-weight:600;
+  position:sticky;top:0;
+}
+table.cmp thead th.rowlabel-head{background:var(--paper-2);}
+table.cmp td.rowlabel{
+  font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.02em;
+  color:var(--ink-soft);text-transform:uppercase;white-space:nowrap;background:var(--paper-2);
+}
+table.cmp ul{margin:0;padding-left:16px;}
+table.cmp li{margin:2px 0;}
+table.cmp tbody tr:last-child td{border-bottom:0;}
+
+footer{border-top:1px solid var(--line);padding:26px 0 50px;color:var(--ink-soft);font-size:12.8px;}
+footer .wrap{max-width:1180px;}
+footer a{color:var(--ink-soft);text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<div class="eyebrow">California coastal decision support — unofficial recreation</div>
+<h1>Sea the Future</h1>
+<p class="lede">Twelve sea-level-rise and coastal-flooding tools, side by side, so you can pick the one that fits your planning question.</p>
+<div class="notice">
+The original Sea the Future platform — built by the California State Coastal Conservancy with NOAA's Office for Coastal Management — was taken offline after its funding ended. This page rebuilds its core comparison function from the published tool specification. Descriptions below are a good-faith summary, not the original agency content; confirm details on each tool's own site before relying on them for planning decisions. <a href="https://www.adaptationclearinghouse.org/resources/california-e-sea-the-future-e-tool.html">Read the original spec →</a>
+</div>
+</div>
+</div>
+
+<div class="main">
+<div class="wrap">
+<div class="layout">
+
+<aside class="filters">
+<h2>Filter tools</h2>
+<div class="sub">Narrow the list, then pick up to three to compare.</div>
+<button class="clear-btn" id="clearBtn" type="button">Clear all filters</button>
+
+<fieldset id="f-scope">
+<legend>Geographic scope</legend>
+</fieldset>
+
+<fieldset id="f-process">
+<legend>Shoreline processes covered</legend>
+</fieldset>
+
+<fieldset id="f-exposure">
+<legend>Exposure analysis included</legend>
+</fieldset>
+
+<fieldset id="f-flood">
+<legend>Projected flood info (beyond SLR extent)</legend>
+</fieldset>
+</aside>
+
+<section>
+<div class="results-head">
+<h2>Tools</h2>
+<span class="count" id="countLabel"></span>
+</div>
+<div class="grid" id="grid"></div>
+<div class="empty" id="emptyMsg" style="display:none;">No tools match every filter you've selected. Try clearing a category.</div>
+
+<div id="comparison" class="comparison" style="display:none;">
+<h2>Side-by-side comparison</h2>
+<div class="sub">Everything Sea the Future's comparison view showed: scope, processes, exposure, data, model, strengths and limitations.</div>
+<div class="cmp-scroll"><table class="cmp" id="cmpTable"></table></div>
+</div>
+
+</section>
+</div>
+</div>
+</div>
+
+<div class="compare-bar wrap" id="compareBar" style="display:none;">
+<div class="compare-bar-inner">
+<span style="font-size:13px;color:#BFD9CF;">Comparing:</span>
+<div class="slots" id="slots"></div>
+<button class="compare-go" id="scrollToCompare" type="button">View comparison</button>
+</div>
+</div>
+
+<footer>
+<div class="wrap">
+Recreated from the tool specification published by the Georgetown Climate Center's Adaptation Clearinghouse. Tool descriptions, scopes, and links were compiled from each provider's own public materials as of September 2026 and may drift out of date — always verify against the live tool before using it for a real planning decision. Not affiliated with the California State Coastal Conservancy or NOAA.
+</div>
+</footer>
+
+<script>
+const TOOLS = [
+{
+  id:"art-bay", name:"Adapting to Rising Tides: Bay Shoreline Flood Explorer",
+  org:"BCDC / SFEI", scope:"bay-area", scopeLabel:"San Francisco Bay Area (9 counties)",
+  released:"2019", url:"https://explorer.adaptingtorisingtides.org/",
+  description:"Maps shoreline flooding as a \u201ctotal water level\u201d above mean higher high water, combining sea-level rise with storm surge and king tides using county-reviewed, high-resolution data.",
+  processes:["SLR inundation","Storm surge / extreme tide","Shoreline overtopping"],
+  exposure:["Infrastructure & buildings"],
+  floodInfo:["Storm surge / extreme tide","King tide"],
+  reportsData:"Downloadable GIS flood-extent layers and a county-by-county methodology report.",
+  slrModel:"AECOM Bay Area total-water-level dataset, reviewed by county stakeholders.",
+  strengths:["High-resolution, locally reviewed county data","\u201cTotal water level\u201d framing separates temporary from permanent flooding","Free, downloadable GIS layers"],
+  limitations:["Limited to the nine Bay Area counties","Uses today's shoreline, so it doesn't model future erosion or levee change","No built-in population or economic exposure analysis"]
+},
+{
+  id:"art-ecc", name:"East Contra Costa Shoreline Flood Explorer",
+  org:"BCDC / SFEI", scope:"bay-area", scopeLabel:"Eastern Contra Costa County / Delta",
+  released:"2021", url:null,
+  description:"A companion to the Bay Shoreline Flood Explorer, extending the same total-water-level mapping approach into the Delta-adjacent shoreline of eastern Contra Costa County.",
+  processes:["SLR inundation","Storm surge / extreme tide","Levee overtopping"],
+  exposure:["Infrastructure & buildings"],
+  floodInfo:["Storm surge / extreme tide"],
+  reportsData:"Downloadable GIS layers and methodology notes.",
+  slrModel:"Extension of the Bay Area total-water-level dataset to Delta conditions.",
+  strengths:["Fills a data gap for a Delta-adjacent area other Bay tools skip","Consistent methodology with the Bay-wide Flood Explorer","Locally reviewed data"],
+  limitations:["Very narrow geography","Same today's-shoreline limitation as the Bay-wide tool","Harder to find now that it isn't centrally indexed \u2014 link unverified for this recreation"]
+},
+{
+  id:"cal-adapt-slr", name:"Sea Level Rise \u2013 Coastal Inundation Scenarios (successor to CalFloD-3D Viewer)",
+  org:"Cal-Adapt", scope:"statewide", scopeLabel:"California coast and San Francisco Bay",
+  released:"2018, relaunched 2022", url:"https://cal-adapt.org/tools/slr-coastal-inundation",
+  description:"Cal-Adapt's original CalFloD-3D viewer now lives inside the SLR \u2013 Coastal Inundation Scenarios tool, which compares two dynamic flood models (CalFloD3D-TFS and CoSMoS) side by side for the same storm and SLR scenario.",
+  processes:["SLR inundation","Storm surge / extreme tide","Dynamic hydrodynamic modeling"],
+  exposure:[],
+  floodInfo:["Storm surge / extreme tide","Near-100-year storm scenario"],
+  reportsData:"Downloadable statewide gridded flood datasets at up to 2m resolution.",
+  slrModel:"CalFloD3D-TFS and CoSMoS, both funded through California's Fourth Climate Change Assessment.",
+  strengths:["Directly compares two independent flood models to show where they agree","Dynamic, time-varying modeling rather than a static \u201cbathtub\u201d fill","High-resolution, downloadable data"],
+  limitations:["The original CalFloD-3D-only viewer has been folded in, so old links may not resolve","Only two time horizons (2020\u20132040 and 2080\u20132100)","More technical interface aimed at modelers than the general public"]
+},
+{
+  id:"cc-screening", name:"Coastal Risk Screening Tool",
+  org:"Climate Central", scope:"national", scopeLabel:"United States (national)",
+  released:"2014, updated periodically", url:"https://coastal.climatecentral.org/",
+  description:"A quick, address-searchable map showing land projected to fall below various flood or sea-level thresholds \u2014 built to give the public a fast, visual sense of local exposure.",
+  processes:["SLR inundation","Coastal flood thresholds"],
+  exposure:["Population / demographics","Infrastructure & buildings"],
+  floodInfo:["Annual flood risk (various return periods)"],
+  reportsData:"On-screen summary statistics; limited downloadable data.",
+  slrModel:"Elevation-based screening against NOAA tide and flood data.",
+  strengths:["Extremely easy for non-experts to use","Covers the whole U.S. coastline, not just California","Good first-pass screening for any one location"],
+  limitations:["Simplified \u201cbathtub\u201d style mapping, not a dynamic flood model","Not built for detailed infrastructure or economic exposure analysis","Less California-specific detail than the state-built tools"]
+},
+{
+  id:"cc-riskfinder", name:"Surging Seas Risk Finder",
+  org:"Climate Central", scope:"national", scopeLabel:"Coastal United States, including California",
+  released:"2015, updated periodically", url:"https://riskfinder.climatecentral.org/",
+  description:"Pairs sea-level-rise and flood maps with detailed exposure statistics \u2014 population, property value, roads, schools, demographics \u2014 searchable by state, county, or place.",
+  processes:["SLR inundation","Storm surge / extreme tide"],
+  exposure:["Population / demographics","Infrastructure & buildings","Economic / property value","Critical facilities"],
+  floodInfo:["Storm surge / extreme tide","Annual flood risk"],
+  reportsData:"Downloadable place-level exposure reports and summary tables.",
+  slrModel:"NOAA tide-gauge and elevation data combined with Climate Central's flood-threshold modeling.",
+  strengths:["Deep exposure analysis by demographic and asset type","Consistent methodology across the whole U.S. coast for regional comparison","Clear, place-level summary reports"],
+  limitations:["Still largely elevation-based rather than a dynamic hydrodynamic model","National-scale approach can miss California-specific factors like levees","Some layers are coarser than California-built tools"]
+},
+{
+  id:"nfwf-crest", name:"Coastal Resilience Evaluation and Siting Tool (CREST)",
+  org:"National Fish and Wildlife Federation, with partners", scope:"statewide", scopeLabel:"California coast",
+  released:"\u224812018 \u2014 unverified for this recreation", url:null,
+  description:"Built to help practitioners screen and site nature-based shoreline projects \u2014 living shorelines, marsh restoration, dune enhancement \u2014 against sea-level-rise and flood exposure.",
+  processes:["SLR inundation","Marsh migration / habitat change","Erosion / shoreline change"],
+  exposure:["Natural resources / habitats"],
+  floodInfo:["Marsh migration space"],
+  reportsData:"Site-suitability screening outputs for nature-based adaptation projects.",
+  slrModel:"Built on state SLR guidance scenarios; exact model not independently confirmed for this recreation.",
+  strengths:["Focused specifically on nature-based / green-infrastructure siting, a gap in most other tools","Brings habitat and marsh-migration data into flood planning","Aimed directly at practitioners, not just the public"],
+  limitations:["Narrower audience than general-purpose viewers","No stable current link could be confirmed for this recreation","Less suited to general public education"]
+},
+{
+  id:"noaa-cfem", name:"Coastal Flood Exposure Mapper",
+  org:"NOAA Office for Coastal Management", scope:"national", scopeLabel:"Coastal United States, including California",
+  released:"2016", url:"https://coast.noaa.gov/floodexposure/",
+  description:"Overlays flood-hazard layers \u2014 SLR, storm surge, king tides \u2014 with social, economic, and environmental data to show who and what is exposed in a given area.",
+  processes:["SLR inundation","Storm surge / extreme tide","King tide"],
+  exposure:["Population / demographics","Infrastructure & buildings","Economic / property value","Natural resources / habitats","Critical facilities"],
+  floodInfo:["Storm surge / extreme tide","King tide","FEMA flood zones"],
+  reportsData:"Downloadable maps, data layers, and PDF summary reports by area.",
+  slrModel:"NOAA Sea Level Rise and Coastal Flooding Impacts elevation data.",
+  strengths:["Broad exposure lens spanning social, economic, and natural-resource data","Consistent NOAA methodology usable statewide or nationwide","Well documented and actively maintained by a federal agency"],
+  limitations:["National tool, so California-specific nuance like local subsidence is limited","Elevation-based flood layers, not a full dynamic storm model","Interface can feel dense for first-time users"]
+},
+{
+  id:"noaa-slrv", name:"Sea Level Rise Viewer",
+  org:"NOAA Office for Coastal Management", scope:"national", scopeLabel:"Coastal United States, including California",
+  released:"2011, continually updated", url:"https://coast.noaa.gov/slr/",
+  description:"NOAA's flagship, slider-based sea-level-rise viewer, showing projected inundation depth, marsh-migration potential, and social/economic overlays for the entire U.S. coastline.",
+  processes:["SLR inundation","Marsh migration"],
+  exposure:["Population / demographics","Economic / property value"],
+  floodInfo:["Mapping uncertainty / confidence layers"],
+  reportsData:"Downloadable GIS data and imagery; no per-parcel report generator.",
+  slrModel:"NOAA VDatum-based elevation modeling referenced to local tide datums.",
+  strengths:["Most widely used and cited U.S. sea-level-rise viewer","Explicitly communicates mapping uncertainty","Includes marsh-migration projections most tools omit"],
+  limitations:["Does not include beach or dune erosion","Static \u201cbathtub\u201d style mapping rather than dynamic storm modeling","Not California-specific"]
+},
+{
+  id:"cosmos", name:"Our Coast, Our Future / CoSMoS",
+  org:"Point Blue Conservation Science / USGS", scope:"statewide", scopeLabel:"California coast, including the Bay Area",
+  released:"2013, updated regularly", url:"https://ourcoastourfuture.org/",
+  description:"Built on USGS's Coastal Storm Modeling System, this tool dynamically models waves, storm surge, and sea-level rise together to map coastal flooding and erosion at high resolution.",
+  processes:["SLR inundation","Storm surge / extreme tide","Wave run-up","Erosion / shoreline change"],
+  exposure:["Infrastructure & buildings","Natural resources / habitats"],
+  floodInfo:["Storm surge / extreme tide","Wave run-up","Erosion projections"],
+  reportsData:"Downloadable, high-resolution flood and erosion GIS layers.",
+  slrModel:"USGS CoSMoS dynamic wave / surge / SLR model (Barnard et al.).",
+  strengths:["One of the few tools that dynamically models waves and erosion, not just static SLR","Very high spatial resolution, down to about 2 meters","Actively maintained by USGS with regular updates"],
+  limitations:["Heavier, more technical map interface than screening tools","Statewide coverage was built out over years, so some regions arrived later","Large data layers can be slow to load"]
+},
+{
+  id:"tnc-resilience", name:"Coastal Resilience Mapping Portal",
+  org:"The Nature Conservancy", scope:"national", scopeLabel:"United States, including California",
+  released:"2009, expanded over time", url:"https://coastalresilience.org/",
+  description:"A mapping platform focused on where nature-based solutions \u2014 reefs, marshes, dunes \u2014 can reduce flood risk, alongside standard SLR and storm-surge hazard layers.",
+  processes:["SLR inundation","Storm surge / extreme tide","Habitat-based risk reduction"],
+  exposure:["Natural resources / habitats","Infrastructure & buildings"],
+  floodInfo:["Storm surge / extreme tide"],
+  reportsData:"Interactive maps and case-study reports; some downloadable data by region.",
+  slrModel:"Varies by region and partner project; blends local and national data sources.",
+  strengths:["Strong focus on nature-based adaptation options, not just hazard mapping","Long track record with many regional partner projects","Pairs habitat data directly with flood hazard layers"],
+  limitations:["Coverage and data depth vary a lot by region depending on local partners","Less standardized methodology than a single-model tool","Can lag in areas without an active regional project"]
+},
+{
+  id:"uci-floodrise", name:"FloodRISE",
+  org:"University of California, Irvine", scope:"socal", scopeLabel:"Newport Bay / Orange County, California",
+  released:"2016 \u2014 availability has varied since", url:null,
+  description:"A UC Irvine research project modeling compound flooding from sea-level rise, storm surge, and inland stormwater runoff together for Orange County's Newport Bay \u2014 showing how these hazards interact rather than treating them separately.",
+  processes:["SLR inundation","Storm surge / extreme tide","Compound flooding with stormwater runoff"],
+  exposure:["Infrastructure & buildings","Population / demographics"],
+  floodInfo:["Storm surge / extreme tide","Stormwater / compound flooding"],
+  reportsData:"Academic reports and journal publications; interactive viewer availability has varied.",
+  slrModel:"Custom hydrodynamic model developed by UCI researchers, funded by NOAA and Sea Grant.",
+  strengths:["Pioneered \u201ccompound flooding\u201d analysis combining ocean and stormwater hazards","Strong peer-reviewed academic foundation","Detailed local modeling for a specific vulnerable community"],
+  limitations:["Very limited geographic coverage (Newport Bay area only)","As a university research project, long-term public hosting isn't guaranteed","No current public tool link could be confirmed for this recreation"]
+},
+{
+  id:"usgs-hera", name:"Hazard Exposure Reporting and Analytics (HERA)",
+  org:"USGS", scope:"national", scopeLabel:"U.S. coastal communities, including California",
+  released:"2017, expanded since", url:"https://www.usgs.gov/apps/hera",
+  description:"Lets users pick a flood-hazard scenario \u2014 SLR plus storm intensity \u2014 then generates population, economic, land-cover, and infrastructure exposure dashboards for one community or several side by side.",
+  processes:["SLR inundation","Storm surge / extreme tide","Coastal groundwater","Shoreline erosion"],
+  exposure:["Population / demographics","Infrastructure & buildings","Economic / property value","Critical facilities"],
+  floodInfo:["Storm surge / extreme tide","Coastal groundwater flooding","Shoreline erosion"],
+  reportsData:"Interactive dashboards plus downloadable community-level exposure datasets.",
+  slrModel:"USGS hazard-zone scenarios combining SLR increments with storm categories.",
+  strengths:["Strong community-level socioeconomic exposure analysis, not just flood extent","Lets users directly compare exposure across multiple communities","Covers flooding, groundwater, and erosion hazards in one place"],
+  limitations:["Requires picking a scenario first, which assumes some baseline knowledge","National tool, so hyper-local California factors may be generalized","Dashboard-heavy interface takes more clicks than a simple map"]
+}
+];
+
+const SCOPES = [
+  {v:"bay-area", label:"San Francisco Bay Area"},
+  {v:"statewide", label:"California statewide"},
+  {v:"socal", label:"Southern California"},
+  {v:"national", label:"National (covers California)"}
+];
+
+function uniqueSorted(key){
+  const s = new Set();
+  TOOLS.forEach(t => t[key].forEach(v => s.add(v)));
+  return Array.from(s).sort();
+}
+const PROCESSES = uniqueSorted("processes");
+const EXPOSURES = uniqueSorted("exposure");
+const FLOODINFO = uniqueSorted("floodInfo");
+
+const state = { scope:new Set(), process:new Set(), exposure:new Set(), flood:new Set(), compare:[] };
+
+function buildFieldset(id, items, groupKey, valueFn, labelFn){
+  const fs = document.getElementById(id);
+  items.forEach((item,i) => {
+    const val = valueFn(item);
+    const label = labelFn(item);
+    const wrap = document.createElement("label");
+    wrap.className = "chk";
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.value = val;
+    cb.addEventListener("change", () => {
+      if(cb.checked) state[groupKey].add(val); else state[groupKey].delete(val);
+      render();
+    });
+    const span = document.createElement("span");
+    span.textContent = label;
+    wrap.appendChild(cb);
+    wrap.appendChild(span);
+    fs.appendChild(wrap);
+  });
+}
+buildFieldset("f-scope", SCOPES, "scope", s=>s.v, s=>s.label);
+buildFieldset("f-process", PROCESSES, "process", v=>v, v=>v);
+buildFieldset("f-exposure", EXPOSURES, "exposure", v=>v, v=>v);
+buildFieldset("f-flood", FLOODINFO, "flood", v=>v, v=>v);
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+  ["scope","process","exposure","flood"].forEach(k => state[k].clear());
+  document.querySelectorAll('.filters input[type="checkbox"]').forEach(cb => cb.checked = false);
+  render();
+});
+
+function matches(tool){
+  if(state.scope.size && !state.scope.has(tool.scope)) return false;
+  if(state.process.size && ![...state.process].every(p => tool.processes.includes(p))) return false;
+  if(state.exposure.size && ![...state.exposure].every(e => tool.exposure.includes(e))) return false;
+  if(state.flood.size && ![...state.flood].every(f => tool.floodInfo.includes(f))) return false;
+  return true;
+}
+
+function toggleCompare(id){
+  const idx = state.compare.indexOf(id);
+  if(idx >= 0){ state.compare.splice(idx,1); }
+  else if(state.compare.length < 3){ state.compare.push(id); }
+  render();
+}
+
+function scopeLabelShort(v){ const s = SCOPES.find(x=>x.v===v); return s ? s.label : v; }
+
+function render(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  const visible = TOOLS.filter(matches);
+  document.getElementById("countLabel").textContent = visible.length + " of " + TOOLS.length + " tools shown";
+  document.getElementById("emptyMsg").style.display = visible.length ? "none" : "block";
+
+  visible.forEach(tool => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const org = document.createElement("div");
+    org.className = "org";
+    org.textContent = tool.org;
+    card.appendChild(org);
+
+    const h3 = document.createElement("h3");
+    h3.textContent = tool.name;
+    card.appendChild(h3);
+
+    const desc = document.createElement("div");
+    desc.className = "desc";
+    desc.textContent = tool.description;
+    card.appendChild(desc);
+
+    const tags = document.createElement("div");
+    tags.className = "tagrow";
+    const scopeTag = document.createElement("span");
+    scopeTag.className = "tag scope";
+    scopeTag.textContent = tool.scopeLabel;
+    tags.appendChild(scopeTag);
+    tool.processes.slice(0,2).forEach(p => {
+      const t = document.createElement("span");
+      t.className = "tag";
+      t.textContent = p;
+      tags.appendChild(t);
+    });
+    card.appendChild(tags);
+
+    const foot = document.createElement("div");
+    foot.className = "card-foot";
+    const yr = document.createElement("span");
+    yr.className = "yr";
+    yr.textContent = tool.released;
+    foot.appendChild(yr);
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    if(tool.url){
+      const a = document.createElement("a");
+      a.className = "linkbtn";
+      a.href = tool.url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = "Open tool \u2197";
+      actions.appendChild(a);
+    } else {
+      const span = document.createElement("span");
+      span.className = "nolink";
+      span.textContent = "Link unverified";
+      actions.appendChild(span);
+    }
+
+    const cmpBtn = document.createElement("button");
+    cmpBtn.type = "button";
+    const inCompare = state.compare.includes(tool.id);
+    cmpBtn.className = "cmp-btn" + (inCompare ? " on" : "");
+    cmpBtn.textContent = inCompare ? "\u2713 Comparing" : "Compare";
+    cmpBtn.disabled = !inCompare && state.compare.length >= 3;
+    cmpBtn.addEventListener("click", () => toggleCompare(tool.id));
+    actions.appendChild(cmpBtn);
+
+    foot.appendChild(actions);
+    card.appendChild(foot);
+    grid.appendChild(card);
+  });
+
+  renderCompareBar();
+  renderComparisonTable();
+}
+
+function renderCompareBar(){
+  const bar = document.getElementById("compareBar");
+  const slots = document.getElementById("slots");
+  slots.innerHTML = "";
+  if(!state.compare.length){ bar.style.display = "none"; return; }
+  bar.style.display = "block";
+  state.compare.forEach(id => {
+    const tool = TOOLS.find(t=>t.id===id);
+    const slot = document.createElement("span");
+    slot.className = "slot";
+    const label = document.createElement("span");
+    label.textContent = tool.name.length > 34 ? tool.name.slice(0,32)+"\u2026" : tool.name;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = "\u00d7";
+    btn.setAttribute("aria-label","Remove " + tool.name + " from comparison");
+    btn.addEventListener("click", () => toggleCompare(id));
+    slot.appendChild(label);
+    slot.appendChild(btn);
+    slots.appendChild(slot);
+  });
+  document.getElementById("scrollToCompare").onclick = () => {
+    document.getElementById("comparison").scrollIntoView({behavior:"smooth", block:"start"});
+  };
+}
+
+function listCell(items){
+  if(!items || !items.length) return "\u2014";
+  const ul = document.createElement("ul");
+  items.forEach(i => {
+    const li = document.createElement("li");
+    li.textContent = i;
+    ul.appendChild(li);
+  });
+  return ul;
+}
+
+function renderComparisonTable(){
+  const wrap = document.getElementById("comparison");
+  const table = document.getElementById("cmpTable");
+  table.innerHTML = "";
+  if(state.compare.length < 2){ wrap.style.display = "none"; return; }
+  wrap.style.display = "block";
+
+  const tools = state.compare.map(id => TOOLS.find(t=>t.id===id));
+  const rows = [
+    ["Organization", t => t.org],
+    ["Geographic scope", t => t.scopeLabel],
+    ["Released", t => t.released],
+    ["Description", t => t.description],
+    ["Shoreline processes", t => listCell(t.processes)],
+    ["Exposure analysis", t => listCell(t.exposure)],
+    ["Projected flood info", t => listCell(t.floodInfo)],
+    ["Reports & data", t => t.reportsData],
+    ["Sea-level-rise model", t => t.slrModel],
+    ["Strengths", t => listCell(t.strengths)],
+    ["Limitations", t => listCell(t.limitations)],
+    ["Link", t => t.url]
+  ];
+
+  const thead = document.createElement("thead");
+  const trh = document.createElement("tr");
+  const th0 = document.createElement("th");
+  th0.className = "rowlabel-head";
+  trh.appendChild(th0);
+  tools.forEach(t => {
+    const th = document.createElement("th");
+    th.textContent = t.name;
+    trh.appendChild(th);
+  });
+  thead.appendChild(trh);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  rows.forEach(([label, fn]) => {
+    const tr = document.createElement("tr");
+    const tdLabel = document.createElement("td");
+    tdLabel.className = "rowlabel";
+    tdLabel.textContent = label;
+    tr.appendChild(tdLabel);
+    tools.forEach(t => {
+      const td = document.createElement("td");
+      if(label === "Link"){
+        if(t.url){
+          const a = document.createElement("a");
+          a.href = t.url; a.target = "_blank"; a.rel = "noopener";
+          a.textContent = "Open tool \u2197";
+          td.appendChild(a);
+        } else {
+          td.textContent = "Link unverified";
+        }
+      } else {
+        const val = fn(t);
+        if(val instanceof Node) td.appendChild(val);
+        else td.textContent = val;
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+}
+
+render();
+</script>
+</body>
+</html>
