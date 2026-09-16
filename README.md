@@ -7,31 +7,46 @@ actually applies to their patch of coastline.
 
 ## Status
 
-Map-based version implemented: `index.html` loads a Leaflet map with
-coverage-area polygons for all 12 tools, click-or-search-to-locate finds
-which tools cover a point, the shoreline-process/exposure/flood-info
-filters narrow that further, and the compare-up-to-three table from the
-prototype is carried over. See `BRIEF.md` for the full project brief and
-definition of done.
+Two-page version: `index.html` is a map-first page — a Leaflet map with
+each tool's coverage area as a checkable layer in a right-side panel (like
+ArcGIS Online's Layers widget), plus a live BCDC flood-depth overlay and
+address search. `sources.html` is the tool comparison — the filterable
+12-tool grid and compare-up-to-three table from the original prototype.
+See `BRIEF.md` for the full project brief and definition of done.
+
+This is a deliberate split from BRIEF.md's original single-page vision
+(map with the filter/grid/compare UI stacked underneath it), decided
+directly with the project owner: keeping the map as its own focused page
+made more room for a proper layer panel, and the tool grid/filters/compare
+table work fine as a fully separate page since they don't depend on
+anything the map computes (there's no more click-a-point-to-see-matching-
+tools feature — coverage is something you inspect visually on the map by
+toggling layers instead).
 
 ## Layout
 
 - `BRIEF.md` — the project brief: goals, map interaction spec, data
   model, constraints, definition of done.
-- `index.html`, `css/style.css`, `js/app.js` — the map-based app: Leaflet
-  + OSM base map, coverage-region layers, point-in-polygon lookup (via
-  Turf.js), address search (Nominatim), filters, and the compare table.
+- `index.html`, `js/map.js` — the map page: Leaflet + OSM base map, each
+  coverage region and the BCDC flood-depth WMS overlay as a checkable
+  layer in the right-side panel, and address search (Nominatim).
+- `sources.html`, `js/sources.js` — the tool comparison page: the
+  filterable 12-tool grid and compare-up-to-three table.
+- `css/style.css` — shared stylesheet for both pages.
 - `data/tools.json` — the 12-tool dataset (descriptions, scope, links,
   strengths/limitations, etc.), with a `coverageRegion` field on each
-  tool pointing at a region id.
+  tool pointing at a region id (used only for documentation now — the map
+  page's layer panel is built directly from the region ids, not by
+  cross-referencing tools.json).
 - `data/coverage/*.geojson` — boundary geometry for each `coverageRegion`
   id (Bay Area counties, East Contra Costa, California state outline,
-  Orange County). See `data/coverage/SOURCES.md` for where each came from
-  and `data/coverage/ATTRIBUTION.md` for the required license credit.
+  Orange County). See `data/coverage/SOURCES.md` for where each came from,
+  including the live BCDC WMS flood-depth layer, and
+  `data/coverage/ATTRIBUTION.md` for the required license credit.
 - `reference/sea-the-future-prototype.html` — the original single-file
   prototype with the filter-and-compare UI (no map). Kept for reference;
-  its comparison-table logic and visual style were carried into the real
-  app above.
+  its comparison-table logic and visual style were carried into
+  `sources.html` above.
 
 ## Running locally
 
@@ -43,27 +58,38 @@ python3 -m http.server
 
 then open `http://localhost:8000`.
 
-## Data sources & attribution
+## Licenses & attribution
 
-Coverage-region boundaries (`data/coverage/*.geojson`, except
-`east-contra-costa.geojson`) are derived from the
-[Plotly `datasets` repository](https://github.com/plotly/datasets)
-(`geojson-counties-fips.json`), © Plotly Technologies Inc., **MIT
-License**. That file's county boundaries originate from U.S. Census
-Bureau TIGER data (public domain). This project filtered it to the
-relevant counties and dissolved California's counties into the state
-outline used for statewide/national-tool layers — see
-`data/coverage/SOURCES.md` for details and `data/coverage/ATTRIBUTION.md`
-for the full MIT license text. Attribution is also shown directly on the
-deployed map and in its footer.
+Everything the two pages load, beyond this project's own code:
 
-`east-contra-costa.geojson` is a hand-drawn approximation (no
-authoritative boundary was found) and is original content, not derived
-from the above.
+- **[Leaflet](https://leafletjs.com/)** (BSD-2-Clause) — the map library
+  itself, loaded from the `unpkg.com` CDN in `index.html` at the pinned
+  version (`leaflet@1.9.4`) with a Subresource Integrity hash.
+- **[OpenStreetMap](https://www.openstreetmap.org/copyright)** contributors
+  (ODbL) — the base map tile imagery.
+- **[OpenStreetMap Nominatim](https://nominatim.org/)** — address search
+  and geocoding.
+- **[Plotly `datasets` repository](https://github.com/plotly/datasets)**
+  (`geojson-counties-fips.json`), © Plotly Technologies Inc., **MIT
+  License** — coverage-region boundaries (`data/coverage/*.geojson`,
+  except `east-contra-costa.geojson`, which is a hand-drawn approximation
+  and original content, not derived from the above). That file's county
+  boundaries originate from U.S. Census Bureau TIGER data (public domain).
+  This project filtered it to the relevant counties and dissolved
+  California's counties into the state outline used for
+  statewide/national-tool layers — see `data/coverage/SOURCES.md` for
+  details and `data/coverage/ATTRIBUTION.md` for the full MIT license
+  text.
+- **[BCDC's Adapting to Rising Tides Bay Shoreline Flood
+  Explorer](https://explorer.adaptingtorisingtides.org/)** — the optional
+  flood-depth overlay on the map page is loaded live from BCDC's own WMS
+  map server, not hosted or modified by this project. Planning-level only;
+  see [their disclaimer](https://explorer.adaptingtorisingtides.org/about/a-disclaimer)
+  before relying on it. See `data/coverage/SOURCES.md` for how the overlay
+  is wired up.
 
-Base map tiles © [OpenStreetMap](https://www.openstreetmap.org/copyright)
-contributors. Address search via
-[OpenStreetMap Nominatim](https://nominatim.org/).
+Attribution is also shown directly on the deployed map (`index.html`'s
+bottom attribution strip and Leaflet's own attribution control).
 
 ## Deploying
 

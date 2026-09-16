@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Sea the Future — California SLR tool comparison</title>
+<title>Sea the Future — California SLR tool coverage map</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,122 +10,61 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="map-page">
 
-<div class="hero">
-<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
-<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
-<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
-<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
-<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
-</svg>
-<div class="wrap">
-<div class="eyebrow">California coastal decision support — unofficial recreation</div>
+<header class="topbar">
+<div class="topbar-title">
 <h1>Sea the Future</h1>
-<p class="lede">Click your spot on the map, or search an address, to see which sea-level-rise and coastal-flooding tools actually cover your location — then compare up to three side by side.</p>
-<div class="notice">
-The original Sea the Future platform — built by the California State Coastal Conservancy with NOAA's Office for Coastal Management — was taken offline after its funding ended. This page rebuilds its core comparison function from the published tool specification. Descriptions below are a good-faith summary, not the original agency content; confirm details on each tool's own site before relying on them for planning decisions. <a href="https://www.adaptationclearinghouse.org/resources/california-e-sea-the-future-e-tool.html">Read the original spec →</a>
+<span class="topbar-disclaimer">Unofficial recreation — verify before relying on this for planning decisions.</span>
 </div>
-</div>
-</div>
+<form class="search-form" id="searchForm">
+<input type="text" id="searchInput" placeholder="Search an address or place in California…" autocomplete="off">
+<button type="submit">Search</button>
+</form>
+<a class="topbar-nav" href="sources.html">Browse the 12 tools →</a>
+</header>
+<div class="search-status" id="searchStatus"></div>
 
-<div class="map-section">
-<div class="wrap">
-<div class="map-panel">
-  <div class="map-toolbar">
-    <h2>Find your location</h2>
-    <form class="search-form" id="searchForm">
-      <input type="text" id="searchInput" placeholder="Search an address or place in California…" autocomplete="off">
-      <button type="submit">Search</button>
-    </form>
-  </div>
-  <div class="overlay-toolbar">
-    <label class="overlay-toggle">
-      <input type="checkbox" id="floodToggle">
-      <span>Show BCDC flood-depth overlay <em>(Bay Shoreline Flood Explorer)</em></span>
-    </label>
-    <div class="overlay-level" id="overlayLevelWrap" hidden>
-      <label for="floodLevel">Total water level, MHHW+</label>
-      <input type="range" id="floodLevel" min="0" max="10" step="1" value="3">
-      <span id="floodLevelValue" class="overlay-level-value">36"</span>
-    </div>
-  </div>
-  <div id="map"></div>
-  <div class="search-status" id="searchStatus"></div>
-  <div class="legend" id="legend"></div>
-  <div class="map-attribution">
-    Coverage boundaries: county/state data from the
-    <a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code> repository</a>
-    (MIT license), originally derived from U.S. Census TIGER data. Flood-depth overlay: live map layers from
-    <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC's Adapting to Rising Tides Bay Shoreline Flood Explorer</a> —
-    planning-level only, not for parcel-scale, permitting, or engineering use; see
-    <a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">their full disclaimer</a>.
-    Base map &copy;
-    <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors.
-  </div>
-</div>
-<div class="location-summary" id="locationSummary">Click anywhere on the map, or search an address above, to see which tools cover that location.</div>
-</div>
+<div class="map-layout">
+<div id="map"></div>
+<aside class="layer-panel">
+<h2>Layers</h2>
+
+<div class="layer-group">
+<div class="layer-group-title">Tool coverage areas</div>
+<label class="layer-item"><input type="checkbox" data-layer="bay-area-counties" checked><span class="swatch" data-swatch="bay-area-counties"></span>Bay Area counties <em>(BCDC ART, East CC Flood Explorer)</em></label>
+<label class="layer-item"><input type="checkbox" data-layer="east-contra-costa" checked><span class="swatch swatch-dashed" data-swatch="east-contra-costa"></span>East Contra Costa study area <em>(approximate)</em></label>
+<label class="layer-item"><input type="checkbox" data-layer="california-state" checked><span class="swatch" data-swatch="california-state"></span>California statewide tools <em>(Cal-Adapt, CoSMoS, CREST)</em></label>
+<label class="layer-item"><input type="checkbox" data-layer="national" checked><span class="swatch swatch-dashed" data-swatch="national"></span>National tools <em>(CA portion shown)</em></label>
+<label class="layer-item"><input type="checkbox" data-layer="orange-county" checked><span class="swatch" data-swatch="orange-county"></span>Orange County / Newport Bay <em>(FloodRISE)</em></label>
 </div>
 
-<div class="main">
-<div class="wrap">
-<div class="layout">
-
-<aside class="filters">
-<h2>Refine further</h2>
-<div class="sub">Narrows the list of tools that cover your location. Then pick up to three to compare.</div>
-<button class="clear-btn" id="clearBtn" type="button">Clear all filters</button>
-
-<fieldset id="f-process">
-<legend>Shoreline processes covered</legend>
-</fieldset>
-
-<fieldset id="f-exposure">
-<legend>Exposure analysis included</legend>
-</fieldset>
-
-<fieldset id="f-flood">
-<legend>Projected flood info (beyond SLR extent)</legend>
-</fieldset>
+<div class="layer-group">
+<div class="layer-group-title">Flood-depth data</div>
+<label class="layer-item"><input type="checkbox" id="floodToggle" data-layer="bcdc-flood"><span class="swatch" data-swatch="bcdc-flood"></span>BCDC flood depth <em>(Bay Shoreline Flood Explorer)</em></label>
+<div class="layer-sublevel" id="overlayLevelWrap" hidden>
+<label for="floodLevel">Total water level, MHHW+</label>
+<input type="range" id="floodLevel" min="0" max="10" step="1" value="3">
+<span id="floodLevelValue" class="overlay-level-value">36"</span>
+</div>
+</div>
 </aside>
-
-<section>
-<div class="results-head">
-<h2>Tools</h2>
-<span class="count" id="countLabel"></span>
-</div>
-<div class="grid" id="grid"></div>
-<div class="empty" id="emptyMsg" style="display:none;">No tools match every filter you've selected. Try clearing a category.</div>
-
-<div id="comparison" class="comparison" style="display:none;">
-<h2>Side-by-side comparison</h2>
-<div class="sub">Everything Sea the Future's comparison view showed: scope, processes, exposure, data, model, strengths and limitations.</div>
-<div class="cmp-scroll"><table class="cmp" id="cmpTable"></table></div>
 </div>
 
-</section>
+<div class="map-attribution">
+Coverage boundaries: county/state data from the
+<a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code> repository</a>
+(MIT license), originally derived from U.S. Census TIGER data — full provenance in
+<a href="data/coverage/ATTRIBUTION.md">data/coverage/ATTRIBUTION.md</a>. Flood-depth overlay: live map layers from
+<a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC's Adapting to Rising Tides Bay Shoreline Flood Explorer</a> —
+planning-level only, not for parcel-scale, permitting, or engineering use; see
+<a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">their full disclaimer</a>.
+Base map &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Address search via
+<a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>. Full license list:
+<a href="README.md#licenses--attribution">README</a>.
 </div>
-</div>
-</div>
-
-<div class="compare-bar wrap" id="compareBar" style="display:none;">
-<div class="compare-bar-inner">
-<span style="font-size:13px;color:#BFD9CF;">Comparing:</span>
-<div class="slots" id="slots"></div>
-<button class="compare-go" id="scrollToCompare" type="button">View comparison</button>
-</div>
-</div>
-
-<footer>
-<div class="wrap">
-Recreated from the tool specification published by the Georgetown Climate Center's Adaptation Clearinghouse. Tool descriptions, scopes, and links were compiled from each provider's own public materials as of September 2026 and may drift out of date — always verify against the live tool before using it for a real planning decision. Not affiliated with the California State Coastal Conservancy or NOAA.
-<div class="data-credit">Coverage-area boundaries derived from the <a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code> repository</a> (MIT License, © Plotly Technologies Inc.), originally sourced from U.S. Census Bureau TIGER data. Full license text and provenance: <a href="data/coverage/ATTRIBUTION.md">data/coverage/ATTRIBUTION.md</a>. Address search via <a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>. Optional flood-depth overlay is loaded live from BCDC's own map server (<a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">Adapting to Rising Tides Bay Shoreline Flood Explorer</a>) — not hosted or modified by this project; verify against the source before relying on it.</div>
-</div>
-</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
-<script src="js/app.js"></script>
+<script src="js/map.js"></script>
 </body>
 </html>
