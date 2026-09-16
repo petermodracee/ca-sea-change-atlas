@@ -7,30 +7,35 @@ actually applies to their patch of coastline.
 
 ## Status
 
-Early scaffold. See `BRIEF.md` for the actual project brief and
-definition of done — that's the file to hand to an agent (or read
-yourself) before making changes.
+Map-based version implemented: `index.html` loads a Leaflet map with
+coverage-area polygons for all 12 tools, click-or-search-to-locate finds
+which tools cover a point, the shoreline-process/exposure/flood-info
+filters narrow that further, and the compare-up-to-three table from the
+prototype is carried over. See `BRIEF.md` for the full project brief and
+definition of done.
 
 ## Layout
 
 - `BRIEF.md` — the project brief: goals, map interaction spec, data
   model, constraints, definition of done.
+- `index.html`, `css/style.css`, `js/app.js` — the map-based app: Leaflet
+  + OSM base map, coverage-region layers, point-in-polygon lookup (via
+  Turf.js), address search (Nominatim), filters, and the compare table.
 - `data/tools.json` — the 12-tool dataset (descriptions, scope, links,
   strengths/limitations, etc.), with a `coverageRegion` field on each
   tool pointing at a region id.
-- `data/coverage/SOURCES.md` — where to find real boundary data for each
-  `coverageRegion` id. No GeoJSON exists yet — that's the next thing to
-  add.
-- `reference/sea-the-future-prototype.html` — a working single-file
-  prototype with the filter-and-compare UI (no map yet). Useful as a
-  reference for the comparison-table logic and the visual style; not
-  meant to be the final architecture.
-- `index.html` (not yet created) — where the real map-based version
-  should live once it exists.
+- `data/coverage/*.geojson` — boundary geometry for each `coverageRegion`
+  id (Bay Area counties, East Contra Costa, California state outline,
+  Orange County). See `data/coverage/SOURCES.md` for where each came from
+  and `data/coverage/ATTRIBUTION.md` for the required license credit.
+- `reference/sea-the-future-prototype.html` — the original single-file
+  prototype with the filter-and-compare UI (no map). Kept for reference;
+  its comparison-table logic and visual style were carried into the real
+  app above.
 
 ## Running locally
 
-No build step once `index.html` exists:
+No build step:
 
 ```
 python3 -m http.server
@@ -38,10 +43,32 @@ python3 -m http.server
 
 then open `http://localhost:8000`.
 
+## Data sources & attribution
+
+Coverage-region boundaries (`data/coverage/*.geojson`, except
+`east-contra-costa.geojson`) are derived from the
+[Plotly `datasets` repository](https://github.com/plotly/datasets)
+(`geojson-counties-fips.json`), © Plotly Technologies Inc., **MIT
+License**. That file's county boundaries originate from U.S. Census
+Bureau TIGER data (public domain). This project filtered it to the
+relevant counties and dissolved California's counties into the state
+outline used for statewide/national-tool layers — see
+`data/coverage/SOURCES.md` for details and `data/coverage/ATTRIBUTION.md`
+for the full MIT license text. Attribution is also shown directly on the
+deployed map and in its footer.
+
+`east-contra-costa.geojson` is a hand-drawn approximation (no
+authoritative boundary was found) and is original content, not derived
+from the above.
+
+Base map tiles © [OpenStreetMap](https://www.openstreetmap.org/copyright)
+contributors. Address search via
+[OpenStreetMap Nominatim](https://nominatim.org/).
+
 ## Deploying
 
-GitHub Pages, serving from either the repo root or a `docs/` folder —
-whichever this ends up using. No server-side code required.
+GitHub Pages, serving from the repo root. No build step or server-side
+code required.
 
 ## Source
 
