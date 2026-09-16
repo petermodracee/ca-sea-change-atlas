@@ -35,6 +35,43 @@ const BCDC_LAYER_TYPES = {
 };
 const LEGAL_DELTA_COLOR = "#7A7A7A";
 
+// Legend content (colors, units, class-break labels) for the flood layers
+// and each consequence category — taken directly from BCDC's own
+// build/slr.js (the config their legend widget is built from), not
+// reconstructed from the WMS server, which doesn't expose real
+// classification metadata via GetLegendGraphic.
+const LAYER_LEGENDS = {
+  inundation: {
+    label: "Depth of Flooding",
+    colors: ["#98edf0", "#80c7e0", "#68a1d0", "#507bc0", "#3855b0", "#202fa0", "#090991"],
+    labels: ["0 - 2 feet", "2 - 4 feet", "4 - 6 feet", "6 - 8 feet", "8 - 10 feet", "10 - 12 feet", "12+ feet"]
+  },
+  overtopping: {
+    label: "Shoreline Overtopping",
+    colors: ["#FA3411", "#B2B2B2"],
+    labels: ["Overtopping", "No Overtopping"],
+    line: true
+  },
+  lowlying: {
+    label: "Low-lying Areas",
+    colors: ["#50DC0C"],
+    labels: ["Low-lying Area"],
+    hatch: true
+  }
+};
+
+const CONSEQUENCE_LEGENDS = {
+  highway_vehicle: { label: "Daily Vehicle Traffic (Vehicles (AADT))", colors: ["#ED6E22", "#BE0031", "#793518"], labels: ["18,476 - 48,500", "48,501 - 161,000", "161,000 - 275,000"], line: true },
+  highway_truck: { label: "Daily Truck Traffic (Trucks (AADTT))", colors: ["#ED6E22", "#BE0031", "#793518"], labels: ["623 - 2,133", "2,135 - 5,900", "5,901 - 25,359"], line: true },
+  rail: { label: "Passenger Flow (Daily Average Passengers)", colors: ["#ED6E22", "#BE0031", "#793518"], labels: ["471 - 2,263", "2,264 - 9,287", "9,288 - 236,300"], line: true },
+  recreation: { label: "Visitation (Photo User Days per county)", colors: ["#42A858", "#348F58", "#2B6647"], labels: ["Low", "Medium", "High"] },
+  tidalhabitat: { label: "Tidal Marsh Impacted (Acres per county)", colors: ["#42A858", "#348F58", "#2B6647"], labels: ["0 - 2,548", "2,548 - 4,448", "4,448 - 12,787"] },
+  housing: { label: "Housing (Residential Units (2010) per census block group)", colors: ["#109ECD", "#1C889D", "#06597C"], labels: ["1 - 84", "85 - 334", "335 - 6,331"] },
+  jobs: { label: "Jobs (Job Spaces (2010) per census block group)", colors: ["#109ECD", "#1C889D", "#06597C"], labels: ["1 - 45", "46 - 479", "480 - 6,379"] },
+  vulcom_social: { label: "Socially Vulnerable Housing (Residential Units (2010) per census block group)", colors: ["#828DC3", "#6A6D90", "#404459"], labels: ["1 - 440", "441 - 2,350", "2,351 - 6,379"] },
+  vulcom_contam: { label: "Contamination-Vulnerable Housing (Residential Units (2010) per census block group)", colors: ["#828DC3", "#6A6D90", "#404459"], labels: ["0 - 78", "79 - 293", "294 - 6,379"] }
+};
+
 // Consequence-indicator layers from ART Bay Area's regional analysis.
 // levelDependent ones only exist for the 10 non-zero water levels
 // (BCDC_WATER_LEVELS minus 0) — there's no "at 0 inches" consequence layer.
@@ -235,6 +272,7 @@ function initFloodOverlay(){
   const areaAutoNote = document.getElementById("areaAutoNote");
   const equivCaptionEl = document.getElementById("equivCaption");
   const equivScenariosEl = document.getElementById("equivScenarios");
+  const bcdcLegendEl = document.getElementById("bcdcLegend");
 
   let currentLevelIndex = Number(levelSlider.value);
   let currentArea = "regional";
@@ -268,6 +306,37 @@ function initFloodOverlay(){
   function refreshAllChecked(){
     bcdcCheckboxes.forEach(cb => { if(cb.checked) refreshLayer(cb.dataset.bcdcLayer); });
     refreshConsequenceLayer();
+    renderBcdcLegend();
+  }
+
+  function renderBcdcLegend(){
+    const items = [];
+    bcdcCheckboxes.forEach(cb => { if(cb.checked) items.push(LAYER_LEGENDS[cb.dataset.bcdcLayer]); });
+    if(consequenceSelect.value) items.push(CONSEQUENCE_LEGENDS[consequenceSelect.value]);
+
+    bcdcLegendEl.innerHTML = "";
+    bcdcLegendEl.hidden = items.length === 0;
+    items.forEach(item => {
+      const block = document.createElement("div");
+      block.className = "legend-block";
+      const title = document.createElement("div");
+      title.className = "legend-block-title";
+      title.textContent = item.label;
+      block.appendChild(title);
+      item.colors.forEach((color, i) => {
+        const row = document.createElement("div");
+        row.className = "legend-block-row";
+        const sw = document.createElement("span");
+        sw.className = "legend-block-swatch" + (item.line ? " line" : "") + (item.hatch ? " hatch" : "");
+        if(item.hatch){ sw.style.color = color; } else { sw.style.background = color; }
+        const lbl = document.createElement("span");
+        lbl.textContent = item.labels[i];
+        row.appendChild(sw);
+        row.appendChild(lbl);
+        block.appendChild(row);
+      });
+      bcdcLegendEl.appendChild(block);
+    });
   }
 
   function setLevelIndex(idx){
@@ -336,7 +405,10 @@ function initFloodOverlay(){
     });
   });
 
-  consequenceSelect.addEventListener("change", refreshConsequenceLayer);
+  consequenceSelect.addEventListener("change", () => {
+    refreshConsequenceLayer();
+    renderBcdcLegend();
+  });
 
   levelValue.textContent = `${currentInches()}"`;
 
@@ -349,6 +421,7 @@ function initFloodOverlay(){
         map.removeLayer(bcdcLayers[typeId]);
         delete bcdcLayers[typeId];
       }
+      renderBcdcLegend();
     });
   });
 
@@ -429,6 +502,7 @@ function initFloodOverlay(){
   buildButtonGrid(slrButtonsEl, SLR_OPTIONS, opt => opt.inches, opt => { selectedSlrInches = opt.inches; updateScenarioResult(); });
   buildStormButtons();
   updateEquivalentScenarios();
+  renderBcdcLegend();
 
   document.getElementById("hideAllBcdc").addEventListener("click", () => {
     bcdcCheckboxes.forEach(cb => {

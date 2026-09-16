@@ -197,6 +197,21 @@ body.map-page{min-height:100vh;display:flex;flex-direction:column;}
 .equiv-head{background:var(--sand);font-weight:600;color:var(--ink);}
 .equiv-note{font-size:11.5px;color:var(--ink-soft);margin:0;}
 
+.bcdc-legend{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);}
+.legend-block{margin-bottom:12px;}
+.legend-block:last-child{margin-bottom:0;}
+.legend-block-title{
+  font-size:11px;color:var(--ink-soft);margin-bottom:5px;line-height:1.4;
+  font-family:'IBM Plex Mono',monospace;
+}
+.legend-block-row{display:flex;align-items:center;gap:7px;font-size:11.5px;margin:3px 0;}
+.legend-block-swatch{width:16px;height:11px;border-radius:2px;flex:0 0 auto;}
+.legend-block-swatch.line{height:4px;border-radius:0;}
+.legend-block-swatch.hatch{
+  background-image:repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 5px);
+  background-color:transparent!important;color:inherit;border:1px solid currentColor;
+}
+
 .map-attribution{
   padding:10px 24px;font-size:11px;color:var(--ink-soft);border-top:1px solid var(--line);
 }
