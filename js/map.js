@@ -23,9 +23,17 @@ const REGION_STYLES = {
   "orange-county": { color: "#AE4A2C", weight: 1.5, fillColor: "#AE4A2C", fillOpacity: 0.18 }
 };
 
-const BCDC_FLOOD_COLOR = "#2E6FA3";
 const BCDC_WMS_URL = "https://mapserver.adaptingtorisingtides.org/cgi-bin/mapserv?map=/opt/slrviewer/mapfiles/bcdc.map";
 const BCDC_WATER_LEVELS = [0, 12, 24, 36, 48, 52, 66, 77, 84, 96, 108]; // inches above MHHW, matches BCDC's own "Total Water Level" slider
+
+// Per-water-level BCDC layers, one checkbox each, all driven by the same
+// current water level. WMS layer name is `${prefix}${inches}`.
+const BCDC_LAYER_TYPES = {
+  "inundation": { prefix: "inundation", opacity: 0.72, color: "#2E6FA3" },
+  "overtopping": { prefix: "overtopping", opacity: 0.9, color: "#C0392B" },
+  "lowlying": { prefix: "lowlying", opacity: 0.6, color: "#4C8C3C", dashed: true }
+};
+const LEGAL_DELTA_COLOR = "#7A7A7A";
 
 const SLR_OPTIONS = BCDC_WATER_LEVELS.map(v => ({ inches: v, label: v === 0 ? "No SLR" : `${v}"` }));
 
@@ -57,7 +65,8 @@ function nearestLevelIndex(targetInches){
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
-let floodLayer = null;
+let bcdcLayers = {};        // BCDC_LAYER_TYPES id -> active Leaflet WMS layer, or absent
+let legalDeltaLayer = null;
 
 async function loadRegionData(){
   const regionIds = Object.keys(REGION_FILES);
@@ -65,14 +74,14 @@ async function loadRegionData(){
   regionIds.forEach((id, i) => { regionData[id] = results[i]; });
 }
 
-function buildFloodLayer(waterLevelIn){
+function buildBcdcWmsLayer(layerName, opacity){
   return L.tileLayer.wms(BCDC_WMS_URL, {
-    layers: `inundation${waterLevelIn}`,
+    layers: layerName,
     version: "1.3.0",
     format: "image/png",
     transparent: true,
-    opacity: 0.72,
-    attribution: 'Flood depth: <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Adapting to Rising Tides</a>'
+    opacity: opacity,
+    attribution: 'Flood data: <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Adapting to Rising Tides</a>'
   });
 }
 
@@ -99,17 +108,32 @@ function initMap(){
     if(swatchEl) setSwatch(swatchEl, style.color, !!style.dashed);
   });
 
-  const floodSwatch = document.querySelector('[data-swatch="bcdc-flood"]');
-  if(floodSwatch) setSwatch(floodSwatch, BCDC_FLOOD_COLOR, false);
+  Object.keys(BCDC_LAYER_TYPES).forEach(typeId => {
+    const t = BCDC_LAYER_TYPES[typeId];
+    const swatchEl = document.querySelector(`[data-swatch="bcdc-${typeId}"]`);
+    if(swatchEl) setSwatch(swatchEl, t.color, !!t.dashed);
+  });
+  const legalDeltaSwatch = document.querySelector('[data-swatch="legaldelta"]');
+  if(legalDeltaSwatch) setSwatch(legalDeltaSwatch, LEGAL_DELTA_COLOR, true);
 
   document.querySelectorAll('.layer-item input[data-layer]').forEach(cb => {
     const layerId = cb.dataset.layer;
-    if(layerId === "bcdc-flood") return; // handled separately, needs the water-level slider
     if(cb.checked) layerRegistry[layerId].addTo(map);
     cb.addEventListener("change", () => {
       if(cb.checked) layerRegistry[layerId].addTo(map);
       else map.removeLayer(layerRegistry[layerId]);
     });
+  });
+
+  const legalDeltaToggle = document.querySelector('[data-static-layer="legaldelta"]');
+  legalDeltaToggle.addEventListener("change", () => {
+    if(legalDeltaToggle.checked){
+      legalDeltaLayer = buildBcdcWmsLayer("legaldelta", 0.9);
+      legalDeltaLayer.addTo(map);
+    } else if(legalDeltaLayer){
+      map.removeLayer(legalDeltaLayer);
+      legalDeltaLayer = null;
+    }
   });
 
   map.on("click", e => {
@@ -119,7 +143,6 @@ function initMap(){
 }
 
 function initFloodOverlay(){
-  const toggle = document.getElementById("floodToggle");
   const levelSlider = document.getElementById("floodLevel");
   const levelValue = document.getElementById("floodLevelValue");
   const modeTabs = document.querySelectorAll(".mode-tab");
@@ -128,6 +151,7 @@ function initFloodOverlay(){
   const slrButtonsEl = document.getElementById("slrButtons");
   const stormButtonsEl = document.getElementById("stormButtons");
   const scenarioResultEl = document.getElementById("scenarioResult");
+  const bcdcCheckboxes = document.querySelectorAll("[data-bcdc-layer]");
 
   let currentLevelIndex = Number(levelSlider.value);
   let selectedSlrInches = null;
@@ -135,30 +159,36 @@ function initFloodOverlay(){
 
   const currentInches = () => BCDC_WATER_LEVELS[currentLevelIndex];
 
-  function refreshFloodLayer(){
-    if(!toggle.checked) return;
-    if(floodLayer) map.removeLayer(floodLayer);
-    floodLayer = buildFloodLayer(currentInches());
-    floodLayer.addTo(map);
+  function refreshLayer(typeId){
+    const t = BCDC_LAYER_TYPES[typeId];
+    if(bcdcLayers[typeId]) map.removeLayer(bcdcLayers[typeId]);
+    bcdcLayers[typeId] = buildBcdcWmsLayer(`${t.prefix}${currentInches()}`, t.opacity);
+    bcdcLayers[typeId].addTo(map);
+  }
+
+  function refreshAllChecked(){
+    bcdcCheckboxes.forEach(cb => { if(cb.checked) refreshLayer(cb.dataset.bcdcLayer); });
   }
 
   function setLevelIndex(idx){
     currentLevelIndex = idx;
     levelSlider.value = idx;
     levelValue.textContent = `${currentInches()}"`;
-    refreshFloodLayer();
+    refreshAllChecked();
   }
 
   levelValue.textContent = `${currentInches()}"`;
 
-  toggle.addEventListener("change", () => {
-    if(toggle.checked){
-      floodLayer = buildFloodLayer(currentInches());
-      floodLayer.addTo(map);
-    } else if(floodLayer){
-      map.removeLayer(floodLayer);
-      floodLayer = null;
-    }
+  bcdcCheckboxes.forEach(cb => {
+    const typeId = cb.dataset.bcdcLayer;
+    cb.addEventListener("change", () => {
+      if(cb.checked){
+        refreshLayer(typeId);
+      } else if(bcdcLayers[typeId]){
+        map.removeLayer(bcdcLayers[typeId]);
+        delete bcdcLayers[typeId];
+      }
+    });
   });
 
   levelSlider.addEventListener("input", () => setLevelIndex(Number(levelSlider.value)));
