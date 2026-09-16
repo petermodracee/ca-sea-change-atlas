@@ -68,9 +68,34 @@
 </div>
 
 <label class="layer-item"><input type="checkbox" data-bcdc-layer="inundation"><span class="swatch" data-swatch="bcdc-inundation"></span>Depth of Flooding</label>
+
+<div class="mode-tabs" role="tablist">
+<button type="button" class="impact-tab active" data-impact="flooding" role="tab" aria-selected="true">Flooding</button>
+<button type="button" class="impact-tab" data-impact="consequence" role="tab" aria-selected="false">Consequence</button>
+</div>
+
+<div class="mode-panel" id="impactFlooding">
 <label class="layer-item"><input type="checkbox" data-bcdc-layer="overtopping"><span class="swatch" data-swatch="bcdc-overtopping"></span>Shoreline Overtopping</label>
 <label class="layer-item"><input type="checkbox" data-bcdc-layer="lowlying"><span class="swatch" data-swatch="bcdc-lowlying"></span>Disconnected Low-lying Areas</label>
 <label class="layer-item"><input type="checkbox" data-static-layer="legaldelta"><span class="swatch" data-swatch="legaldelta"></span>Legal Delta boundary</label>
+</div>
+
+<div class="mode-panel" id="impactConsequence" hidden>
+<label for="consequenceSelect" class="scenario-label">Consequence category, at the current water level</label>
+<select id="consequenceSelect">
+<option value="">None</option>
+<option value="highway_vehicle">Transportation — vehicle traffic</option>
+<option value="highway_truck">Transportation — truck traffic</option>
+<option value="rail">Transportation — rail</option>
+<option value="recreation">Natural lands — recreation</option>
+<option value="tidalhabitat">Natural lands — tidal marsh / habitat</option>
+<option value="housing">Future growth — housing</option>
+<option value="jobs">Future growth — jobs</option>
+<option value="vulcom_social">Vulnerable communities — social</option>
+<option value="vulcom_contam">Vulnerable communities — contamination</option>
+</select>
+<p class="scenario-result" id="consequenceNote"></p>
+</div>
 </div>
 </aside>
 </div>

@@ -35,6 +35,21 @@ const BCDC_LAYER_TYPES = {
 };
 const LEGAL_DELTA_COLOR = "#7A7A7A";
 
+// Consequence-indicator layers from ART Bay Area's regional analysis.
+// levelDependent ones only exist for the 10 non-zero water levels
+// (BCDC_WATER_LEVELS minus 0) — there's no "at 0 inches" consequence layer.
+const CONSEQUENCE_LAYERS = {
+  "highway_vehicle": { name: "consequence_highway_vehicle", levelDependent: false },
+  "highway_truck": { name: "consequence_highway_truck", levelDependent: false },
+  "rail": { name: "consequence_rail", levelDependent: false },
+  "recreation": { prefix: "consequence_recreation_", levelDependent: true },
+  "tidalhabitat": { prefix: "consequence_tidalhabitat_", levelDependent: true },
+  "housing": { prefix: "consequence_housing_", levelDependent: true },
+  "jobs": { prefix: "consequence_jobs_", levelDependent: true },
+  "vulcom_social": { prefix: "consequence_vulcom_social_", levelDependent: true },
+  "vulcom_contam": { prefix: "consequence_vulcom_contam_", levelDependent: true }
+};
+
 const SLR_OPTIONS = BCDC_WATER_LEVELS.map(v => ({ inches: v, label: v === 0 ? "No SLR" : `${v}"` }));
 
 // Storm-surge return-period baseline inches above MHHW, Bay-wide regional
@@ -67,6 +82,7 @@ let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
 let bcdcLayers = {};        // BCDC_LAYER_TYPES id -> active Leaflet WMS layer, or absent
 let legalDeltaLayer = null;
+let consequenceLayer = null;
 
 async function loadRegionData(){
   const regionIds = Object.keys(REGION_FILES);
@@ -152,6 +168,11 @@ function initFloodOverlay(){
   const stormButtonsEl = document.getElementById("stormButtons");
   const scenarioResultEl = document.getElementById("scenarioResult");
   const bcdcCheckboxes = document.querySelectorAll("[data-bcdc-layer]");
+  const impactTabs = document.querySelectorAll(".impact-tab");
+  const impactFlooding = document.getElementById("impactFlooding");
+  const impactConsequence = document.getElementById("impactConsequence");
+  const consequenceSelect = document.getElementById("consequenceSelect");
+  const consequenceNoteEl = document.getElementById("consequenceNote");
 
   let currentLevelIndex = Number(levelSlider.value);
   let selectedSlrInches = null;
@@ -166,8 +187,24 @@ function initFloodOverlay(){
     bcdcLayers[typeId].addTo(map);
   }
 
+  function refreshConsequenceLayer(){
+    const key = consequenceSelect.value;
+    if(consequenceLayer){ map.removeLayer(consequenceLayer); consequenceLayer = null; }
+    consequenceNoteEl.textContent = "";
+    if(!key) return;
+    const def = CONSEQUENCE_LAYERS[key];
+    if(def.levelDependent && currentInches() === 0){
+      consequenceNoteEl.textContent = "No consequence layer at 0\" — pick a non-zero water level to see this category.";
+      return;
+    }
+    const layerName = def.levelDependent ? `${def.prefix}${currentInches()}` : def.name;
+    consequenceLayer = buildBcdcWmsLayer(layerName, 0.85);
+    consequenceLayer.addTo(map);
+  }
+
   function refreshAllChecked(){
     bcdcCheckboxes.forEach(cb => { if(cb.checked) refreshLayer(cb.dataset.bcdcLayer); });
+    refreshConsequenceLayer();
   }
 
   function setLevelIndex(idx){
@@ -176,6 +213,19 @@ function initFloodOverlay(){
     levelValue.textContent = `${currentInches()}"`;
     refreshAllChecked();
   }
+
+  impactTabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      impactTabs.forEach(b => { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
+      btn.classList.add("active");
+      btn.setAttribute("aria-selected", "true");
+      const consequence = btn.dataset.impact === "consequence";
+      impactFlooding.hidden = consequence;
+      impactConsequence.hidden = !consequence;
+    });
+  });
+
+  consequenceSelect.addEventListener("change", refreshConsequenceLayer);
 
   levelValue.textContent = `${currentInches()}"`;
 

@@ -9,10 +9,13 @@ actually applies to their patch of coastline.
 
 Two-page version: `index.html` is a map-first page — a Leaflet map with
 each tool's coverage area as a checkable layer in a right-side panel (like
-ArcGIS Online's Layers widget), plus a live BCDC flood-depth overlay and
-address search. `sources.html` is the tool comparison — the filterable
-12-tool grid and compare-up-to-three table from the original prototype.
-See `BRIEF.md` for the full project brief and definition of done.
+ArcGIS Online's Layers widget), a live BCDC Bay Shoreline Flood Explorer
+overlay (Total Water Level slider or a "choose a scenario" SLR + storm
+surge picker, depth-of-flooding/overtopping/low-lying/legal-delta layer
+toggles, and a consequence-indicator picker), and address search.
+`sources.html` is the tool comparison — the filterable 12-tool grid and
+compare-up-to-three table from the original prototype. See `BRIEF.md` for
+the full project brief and definition of done.
 
 This is a deliberate split from BRIEF.md's original single-page vision
 (map with the filter/grid/compare UI stacked underneath it), decided
