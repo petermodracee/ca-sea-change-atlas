@@ -27,6 +27,33 @@ const BCDC_FLOOD_COLOR = "#2E6FA3";
 const BCDC_WMS_URL = "https://mapserver.adaptingtorisingtides.org/cgi-bin/mapserv?map=/opt/slrviewer/mapfiles/bcdc.map";
 const BCDC_WATER_LEVELS = [0, 12, 24, 36, 48, 52, 66, 77, 84, 96, 108]; // inches above MHHW, matches BCDC's own "Total Water Level" slider
 
+const SLR_OPTIONS = BCDC_WATER_LEVELS.map(v => ({ inches: v, label: v === 0 ? "No SLR" : `${v}"` }));
+
+// Storm-surge return-period baseline inches above MHHW, Bay-wide regional
+// average — taken from BCDC's own data/storm-surge.json ("regional" block).
+// Simplified: BCDC's live tool also applies per-county baselines and
+// scenario-specific corrections on top of this; we use the single
+// regional figure since this map doesn't have a county-selection step.
+const STORM_SURGE_OPTIONS = [
+  { key: "none", label: "No Storm Surge", inches: 0 },
+  { key: "1", label: "King Tide", inches: 14 },
+  { key: "2", label: "2-yr", inches: 18 },
+  { key: "5", label: "5-yr", inches: 23 },
+  { key: "10", label: "10-yr", inches: 27 },
+  { key: "25", label: "25-yr", inches: 32 },
+  { key: "50", label: "50-yr", inches: 37 },
+  { key: "100", label: "100-yr", inches: 42 }
+];
+
+function nearestLevelIndex(targetInches){
+  let bestIdx = 0, bestDiff = Infinity;
+  BCDC_WATER_LEVELS.forEach((v, i) => {
+    const diff = Math.abs(v - targetInches);
+    if(diff < bestDiff){ bestDiff = diff; bestIdx = i; }
+  });
+  return bestIdx;
+}
+
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
@@ -93,16 +120,38 @@ function initMap(){
 
 function initFloodOverlay(){
   const toggle = document.getElementById("floodToggle");
-  const levelWrap = document.getElementById("overlayLevelWrap");
   const levelSlider = document.getElementById("floodLevel");
   const levelValue = document.getElementById("floodLevelValue");
+  const modeTabs = document.querySelectorAll(".mode-tab");
+  const modeLevel = document.getElementById("modeLevel");
+  const modeScenario = document.getElementById("modeScenario");
+  const slrButtonsEl = document.getElementById("slrButtons");
+  const stormButtonsEl = document.getElementById("stormButtons");
+  const scenarioResultEl = document.getElementById("scenarioResult");
 
-  const currentInches = () => BCDC_WATER_LEVELS[Number(levelSlider.value)];
-  const updateLevelLabel = () => { levelValue.textContent = `${currentInches()}"`; };
-  updateLevelLabel();
+  let currentLevelIndex = Number(levelSlider.value);
+  let selectedSlrInches = null;
+  let selectedStormInches = null;
+
+  const currentInches = () => BCDC_WATER_LEVELS[currentLevelIndex];
+
+  function refreshFloodLayer(){
+    if(!toggle.checked) return;
+    if(floodLayer) map.removeLayer(floodLayer);
+    floodLayer = buildFloodLayer(currentInches());
+    floodLayer.addTo(map);
+  }
+
+  function setLevelIndex(idx){
+    currentLevelIndex = idx;
+    levelSlider.value = idx;
+    levelValue.textContent = `${currentInches()}"`;
+    refreshFloodLayer();
+  }
+
+  levelValue.textContent = `${currentInches()}"`;
 
   toggle.addEventListener("change", () => {
-    levelWrap.hidden = !toggle.checked;
     if(toggle.checked){
       floodLayer = buildFloodLayer(currentInches());
       floodLayer.addTo(map);
@@ -112,14 +161,46 @@ function initFloodOverlay(){
     }
   });
 
-  levelSlider.addEventListener("input", () => {
-    updateLevelLabel();
-    if(floodLayer){
-      map.removeLayer(floodLayer);
-      floodLayer = buildFloodLayer(currentInches());
-      floodLayer.addTo(map);
-    }
+  levelSlider.addEventListener("input", () => setLevelIndex(Number(levelSlider.value)));
+
+  modeTabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      modeTabs.forEach(b => { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
+      btn.classList.add("active");
+      btn.setAttribute("aria-selected", "true");
+      const scenario = btn.dataset.mode === "scenario";
+      modeLevel.hidden = scenario;
+      modeScenario.hidden = !scenario;
+    });
   });
+
+  function buildButtonGrid(container, options, onPick){
+    options.forEach(opt => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "scenario-btn";
+      b.textContent = opt.label;
+      b.addEventListener("click", () => {
+        container.querySelectorAll(".scenario-btn").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        onPick(opt);
+      });
+      container.appendChild(b);
+    });
+  }
+
+  function updateScenarioResult(){
+    if(selectedSlrInches === null || selectedStormInches === null){
+      scenarioResultEl.textContent = "Select a sea level rise and storm surge amount to see the closest matching Total Water Level.";
+      return;
+    }
+    const idx = nearestLevelIndex(selectedSlrInches + selectedStormInches);
+    setLevelIndex(idx);
+    scenarioResultEl.textContent = `Closest matching Total Water Level: ${currentInches()}" above MHHW (regional approximation — BCDC's own tool uses county-specific storm-tide data).`;
+  }
+
+  buildButtonGrid(slrButtonsEl, SLR_OPTIONS, opt => { selectedSlrInches = opt.inches; updateScenarioResult(); });
+  buildButtonGrid(stormButtonsEl, STORM_SURGE_OPTIONS, opt => { selectedStormInches = opt.inches; updateScenarioResult(); });
 }
 
 async function geocode(query){

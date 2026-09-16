@@ -115,7 +115,7 @@ body.map-page{min-height:100vh;display:flex;flex-direction:column;}
 
 .map-layout{
   flex:1;min-height:0;
-  display:grid;grid-template-columns:1fr 280px;
+  display:grid;grid-template-columns:1fr 300px;
 }
 @media (max-width:768px){ .map-layout{grid-template-columns:1fr;grid-template-rows:60vh auto;} }
 #map{width:100%;height:100%;min-height:340px;}
@@ -141,17 +141,31 @@ body.map-page{min-height:100vh;display:flex;flex-direction:column;}
   width:18px;height:10px;border-radius:2px;flex:0 0 auto;margin-top:3px;
   background:var(--line);
 }
-.layer-sublevel{
-  display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;
-  margin:6px 0 4px 26px;
+.mode-tabs{display:flex;gap:2px;margin:4px 0 10px;border-bottom:1px solid var(--line);}
+.mode-tab{
+  flex:1;font-size:11.5px;padding:6px 4px;border:0;background:none;
+  color:var(--ink-soft);cursor:pointer;border-bottom:2px solid transparent;
 }
-.layer-sublevel[hidden]{display:none;}
-.layer-sublevel label{font-size:11.5px;color:var(--ink-soft);white-space:nowrap;}
-.layer-sublevel input[type="range"]{flex:1;min-width:110px;accent-color:var(--rust);}
+.mode-tab.active{color:var(--teal-dark);border-bottom-color:var(--teal);font-weight:600;}
+.mode-panel[hidden]{display:none;}
+.mode-panel{margin-bottom:10px;}
+.mode-panel > label{font-size:11.5px;color:var(--ink-soft);white-space:nowrap;}
+.level-row{display:flex;align-items:center;gap:8px;margin-top:4px;}
+.level-row input[type="range"]{flex:1;min-width:110px;accent-color:var(--rust);}
 .overlay-level-value{
   font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
   color:var(--rust-deep);min-width:2.6em;text-align:right;
 }
+.scenario-block{margin-bottom:10px;}
+.scenario-label{font-size:11.5px;color:var(--ink-soft);margin-bottom:4px;}
+.btn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.scenario-btn{
+  font-size:11px;padding:6px 4px;border:1px solid var(--line);border-radius:4px;
+  background:var(--paper);color:var(--ink);cursor:pointer;
+}
+.scenario-btn:hover{border-color:var(--teal);}
+.scenario-btn.active{background:var(--teal);border-color:var(--teal-dark);color:#fff;}
+.scenario-result{font-size:11.5px;color:var(--ink-soft);margin:8px 0 0;line-height:1.5;}
 
 .map-attribution{
   padding:10px 24px;font-size:11px;color:var(--ink-soft);border-top:1px solid var(--line);

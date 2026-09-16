@@ -40,13 +40,34 @@
 </div>
 
 <div class="layer-group">
-<div class="layer-group-title">Flood-depth data</div>
-<label class="layer-item"><input type="checkbox" id="floodToggle" data-layer="bcdc-flood"><span class="swatch" data-swatch="bcdc-flood"></span>BCDC flood depth <em>(Bay Shoreline Flood Explorer)</em></label>
-<div class="layer-sublevel" id="overlayLevelWrap" hidden>
+<div class="layer-group-title">BCDC Flood Explorer <em>(Bay Shoreline Flood Explorer)</em></div>
+
+<div class="mode-tabs" role="tablist">
+<button type="button" class="mode-tab active" data-mode="level" role="tab" aria-selected="true">Total Water Level</button>
+<button type="button" class="mode-tab" data-mode="scenario" role="tab" aria-selected="false">Choose a Scenario</button>
+</div>
+
+<div class="mode-panel" id="modeLevel">
 <label for="floodLevel">Total water level, MHHW+</label>
+<div class="level-row">
 <input type="range" id="floodLevel" min="0" max="10" step="1" value="3">
 <span id="floodLevelValue" class="overlay-level-value">36"</span>
 </div>
+</div>
+
+<div class="mode-panel" id="modeScenario" hidden>
+<div class="scenario-block">
+<div class="scenario-label">Sea level rise</div>
+<div class="btn-grid" id="slrButtons"></div>
+</div>
+<div class="scenario-block">
+<div class="scenario-label">Storm surge</div>
+<div class="btn-grid" id="stormButtons"></div>
+</div>
+<p class="scenario-result" id="scenarioResult">Select a sea level rise and storm surge amount to see the closest matching Total Water Level.</p>
+</div>
+
+<label class="layer-item"><input type="checkbox" id="floodToggle" data-layer="bcdc-flood"><span class="swatch" data-swatch="bcdc-flood"></span>Depth of Flooding</label>
 </div>
 </aside>
 </div>
