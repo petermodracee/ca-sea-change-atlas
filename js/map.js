@@ -87,96 +87,13 @@ const CONSEQUENCE_LAYERS = {
   "vulcom_contam": { prefix: "consequence_vulcom_contam_", levelDependent: true }
 };
 
-const SLR_OPTIONS = BCDC_WATER_LEVELS.map(v => ({ inches: v, label: v === 0 ? "No SLR" : `${v}"` }));
-
-const STORM_SURGE_DEFS = [
-  { key: "none", label: "No Storm Surge" },
-  { key: "1", label: "King Tide" },
-  { key: "2", label: "2-yr" },
-  { key: "5", label: "5-yr" },
-  { key: "10", label: "10-yr" },
-  { key: "25", label: "25-yr" },
-  { key: "50", label: "50-yr" },
-  { key: "100", label: "100-yr" }
-];
-
-// Storm-surge return-period baseline inches above MHHW, by planning area —
-// taken directly from BCDC's own data/storm-surge.json (fetched and
-// inspected from their site). Baselines only: BCDC's live tool also
-// applies per-scenario "exceptions"/"force" corrections on top of these
-// numbers per county, which we don't reproduce here.
-const STORM_SURGE_BY_AREA = {
-  "regional": { label: "SF Bay region (regional)", 1: 14, 2: 18, 5: 23, 10: 27, 25: 32, 50: 37, 100: 42 },
-  "marin county": { label: "Marin County", 1: 14, 2: 18, 5: 23, 10: 27, 25: 32, 50: 37, 100: 42 },
-  "sonoma county": { label: "Sonoma County", 1: 15, 2: 19, 5: 24, 10: 28, 25: 34, 50: 38, 100: 43 },
-  "napa county": { label: "Napa County", 1: 15, 2: 19, 5: 24, 10: 27, 25: 33, 50: 37, 100: 42 },
-  "solano county": { label: "Solano County", 1: 15, 2: 18, 5: 23, 10: 27, 25: 32, 50: 36, 100: 41 },
-  "contra costa county": { label: "Contra Costa County", 1: 14, 2: 18, 5: 23, 10: 27, 25: 32, 50: 36, 100: 41 },
-  "alameda county": { label: "Alameda County", 1: 15, 2: 19, 5: 24, 10: 27, 25: 32, 50: 37, 100: 42 },
-  "santa clara county": { label: "Santa Clara County", 1: 14, 2: 20, 5: 24, 10: 28, 25: 34, 50: 40, 100: 47 },
-  "san mateo county": { label: "San Mateo County", 1: 15, 2: 19, 5: 24, 10: 27, 25: 32, 50: 37, 100: 42 },
-  "san francisco county": { label: "San Francisco County", 1: 12, 2: 19, 5: 23, 10: 27, 25: 32, 50: 36, 100: 41 }
-};
-
-function stormInches(areaKey, defKey){
-  if(defKey === "none") return 0;
-  return STORM_SURGE_BY_AREA[areaKey][defKey];
-}
-
-function nearestLevelIndex(targetInches){
-  let bestIdx = 0, bestDiff = Infinity;
-  BCDC_WATER_LEVELS.forEach((v, i) => {
-    const diff = Math.abs(v - targetInches);
-    if(diff < bestDiff){ bestDiff = diff; bestIdx = i; }
-  });
-  return bestIdx;
-}
-
-// Point-in-polygon (ray casting), used to auto-detect which of the 9 Bay
-// Area counties a clicked/searched point falls in, reusing the same
-// bay-area-counties.geojson already loaded for the coverage-region layer.
-// No turf.js needed for this — just enough geometry math for one query.
-function pointInRing(pt, ring){
-  let inside = false;
-  for(let i = 0, j = ring.length - 1; i < ring.length; j = i++){
-    const xi = ring[i][0], yi = ring[i][1];
-    const xj = ring[j][0], yj = ring[j][1];
-    const intersect = ((yi > pt[1]) !== (yj > pt[1])) &&
-      (pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi);
-    if(intersect) inside = !inside;
-  }
-  return inside;
-}
-
-function pointInPolygonCoords(pt, rings){
-  if(!pointInRing(pt, rings[0])) return false;
-  for(let k = 1; k < rings.length; k++){
-    if(pointInRing(pt, rings[k])) return false; // inside a hole
-  }
-  return true;
-}
-
-function pointInGeometry(pt, geometry){
-  if(geometry.type === "Polygon") return pointInPolygonCoords(pt, geometry.coordinates);
-  if(geometry.type === "MultiPolygon") return geometry.coordinates.some(poly => pointInPolygonCoords(pt, poly));
-  return false;
-}
-
-function findCountyAreaKey(lat, lng){
-  const fc = regionData["bay-area-counties"];
-  if(!fc) return null;
-  const pt = [lng, lat];
-  const feature = fc.features.find(f => pointInGeometry(pt, f.geometry));
-  return feature ? `${feature.properties.name.toLowerCase()} county` : null;
-}
-
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
 let bcdcLayers = {};        // BCDC_LAYER_TYPES id -> active Leaflet WMS layer, or absent
 let legalDeltaLayer = null;
 let consequenceLayer = null;
-let applyAreaFromPoint = () => {}; // set by initFloodOverlay; called with (lat, lng) on click/search
+let infoPopup = null; // set in main(), from js/info-popup.js
 
 async function loadRegionData(){
   const regionIds = Object.keys(REGION_FILES);
@@ -194,6 +111,113 @@ function buildBcdcWmsLayer(layerName, opacity){
     attribution: 'Flood data: <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Adapting to Rising Tides</a>'
   });
 }
+
+// --- BCDC GetFeatureInfo (click-to-inspect) -------------------------------
+//
+// Field names below (value_0, ot_ft, twl{N}_acres, etc.) come straight from
+// BCDC's own build/slr.js click-render module, fetched and read directly —
+// the WMS server's GetFeatureInfo has no documented schema of its own.
+
+function bcdcFeatureInfoUrl(layerName, latlng){
+  const size = map.getSize();
+  const bounds = map.getBounds();
+  const sw = L.CRS.EPSG3857.project(bounds.getSouthWest());
+  const ne = L.CRS.EPSG3857.project(bounds.getNorthEast());
+  const point = map.latLngToContainerPoint(latlng);
+  const params = new URLSearchParams({
+    SERVICE: "WMS", VERSION: "1.3.0", REQUEST: "GetFeatureInfo",
+    LAYERS: layerName, QUERY_LAYERS: layerName,
+    CRS: "EPSG:3857",
+    BBOX: `${sw.x},${sw.y},${ne.x},${ne.y}`,
+    WIDTH: String(Math.round(size.x)), HEIGHT: String(Math.round(size.y)),
+    I: String(Math.round(point.x)), J: String(Math.round(point.y)),
+    INFO_FORMAT: "application/vnd.ogc.gml",
+    FEATURE_COUNT: "5"
+  });
+  return `${BCDC_WMS_URL}&${params.toString()}`;
+}
+
+function parseGmlFeatures(xmlText, layerName){
+  const featureTag = `${layerName}_feature`;
+  const blocks = [...xmlText.matchAll(new RegExp(`<${featureTag}>([\\s\\S]*?)</${featureTag}>`, "g"))].map(m => m[1]);
+  return blocks.map(block => {
+    const attrs = {};
+    const re = /<(\w+)>([^<]*)<\/\1>/g;
+    let m;
+    while((m = re.exec(block))){
+      if(m[1] === "wkb_geometry") continue;
+      attrs[m[1]] = m[2];
+    }
+    return attrs;
+  });
+}
+
+async function fetchBcdcFeatures(layerName, latlng){
+  const res = await fetch(bcdcFeatureInfoUrl(layerName, latlng));
+  const text = await res.text();
+  return parseGmlFeatures(text, layerName);
+}
+
+function fmtNum(n, decimals){
+  const num = Number(n);
+  if(Number.isNaN(num)) return String(n);
+  return num.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+function parseHighwayInfo(features, aadtField, aadtLabel){
+  if(!features.length) return null;
+  const f = features[0];
+  const rows = [];
+  if(f.route) rows.push({ label: "Route", value: f.route });
+  if(f.r_length_m) rows.push({ label: "Length", value: `${fmtNum(Number(f.r_length_m) * 0.000621371, 1)} mi` });
+  if(f[aadtField] !== undefined) rows.push({ label: aadtLabel, value: fmtNum(f[aadtField], 0) });
+  if(Number(f.lifeline_rt)) rows.push({ label: "Lifeline Route", value: "Yes" });
+  return rows.length ? { title: "Highway / Interstate Impacts", rows } : null;
+}
+
+function parseRailInfo(features){
+  if(!features.length) return null;
+  const f = features[0];
+  if("station_na" in f){
+    return { title: "Rail Station Impacts", rows: [
+      { label: "Station", value: `${f.agencyname || ""} — ${f.station_na}` },
+      { label: "Daily Avg. Passengers", value: fmtNum(f.total_ride, 0) }
+    ]};
+  }
+  return { title: "Rail Line Impacts", rows: [
+    { label: "Operator", value: f.operator || "—" },
+    { label: "Daily Avg. Passengers", value: fmtNum(f.ridership, 0) }
+  ]};
+}
+
+function parseTwlFieldInfo(features, suffix, label, decimals){
+  if(!features.length) return null;
+  const f = features[0];
+  const key = Object.keys(f).find(k => k.startsWith("twl") && k.endsWith(`_${suffix}`));
+  if(!key) return null;
+  return { title: f.name || "Consequence", rows: [{ label, value: fmtNum(f[key], decimals) }] };
+}
+
+function parseVulcomInfo(features, rankField){
+  if(!features.length) return null;
+  const f = features[0];
+  const rows = [{ label: "Residential Units (2010)", value: fmtNum(f.sum_res_units_2010, 0) }];
+  if(f[rankField]) rows.push({ label: "Rank", value: f[rankField] });
+  if(f.oluname) rows.push({ label: "Area", value: f.oluname });
+  return { title: "Vulnerable Communities Impacts", rows };
+}
+
+const CONSEQUENCE_INFO_PARSERS = {
+  highway_vehicle: features => parseHighwayInfo(features, "veh_aadt_num_av", "Vehicles (AADT)"),
+  highway_truck: features => parseHighwayInfo(features, "truckaadt_num_av", "Trucks (AADTT)"),
+  rail: features => parseRailInfo(features),
+  recreation: features => parseTwlFieldInfo(features, "sum", "Photo User Days", 1),
+  tidalhabitat: features => parseTwlFieldInfo(features, "acres", "Acres", 0),
+  housing: features => parseTwlFieldInfo(features, "res_units_2010", "Residential Units (2010)", 0),
+  jobs: features => parseTwlFieldInfo(features, "job_spaces_2010", "Job Spaces (2010)", 0),
+  vulcom_social: features => parseVulcomInfo(features, "socvlnrank"),
+  vulcom_contam: features => parseVulcomInfo(features, "contamrank")
+};
 
 function setSwatch(el, color, dashed){
   el.style.background = dashed
@@ -249,35 +273,33 @@ function initMap(){
   map.on("click", e => {
     if(marker) map.removeLayer(marker);
     marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-    applyAreaFromPoint(e.latlng.lat, e.latlng.lng);
+    infoPopup.showAt(e.latlng);
+  });
+}
+
+function initGroupCollapse(){
+  document.querySelectorAll(".group-collapse-btn").forEach(btn => {
+    const body = document.getElementById(btn.getAttribute("aria-controls"));
+    btn.addEventListener("click", () => {
+      const expanded = btn.getAttribute("aria-expanded") === "true";
+      btn.setAttribute("aria-expanded", String(!expanded));
+      body.hidden = expanded;
+    });
   });
 }
 
 function initFloodOverlay(){
   const levelSlider = document.getElementById("floodLevel");
   const levelValue = document.getElementById("floodLevelValue");
-  const modeTabs = document.querySelectorAll(".mode-tab");
-  const modeLevel = document.getElementById("modeLevel");
-  const modeScenario = document.getElementById("modeScenario");
-  const slrButtonsEl = document.getElementById("slrButtons");
-  const stormButtonsEl = document.getElementById("stormButtons");
-  const scenarioResultEl = document.getElementById("scenarioResult");
   const bcdcCheckboxes = document.querySelectorAll("[data-bcdc-layer]");
   const impactTabs = document.querySelectorAll(".impact-tab");
   const impactFlooding = document.getElementById("impactFlooding");
   const impactConsequence = document.getElementById("impactConsequence");
   const consequenceSelect = document.getElementById("consequenceSelect");
   const consequenceNoteEl = document.getElementById("consequenceNote");
-  const areaSelect = document.getElementById("areaSelect");
-  const areaAutoNote = document.getElementById("areaAutoNote");
-  const equivCaptionEl = document.getElementById("equivCaption");
-  const equivScenariosEl = document.getElementById("equivScenarios");
   const bcdcLegendEl = document.getElementById("bcdcLegend");
 
   let currentLevelIndex = Number(levelSlider.value);
-  let currentArea = "regional";
-  let selectedSlrInches = null;
-  let selectedStormKey = null;
 
   const currentInches = () => BCDC_WATER_LEVELS[currentLevelIndex];
 
@@ -344,55 +366,9 @@ function initFloodOverlay(){
     levelSlider.value = idx;
     levelValue.textContent = `${currentInches()}"`;
     refreshAllChecked();
-    updateEquivalentScenarios();
   }
 
-  // Combos within BCDC's own ±3" binning tolerance count as "matching."
-  function isWithinTolerance(sum){
-    return Math.abs(sum - BCDC_WATER_LEVELS[nearestLevelIndex(sum)]) <= 3;
-  }
-
-  function updateEquivalentScenarios(){
-    const twl = currentInches();
-    equivCaptionEl.textContent = `This level represents similar flooding under these Sea Level Rise + Storm Surge combinations (${STORM_SURGE_BY_AREA[currentArea].label}):`;
-    const rows = [];
-    SLR_OPTIONS.forEach(s => {
-      STORM_SURGE_DEFS.forEach(g => {
-        const sum = s.inches + stormInches(currentArea, g.key);
-        if(Math.abs(sum - twl) <= 3) rows.push({ slr: s.label, storm: g.label, sum });
-      });
-    });
-    rows.sort((a, b) => a.sum - b.sum || (b.storm === "No Storm Surge" ? -1 : 0));
-
-    equivScenariosEl.innerHTML = "";
-    if(!rows.length){
-      equivScenariosEl.innerHTML = '<p class="equiv-note">No combination matches this level within the usual ±3" tolerance for this baseline.</p>';
-      return;
-    }
-    const head = document.createElement("div");
-    head.className = "equiv-row equiv-head";
-    head.innerHTML = "<span>Sea Level Rise</span><span>Storm Surge</span>";
-    equivScenariosEl.appendChild(head);
-    rows.forEach(r => {
-      const row = document.createElement("div");
-      row.className = "equiv-row";
-      row.innerHTML = `<span>${r.slr}</span><span>${r.storm}</span>`;
-      equivScenariosEl.appendChild(row);
-    });
-  }
-
-  function updateGreying(){
-    stormButtonsEl.querySelectorAll(".scenario-btn").forEach(b => {
-      const disabled = selectedSlrInches !== null &&
-        !isWithinTolerance(selectedSlrInches + stormInches(currentArea, b.dataset.key));
-      b.disabled = disabled;
-    });
-    slrButtonsEl.querySelectorAll(".scenario-btn").forEach(b => {
-      const disabled = selectedStormKey !== null &&
-        !isWithinTolerance(Number(b.dataset.key) + stormInches(currentArea, selectedStormKey));
-      b.disabled = disabled;
-    });
-  }
+  levelValue.textContent = `${currentInches()}"`;
 
   impactTabs.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -410,8 +386,6 @@ function initFloodOverlay(){
     renderBcdcLegend();
   });
 
-  levelValue.textContent = `${currentInches()}"`;
-
   bcdcCheckboxes.forEach(cb => {
     const typeId = cb.dataset.bcdcLayer;
     cb.addEventListener("change", () => {
@@ -427,81 +401,6 @@ function initFloodOverlay(){
 
   levelSlider.addEventListener("input", () => setLevelIndex(Number(levelSlider.value)));
 
-  modeTabs.forEach(btn => {
-    btn.addEventListener("click", () => {
-      modeTabs.forEach(b => { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
-      btn.classList.add("active");
-      btn.setAttribute("aria-selected", "true");
-      const scenario = btn.dataset.mode === "scenario";
-      modeLevel.hidden = scenario;
-      modeScenario.hidden = !scenario;
-    });
-  });
-
-  function buildButtonGrid(container, options, keyOf, onPick){
-    container.innerHTML = "";
-    options.forEach(opt => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = "scenario-btn";
-      b.textContent = opt.label;
-      b.dataset.key = keyOf(opt);
-      b.addEventListener("click", () => {
-        container.querySelectorAll(".scenario-btn").forEach(x => x.classList.remove("active"));
-        b.classList.add("active");
-        onPick(opt);
-      });
-      container.appendChild(b);
-    });
-  }
-
-  function reapplyActiveButton(container, key){
-    container.querySelectorAll(".scenario-btn").forEach(b => {
-      b.classList.toggle("active", key !== null && b.dataset.key === String(key));
-    });
-  }
-
-  function buildStormButtons(){
-    buildButtonGrid(stormButtonsEl, STORM_SURGE_DEFS, opt => opt.key, opt => {
-      selectedStormKey = opt.key;
-      updateScenarioResult();
-    });
-    reapplyActiveButton(stormButtonsEl, selectedStormKey);
-  }
-
-  function updateScenarioResult(){
-    updateGreying();
-    if(selectedSlrInches === null || selectedStormKey === null){
-      scenarioResultEl.textContent = "Select a sea level rise and storm surge amount to see the closest matching Total Water Level.";
-      return;
-    }
-    const total = selectedSlrInches + stormInches(currentArea, selectedStormKey);
-    const idx = nearestLevelIndex(total);
-    setLevelIndex(idx);
-    scenarioResultEl.textContent = `Closest matching Total Water Level: ${currentInches()}" above MHHW, using the ${STORM_SURGE_BY_AREA[currentArea].label} storm-surge baseline (simplified — doesn't include BCDC's per-scenario corrections).`;
-  }
-
-  function setArea(areaKey, auto){
-    currentArea = areaKey;
-    areaSelect.value = areaKey;
-    areaAutoNote.textContent = auto
-      ? `Auto-detected from your last click/search: ${STORM_SURGE_BY_AREA[areaKey].label}.`
-      : "Manually selected — click the map or search an address to auto-detect again.";
-    buildStormButtons();
-    updateGreying();
-    if(selectedSlrInches !== null && selectedStormKey !== null) updateScenarioResult();
-  }
-
-  areaSelect.addEventListener("change", () => setArea(areaSelect.value, false));
-
-  applyAreaFromPoint = function(lat, lng){
-    const county = findCountyAreaKey(lat, lng);
-    setArea(county || "regional", true);
-  };
-
-  buildButtonGrid(slrButtonsEl, SLR_OPTIONS, opt => opt.inches, opt => { selectedSlrInches = opt.inches; updateScenarioResult(); });
-  buildStormButtons();
-  updateEquivalentScenarios();
   renderBcdcLegend();
 
   document.getElementById("hideAllBcdc").addEventListener("click", () => {
@@ -511,6 +410,40 @@ function initFloodOverlay(){
     const legalDeltaToggle = document.querySelector('[data-static-layer="legaldelta"]');
     if(legalDeltaToggle.checked){ legalDeltaToggle.checked = false; legalDeltaToggle.dispatchEvent(new Event("change")); }
     if(consequenceSelect.value){ consequenceSelect.value = ""; consequenceSelect.dispatchEvent(new Event("change")); }
+  });
+
+  // --- click-to-inspect providers ---
+  infoPopup.registerProvider(async latlng => {
+    const cb = document.querySelector('[data-bcdc-layer="inundation"]');
+    if(!cb.checked) return null;
+    const features = await fetchBcdcFeatures(`inundation${currentInches()}`, latlng);
+    if(!features.length) return { title: "Depth of Flooding", note: `Not flooded at ${currentInches()}" above MHHW at this point.` };
+    const depthFt = Number(features[0].value_0) / 12;
+    return { title: "Depth of Flooding", rows: [{ label: "Depth", value: `${fmtNum(depthFt, 2)} feet` }] };
+  });
+
+  infoPopup.registerProvider(async latlng => {
+    const cb = document.querySelector('[data-bcdc-layer="overtopping"]');
+    if(!cb.checked) return null;
+    const features = await fetchBcdcFeatures(`overtopping${currentInches()}`, latlng);
+    if(!features.length) return { title: "Shoreline Overtopping", note: `No overtopping predicted at ${currentInches()}" above MHHW at this point.` };
+    const f = features[0];
+    const rows = [{ label: "Overtopping Depth", value: `${fmtNum(f.ot_ft, 2)} feet` }];
+    if(f["class"]) rows.push({ label: "Shoreline Type", value: f["class"] });
+    return { title: "Shoreline Overtopping", rows };
+  });
+
+  infoPopup.registerProvider(async latlng => {
+    const key = consequenceSelect.value;
+    if(!key) return null;
+    const def = CONSEQUENCE_LAYERS[key];
+    if(def.levelDependent && currentInches() === 0){
+      return { title: CONSEQUENCE_LEGENDS[key].label, note: 'No consequence layer at 0" above MHHW.' };
+    }
+    const layerName = def.levelDependent ? `${def.prefix}${currentInches()}` : def.name;
+    const features = await fetchBcdcFeatures(layerName, latlng);
+    const parsed = CONSEQUENCE_INFO_PARSERS[key](features);
+    return parsed || { title: CONSEQUENCE_LEGENDS[key].label, note: "No data at this point." };
   });
 }
 
@@ -532,7 +465,6 @@ async function geocode(query){
     map.setView([latN, lonN], 10);
     if(marker) map.removeLayer(marker);
     marker = L.marker([latN, lonN]).addTo(map);
-    applyAreaFromPoint(latN, lonN);
     statusEl.textContent = `Showing results for: ${display_name}`;
   } catch(err){
     statusEl.textContent = "Search failed — check your connection and try again.";
@@ -549,7 +481,9 @@ document.getElementById("searchForm").addEventListener("submit", e => {
 async function main(){
   await loadRegionData();
   initMap();
+  infoPopup = createInfoPopup(map);
   initFloodOverlay();
+  initGroupCollapse();
 }
 
 main();

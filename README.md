@@ -9,13 +9,23 @@ actually applies to their patch of coastline.
 
 Two-page version: `index.html` is a map-first page — a Leaflet map with
 each tool's coverage area as a checkable layer in a right-side panel (like
-ArcGIS Online's Layers widget), a live BCDC Bay Shoreline Flood Explorer
-overlay (Total Water Level slider or a "choose a scenario" SLR + storm
-surge picker, depth-of-flooding/overtopping/low-lying/legal-delta layer
-toggles, and a consequence-indicator picker), and address search.
-`sources.html` is the tool comparison — the filterable 12-tool grid and
-compare-up-to-three table from the original prototype. See `BRIEF.md` for
-the full project brief and definition of done.
+ArcGIS Online's Layers widget, with collapsible group sections), a live
+BCDC Bay Shoreline Flood Explorer overlay (Total Water Level slider,
+depth-of-flooding/overtopping/low-lying/legal-delta layer toggles, and a
+consequence-indicator picker), address search, and a click-to-inspect
+popup showing real values (depth, acreage, traffic counts, etc., queried
+live from BCDC's WMS server) for whichever layers are checked at the
+clicked point. `sources.html` is the tool comparison — the filterable
+12-tool grid and compare-up-to-three table from the original prototype.
+See `BRIEF.md` for the full project brief and definition of done.
+
+An earlier iteration also had a "choose a scenario" SLR + storm-surge
+picker with an approximate county-baseline lookup table, and it grew a
+scenario-matching feature (equivalent-combinations table, greyed-out
+invalid combos) on top of that approximation. It was removed once the
+click-to-inspect popup could just ask BCDC's own server for the real
+number at a real point — more accurate, and no need to approximate
+BCDC's per-county storm-surge corrections at all.
 
 This is a deliberate split from BRIEF.md's original single-page vision
 (map with the filter/grid/compare UI stacked underneath it), decided
@@ -59,6 +69,12 @@ this same status.
 - `index.html`, `js/map.js` — the map page: Leaflet + OSM base map, each
   coverage region and the BCDC flood-depth WMS overlay as a checkable
   layer in the right-side panel, and address search (Nominatim).
+- `js/info-popup.js` — a small, tool-agnostic click-to-inspect popup:
+  register a provider function per data layer (`(latlng) => section |
+  null`), and it renders whatever providers return into one combined
+  Leaflet popup. `js/map.js`'s BCDC providers are the only ones today, but
+  nothing about this file is BCDC-specific — a future map/tool on this
+  page registers its own providers without touching it.
 - `sources.html`, `js/sources.js` — the tool comparison page: the
   filterable 12-tool grid and compare-up-to-three table.
 - `css/style.css` — shared stylesheet for both pages.
