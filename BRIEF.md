@@ -68,15 +68,47 @@ a confirmed-legal path to real overlay data are map-layer candidates.
 
 **Implemented:**
 - BCDC Bay Shoreline Flood Explorer — live WMS overlay, done.
+- Our Coast, Our Future / CoSMoS (USGS) — live esri-leaflet FeatureLayer,
+  scenario picker (Average/20-yr-storm/100-yr-storm x SLR in cm), done.
+- NOAA Sea Level Rise Viewer — live esri-leaflet DynamicMapLayer, done.
+- NOAA Coastal Flood Exposure Mapper — live esri-leaflet DynamicMapLayer,
+  **composite hazard-overlap layer only** (see "Corrections from the
+  tier-1 map-layer pass" below — the separate Tsunami service isn't
+  wired up, it doesn't actually render usable data for California).
+- FEMA National Flood Hazard Layer — a new addition, not previously on
+  this list (see Licensing below) — live esri-leaflet DynamicMapLayer,
+  "Flood Hazard Zones" sublayer only, effective data only.
 
 **Confirmed legal, not yet wired up — the real next-up list for map work:**
-- NOAA Sea Level Rise Viewer
-- NOAA Coastal Flood Exposure Mapper
 - Cal-Adapt / CNRA statewide SLR data
-- Our Coast, Our Future / CoSMoS (USGS)
 
-All four are public ArcGIS REST/MapServer or FeatureServer endpoints — see
-the Licensing section below for exactly why each is clear to use.
+This is a public ArcGIS REST/MapServer or FeatureServer endpoint — see
+the Licensing section below for why it's clear to use.
+
+### Corrections from the tier-1 map-layer pass
+
+Three things about the tier-1 pass (CoSMoS, NOAA SLR Viewer, FEMA NFHL,
+NOAA CFEM) diverged from what was assumed going in, confirmed directly
+against each service's live ArcGIS REST API rather than worked around
+silently:
+
+- **CoSMoS cliff-erosion service doesn't exist.** The Caltrans-mirrored
+  `DEA_Cliff_Erosion` service mentioned alongside CoSMoS v3.2's erosion
+  modeling 404s at its expected URL
+  (`gisdata.dot.ca.gov/.../HQstatewide/DEA_Cliff_Erosion/MapServer`).
+  Not wired up. Follow-up: find the correct endpoint (if one is public)
+  before adding an erosion toggle.
+- **CFEM's real composite sublayer is `CA_FloodComposite`**, not
+  `CA_FloodComposite_int` as originally assumed — confirmed via the
+  service's own layer list. Code/docs use the real name.
+- **CFEM's Tsunami service doesn't render usable data for California.**
+  `CFEM_Tsunami`'s "Tsunami Hazard Areas" layer (id 0) looked right by
+  name, but its renderer only classifies 2 Alabama FIPS codes, its
+  fields are a leftover county-eligibility table (not tsunami run-up
+  geometry), and a rendered export image over the Bay Area came back a
+  single flat background color — no visible data. Not wired up. Follow-
+  up: find NOAA's actual tsunami-hazard product (this doesn't appear to
+  be it) before adding a tsunami toggle.
 
 **Likely feasible, not yet verified — worth a look before committing to
 comparison-only:**
@@ -109,6 +141,20 @@ specific clauses that rule it out.
 - **USGS** (CoSMoS / Our Coast Our Future, and HERA's underlying data) —
   same footing: USGS-produced data is explicitly U.S. public domain per
   USGS's own information policy.
+- **FEMA (National Flood Hazard Layer, implemented)** — same public-domain
+  footing as NOAA/USGS above: U.S. federal government data under 17
+  U.S.C. §105. Verified directly against FEMA's own NFHL metadata
+  (`hazards.fema.gov/filedownload/metadata/NFHL/NFHL_metadata.xml`) —
+  its use constraint reads "Acknowledgement of FEMA would be appreciated
+  in products derived from these data" and its access constraint is
+  "None." **This is a correction from this pass's initial assumption**
+  that NFHL is CC-BY 3.0 and that attribution is a hard legal
+  requirement — that claim traces to a third-party Data Basin mirror of
+  this same service applying Data Basin's own platform-wide CC-BY 3.0
+  license to their copy, not a term FEMA itself imposes on the original
+  data. FEMA is still credited prominently in the map's attribution
+  strip regardless, as good practice, just not because it's legally
+  mandated the way BCDC/Caltrans's CC-BY-SA terms are.
 - **BCDC (already implemented) and Cal-Adapt/CNRA** — both are mirrored
   through the Caltrans open data portal, licensed **CC-BY-SA**. Usable,
   with real obligations: attribute Caltrans/BCDC/CNRA, and if the
@@ -166,7 +212,9 @@ these resolves it:
   generated per-tool URLs (`/tool/<id>/`) with real per-page metadata for
   SEO and link previews — see "Current architecture" above.
 - Leaflet for the map, loaded from a CDN with a pinned version and
-  Subresource Integrity hash (already done for `map.njk`).
+  Subresource Integrity hash (already done for `map.njk`). Same pattern
+  for esri-leaflet (added for the tier-1 ArcGIS REST sources) — CDN,
+  pinned version, SRI hash.
 - Stay usable on mobile.
 
 ## Non-goals
@@ -180,12 +228,18 @@ these resolves it:
 
 ## Definition of done for the next map-layer pass
 
-1. At least one of the four "confirmed legal, not yet wired up" tools
-   (NOAA SLR Viewer, NOAA CFEM, Cal-Adapt/CNRA, CoSMoS) is added to the
-   map page's layer panel as a real overlay, following the same pattern
-   BCDC's layer already established (live WMS/REST fetch, no local
-   copy of the data, attribution shown on the page).
-2. README.md's Implementation status table is updated to reflect it.
-3. Either the FloodRISE or CREST TODO above is resolved one way or the
-   other, and `sources.njk`'s row for that tool is updated accordingly
-   if the answer is "yes, add it as a map layer too."
+1. ✅ **Done (tier-1 pass):** three of the four "confirmed legal, not yet
+   wired up" tools (NOAA SLR Viewer, NOAA CFEM, CoSMoS) plus FEMA NFHL
+   (a new addition) are added to the map page's layer panel as real
+   overlays, following the same pattern BCDC's layer already
+   established (live REST fetch via esri-leaflet, no local copy of the
+   data, attribution shown on the page). Cal-Adapt/CNRA remains the one
+   item still not wired up.
+2. ✅ **Done:** README.md's Implementation status table is updated to
+   reflect it.
+3. Still open: either the FloodRISE or CREST TODO above is resolved one
+   way or the other, and `sources.njk`'s row for that tool is updated
+   accordingly if the answer is "yes, add it as a map layer too."
+4. Still open: Cal-Adapt/CNRA is the one remaining "confirmed legal, not
+   yet wired up" tool from the original four — next candidate for a
+   future map-layer pass.

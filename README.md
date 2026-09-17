@@ -25,9 +25,15 @@ widget, with collapsible group sections), a live BCDC Bay Shoreline Flood
 Explorer overlay (a Total Water Level slider or a "choose a scenario" SLR
 + storm-surge picker — mirroring BCDC's own "One Map, Many Futures" panel
 — plus depth-of-flooding/overtopping/low-lying/legal-delta layer toggles
-and a consequence-indicator picker), address search, and a
-click-to-inspect popup showing real values (depth, acreage, traffic
-counts, etc., queried live from BCDC's WMS server) for whichever layers
+and a consequence-indicator picker), plus four more live layers added
+via [esri-leaflet](https://github.com/Esri/esri-leaflet) (USGS CoSMoS
+with its own Average/20-yr-storm/100-yr-storm + SLR-in-cm scenario
+picker, NOAA's Sea Level Rise Viewer with a half-foot-increment scenario
+dropdown, FEMA's National Flood Hazard Layer showing effective flood
+zones only, and NOAA's Coastal Flood Exposure Mapper composite hazard
+layer), address search, and a click-to-inspect popup showing real
+values (depth, acreage, traffic counts, flood zone, hazard overlap,
+etc., queried live from each source's own server) for whichever layers
 are checked at the clicked point. `sources.html` is the tool comparison —
 the filterable 12-tool grid and compare-up-to-three table from the
 original prototype, with each card linking to a real, generated detail
@@ -52,7 +58,20 @@ BCDC's server sends no `Cache-Control`/`Expires` on either tiles or
 GetFeatureInfo responses (confirmed by inspecting the response headers
 directly) — so `js/map.js` keeps its own in-memory, per-session cache
 keyed by request URL, so re-panning to a spot already viewed or clicking
-the same point twice doesn't repeat a live ~450ms server render.
+the same point twice doesn't repeat a live ~450ms server render. The four
+ArcGIS REST sources added later send equally unhelpful cache headers
+(checked directly the same way), so the click-to-inspect providers that
+issue their own identify/query requests share this same cache rather
+than each reimplementing it.
+
+CoSMoS and FEMA's click-to-inspect providers use a direct spatial
+`query` request rather than the ArcGIS `identify` operation — `identify`
+returned empty results against FEMA's service in testing even though the
+same point queried correctly via `query`, so `query` is used consistently
+for both point-in-polygon lookups. NOAA's Sea Level Rise Viewer and the
+CFEM composite layer's raster values do use `identify` (the composite
+layer, being a raster, doesn't support `query` at all — it returns an
+error).
 
 Three consequence categories — vehicle traffic, truck traffic, and rail —
 are disabled with an explanatory note rather than silently showing
@@ -88,10 +107,14 @@ off-limits, some just aren't wired up yet. "Implemented" below means
 `map.html` actually renders that tool's own flood/hazard data as a live
 layer, not just that it's listed on `sources.html`.
 
-Only the BCDC Bay Shoreline Flood Explorer has real data wired up so far
-(its live WMS layer, added directly to the map's layer panel); the other
-11 are cataloged on `sources.html` for comparison. Four more are
-confirmed legal and are the real next-up list for map work; two are
+Five tools have real data wired up now: BCDC's Bay Shoreline Flood
+Explorer (live WMS), plus USGS CoSMoS, NOAA's Sea Level Rise Viewer,
+NOAA's Coastal Flood Exposure Mapper, and FEMA's National Flood Hazard
+Layer (all four added directly to the map's layer panel via
+[esri-leaflet](https://github.com/Esri/esri-leaflet), since they're
+ArcGIS REST services rather than WMS like BCDC). The other 7 are
+cataloged on `sources.html` for comparison. One more (Cal-Adapt/CNRA) is
+confirmed legal and is the real next-up item for map work; two are
 likely feasible but unverified; two are pending an actual licensing
 answer; and three are **permanently** comparison-only because their own
 Terms of Use confirm they prohibit exactly this kind of overlay. See
@@ -100,13 +123,19 @@ the full breakdown and the specific clauses behind each category — that
 distinction (never vs. not-yet) is the important one for anyone picking
 up map work next.
 
+CFEM's implementation covers its composite hazard-overlap layer only —
+its separate Tsunami service doesn't actually render usable California
+data (verified directly; see `BRIEF.md`'s "Corrections from the tier-1
+map-layer pass"), so it isn't wired up.
+
 | Tool | Org | Status | Map eligibility |
 |---|---|---|---|
 | Adapting to Rising Tides: Bay Shoreline Flood Explorer | BCDC / SFEI | ✅ Implemented | — |
-| Sea Level Rise Viewer | NOAA Office for Coastal Management | Not implemented | Confirmed open — next up |
-| Coastal Flood Exposure Mapper | NOAA Office for Coastal Management | Not implemented | Confirmed open — next up |
+| Our Coast, Our Future / CoSMoS | Point Blue / USGS | ✅ Implemented | — |
+| Sea Level Rise Viewer | NOAA Office for Coastal Management | ✅ Implemented | — |
+| Coastal Flood Exposure Mapper | NOAA Office for Coastal Management | ✅ Implemented (composite layer only) | — |
+| National Flood Hazard Layer | FEMA | ✅ Implemented | — |
 | Sea Level Rise – Coastal Inundation Scenarios (Cal-Adapt) | Cal-Adapt | Not implemented | Confirmed open — next up |
-| Our Coast, Our Future / CoSMoS | Point Blue / USGS | Not implemented | Confirmed open — next up |
 | East Contra Costa Shoreline Flood Explorer | BCDC / SFEI | Not implemented | Likely feasible, unverified |
 | Hazard Exposure Reporting and Analytics (HERA) | USGS | Not implemented | Likely feasible, unverified |
 | FloodRISE | UC Irvine | Not implemented | Pending license check (TODO) |
@@ -224,6 +253,36 @@ Everything the three pages load, beyond this project's own code:
   see [their disclaimer](https://explorer.adaptingtorisingtides.org/about/a-disclaimer)
   before relying on it. See `data/coverage/SOURCES.md` for how the overlay
   is wired up.
+- **[esri-leaflet](https://github.com/Esri/esri-leaflet)** (Apache-2.0) —
+  the ArcGIS REST client library used for the four sources below, loaded
+  from the `unpkg.com` CDN in `map.html` at a pinned version
+  (`esri-leaflet@3.1.0`) with a Subresource Integrity hash, same pattern
+  as Leaflet itself.
+- **[USGS CoSMoS / Our Coast, Our
+  Future](https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos)**
+  — the optional flood-extent overlay is loaded live from USGS's own
+  ArcGIS FeatureServer, not hosted or modified by this project. USGS data
+  is U.S. public domain; credited as a courtesy.
+- **[NOAA Sea Level Rise Viewer](https://coast.noaa.gov/slr/)** — the
+  optional sea-level-rise overlay is loaded live from NOAA's own ArcGIS
+  MapServer family (one service per scenario), not hosted or modified by
+  this project. NOAA data is U.S. public domain, and NOAA's Digital Coast
+  program is separately required by its authorizing legislation to keep
+  this data freely available; credited as a courtesy.
+- **[FEMA National Flood Hazard
+  Layer](https://www.fema.gov/flood-maps/national-flood-hazard-layer)** —
+  the optional flood-zone overlay (effective data only) is loaded live
+  from FEMA's own ArcGIS MapServer, not hosted or modified by this
+  project. U.S. public domain, per FEMA's own NFHL metadata (which asks
+  only for a courtesy acknowledgement, not a specific license); credited
+  prominently in the map's attribution strip. Preliminary/pending FEMA
+  map updates aren't shown — see the caveat in the layer panel itself.
+- **[NOAA Coastal Flood Exposure
+  Mapper](https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html)**
+  — the optional hazard-overlap overlay (California composite layer
+  only) is loaded live from NOAA's own ArcGIS MapServer, not hosted or
+  modified by this project. Same public-domain footing as NOAA's Sea
+  Level Rise Viewer above; credited as a courtesy.
 
 Attribution is also shown directly on the deployed map (`map.html`'s
 bottom attribution strip and Leaflet's own attribution control).

@@ -3,7 +3,7 @@ layout: base.njk
 permalink: "map.html"
 title: CA Sea Change Atlas — coverage map
 ogImage: /img/preview-map.png
-description: A Leaflet map of California sea-level-rise tool coverage, with a live BCDC Bay Shoreline Flood Explorer overlay and click-to-inspect flood data.
+description: A Leaflet map of California sea-level-rise tool coverage, with live flood-hazard overlays from BCDC, USGS CoSMoS, NOAA, and FEMA, and click-to-inspect flood data.
 nav: map
 bodyClass: map-page
 leaflet: true
@@ -18,6 +18,14 @@ footerAttribution: >
   <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC's Adapting to Rising Tides Bay Shoreline Flood Explorer</a> —
   planning-level only, not for parcel-scale, permitting, or engineering use; see
   <a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">their full disclaimer</a>.
+  CoSMoS flood extent: live data from
+  <a href="https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos" target="_blank" rel="noopener">USGS CoSMoS / Our Coast, Our Future</a>.
+  Sea level rise and coastal flood exposure layers: live data from
+  <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA's Sea Level Rise Viewer</a> and
+  <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">Coastal Flood Exposure Mapper</a>.
+  Flood zones: live effective-data-only layer from
+  <a href="https://www.fema.gov/flood-maps/national-flood-hazard-layer" target="_blank" rel="noopener">FEMA's National Flood Hazard Layer</a> —
+  see the layer panel for the effective-vs-preliminary caveat.
   Base map &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Address search via
   <a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>. Full license list:
   <a href="/ca-sea-change-atlas/README.md#licenses--attribution">README</a>.
