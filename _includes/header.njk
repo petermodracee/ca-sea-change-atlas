@@ -1,0 +1,8 @@
+<header class="site-header">
+<a class="site-brand" href="{{ '/index.html' | url }}">{{ site.name }}</a>
+<nav class="site-nav">
+<a href="{{ '/map.html' | url }}"{% if nav == "map" %} aria-current="page"{% endif %}>Map</a>
+<a href="{{ '/sources.html' | url }}"{% if nav == "sources" %} aria-current="page"{% endif %}>Compare tools</a>
+<a href="{{ '/about.html' | url }}"{% if nav == "about" %} aria-current="page"{% endif %}>About</a>
+</nav>
+</header>

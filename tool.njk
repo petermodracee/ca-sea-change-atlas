@@ -1,0 +1,87 @@
+---
+layout: base.njk
+pagination:
+  data: tools
+  size: 1
+  alias: tool
+permalink: "tool/{{ tool.id }}/index.html"
+nav: sources
+eleventyComputed:
+  title: "{{ tool.name }} — CA Sea Change Atlas"
+  description: "{{ tool.description }}"
+---
+<div class="main">
+<div class="wrap tool-detail">
+
+<p class="hero-nav"><a href="{{ '/sources.html' | url }}">← Back to tool comparison</a></p>
+
+<div class="tool-detail-head">
+<span class="tag status {{ 'status-implemented' if tool.implementationStatus == 'implemented' else 'status-not-implemented' }}">{{ 'Implemented on the map' if tool.implementationStatus == 'implemented' else 'Not implemented on the map' }}</span>
+<h1>{{ tool.name }}</h1>
+<div class="org">{{ tool.org }}{% if tool.released %} · released {{ tool.released }}{% endif %}</div>
+<p class="lede">{{ tool.description }}</p>
+{%- if tool.url %}
+<a class="landing-card-cta" href="{{ tool.url }}" target="_blank" rel="noopener">Visit {{ tool.name }} →</a>
+{%- endif %}
+</div>
+
+<div class="tool-detail-grid">
+
+<div class="tool-detail-section">
+<h2>Coverage</h2>
+<p>{{ tool.scopeLabel }}</p>
+</div>
+
+{%- if tool.processes %}
+<div class="tool-detail-section">
+<h2>Shoreline processes covered</h2>
+<ul>{% for p in tool.processes %}<li>{{ p }}</li>{% endfor %}</ul>
+</div>
+{%- endif %}
+
+{%- if tool.exposure %}
+<div class="tool-detail-section">
+<h2>Exposure analysis</h2>
+<ul>{% for e in tool.exposure %}<li>{{ e }}</li>{% endfor %}</ul>
+</div>
+{%- endif %}
+
+{%- if tool.floodInfo %}
+<div class="tool-detail-section">
+<h2>Projected flood info</h2>
+<ul>{% for f in tool.floodInfo %}<li>{{ f }}</li>{% endfor %}</ul>
+</div>
+{%- endif %}
+
+{%- if tool.reportsData %}
+<div class="tool-detail-section">
+<h2>Data & reports</h2>
+<p>{{ tool.reportsData }}</p>
+</div>
+{%- endif %}
+
+{%- if tool.slrModel %}
+<div class="tool-detail-section">
+<h2>Sea-level-rise model</h2>
+<p>{{ tool.slrModel }}</p>
+</div>
+{%- endif %}
+
+{%- if tool.strengths %}
+<div class="tool-detail-section">
+<h2>Strengths</h2>
+<ul>{% for s in tool.strengths %}<li>{{ s }}</li>{% endfor %}</ul>
+</div>
+{%- endif %}
+
+{%- if tool.limitations %}
+<div class="tool-detail-section">
+<h2>Limitations</h2>
+<ul>{% for l in tool.limitations %}<li>{{ l }}</li>{% endfor %}</ul>
+</div>
+{%- endif %}
+
+</div>
+
+</div>
+</div>

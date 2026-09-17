@@ -1,0 +1,41 @@
+---
+layout: base.njk
+title: CA Sea Change Atlas
+description: A live map of open California sea-level-rise flood data, and a side-by-side comparison of all 12 SLR/coastal-flooding tools.
+nav: home
+---
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<div class="eyebrow">California coastal decision support — unofficial project</div>
+<h1>CA Sea Change Atlas</h1>
+<p class="lede">Two tools for making sense of California's sea-level-rise and coastal-flooding data: a live map of the flood-hazard layers that are actually open to reuse, and a side-by-side comparison of all 12 tools in this space.</p>
+<p class="hero-about-link">Inspired by "Sea the Future," a state tool that ended when its funding ran out. <a href="{{ '/about.html' | url }}">Read more →</a></p>
+</div>
+</div>
+
+<div class="main">
+<div class="wrap">
+
+<p class="landing-note">These aren't the same information rendered twice — pick based on what you need.</p>
+
+<div class="landing-cards">
+<div class="landing-card">
+<h2>The map</h2>
+<p>A Leaflet map with live flood-hazard data — currently BCDC's Bay Shoreline Flood Explorer — as checkable layers, address search, and a click-to-inspect popup showing real depth, acreage, and consequence values at a point. Use this when you want to see what a specific piece of coastline actually looks like under a given scenario.</p>
+<a class="landing-card-cta" href="{{ '/map.html' | url }}">Open the map →</a>
+</div>
+<div class="landing-card">
+<h2>Tool comparison</h2>
+<p>A filterable grid of all 12 sea-level-rise and coastal-flooding tools California planners might reach for, plus a compare-up-to-three table covering scope, process, exposure, data, and known limitations. Use this when you're deciding which tool is the right one for your question in the first place.</p>
+<a class="landing-card-cta" href="{{ '/sources.html' | url }}">Browse the 12 tools →</a>
+</div>
+</div>
+
+</div>
+</div>

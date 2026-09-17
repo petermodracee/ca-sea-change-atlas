@@ -114,6 +114,12 @@ function render(){
     const actions = document.createElement("div");
     actions.className = "actions";
 
+    const details = document.createElement("a");
+    details.className = "linkbtn";
+    details.href = "/ca-sea-change-atlas/tool/" + tool.id + "/";
+    details.textContent = "Details";
+    actions.appendChild(details);
+
     if(tool.url){
       const a = document.createElement("a");
       a.className = "linkbtn";
