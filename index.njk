@@ -1,0 +1,49 @@
+---
+layout: base.njk
+title: CA Sea Change Atlas
+description: A live map of open California sea-level-rise flood data, and a side-by-side comparison of all 12 SLR/coastal-flooding tools.
+nav: home
+---
+{%- set schema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": site.name,
+  "url": site.url,
+  "description": description
+} %}
+<script type="application/ld+json">{{ schema | jsonify | safe }}</script>
+
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<h1>CA Sea Change Atlas</h1>
+<p class="lede">Two tools for making sense of California's sea-level-rise and coastal-flooding data: a live map of the flood-hazard layers that are actually open to reuse, and a side-by-side comparison of all 12 tools in this space.</p>
+<p class="hero-about-link">Inspired by "Sea the Future," a state tool that ended when its funding ran out. <a href="{{ '/about.html' | url }}">Read more</a></p>
+</div>
+</div>
+
+<div class="main">
+<div class="wrap">
+
+<div class="landing-cards">
+<div class="landing-card">
+<img src="{{ '/img/preview-map.png' | url }}" alt="Screenshot of the CA Sea Change Atlas map page" loading="lazy" onerror="this.remove()">
+<h2>The map</h2>
+<p>A Leaflet map with toggleable flood-hazard data collated from the sea-level-rise and coastal-flooding tools that have publicly accessible endpoints. Use this when you want to compare different layers and scenarios for a specific piece of California coastline. Not every one of the 12 tools appears here — see the comparison page for the full list.</p>
+<a class="landing-card-cta" href="{{ '/map.html' | url }}">Open the map</a>
+</div>
+<div class="landing-card">
+<img src="{{ '/img/preview-sources.png' | url }}" alt="Screenshot of the CA Sea Change Atlas tool comparison page" loading="lazy" onerror="this.remove()">
+<h2>Tool comparison</h2>
+<p>A filterable grid of all 12 sea-level-rise and coastal-flooding tools California residents and planners might use, plus a compare-up-to-three table covering scope, process, exposure, data, and known limitations. Use this when you're deciding which tool is the right one for your question in the first place.</p>
+<a class="landing-card-cta" href="{{ '/sources.html' | url }}">Browse the 12 tools</a>
+</div>
+</div>
+
+</div>
+</div>

@@ -1,28 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Sea the Future — California SLR tool coverage map</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-<link rel="stylesheet" href="css/style.css">
-</head>
-<body class="map-page">
-
-<header class="topbar">
-<div class="topbar-title">
-<h1>Sea the Future</h1>
-<span class="topbar-disclaimer">Unofficial recreation — verify before relying on this for planning decisions.</span>
-</div>
+---
+layout: base.njk
+permalink: "map.html"
+title: CA Sea Change Atlas — coverage map
+ogImage: /img/preview-map.png
+description: A Leaflet map of California sea-level-rise tool coverage, with a live BCDC Bay Shoreline Flood Explorer overlay and click-to-inspect flood data.
+nav: map
+bodyClass: map-page
+leaflet: true
+extraScripts:
+  - /js/info-popup.js
+  - /js/map.js
+footerAttribution: >
+  Coverage boundaries: county/state data from the
+  <a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code> repository</a>
+  (MIT license), originally derived from U.S. Census TIGER data — full provenance in
+  <a href="/ca-sea-change-atlas/data/coverage/ATTRIBUTION.md">data/coverage/ATTRIBUTION.md</a>. Flood-depth overlay: live map layers from
+  <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC's Adapting to Rising Tides Bay Shoreline Flood Explorer</a> —
+  planning-level only, not for parcel-scale, permitting, or engineering use; see
+  <a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">their full disclaimer</a>.
+  Base map &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Address search via
+  <a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>. Full license list:
+  <a href="/ca-sea-change-atlas/README.md#licenses--attribution">README</a>.
+---
+<div class="map-toolbar">
+<span class="topbar-disclaimer">Unofficial tool — verify before relying on this for planning decisions.</span>
 <form class="search-form" id="searchForm">
 <input type="text" id="searchInput" placeholder="Search an address or place in California…" autocomplete="off">
 <button type="submit">Search</button>
 </form>
-<a class="topbar-nav" href="sources.html">Browse the 12 tools →</a>
-</header>
+</div>
 <div class="search-status" id="searchStatus"></div>
 
 <div class="map-layout">
@@ -116,22 +122,3 @@
 </div>
 </aside>
 </div>
-
-<div class="map-attribution">
-Coverage boundaries: county/state data from the
-<a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code> repository</a>
-(MIT license), originally derived from U.S. Census TIGER data — full provenance in
-<a href="data/coverage/ATTRIBUTION.md">data/coverage/ATTRIBUTION.md</a>. Flood-depth overlay: live map layers from
-<a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC's Adapting to Rising Tides Bay Shoreline Flood Explorer</a> —
-planning-level only, not for parcel-scale, permitting, or engineering use; see
-<a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">their full disclaimer</a>.
-Base map &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Address search via
-<a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>. Full license list:
-<a href="README.md#licenses--attribution">README</a>.
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="js/info-popup.js"></script>
-<script src="js/map.js"></script>
-</body>
-</html>

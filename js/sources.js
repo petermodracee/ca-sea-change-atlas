@@ -86,8 +86,9 @@ function render(){
 
     const statusTag = document.createElement("span");
     const implemented = tool.implementationStatus === "implemented";
-    statusTag.className = "tag status " + (implemented ? "status-implemented" : "status-not-implemented");
-    statusTag.textContent = implemented ? "✓ Implemented on this map" : "Not implemented on this map";
+    const excluded = tool.mapEligibility === "excluded";
+    statusTag.className = "tag status " + (implemented ? "status-implemented" : excluded ? "status-excluded" : "status-not-implemented");
+    statusTag.textContent = implemented ? "✓ Implemented in the map tool" : excluded ? "External tool only" : "Not implemented in the map tool";
     card.appendChild(statusTag);
 
     const tags = document.createElement("div");
@@ -113,6 +114,12 @@ function render(){
 
     const actions = document.createElement("div");
     actions.className = "actions";
+
+    const details = document.createElement("a");
+    details.className = "linkbtn";
+    details.href = "/ca-sea-change-atlas/tool/" + tool.id + "/";
+    details.textContent = "Details";
+    actions.appendChild(details);
 
     if(tool.url){
       const a = document.createElement("a");
@@ -193,7 +200,7 @@ function renderComparisonTable(){
 
   const tools = state.compare.map(id => TOOLS.find(t=>t.id===id));
   const rows = [
-    ["Implemented on this map", t => t.implementationStatus === "implemented" ? "✓ Implemented" : "Not implemented"],
+    ["Implemented in the map tool", t => t.implementationStatus === "implemented" ? "✓ Implemented" : t.mapEligibility === "excluded" ? "External tool only" : "Not implemented"],
     ["Organization", t => t.org],
     ["Geographic scope", t => t.scopeLabel],
     ["Released", t => t.released],
