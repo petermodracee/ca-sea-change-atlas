@@ -375,6 +375,11 @@ table.cmp tbody tr:last-child td{border-bottom:0;}
 .landing-card{
   border:1px solid var(--line);border-radius:8px;background:var(--paper-2);
   padding:26px 24px;display:flex;flex-direction:column;gap:10px;
+  overflow:hidden;
+}
+.landing-card img{
+  margin:-26px -24px 6px;width:calc(100% + 48px);height:160px;
+  object-fit:cover;display:block;border-bottom:1px solid var(--line);
 }
 .landing-card h2{font-family:'Spectral',serif;font-size:22px;margin:0;}
 .landing-card p{font-size:14.5px;color:var(--ink-soft);margin:0;flex:1;}

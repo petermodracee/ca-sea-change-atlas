@@ -152,6 +152,11 @@ up map work next.
 - `tool.njk` — paginated over `_data/tools.js`, one generated page per
   tool at `/tool/<id>/` with real per-tool title/meta/OG tags.
 - `css/style.css` — shared stylesheet for every page.
+- `img/preview-map.png`, `img/preview-sources.png` — screenshot
+  thumbnails shown on the landing page's two cards. Not auto-generated;
+  update these manually (a real screenshot of `map.html`/`sources.html`)
+  whenever their layout changes significantly. The landing page degrades
+  gracefully (image just doesn't render) if either file is missing.
 - `data/tools.json` — the 12-tool dataset (descriptions, scope, links,
   strengths/limitations, etc.), with a `coverageRegion` field on each
   tool pointing at a region id (used only for documentation now — the map
