@@ -194,6 +194,32 @@ const FEMA_NFHL_ZONES_LAYER_ID = 28;
 const FEMA_NFHL_COLOR = "#C0392B";
 const FEMA_NFHL_ATTRIBUTION = 'Flood zones: <a href="https://www.fema.gov/flood-maps/national-flood-hazard-layer" target="_blank" rel="noopener">FEMA National Flood Hazard Layer</a>';
 
+// --- NOAA Coastal Flood Exposure Mapper (composite) -------------------------
+// The composite "how many hazards overlap here" layer, restricted to its
+// California sublayer. The real, confirmed sublayer name is
+// `CA_FloodComposite` (id 42) — not `CA_FloodComposite_int`, which doesn't
+// exist on this service; confirmed directly via the service's own layer
+// list. It's a raster layer (esri-leaflet/ArcGIS's ordinary vector `/query`
+// endpoint doesn't work against it — "Invalid or missing input parameters"
+// — but its `/identify` operation does, returning a HAZ_NUM code and a
+// plain-English DESCRPTN string listing which hazards overlap, e.g. "FEMA
+// Zones... & Sea Level Rise... & Tsunami Run Up Zone"), so click-to-inspect
+// below hand-builds an identify request the same way BCDC's GetFeatureInfo
+// does, rather than going through esri-leaflet's query helpers.
+//
+// The separate CFEM_Tsunami service (a nominally distinct "Tsunami Hazard
+// Areas" layer) is NOT wired up here: verified directly that its renderer
+// only classifies 2 Alabama FIPS codes and its underlying fields are a
+// leftover county-eligibility table, not real tsunami run-up geometry — an
+// exported image over the Bay Area confirmed it renders as a single flat
+// background color, i.e. no visible data for California despite the task's
+// assumption that it does. See BRIEF.md for the full citation trail; this
+// is a follow-up item, not something silently worked around.
+const CFEM_COMPOSITE_URL = "https://coast.noaa.gov/arcgis/rest/services/FloodExposureMapper/CFEM_CoastalFloodHazardComposite/MapServer";
+const CFEM_COMPOSITE_LAYER_ID = 42;
+const CFEM_COLOR = "#B26A00";
+const CFEM_ATTRIBUTION = 'Hazard overlap: <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">NOAA Office for Coastal Management, Coastal Flood Exposure Mapper</a>';
+
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
@@ -203,6 +229,7 @@ let consequenceLayer = null;
 let cosmosLayer = null;
 let noaaSlrLayer = null;
 let femaNfhlLayer = null;
+let cfemLayer = null;
 let infoPopup = null; // set in main(), from js/info-popup.js
 
 async function loadRegionData(){
@@ -887,6 +914,62 @@ function initFemaNfhl(){
   });
 }
 
+// --- NOAA Coastal Flood Exposure Mapper (composite) -------------------------
+
+function cfemIdentifyUrl(latlng){
+  const size = map.getSize();
+  const bounds = map.getBounds();
+  const sw = L.CRS.EPSG3857.project(bounds.getSouthWest());
+  const ne = L.CRS.EPSG3857.project(bounds.getNorthEast());
+  const params = new URLSearchParams({
+    f: "json",
+    geometry: `${latlng.lng},${latlng.lat}`,
+    geometryType: "esriGeometryPoint",
+    sr: "4326",
+    layers: `visible:${CFEM_COMPOSITE_LAYER_ID}`,
+    tolerance: "3",
+    mapExtent: `${sw.x},${sw.y},${ne.x},${ne.y}`,
+    imageDisplay: `${Math.round(size.x)},${Math.round(size.y)},96`,
+    returnGeometry: "false"
+  });
+  return `${CFEM_COMPOSITE_URL}/identify?${params.toString()}`;
+}
+
+function initCfem(){
+  const toggle = document.getElementById("cfemToggle");
+  const swatchEl = document.querySelector('[data-swatch="cfem"]');
+  if(swatchEl) setSwatch(swatchEl, CFEM_COLOR, false);
+
+  function refreshCfemLayer(){
+    if(cfemLayer){ map.removeLayer(cfemLayer); cfemLayer = null; }
+    if(!toggle.checked) return;
+    cfemLayer = L.esri.dynamicMapLayer({
+      url: CFEM_COMPOSITE_URL,
+      layers: [CFEM_COMPOSITE_LAYER_ID],
+      opacity: 0.65,
+      attribution: CFEM_ATTRIBUTION
+    });
+    cfemLayer.addTo(map);
+  }
+
+  toggle.addEventListener("change", refreshCfemLayer);
+
+  infoPopup.registerProvider(async latlng => {
+    if(!toggle.checked) return null;
+    const url = cfemIdentifyUrl(latlng);
+    const json = await cachedFetch(url, res => res.json());
+    const result = json.results && json.results[0];
+    if(!result || !result.attributes){
+      return { title: "NOAA Coastal Flood Exposure", note: "No mapped hazard overlap at this point." };
+    }
+    const desc = result.attributes["Raster.DESCRPTN"];
+    if(!desc){
+      return { title: "NOAA Coastal Flood Exposure", note: "No mapped hazard overlap at this point." };
+    }
+    return { title: "NOAA Coastal Flood Exposure", rows: [{ label: "Overlapping hazards", value: desc }] };
+  });
+}
+
 async function geocode(query){
   const statusEl = document.getElementById("searchStatus");
   statusEl.textContent = "Searching…";
@@ -926,6 +1009,7 @@ async function main(){
   initCosmos();
   initNoaaSlr();
   initFemaNfhl();
+  initCfem();
   initGroupCollapse();
 }
 
