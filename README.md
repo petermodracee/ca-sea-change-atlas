@@ -153,10 +153,17 @@ up map work next.
   tool at `/tool/<id>/` with real per-tool title/meta/OG tags.
 - `css/style.css` — shared stylesheet for every page.
 - `img/preview-map.png`, `img/preview-sources.png` — screenshot
-  thumbnails shown on the landing page's two cards. Not auto-generated;
-  update these manually (a real screenshot of `map.html`/`sources.html`)
-  whenever their layout changes significantly. The landing page degrades
-  gracefully (image just doesn't render) if either file is missing.
+  thumbnails shown on the landing page's two cards, and the default
+  `og:image`/`twitter:image` for every page that doesn't set its own
+  `ogImage` front-matter value. Not auto-generated; update these manually
+  (a real screenshot of `map.html`/`sources.html`) whenever their layout
+  changes significantly. The landing page degrades gracefully (image
+  just doesn't render) if either file is missing.
+- `img/favicon.svg` — the site favicon, referenced from `_includes/base.njk`.
+- `robots.txt`, `sitemap.njk` — `sitemap.njk` generates `sitemap.xml` at
+  build time from every page Eleventy knows about (including all 12 tool
+  pages, via `addAllPagesToCollections` in `tool.njk`'s pagination
+  config); `robots.txt` points crawlers at it.
 - `data/tools.json` — the 12-tool dataset (descriptions, scope, links,
   strengths/limitations, etc.), with a `coverageRegion` field on each
   tool pointing at a region id (used only for documentation now — the map

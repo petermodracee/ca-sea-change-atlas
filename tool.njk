@@ -4,12 +4,24 @@ pagination:
   data: tools
   size: 1
   alias: tool
+  addAllPagesToCollections: true
 permalink: "tool/{{ tool.id }}/index.html"
 nav: sources
 eleventyComputed:
   title: "{{ tool.name }} — CA Sea Change Atlas"
   description: "{{ tool.description }}"
 ---
+{%- set schema = {
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": tool.name,
+  "description": tool.description,
+  "creator": { "@type": "Organization", "name": tool.org },
+  "url": tool.url,
+  "spatialCoverage": tool.scopeLabel
+} %}
+<script type="application/ld+json">{{ schema | jsonify | safe }}</script>
+
 <div class="main">
 <div class="wrap tool-detail">
 

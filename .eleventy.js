@@ -1,6 +1,8 @@
 module.exports = function (eleventyConfig) {
   eleventyConfig.setTemplateFormats(["njk"]);
 
+  eleventyConfig.addFilter("jsonify", (obj) => JSON.stringify(obj));
+
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("js");
   eleventyConfig.addPassthroughCopy("data");
@@ -9,6 +11,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("README.md");
   eleventyConfig.addPassthroughCopy("BRIEF.md");
   eleventyConfig.addPassthroughCopy("LICENSE");
+  eleventyConfig.addPassthroughCopy("robots.txt");
 
   return {
     pathPrefix: "/ca-sea-change-atlas/",

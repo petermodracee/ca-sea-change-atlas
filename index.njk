@@ -4,6 +4,15 @@ title: CA Sea Change Atlas
 description: A live map of open California sea-level-rise flood data, and a side-by-side comparison of all 12 SLR/coastal-flooding tools.
 nav: home
 ---
+{%- set schema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": site.name,
+  "url": site.url,
+  "description": description
+} %}
+<script type="application/ld+json">{{ schema | jsonify | safe }}</script>
+
 <div class="hero">
 <svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
 <path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
