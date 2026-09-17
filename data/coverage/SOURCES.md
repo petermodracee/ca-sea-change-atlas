@@ -44,6 +44,20 @@ further to the Newport Bay watershed if a finer boundary turns up later,
 since FloodRISE's real study area is much smaller than the whole county —
 county-level is a reasonable first cut.
 
+## Flood-depth overlay (live, not stored here)
+The optional "BCDC flood-depth overlay" toggle on the map is **not** a file in
+this repo — it's a Leaflet WMS layer pointed live at BCDC's own map server
+(`mapserver.adaptingtorisingtides.org`, discovered via the config endpoint
+behind https://explorer.adaptingtorisingtides.org/download). It requests the
+`inundation{N}` layers for N in [0, 12, 24, 36, 48, 52, 66, 77, 84, 96, 108]
+(inches of Total Water Level above MHHW), matching the 10-scenario slider on
+BCDC's own site. See `js/app.js` (`BCDC_WMS_URL`, `buildFloodLayer`).
+This is a deliberate exception to BRIEF.md's "don't reproduce actual
+flood-risk data" non-goal — decided directly with the project owner, since
+BCDC exposes this as a live, embeddable service rather than requiring us to
+host a copy. If that WMS endpoint ever goes away or changes its layer names,
+the toggle will silently show blank tiles; there's no local fallback data.
+
 ## General notes
 - Each region is its own small GeoJSON file under this folder so
   individual regions can be swapped out or refined independently.
