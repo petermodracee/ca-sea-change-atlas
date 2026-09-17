@@ -26,6 +26,34 @@ const REGION_STYLES = {
 const BCDC_WMS_URL = "https://mapserver.adaptingtorisingtides.org/cgi-bin/mapserv?map=/opt/slrviewer/mapfiles/bcdc.map";
 const BCDC_WATER_LEVELS = [0, 12, 24, 36, 48, 52, 66, 77, 84, 96, 108]; // inches above MHHW, matches BCDC's own "Total Water Level" slider
 
+const SLR_OPTIONS = BCDC_WATER_LEVELS.map(v => ({ inches: v, label: v === 0 ? "No SLR" : `${v}"` }));
+
+// Storm-surge return-period baseline inches above MHHW, Bay-wide regional
+// average — taken from BCDC's own data/storm-surge.json ("regional" block,
+// fetched and inspected directly from their site). Deliberately just the
+// one regional figure, not BCDC's per-county baselines/corrections — this
+// map doesn't have a county-selection step, and the county-precision
+// version of this feature turned out not to be worth the complexity.
+const STORM_SURGE_OPTIONS = [
+  { key: "none", label: "No Storm Surge", inches: 0 },
+  { key: "1", label: "King Tide", inches: 14 },
+  { key: "2", label: "2-yr", inches: 18 },
+  { key: "5", label: "5-yr", inches: 23 },
+  { key: "10", label: "10-yr", inches: 27 },
+  { key: "25", label: "25-yr", inches: 32 },
+  { key: "50", label: "50-yr", inches: 37 },
+  { key: "100", label: "100-yr", inches: 42 }
+];
+
+function nearestLevelIndex(targetInches){
+  let bestIdx = 0, bestDiff = Infinity;
+  BCDC_WATER_LEVELS.forEach((v, i) => {
+    const diff = Math.abs(v - targetInches);
+    if(diff < bestDiff){ bestDiff = diff; bestIdx = i; }
+  });
+  return bestIdx;
+}
+
 // Per-water-level BCDC layers, one checkbox each, all driven by the same
 // current water level. WMS layer name is `${prefix}${inches}`.
 const BCDC_LAYER_TYPES = {
@@ -328,6 +356,14 @@ function initGroupCollapse(){
 function initFloodOverlay(){
   const levelSlider = document.getElementById("floodLevel");
   const levelValue = document.getElementById("floodLevelValue");
+  const modeTabs = document.querySelectorAll(".mode-tab");
+  const modeLevel = document.getElementById("modeLevel");
+  const modeScenario = document.getElementById("modeScenario");
+  const slrButtonsEl = document.getElementById("slrButtons");
+  const stormButtonsEl = document.getElementById("stormButtons");
+  const scenarioResultEl = document.getElementById("scenarioResult");
+  const equivCaptionEl = document.getElementById("equivCaption");
+  const equivScenariosEl = document.getElementById("equivScenarios");
   const bcdcCheckboxes = document.querySelectorAll("[data-bcdc-layer]");
   const impactTabs = document.querySelectorAll(".impact-tab");
   const impactFlooding = document.getElementById("impactFlooding");
@@ -337,6 +373,8 @@ function initFloodOverlay(){
   const bcdcLegendEl = document.getElementById("bcdcLegend");
 
   let currentLevelIndex = Number(levelSlider.value);
+  let selectedSlrInches = null;
+  let selectedStormInches = null;
 
   const currentInches = () => BCDC_WATER_LEVELS[currentLevelIndex];
 
@@ -408,7 +446,95 @@ function initFloodOverlay(){
     levelSlider.value = idx;
     levelValue.textContent = `${currentInches()}"`;
     refreshAllChecked();
+    updateEquivalentScenarios();
   }
+
+  // Combos within BCDC's own ±3" binning tolerance count as "matching."
+  function isWithinTolerance(sum){
+    return Math.abs(sum - BCDC_WATER_LEVELS[nearestLevelIndex(sum)]) <= 3;
+  }
+
+  function updateEquivalentScenarios(){
+    const twl = currentInches();
+    equivCaptionEl.textContent = "This level represents similar flooding under these Sea Level Rise + Storm Surge combinations (SF Bay region, regional):";
+    const rows = [];
+    SLR_OPTIONS.forEach(s => {
+      STORM_SURGE_OPTIONS.forEach(g => {
+        const sum = s.inches + g.inches;
+        if(Math.abs(sum - twl) <= 3) rows.push({ slr: s.label, storm: g.label, sum });
+      });
+    });
+    rows.sort((a, b) => a.sum - b.sum || (b.storm === "No Storm Surge" ? -1 : 0));
+
+    equivScenariosEl.innerHTML = "";
+    if(!rows.length){
+      equivScenariosEl.innerHTML = '<p class="equiv-note">No combination matches this level within the usual ±3" tolerance.</p>';
+      return;
+    }
+    const head = document.createElement("div");
+    head.className = "equiv-row equiv-head";
+    head.innerHTML = "<span>Sea Level Rise</span><span>Storm Surge</span>";
+    equivScenariosEl.appendChild(head);
+    rows.forEach(r => {
+      const row = document.createElement("div");
+      row.className = "equiv-row";
+      row.innerHTML = `<span>${r.slr}</span><span>${r.storm}</span>`;
+      equivScenariosEl.appendChild(row);
+    });
+  }
+
+  function updateGreying(){
+    stormButtonsEl.querySelectorAll(".scenario-btn").forEach(b => {
+      const disabled = selectedSlrInches !== null && !isWithinTolerance(selectedSlrInches + Number(b.dataset.inches));
+      b.disabled = disabled;
+    });
+    slrButtonsEl.querySelectorAll(".scenario-btn").forEach(b => {
+      const disabled = selectedStormInches !== null && !isWithinTolerance(Number(b.dataset.inches) + selectedStormInches);
+      b.disabled = disabled;
+    });
+  }
+
+  function buildButtonGrid(container, options, onPick){
+    options.forEach(opt => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "scenario-btn";
+      b.textContent = opt.label;
+      b.dataset.inches = opt.inches;
+      b.addEventListener("click", () => {
+        container.querySelectorAll(".scenario-btn").forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        onPick(opt);
+      });
+      container.appendChild(b);
+    });
+  }
+
+  function updateScenarioResult(){
+    updateGreying();
+    if(selectedSlrInches === null || selectedStormInches === null){
+      scenarioResultEl.textContent = "Select a sea level rise and storm surge amount to see the closest matching Total Water Level.";
+      return;
+    }
+    const idx = nearestLevelIndex(selectedSlrInches + selectedStormInches);
+    setLevelIndex(idx);
+    scenarioResultEl.textContent = `Closest matching Total Water Level: ${currentInches()}" above MHHW (regional approximation — BCDC's own tool uses county-specific storm-tide data).`;
+  }
+
+  modeTabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      modeTabs.forEach(b => { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
+      btn.classList.add("active");
+      btn.setAttribute("aria-selected", "true");
+      const scenario = btn.dataset.mode === "scenario";
+      modeLevel.hidden = scenario;
+      modeScenario.hidden = !scenario;
+    });
+  });
+
+  buildButtonGrid(slrButtonsEl, SLR_OPTIONS, opt => { selectedSlrInches = opt.inches; updateScenarioResult(); });
+  buildButtonGrid(stormButtonsEl, STORM_SURGE_OPTIONS, opt => { selectedStormInches = opt.inches; updateScenarioResult(); });
+  updateEquivalentScenarios();
 
   levelValue.textContent = `${currentInches()}"`;
 

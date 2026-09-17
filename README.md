@@ -10,22 +10,28 @@ actually applies to their patch of coastline.
 Two-page version: `index.html` is a map-first page — a Leaflet map with
 each tool's coverage area as a checkable layer in a right-side panel (like
 ArcGIS Online's Layers widget, with collapsible group sections), a live
-BCDC Bay Shoreline Flood Explorer overlay (Total Water Level slider,
-depth-of-flooding/overtopping/low-lying/legal-delta layer toggles, and a
-consequence-indicator picker), address search, and a click-to-inspect
-popup showing real values (depth, acreage, traffic counts, etc., queried
-live from BCDC's WMS server) for whichever layers are checked at the
-clicked point. `sources.html` is the tool comparison — the filterable
-12-tool grid and compare-up-to-three table from the original prototype.
-See `BRIEF.md` for the full project brief and definition of done.
+BCDC Bay Shoreline Flood Explorer overlay (a Total Water Level slider or
+a "choose a scenario" SLR + storm-surge picker — mirroring BCDC's own "One
+Map, Many Futures" panel — plus depth-of-flooding/overtopping/low-lying/
+legal-delta layer toggles and a consequence-indicator picker), address
+search, and a click-to-inspect popup showing real values (depth, acreage,
+traffic counts, etc., queried live from BCDC's WMS server) for whichever
+layers are checked at the clicked point. `sources.html` is the tool
+comparison — the filterable 12-tool grid and compare-up-to-three table
+from the original prototype. See `BRIEF.md` for the full project brief
+and definition of done.
 
-An earlier iteration also had a "choose a scenario" SLR + storm-surge
-picker with an approximate county-baseline lookup table, and it grew a
-scenario-matching feature (equivalent-combinations table, greyed-out
-invalid combos) on top of that approximation. It was removed once the
-click-to-inspect popup could just ask BCDC's own server for the real
-number at a real point — more accurate, and no need to approximate
-BCDC's per-county storm-surge corrections at all.
+The scenario picker briefly grew a per-county storm-surge baseline
+(auto-detected from where you click) on top of BCDC's own regional
+average, plus an equivalent-combinations table and greyed-out invalid
+combos computed against whichever baseline was active. The county part
+was removed — regional-only was judged good enough and not worth the
+added complexity — but the picker itself, the equivalent-combinations
+table, and the greying all stayed, now computed against BCDC's single
+regional storm-surge baseline only. The click-to-inspect popup (below)
+is the complementary, fully-precise way to see the real value BCDC's
+server actually reports at a specific point, when that matters more than
+the picker's convenience.
 
 BCDC's server sends no `Cache-Control`/`Expires` on either tiles or
 GetFeatureInfo responses (confirmed by inspecting the response headers
