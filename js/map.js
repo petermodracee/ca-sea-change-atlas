@@ -122,12 +122,40 @@ const CONSEQUENCE_LAYERS = {
   "vulcom_contam": { prefix: "consequence_vulcom_contam_", levelDependent: true }
 };
 
+// --- USGS CoSMoS / Our Coast, Our Future -----------------------------------
+// Live ArcGIS FeatureServer. One polygon sublayer per scenario (a modeled
+// flood-extent boundary for that scenario) — there's no per-feature depth
+// attribute on these layers (confirmed directly: fields are just OBJECTID/
+// COUNTY/DIST/Shape__Area/Shape__Length), so "inside the polygon" is itself
+// the answer to "does this point flood under scenario X," unlike BCDC's
+// per-point depth values.
+//
+// Layer ids below come from a one-time inspection of
+// `${COSMOS_FEATURESERVER_URL}?f=json` (27 sublayers, named
+// `${prefix}_SLR${cm}`) — not re-fetched at runtime, since the service's
+// own layer list doesn't change between page loads.
+const COSMOS_FEATURESERVER_URL = "https://services1.arcgis.com/8CpMUd3fdw6aXef7/ArcGIS/rest/services/CoSMoS_SLR/FeatureServer";
+const COSMOS_SCENARIOS = [
+  { key: "avg", label: "Average (no storm)" },
+  { key: "w020", label: "20-yr storm" },
+  { key: "w100", label: "100-yr storm" }
+];
+const COSMOS_SLR_CM = [0, 25, 50, 75, 100, 150, 200, 300, 500];
+const COSMOS_LAYER_IDS = {
+  avg:  { 0: 0, 25: 1, 50: 2, 75: 3, 100: 4, 150: 5, 200: 6, 300: 7, 500: 8 },
+  w020: { 0: 9, 25: 10, 50: 11, 75: 12, 100: 13, 150: 14, 200: 15, 300: 16, 500: 17 },
+  w100: { 0: 18, 25: 19, 50: 20, 75: 21, 100: 22, 150: 23, 200: 24, 300: 25, 500: 26 }
+};
+const COSMOS_COLOR = "#8C2D8C";
+const COSMOS_ATTRIBUTION = 'Flood extent: <a href="https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos" target="_blank" rel="noopener">USGS CoSMoS / Our Coast, Our Future</a>';
+
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
 let bcdcLayers = {};        // BCDC_LAYER_TYPES id -> active Leaflet WMS layer, or absent
 let legalDeltaLayer = null;
 let consequenceLayer = null;
+let cosmosLayer = null;
 let infoPopup = null; // set in main(), from js/info-popup.js
 
 async function loadRegionData(){
@@ -621,6 +649,91 @@ function initFloodOverlay(){
   });
 }
 
+// --- CoSMoS layer + scenario picker ---------------------------------------
+
+function initCosmos(){
+  const toggle = document.getElementById("cosmosToggle");
+  const scenarioTabs = document.querySelectorAll("[data-cosmos-scenario]");
+  const slrButtonsEl = document.getElementById("cosmosSlrButtons");
+  const resultEl = document.getElementById("cosmosResult");
+  const swatchEl = document.querySelector('[data-swatch="cosmos"]');
+  if(swatchEl) setSwatch(swatchEl, COSMOS_COLOR, false);
+
+  let scenario = "avg";
+  let slrCm = 0;
+
+  function currentLayerId(){
+    return COSMOS_LAYER_IDS[scenario][slrCm];
+  }
+
+  function currentLabel(){
+    const scenarioLabel = COSMOS_SCENARIOS.find(s => s.key === scenario).label;
+    return `${scenarioLabel}, ${slrCm} cm SLR`;
+  }
+
+  function refreshCosmosLayer(){
+    if(cosmosLayer){ map.removeLayer(cosmosLayer); cosmosLayer = null; }
+    resultEl.textContent = `Showing: ${currentLabel()}`;
+    if(!toggle.checked) return;
+    cosmosLayer = L.esri.featureLayer({
+      url: `${COSMOS_FEATURESERVER_URL}/${currentLayerId()}`,
+      style: { color: COSMOS_COLOR, weight: 1, fillColor: COSMOS_COLOR, fillOpacity: 0.35 },
+      attribution: COSMOS_ATTRIBUTION
+    });
+    cosmosLayer.addTo(map);
+  }
+
+  scenarioTabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      scenarioTabs.forEach(b => { b.classList.remove("active"); b.setAttribute("aria-selected", "false"); });
+      btn.classList.add("active");
+      btn.setAttribute("aria-selected", "true");
+      scenario = btn.dataset.cosmosScenario;
+      refreshCosmosLayer();
+    });
+  });
+
+  COSMOS_SLR_CM.forEach(cm => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "scenario-btn";
+    if(cm === slrCm) b.classList.add("active");
+    b.textContent = cm === 0 ? "0 cm (existing)" : `${cm} cm`;
+    b.dataset.cm = cm;
+    b.addEventListener("click", () => {
+      slrButtonsEl.querySelectorAll(".scenario-btn").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      slrCm = cm;
+      refreshCosmosLayer();
+    });
+    slrButtonsEl.appendChild(b);
+  });
+
+  toggle.addEventListener("change", refreshCosmosLayer);
+  resultEl.textContent = `Showing: ${currentLabel()}`;
+
+  infoPopup.registerProvider(async latlng => {
+    if(!toggle.checked) return null;
+    const layerId = currentLayerId();
+    return new Promise(resolve => {
+      L.esri.query({ url: `${COSMOS_FEATURESERVER_URL}/${layerId}` })
+        .contains(latlng)
+        .run((error, featureCollection) => {
+          if(error){ resolve(null); return; }
+          const label = `CoSMoS — ${currentLabel()}`;
+          if(!featureCollection || !featureCollection.features.length){
+            resolve({ title: label, note: "Not within the modeled flood extent at this point." });
+            return;
+          }
+          const county = featureCollection.features[0].properties.COUNTY;
+          const rows = [{ label: "Within modeled flood extent", value: "Yes" }];
+          if(county) rows.push({ label: "County", value: county });
+          resolve({ title: label, rows });
+        });
+    });
+  });
+}
+
 async function geocode(query){
   const statusEl = document.getElementById("searchStatus");
   statusEl.textContent = "Searching…";
@@ -657,6 +770,7 @@ async function main(){
   initMap();
   infoPopup = createInfoPopup(map);
   initFloodOverlay();
+  initCosmos();
   initGroupCollapse();
 }
 
