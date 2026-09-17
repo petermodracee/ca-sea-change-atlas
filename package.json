@@ -1,0 +1,13 @@
+{
+  "name": "ca-sea-change-atlas",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CA Sea Change Atlas — a map of, and comparison guide to, California sea-level-rise and coastal-flooding visualization tools.",
+  "scripts": {
+    "build": "eleventy",
+    "serve": "eleventy --serve"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0"
+  }
+}
