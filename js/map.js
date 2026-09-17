@@ -149,6 +149,28 @@ const COSMOS_LAYER_IDS = {
 const COSMOS_COLOR = "#8C2D8C";
 const COSMOS_ATTRIBUTION = 'Flood extent: <a href="https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos" target="_blank" rel="noopener">USGS CoSMoS / Our Coast, Our Future</a>';
 
+// --- NOAA Sea Level Rise Viewer ---------------------------------------------
+// Unlike BCDC/CoSMoS (one service, many sublayers), this is a whole separate
+// MapServer per scenario — half-foot increments from 0 to 10 ft, named
+// `slr_{X}ft`/`slr_{X}_{Y}ft`. Picking a scenario means swapping which
+// MapServer is active, not changing a parameter — hence a dropdown here
+// rather than a slider (see BRIEF.md/plan notes for the reasoning). Layer 0
+// (polygon "Low-lying Areas") is the queryable one; layer 1 (raster "Depth")
+// renders alongside it but has no per-feature attributes worth querying.
+const NOAA_SLR_BASE = "https://coast.noaa.gov/arcgis/rest/services/dc_slr";
+const NOAA_SLR_SCENARIOS = (() => {
+  const opts = [];
+  for(let tenths = 0; tenths <= 100; tenths += 5){
+    const ft = tenths / 10;
+    const label = `${ft} ft`;
+    const slug = Number.isInteger(ft) ? `${ft}ft` : `${Math.floor(ft)}_5ft`;
+    opts.push({ key: slug, label, url: `${NOAA_SLR_BASE}/slr_${slug}/MapServer` });
+  }
+  return opts;
+})();
+const NOAA_SLR_ATTRIBUTION = 'Flood data: <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA Office for Coastal Management, Sea Level Rise Viewer</a>';
+const NOAA_SLR_COLOR = "#2F6FA0";
+
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
@@ -156,6 +178,7 @@ let bcdcLayers = {};        // BCDC_LAYER_TYPES id -> active Leaflet WMS layer, 
 let legalDeltaLayer = null;
 let consequenceLayer = null;
 let cosmosLayer = null;
+let noaaSlrLayer = null;
 let infoPopup = null; // set in main(), from js/info-popup.js
 
 async function loadRegionData(){
@@ -734,6 +757,67 @@ function initCosmos(){
   });
 }
 
+// --- NOAA Sea Level Rise Viewer --------------------------------------------
+
+function initNoaaSlr(){
+  const toggle = document.getElementById("noaaSlrToggle");
+  const select = document.getElementById("noaaSlrScenario");
+  const resultEl = document.getElementById("noaaSlrResult");
+  const swatchEl = document.querySelector('[data-swatch="noaa-slr"]');
+  if(swatchEl) setSwatch(swatchEl, NOAA_SLR_COLOR, false);
+
+  NOAA_SLR_SCENARIOS.forEach(opt => {
+    const o = document.createElement("option");
+    o.value = opt.key;
+    o.textContent = opt.label;
+    select.appendChild(o);
+  });
+  select.value = "3ft";
+
+  function currentScenario(){
+    return NOAA_SLR_SCENARIOS.find(s => s.key === select.value);
+  }
+
+  function refreshNoaaSlrLayer(){
+    if(noaaSlrLayer){ map.removeLayer(noaaSlrLayer); noaaSlrLayer = null; }
+    const scenario = currentScenario();
+    resultEl.textContent = `Showing: ${scenario.label} of sea level rise.`;
+    if(!toggle.checked) return;
+    noaaSlrLayer = L.esri.dynamicMapLayer({
+      url: scenario.url,
+      layers: [0, 1],
+      opacity: 0.75,
+      attribution: NOAA_SLR_ATTRIBUTION
+    });
+    noaaSlrLayer.addTo(map);
+  }
+
+  toggle.addEventListener("change", refreshNoaaSlrLayer);
+  select.addEventListener("change", refreshNoaaSlrLayer);
+  resultEl.textContent = `Showing: ${currentScenario().label} of sea level rise.`;
+
+  infoPopup.registerProvider(async latlng => {
+    if(!toggle.checked) return null;
+    const scenario = currentScenario();
+    const label = `NOAA SLR Viewer — ${scenario.label}`;
+    return new Promise(resolve => {
+      L.esri.identifyFeatures({ url: scenario.url })
+        .on(map)
+        .at(latlng)
+        .layers("visible:0")
+        .tolerance(3)
+        .run((error, featureCollection) => {
+          if(error){ resolve(null); return; }
+          if(!featureCollection || !featureCollection.features.length){
+            resolve({ title: label, note: "Not within a mapped low-lying area at this point." });
+            return;
+          }
+          resolve({ title: label, rows: [{ label: "Within low-lying area", value: "Yes" }] });
+        });
+    });
+  });
+}
+
 async function geocode(query){
   const statusEl = document.getElementById("searchStatus");
   statusEl.textContent = "Searching…";
@@ -771,6 +855,7 @@ async function main(){
   infoPopup = createInfoPopup(map);
   initFloodOverlay();
   initCosmos();
+  initNoaaSlr();
   initGroupCollapse();
 }
 
