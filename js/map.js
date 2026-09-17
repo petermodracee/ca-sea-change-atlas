@@ -75,10 +75,17 @@ const CONSEQUENCE_LEGENDS = {
 // Consequence-indicator layers from ART Bay Area's regional analysis.
 // levelDependent ones only exist for the 10 non-zero water levels
 // (BCDC_WATER_LEVELS minus 0) — there's no "at 0 inches" consequence layer.
+//
+// brokenUpstream: confirmed directly against BCDC's live server (not a
+// request-format issue on our side) — GetFeatureInfo returns zero features
+// for these three layers across multiple real highway/rail locations and a
+// bbox spanning the whole Bay, while other consequence layers queried the
+// same way return real data. Looks like a gap in BCDC's own published data,
+// so these are disabled here rather than silently showing nothing.
 const CONSEQUENCE_LAYERS = {
-  "highway_vehicle": { name: "consequence_highway_vehicle", levelDependent: false },
-  "highway_truck": { name: "consequence_highway_truck", levelDependent: false },
-  "rail": { name: "consequence_rail", levelDependent: false },
+  "highway_vehicle": { name: "consequence_highway_vehicle", levelDependent: false, brokenUpstream: true },
+  "highway_truck": { name: "consequence_highway_truck", levelDependent: false, brokenUpstream: true },
+  "rail": { name: "consequence_rail", levelDependent: false, brokenUpstream: true },
   "recreation": { prefix: "consequence_recreation_", levelDependent: true },
   "tidalhabitat": { prefix: "consequence_tidalhabitat_", levelDependent: true },
   "housing": { prefix: "consequence_housing_", levelDependent: true },
@@ -101,8 +108,39 @@ async function loadRegionData(){
   regionIds.forEach((id, i) => { regionData[id] = results[i]; });
 }
 
+// Simple in-memory cache for BCDC requests, scoped to this page session.
+// The server sends no Cache-Control/Expires on tiles or GetFeatureInfo
+// responses (confirmed by inspecting the response headers directly), so
+// without this, revisiting the same tile or clicking the same point twice
+// re-triggers a full ~450ms live render on BCDC's server every time. This
+// just avoids repeating an identical request (same URL) more than once
+// per session — it doesn't survive a reload, and doesn't change what's
+// shown, since BCDC's data for a given water level doesn't change mid-visit.
+const bcdcRequestCache = new Map(); // url -> Promise<result>
+
+function cachedBcdcFetch(url, transform){
+  if(bcdcRequestCache.has(url)) return bcdcRequestCache.get(url);
+  const promise = fetch(url).then(transform).catch(err => { bcdcRequestCache.delete(url); throw err; });
+  bcdcRequestCache.set(url, promise);
+  return promise;
+}
+
+// Leaflet's own WMS tile layer just sets <img src> directly, which can't be
+// routed through our cache — so this fetches each tile once (cached by
+// URL) and hands the resulting blob to the <img> ourselves.
+const CachedBcdcTileLayer = L.TileLayer.WMS.extend({
+  createTile: function(coords, done){
+    const img = document.createElement("img");
+    const url = this.getTileUrl(coords);
+    cachedBcdcFetch(url, res => res.blob().then(blob => URL.createObjectURL(blob)))
+      .then(objectUrl => { img.src = objectUrl; done(null, img); })
+      .catch(err => done(err, img));
+    return img;
+  }
+});
+
 function buildBcdcWmsLayer(layerName, opacity){
-  return L.tileLayer.wms(BCDC_WMS_URL, {
+  return new CachedBcdcTileLayer(BCDC_WMS_URL, {
     layers: layerName,
     version: "1.3.0",
     format: "image/png",
@@ -153,9 +191,8 @@ function parseGmlFeatures(xmlText, layerName){
 }
 
 async function fetchBcdcFeatures(layerName, latlng){
-  const res = await fetch(bcdcFeatureInfoUrl(layerName, latlng));
-  const text = await res.text();
-  return parseGmlFeatures(text, layerName);
+  const url = bcdcFeatureInfoUrl(layerName, latlng);
+  return cachedBcdcFetch(url, async res => parseGmlFeatures(await res.text(), layerName));
 }
 
 function fmtNum(n, decimals){
@@ -316,6 +353,10 @@ function initFloodOverlay(){
     consequenceNoteEl.textContent = "";
     if(!key) return;
     const def = CONSEQUENCE_LAYERS[key];
+    if(def.brokenUpstream){
+      consequenceNoteEl.textContent = "BCDC's live server currently returns no data for this category (confirmed directly — not a bug in this map). No layer to show.";
+      return;
+    }
     if(def.levelDependent && currentInches() === 0){
       consequenceNoteEl.textContent = "No consequence layer at 0\" — pick a non-zero water level to see this category.";
       return;
@@ -334,7 +375,8 @@ function initFloodOverlay(){
   function renderBcdcLegend(){
     const items = [];
     bcdcCheckboxes.forEach(cb => { if(cb.checked) items.push(LAYER_LEGENDS[cb.dataset.bcdcLayer]); });
-    if(consequenceSelect.value) items.push(CONSEQUENCE_LEGENDS[consequenceSelect.value]);
+    const consKey = consequenceSelect.value;
+    if(consKey && !CONSEQUENCE_LAYERS[consKey].brokenUpstream) items.push(CONSEQUENCE_LEGENDS[consKey]);
 
     bcdcLegendEl.innerHTML = "";
     bcdcLegendEl.hidden = items.length === 0;
@@ -437,6 +479,9 @@ function initFloodOverlay(){
     const key = consequenceSelect.value;
     if(!key) return null;
     const def = CONSEQUENCE_LAYERS[key];
+    if(def.brokenUpstream){
+      return { title: CONSEQUENCE_LEGENDS[key].label, note: "BCDC's live server currently returns no data for this category." };
+    }
     if(def.levelDependent && currentInches() === 0){
       return { title: CONSEQUENCE_LEGENDS[key].label, note: 'No consequence layer at 0" above MHHW.' };
     }

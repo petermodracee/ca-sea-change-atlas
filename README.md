@@ -27,6 +27,20 @@ click-to-inspect popup could just ask BCDC's own server for the real
 number at a real point — more accurate, and no need to approximate
 BCDC's per-county storm-surge corrections at all.
 
+BCDC's server sends no `Cache-Control`/`Expires` on either tiles or
+GetFeatureInfo responses (confirmed by inspecting the response headers
+directly) — so `js/map.js` keeps its own in-memory, per-session cache
+keyed by request URL, so re-panning to a spot already viewed or clicking
+the same point twice doesn't repeat a live ~450ms server render.
+
+Three consequence categories — vehicle traffic, truck traffic, and rail —
+are disabled with an explanatory note rather than silently showing
+nothing: BCDC's live server returns zero features for all three across
+multiple real highway/rail locations and a bbox spanning the whole Bay,
+while every other consequence category queried the same way returns real
+data. That's a gap in BCDC's own published data, confirmed directly, not
+a request-format issue on this project's side.
+
 This is a deliberate split from BRIEF.md's original single-page vision
 (map with the filter/grid/compare UI stacked underneath it), decided
 directly with the project owner: keeping the map as its own focused page
