@@ -136,20 +136,23 @@ async function loadRegionData(){
   regionIds.forEach((id, i) => { regionData[id] = results[i]; });
 }
 
-// Simple in-memory cache for BCDC requests, scoped to this page session.
-// The server sends no Cache-Control/Expires on tiles or GetFeatureInfo
-// responses (confirmed by inspecting the response headers directly), so
-// without this, revisiting the same tile or clicking the same point twice
-// re-triggers a full ~450ms live render on BCDC's server every time. This
-// just avoids repeating an identical request (same URL) more than once
-// per session — it doesn't survive a reload, and doesn't change what's
-// shown, since BCDC's data for a given water level doesn't change mid-visit.
-const bcdcRequestCache = new Map(); // url -> Promise<result>
+// Simple in-memory cache for map-data requests, scoped to this page
+// session and shared across every live data source (BCDC's WMS server,
+// and the ArcGIS REST sources below). None of these servers send a
+// meaningful Cache-Control/Expires header on tiles, GetFeatureInfo, or
+// identify/query responses (confirmed by inspecting each one's response
+// headers directly), so without this, revisiting the same tile or
+// clicking the same point twice re-triggers a full live render/query on
+// the source's server every time. This just avoids repeating an
+// identical request (same URL) more than once per session — it doesn't
+// survive a reload, and doesn't change what's shown, since none of these
+// sources' data changes mid-visit for a fixed scenario/layer selection.
+const sharedRequestCache = new Map(); // url -> Promise<result>
 
-function cachedBcdcFetch(url, transform){
-  if(bcdcRequestCache.has(url)) return bcdcRequestCache.get(url);
-  const promise = fetch(url).then(transform).catch(err => { bcdcRequestCache.delete(url); throw err; });
-  bcdcRequestCache.set(url, promise);
+function cachedFetch(url, transform){
+  if(sharedRequestCache.has(url)) return sharedRequestCache.get(url);
+  const promise = fetch(url).then(transform).catch(err => { sharedRequestCache.delete(url); throw err; });
+  sharedRequestCache.set(url, promise);
   return promise;
 }
 
@@ -160,7 +163,7 @@ const CachedBcdcTileLayer = L.TileLayer.WMS.extend({
   createTile: function(coords, done){
     const img = document.createElement("img");
     const url = this.getTileUrl(coords);
-    cachedBcdcFetch(url, res => res.blob().then(blob => URL.createObjectURL(blob)))
+    cachedFetch(url, res => res.blob().then(blob => URL.createObjectURL(blob)))
       .then(objectUrl => { img.src = objectUrl; done(null, img); })
       .catch(err => done(err, img));
     return img;
@@ -220,7 +223,7 @@ function parseGmlFeatures(xmlText, layerName){
 
 async function fetchBcdcFeatures(layerName, latlng){
   const url = bcdcFeatureInfoUrl(layerName, latlng);
-  return cachedBcdcFetch(url, async res => parseGmlFeatures(await res.text(), layerName));
+  return cachedFetch(url, async res => parseGmlFeatures(await res.text(), layerName));
 }
 
 function fmtNum(n, decimals){
