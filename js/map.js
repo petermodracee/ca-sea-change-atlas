@@ -171,6 +171,29 @@ const NOAA_SLR_SCENARIOS = (() => {
 const NOAA_SLR_ATTRIBUTION = 'Flood data: <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA Office for Coastal Management, Sea Level Rise Viewer</a>';
 const NOAA_SLR_COLOR = "#2F6FA0";
 
+// --- FEMA National Flood Hazard Layer ---------------------------------------
+// Restricted to sublayer 28 ("Flood Hazard Zones") only, not the full 30+
+// sublayer composite NFHL service — this is the one that distinguishes
+// Zone AE/Zone X etc. (confirmed via direct REST introspection: unique-value
+// renderer on FLD_ZONE/ZONE_SUBTY, fields include SFHA_TF/STATIC_BFE).
+// This is "effective" flood data (FEMA's default, current-adopted maps) —
+// FEMA's preliminary/pending map updates are a separate NFHL sublayer this
+// project deliberately doesn't show, per the task's insurance-rating caveat.
+//
+// Licensing note: FEMA's own NFHL metadata (hazards.fema.gov's metadata XML)
+// states use constraints as "Acknowledgement of FEMA would be appreciated in
+// products derived from these data" and access constraints "None" — i.e.
+// standard U.S. federal public-domain data with a courtesy request, same
+// footing as the NOAA/USGS sources above. A CC-BY 3.0 label appears on a
+// third-party Data Basin mirror of this same service, but that's Data
+// Basin's own platform-wide license on their copy, not a term FEMA itself
+// imposes — see BRIEF.md for the full citation trail. FEMA is still credited
+// prominently below regardless, as good practice.
+const FEMA_NFHL_URL = "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer";
+const FEMA_NFHL_ZONES_LAYER_ID = 28;
+const FEMA_NFHL_COLOR = "#C0392B";
+const FEMA_NFHL_ATTRIBUTION = 'Flood zones: <a href="https://www.fema.gov/flood-maps/national-flood-hazard-layer" target="_blank" rel="noopener">FEMA National Flood Hazard Layer</a>';
+
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
@@ -179,6 +202,7 @@ let legalDeltaLayer = null;
 let consequenceLayer = null;
 let cosmosLayer = null;
 let noaaSlrLayer = null;
+let femaNfhlLayer = null;
 let infoPopup = null; // set in main(), from js/info-popup.js
 
 async function loadRegionData(){
@@ -818,6 +842,51 @@ function initNoaaSlr(){
   });
 }
 
+// --- FEMA National Flood Hazard Layer ---------------------------------------
+
+function initFemaNfhl(){
+  const toggle = document.getElementById("femaToggle");
+  const swatchEl = document.querySelector('[data-swatch="fema"]');
+  if(swatchEl) setSwatch(swatchEl, FEMA_NFHL_COLOR, false);
+
+  function refreshFemaLayer(){
+    if(femaNfhlLayer){ map.removeLayer(femaNfhlLayer); femaNfhlLayer = null; }
+    if(!toggle.checked) return;
+    femaNfhlLayer = L.esri.dynamicMapLayer({
+      url: FEMA_NFHL_URL,
+      layers: [FEMA_NFHL_ZONES_LAYER_ID],
+      opacity: 0.6,
+      attribution: FEMA_NFHL_ATTRIBUTION
+    });
+    femaNfhlLayer.addTo(map);
+  }
+
+  toggle.addEventListener("change", refreshFemaLayer);
+
+  infoPopup.registerProvider(async latlng => {
+    if(!toggle.checked) return null;
+    return new Promise(resolve => {
+      L.esri.query({ url: `${FEMA_NFHL_URL}/${FEMA_NFHL_ZONES_LAYER_ID}` })
+        .contains(latlng)
+        .run((error, featureCollection) => {
+          if(error){ resolve(null); return; }
+          if(!featureCollection || !featureCollection.features.length){
+            resolve({ title: "FEMA Flood Zone", note: "No flood zone mapped at this point." });
+            return;
+          }
+          const f = featureCollection.features[0].properties;
+          const rows = [{ label: "Flood Zone", value: f.FLD_ZONE || "—" }];
+          if(f.ZONE_SUBTY) rows.push({ label: "Zone Subtype", value: f.ZONE_SUBTY });
+          rows.push({ label: "Special Flood Hazard Area", value: f.SFHA_TF === "T" ? "Yes" : "No" });
+          if(typeof f.STATIC_BFE === "number" && f.STATIC_BFE > -9999){
+            rows.push({ label: "Base Flood Elevation", value: `${fmtNum(f.STATIC_BFE, 1)} ft` });
+          }
+          resolve({ title: "FEMA Flood Zone", rows });
+        });
+    });
+  });
+}
+
 async function geocode(query){
   const statusEl = document.getElementById("searchStatus");
   statusEl.textContent = "Searching…";
@@ -856,6 +925,7 @@ async function main(){
   initFloodOverlay();
   initCosmos();
   initNoaaSlr();
+  initFemaNfhl();
   initGroupCollapse();
 }
 
