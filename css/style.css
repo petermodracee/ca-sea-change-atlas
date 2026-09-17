@@ -218,6 +218,7 @@ body.map-page{min-height:100vh;display:flex;flex-direction:column;}
 .layer-group-body[hidden]{display:none;}
 
 .bcdc-legend{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);}
+.cosmos-legend-img{display:block;max-width:100%;margin-bottom:8px;background:var(--paper);}
 .legend-block{margin-bottom:12px;}
 .legend-block:last-child{margin-bottom:0;}
 .legend-block-title{

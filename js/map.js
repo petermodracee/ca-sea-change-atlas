@@ -155,7 +155,11 @@ const CONSEQUENCE_LAYERS = {
 // each region's valid SLR/storm-frequency stops.
 const COSMOS_LAYERS_URL = "data/cosmos-layers.json";
 const COSMOS_TILE_ATTRIBUTION = 'Flood data: <a href="https://ourcoastourfuture.org/" target="_blank" rel="noopener">USGS CoSMoS, via Point Blue Conservation Science\'s Our Coast, Our Future</a>';
-const COSMOS_COLOR = "#8C2D8C";
+// Every scenario topic has its own color scale (rendered server-side by
+// GeoServer) rather than one fixed project color, so there's no single
+// swatch to show in the layer panel the way BCDC's per-layer swatches
+// work — the real legend is fetched live below instead (GetLegendGraphic).
+const COSMOS_LEGEND_BASE = "https://geo.pointblue.org/geoserver/wms";
 
 const COSMOS_REGIONS = {
   california_coast: {
@@ -851,8 +855,8 @@ function initCosmos(){
   const slrValueEl = document.getElementById("cosmosSlrValue");
   const stormButtonsEl = document.getElementById("cosmosStormButtons");
   const resultEl = document.getElementById("cosmosResult");
-  const swatchEl = document.querySelector('[data-swatch="cosmos"]');
-  if(swatchEl) setSwatch(swatchEl, COSMOS_COLOR, false);
+  const legendEl = document.getElementById("cosmosLegend");
+  const clickHintEl = document.getElementById("cosmosClickHint");
 
   Object.keys(COSMOS_REGIONS).forEach(key => {
     const o = document.createElement("option");
@@ -915,6 +919,7 @@ function initCosmos(){
     extraControlsEl.innerHTML = "";
     extraControlsEl.className = "extra-controls";
     const topic = currentTopic();
+    updateClickHint(topic.id);
     const vars = topic.vars.filter(v => v !== "slr" && v !== "storm");
     if(topic.id === 3){
       const wrap = document.createElement("label");
@@ -1031,6 +1036,43 @@ function initCosmos(){
     resultEl.textContent = matchedAny
       ? `Showing: ${topic.title}, ${region.name}, ${want.slr} cm SLR${"storm" in want ? `, ${region.storm.find(s => s.value === want.storm).label} storm` : ""}.`
       : `No modeled data available for this combination (${topic.title}, ${region.name}).`;
+
+    updateCosmosLegend(defs);
+  }
+
+  // One real legend graphic per distinct active color scale, fetched live
+  // from GeoServer (GetLegendGraphic) — CoSMoS has no fixed project color;
+  // every topic renders with its own server-defined scale. Paired with
+  // this layer's own label, since some of GeoServer's single-class
+  // legends (e.g. Flood Extent, Wave Runup) render a bare color swatch
+  // with no text baked into the graphic itself.
+  function updateCosmosLegend(defs){
+    const byStyle = new Map();
+    defs.forEach(d => { if(d.style && !byStyle.has(d.style)) byStyle.set(d.style, d.label); });
+    legendEl.innerHTML = "";
+    legendEl.hidden = byStyle.size === 0;
+    byStyle.forEach((label, style) => {
+      const block = document.createElement("div");
+      block.className = "legend-block";
+      const title = document.createElement("div");
+      title.className = "legend-block-title";
+      title.textContent = label;
+      const img = document.createElement("img");
+      img.src = `${COSMOS_LEGEND_BASE}?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=140&HEIGHT=24&STRICT=false&style=${encodeURIComponent(style)}`;
+      img.alt = `${label} legend`;
+      img.className = "cosmos-legend-img";
+      block.appendChild(title);
+      block.appendChild(img);
+      legendEl.appendChild(block);
+    });
+  }
+
+  async function updateClickHint(topicId){
+    const allDefs = await getCosmosLayerDefs();
+    const hasIdentify = allDefs.some(d => d.topicId === topicId && d.kind === "imagewms");
+    clickHintEl.textContent = hasIdentify
+      ? "Click the map to see modeled values for the selected scenario, where available."
+      : "Scales are shown below; click-to-inspect isn't available for this topic.";
   }
 
   regionSelect.addEventListener("change", () => {
@@ -1060,7 +1102,7 @@ function initCosmos(){
     if(!toggle.checked || !cosmosLayers.length) return null;
     const wmsLayers = cosmosLayers.filter(l => l.gsLayer);
     if(!wmsLayers.length){
-      return { title: "CoSMoS", note: "Click-to-inspect isn't available for this topic — it's rendered as static imagery with no backing query service." };
+      return { title: "CoSMoS", note: "Click-to-inspect isn't available for this topic." };
     }
     const results = await Promise.all(wmsLayers.map(({ gsLayer, specLabel }) =>
       cachedFetch(cosmosWmsIdentifyUrl(gsLayer, latlng), res => res.json())

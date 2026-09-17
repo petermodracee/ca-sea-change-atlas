@@ -135,8 +135,8 @@ footerAttribution: >
 <span>CoSMoS Flood Explorer <em>(USGS Our Coast, Our Future)</em></span>
 </div>
 <div class="layer-group-body" id="cosmosGroupBody">
-<p class="click-hint">Click the map to see modeled values for the selected scenario, where available.</p>
-<label class="layer-item"><input type="checkbox" id="cosmosToggle"><span class="swatch" data-swatch="cosmos"></span>Show CoSMoS layer</label>
+<p class="click-hint" id="cosmosClickHint">Click the map to see modeled values for the selected scenario, where available.</p>
+<label class="layer-item"><input type="checkbox" id="cosmosToggle">Show CoSMoS layer</label>
 
 <label for="cosmosRegionSelect" class="scenario-label">Scenario region</label>
 <select id="cosmosRegionSelect"></select>
@@ -157,6 +157,7 @@ footerAttribution: >
 </div>
 
 <p class="scenario-result" id="cosmosResult"></p>
+<div class="bcdc-legend" id="cosmosLegend" hidden></div>
 </div>
 </div>
 
