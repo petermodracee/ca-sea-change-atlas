@@ -25,13 +25,17 @@ widget, with collapsible group sections), a live BCDC Bay Shoreline Flood
 Explorer overlay (a Total Water Level slider or a "choose a scenario" SLR
 + storm-surge picker — mirroring BCDC's own "One Map, Many Futures" panel
 — plus depth-of-flooding/overtopping/low-lying/legal-delta layer toggles
-and a consequence-indicator picker), plus four more live layers added
-via [esri-leaflet](https://github.com/Esri/esri-leaflet) (USGS CoSMoS
-with its own Average/20-yr-storm/100-yr-storm + SLR-in-cm scenario
-picker, NOAA's Sea Level Rise Viewer with a half-foot-increment scenario
-dropdown, FEMA's National Flood Hazard Layer showing effective flood
-zones only, and NOAA's Coastal Flood Exposure Mapper composite hazard
-layer), address search, and a click-to-inspect popup showing real
+and a consequence-indicator picker), plus four more live layers: USGS
+CoSMoS / Our Coast, Our Future (its own Scenario Region and Scenario
+Topic dropdowns — California Coast/Russian River/Los Peñasquitos Lagoon,
+and up to 8 topics per region — a left-right Sea Level Rise slider, and a
+Storm Frequency picker including "Annual," mirroring the real Our Coast,
+Our Future tool's own Explore Scenarios panel), NOAA's Sea Level Rise
+Viewer with a half-foot-increment scenario dropdown (via
+[esri-leaflet](https://github.com/Esri/esri-leaflet)), FEMA's National
+Flood Hazard Layer showing effective flood zones only (also esri-leaflet),
+and NOAA's Coastal Flood Exposure Mapper composite hazard layer (also
+esri-leaflet). Address search, and a click-to-inspect popup showing real
 values (depth, acreage, traffic counts, flood zone, hazard overlap,
 etc., queried live from each source's own server) for whichever layers
 are checked at the clicked point. `sources.html` is the tool comparison —
@@ -58,11 +62,25 @@ BCDC's server sends no `Cache-Control`/`Expires` on either tiles or
 GetFeatureInfo responses (confirmed by inspecting the response headers
 directly) — so `js/map.js` keeps its own in-memory, per-session cache
 keyed by request URL, so re-panning to a spot already viewed or clicking
-the same point twice doesn't repeat a live ~450ms server render. The four
-ArcGIS REST sources added later send equally unhelpful cache headers
-(checked directly the same way), so the click-to-inspect providers that
-issue their own identify/query requests share this same cache rather
-than each reimplementing it.
+the same point twice doesn't repeat a live ~450ms server render. The
+other live sources added later send equally unhelpful cache headers
+(checked directly the same way), so every click-to-inspect provider and
+every tile/WMS layer shares this same cache rather than each
+reimplementing it.
+
+CoSMoS turned out not to be an ArcGIS REST service at all, despite an
+initial assumption that it was — the real "Our Coast, Our Future" tool's
+own network traffic shows it's backed by Point Blue Conservation
+Science's own GeoServer/tile infrastructure (`geo.pointblue.org`),
+serving the same underlying USGS CoSMoS model output. Its layer catalog
+(which region/topic combination maps to which tile or WMS layer) isn't
+CORS-enabled for cross-origin fetches the way the actual tile/WMS server
+is, so `data/cosmos-layers.json` holds the URL/layer-name *templates*
+(verified directly against the live catalog, not guessed) as local
+config — the same category as `js/map.js`'s `BCDC_WATER_LEVELS`-style
+constants, just larger. Every actual tile image and WMS render is still
+fetched live from `geo.pointblue.org` at request time; nothing about the
+flood data itself is stored locally.
 
 CoSMoS and FEMA's click-to-inspect providers use a direct spatial
 `query` request rather than the ArcGIS `identify` operation — `identify`
@@ -254,15 +272,21 @@ Everything the three pages load, beyond this project's own code:
   before relying on it. See `data/coverage/SOURCES.md` for how the overlay
   is wired up.
 - **[esri-leaflet](https://github.com/Esri/esri-leaflet)** (Apache-2.0) —
-  the ArcGIS REST client library used for the four sources below, loaded
-  from the `unpkg.com` CDN in `map.html` at a pinned version
+  the ArcGIS REST client library used for the NOAA/FEMA sources below,
+  loaded from the `unpkg.com` CDN in `map.html` at a pinned version
   (`esri-leaflet@3.1.0`) with a Subresource Integrity hash, same pattern
-  as Leaflet itself.
+  as Leaflet itself. Not used for CoSMoS — see below.
 - **[USGS CoSMoS / Our Coast, Our
   Future](https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos)**
-  — the optional flood-extent overlay is loaded live from USGS's own
-  ArcGIS FeatureServer, not hosted or modified by this project. USGS data
-  is U.S. public domain; credited as a courtesy.
+  — the optional flood/wave/current/cliff-retreat/shoreline/groundwater
+  overlays are loaded live from Point Blue Conservation Science's own
+  tile/WMS infrastructure (`geo.pointblue.org`), the real hosting behind
+  the public "Our Coast, Our Future" tool this layer's UI mirrors — not
+  ArcGIS, and not hosted or modified by this project. USGS data is U.S.
+  public domain; Point Blue asks only for a courtesy citation (confirmed
+  directly against their own "suggested citations" document). See
+  `data/cosmos-layers.json` for the local URL-template config this needs
+  (not a copy of the flood data — see that file's own header).
 - **[NOAA Sea Level Rise Viewer](https://coast.noaa.gov/slr/)** — the
   optional sea-level-rise overlay is loaded live from NOAA's own ArcGIS
   MapServer family (one service per scenario), not hosted or modified by

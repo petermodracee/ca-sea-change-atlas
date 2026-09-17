@@ -135,19 +135,27 @@ footerAttribution: >
 <span>CoSMoS Flood Explorer <em>(USGS Our Coast, Our Future)</em></span>
 </div>
 <div class="layer-group-body" id="cosmosGroupBody">
-<p class="click-hint">Click the map to see whether a point falls within the modeled flood extent for the selected scenario.</p>
-<label class="layer-item"><input type="checkbox" id="cosmosToggle"><span class="swatch" data-swatch="cosmos"></span>Show flood extent</label>
+<p class="click-hint">Click the map to see modeled values for the selected scenario, where available.</p>
+<label class="layer-item"><input type="checkbox" id="cosmosToggle"><span class="swatch" data-swatch="cosmos"></span>Show CoSMoS layer</label>
 
-<div class="mode-tabs" role="tablist">
-<button type="button" class="mode-tab active" data-cosmos-scenario="avg" role="tab" aria-selected="true">Average</button>
-<button type="button" class="mode-tab" data-cosmos-scenario="w020" role="tab" aria-selected="false">20-yr storm</button>
-<button type="button" class="mode-tab" data-cosmos-scenario="w100" role="tab" aria-selected="false">100-yr storm</button>
+<label for="cosmosRegionSelect" class="scenario-label">Scenario region</label>
+<select id="cosmosRegionSelect"></select>
+
+<label for="cosmosTopicSelect" class="scenario-label">Scenario topic</label>
+<select id="cosmosTopicSelect"></select>
+
+<div id="cosmosExtraControls"></div>
+
+<div class="scenario-block">
+<div class="scenario-label">Sea Level Rise, <span id="cosmosSlrValue">0 cm</span></div>
+<input type="range" id="cosmosSlrSlider" min="0" max="0" step="1" value="0">
 </div>
 
 <div class="scenario-block">
-<div class="scenario-label">Sea level rise</div>
-<div class="btn-grid" id="cosmosSlrButtons"></div>
+<div class="scenario-label">Storm Frequency</div>
+<div class="btn-grid" id="cosmosStormButtons"></div>
 </div>
+
 <p class="scenario-result" id="cosmosResult"></p>
 </div>
 </div>
