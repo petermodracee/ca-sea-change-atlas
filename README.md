@@ -31,11 +31,15 @@ Topic dropdowns — California Coast/Russian River/Los Peñasquitos Lagoon,
 and up to 8 topics per region — a left-right Sea Level Rise slider, and a
 Storm Frequency picker including "Annual," mirroring the real Our Coast,
 Our Future tool's own Explore Scenarios panel), NOAA's Sea Level Rise
-Viewer with a half-foot-increment scenario dropdown (via
-[esri-leaflet](https://github.com/Esri/esri-leaflet)), FEMA's National
-Flood Hazard Layer showing effective flood zones only (also esri-leaflet),
-and NOAA's Coastal Flood Exposure Mapper composite hazard layer (also
-esri-leaflet). Address search, and a click-to-inspect popup showing real
+Viewer with a half-foot-increment slider (via
+[esri-leaflet](https://github.com/Esri/esri-leaflet)'s `tiledMapLayer` —
+each scenario's MapServer is a pre-cached tile service, confirmed
+directly, not a dynamic one) plus a separate High Tide Flooding stations
+toggle (NOAA CO-OPS tide-gauge thresholds, not tied to the sea-level-rise
+amount), FEMA's National Flood Hazard Layer showing effective flood
+zones only (also esri-leaflet), and NOAA's Coastal Flood Exposure Mapper
+composite hazard layer (also esri-leaflet). Address search, and a
+click-to-inspect popup showing real
 values (depth, acreage, traffic counts, flood zone, hazard overlap,
 etc., queried live from each source's own server) for whichever layers
 are checked at the clicked point. `sources.html` is the tool comparison —
@@ -292,7 +296,12 @@ Everything the three pages load, beyond this project's own code:
   MapServer family (one service per scenario), not hosted or modified by
   this project. NOAA data is U.S. public domain, and NOAA's Digital Coast
   program is separately required by its authorizing legislation to keep
-  this data freely available; credited as a courtesy.
+  this data freely available; credited as a courtesy. The High Tide
+  Flooding stations toggle uses the same program's `Point_Layers`
+  service — real NOAA CO-OPS tide-gauge thresholds, not the area-based
+  Flood Frequency layer NOAA's own viewer shows, which requires an
+  ArcGIS token this project has no way to obtain (confirmed directly);
+  see the note in `js/map.js`'s NOAA HTF section for the full trail.
 - **[FEMA National Flood Hazard
   Layer](https://www.fema.gov/flood-maps/national-flood-hazard-layer)** —
   the optional flood-zone overlay (effective data only) is loaded live

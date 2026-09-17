@@ -219,10 +219,18 @@ const COSMOS_KVALUES = [
 // Unlike BCDC/CoSMoS (one service, many sublayers), this is a whole separate
 // MapServer per scenario — half-foot increments from 0 to 10 ft, named
 // `slr_{X}ft`/`slr_{X}_{Y}ft`. Picking a scenario means swapping which
-// MapServer is active, not changing a parameter — hence a dropdown here
-// rather than a slider (see BRIEF.md/plan notes for the reasoning). Layer 0
-// (polygon "Low-lying Areas") is the queryable one; layer 1 (raster "Depth")
-// renders alongside it but has no per-feature attributes worth querying.
+// MapServer is active, not changing a parameter, but each one is a
+// pre-cached tiled service (`singleFusedMapCache: true`, confirmed
+// directly against slr_3ft's own metadata) — rendered with
+// `L.esri.tiledMapLayer`, not `dynamicMapLayer`. An earlier version of
+// this code used `dynamicMapLayer`, which doesn't respect per-layer
+// visibility against a fused tile cache and rendered as a giant solid
+// coverage box across the whole tile extent rather than the real
+// low-lying-area/depth data. Layer 0 (polygon "Low-lying Areas") is the
+// queryable one; layer 1 (raster "Depth") renders alongside it but has
+// no per-feature attributes worth querying. Both are `defaultVisibility:
+// true`, so the tiled cache always shows both together — no `layers`
+// option needed (and none is honored for a fused cache anyway).
 const NOAA_SLR_BASE = "https://coast.noaa.gov/arcgis/rest/services/dc_slr";
 const NOAA_SLR_SCENARIOS = (() => {
   const opts = [];
@@ -235,6 +243,26 @@ const NOAA_SLR_SCENARIOS = (() => {
   return opts;
 })();
 const NOAA_SLR_ATTRIBUTION = 'Flood data: <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA Office for Coastal Management, Sea Level Rise Viewer</a>';
+
+// --- NOAA High Tide Flooding stations ---------------------------------------
+// The real area-based "High Tide Flooding" / flood-frequency layer NOAA's
+// own SLR Viewer shows (`dc_slr/Flood_Frequency`) requires an ArcGIS
+// token this project has no way to obtain (confirmed directly — the
+// service returns "Token Required" even on every public mirror
+// subdomain). The one publicly reachable service with "High Tide
+// Flooding" in its name (`FloodExposureMapper/CFEM_HighTideFlooding`) is
+// essentially empty — confirmed directly: only 2 features total in the
+// whole layer, neither in California, neither even a coastal county.
+// `dc_slr/Point_Layers` sublayer 1 ("High Tide Flooding Stations") is the
+// real, public, substantive alternative: NOAA CO-OPS tide-gauge stations
+// with their minor/moderate/major flood thresholds (confirmed 12
+// California stations). It's point data, not an area layer, and
+// deliberately not tied to the SLR amount slider — these thresholds are
+// today's, not a future scenario.
+const NOAA_HTF_URL = "https://coast.noaa.gov/arcgis/rest/services/dc_slr/Point_Layers/MapServer";
+const NOAA_HTF_LAYER_ID = 1;
+const NOAA_HTF_COLOR = "#E8A33D";
+const NOAA_HTF_ATTRIBUTION = 'High tide flooding stations: <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA Office for Coastal Management</a>';
 const NOAA_SLR_COLOR = "#2F6FA0";
 
 // --- FEMA National Flood Hazard Layer ---------------------------------------
@@ -295,6 +323,7 @@ let consequenceLayer = null;
 let cosmosLayers = []; // { layer, item } pairs currently on the map for the active CoSMoS topic
 let cosmosCollectionPromise = null;
 let noaaSlrLayer = null;
+let noaaHtfLayer = null;
 let femaNfhlLayer = null;
 let cfemLayer = null;
 let infoPopup = null; // set in main(), from js/info-popup.js
@@ -1121,31 +1150,28 @@ function initCosmos(){
 
 function initNoaaSlr(){
   const toggle = document.getElementById("noaaSlrToggle");
-  const select = document.getElementById("noaaSlrScenario");
+  const slider = document.getElementById("noaaSlrSlider");
+  const valueEl = document.getElementById("noaaSlrValue");
   const resultEl = document.getElementById("noaaSlrResult");
   const swatchEl = document.querySelector('[data-swatch="noaa-slr"]');
   if(swatchEl) setSwatch(swatchEl, NOAA_SLR_COLOR, false);
 
-  NOAA_SLR_SCENARIOS.forEach(opt => {
-    const o = document.createElement("option");
-    o.value = opt.key;
-    o.textContent = opt.label;
-    select.appendChild(o);
-  });
-  select.value = "3ft";
+  slider.min = 0;
+  slider.max = NOAA_SLR_SCENARIOS.length - 1;
+  slider.value = 6; // 3ft, matching the old dropdown's default
 
   function currentScenario(){
-    return NOAA_SLR_SCENARIOS.find(s => s.key === select.value);
+    return NOAA_SLR_SCENARIOS[Number(slider.value)];
   }
 
   function refreshNoaaSlrLayer(){
     if(noaaSlrLayer){ map.removeLayer(noaaSlrLayer); noaaSlrLayer = null; }
     const scenario = currentScenario();
+    valueEl.textContent = scenario.label;
     resultEl.textContent = `Showing: ${scenario.label} of sea level rise.`;
     if(!toggle.checked) return;
-    noaaSlrLayer = L.esri.dynamicMapLayer({
+    noaaSlrLayer = L.esri.tiledMapLayer({
       url: scenario.url,
-      layers: [0, 1],
       opacity: 0.75,
       attribution: NOAA_SLR_ATTRIBUTION
     });
@@ -1153,7 +1179,8 @@ function initNoaaSlr(){
   }
 
   toggle.addEventListener("change", refreshNoaaSlrLayer);
-  select.addEventListener("change", refreshNoaaSlrLayer);
+  slider.addEventListener("input", refreshNoaaSlrLayer);
+  valueEl.textContent = currentScenario().label;
   resultEl.textContent = `Showing: ${currentScenario().label} of sea level rise.`;
 
   infoPopup.registerProvider(async latlng => {
@@ -1173,6 +1200,65 @@ function initNoaaSlr(){
             return;
           }
           resolve({ title: label, rows: [{ label: "Within low-lying area", value: "Yes" }] });
+        });
+    });
+  });
+}
+
+// --- NOAA High Tide Flooding stations ---------------------------------------
+
+function initNoaaHtf(){
+  const toggle = document.getElementById("noaaHtfToggle");
+  const swatchEl = document.querySelector('[data-swatch="noaa-htf"]');
+  if(swatchEl) setSwatch(swatchEl, NOAA_HTF_COLOR, false);
+
+  function refreshNoaaHtfLayer(){
+    if(noaaHtfLayer){ map.removeLayer(noaaHtfLayer); noaaHtfLayer = null; }
+    if(!toggle.checked) return;
+    noaaHtfLayer = L.esri.featureLayer({
+      url: `${NOAA_HTF_URL}/${NOAA_HTF_LAYER_ID}`,
+      pointToLayer: (geojson, latlng) => L.circleMarker(latlng, {
+        radius: 6, color: "#7A5417", weight: 1.5, fillColor: NOAA_HTF_COLOR, fillOpacity: 0.9
+      }),
+      attribution: NOAA_HTF_ATTRIBUTION
+    });
+    noaaHtfLayer.addTo(map);
+  }
+
+  toggle.addEventListener("change", refreshNoaaHtfLayer);
+
+  infoPopup.registerProvider(async latlng => {
+    if(!toggle.checked) return null;
+    return new Promise(resolve => {
+      L.esri.query({ url: `${NOAA_HTF_URL}/${NOAA_HTF_LAYER_ID}` })
+        .nearby(latlng, 80000) // stations are sparse (~12 for the whole CA coast)
+        .run((error, featureCollection) => {
+          if(error){ resolve(null); return; }
+          if(!featureCollection || !featureCollection.features.length){
+            resolve({ title: "High Tide Flooding", note: "No tide station within 80 km of this point." });
+            return;
+          }
+          // .nearby() bounds the query by radius but doesn't guarantee
+          // nearest-first order (confirmed directly — it returned a
+          // station 44km away over one <5km away), so pick the true
+          // minimum client-side across whatever it returned.
+          let feature = null, minDist = Infinity;
+          featureCollection.features.forEach(f => {
+            const [lng, lat] = f.geometry.coordinates;
+            const d = latlng.distanceTo(L.latLng(lat, lng));
+            if(d < minDist){ minDist = d; feature = f; }
+          });
+          const f = feature.properties;
+          const distanceKm = (minDist / 1000).toFixed(0);
+          resolve({
+            title: `High Tide Flooding — nearest station: ${f.Station_Name}`,
+            rows: [
+              { label: "Distance from clicked point", value: `${distanceKm} km` },
+              { label: "Minor flooding threshold", value: `${f.minor_ft} ft above MHHW` },
+              { label: "Moderate flooding threshold", value: `${f.moderate_ft} ft above MHHW` },
+              { label: "Major flooding threshold", value: `${f.major_ft} ft above MHHW` }
+            ]
+          });
         });
     });
   });
@@ -1317,6 +1403,7 @@ async function main(){
   initFloodOverlay();
   initCosmos();
   initNoaaSlr();
+  initNoaaHtf();
   initFemaNfhl();
   initCfem();
   initGroupCollapse();

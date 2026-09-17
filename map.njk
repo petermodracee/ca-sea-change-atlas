@@ -169,9 +169,14 @@ footerAttribution: >
 <div class="layer-group-body" id="noaaSlrGroupBody">
 <p class="click-hint">Click the map to see whether a point falls within a mapped low-lying area at the selected sea level.</p>
 <label class="layer-item"><input type="checkbox" id="noaaSlrToggle"><span class="swatch" data-swatch="noaa-slr"></span>Show sea level rise layer</label>
-<label for="noaaSlrScenario" class="scenario-label">Sea level rise amount</label>
-<select id="noaaSlrScenario"></select>
+<div class="scenario-block">
+<div class="scenario-label">Sea Level Rise, <span id="noaaSlrValue">3 ft</span></div>
+<input type="range" id="noaaSlrSlider" min="0" max="20" step="1" value="6">
+</div>
 <p class="scenario-result" id="noaaSlrResult"></p>
+
+<p class="click-hint">Click the map to see the nearest tide station's high tide flooding thresholds — today's thresholds, not tied to the sea level rise amount above.</p>
+<label class="layer-item"><input type="checkbox" id="noaaHtfToggle"><span class="swatch" data-swatch="noaa-htf"></span>High Tide Flooding stations</label>
 </div>
 </div>
 
