@@ -146,6 +146,19 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
   text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;
 }
 .layer-group-title span{flex:1;}
+
+/* Active state: accent title + "N on" badge so a collapsed group still reads as in use. */
+.layer-group.has-active > .layer-group-title{
+  color:var(--teal-text);font-weight:600;
+  border-left:3px solid var(--teal);padding-left:6px;margin-left:-9px;
+}
+.active-badge{
+  display:none;flex:0 0 auto !important;font-size:10px;font-weight:600;letter-spacing:0;text-transform:none;
+  padding:1px 7px;border-radius:10px;background:var(--teal);color:#fff;
+}
+.layer-group.has-active .active-badge{display:inline-block;}
+.group-hide-btn:disabled{opacity:.45;cursor:default;}
+.group-hide-btn:disabled:hover{border-color:var(--line);color:var(--ink-soft);}
 .group-hide-btn{
   font-family:'IBM Plex Sans',sans-serif;font-size:10.5px;text-transform:none;
   letter-spacing:0;background:none;border:1px solid var(--line);border-radius:10px;

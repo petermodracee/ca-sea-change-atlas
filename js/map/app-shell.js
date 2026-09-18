@@ -57,3 +57,26 @@ export function initGroupHide(){
     });
   });
 }
+
+/**
+ * Marks each layer group that has layers on: adds `.has-active` plus an "N on" badge to the
+ * title row, so a collapsed group still shows it's active. Groups tagged `data-no-active`
+ * (reference outlines that default on) are skipped. Hide buttons are disabled at zero.
+ */
+export function initActiveIndicator(){
+  const groups = [...document.querySelectorAll(".layer-group:not([data-no-active])")];
+  const update = group => {
+    const count = group.querySelectorAll('.layer-group-body input[type="checkbox"]:checked').length;
+    group.classList.toggle("has-active", count > 0);
+    group.querySelector(".active-badge").textContent = `${count} on`;
+    const hideBtn = group.querySelector(".group-hide-btn");
+    if(hideBtn) hideBtn.disabled = count === 0;
+  };
+  groups.forEach(group => {
+    const badge = document.createElement("span");
+    badge.className = "active-badge";
+    group.querySelector(".layer-group-title span").after(badge);
+    group.addEventListener("change", () => update(group));
+    update(group);
+  });
+}

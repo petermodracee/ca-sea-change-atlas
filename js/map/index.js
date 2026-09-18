@@ -5,7 +5,7 @@
  * (and thus popup section ordering) are unchanged.
  */
 import { createInfoPopup } from "../info-popup.js";
-import { createMap, createMarkerState, wireMapClick, initGroupCollapse, initGroupHide } from "./app-shell.js";
+import { createMap, createMarkerState, wireMapClick, initGroupCollapse, initGroupHide, initActiveIndicator } from "./app-shell.js";
 import { wireSearch } from "./search.js";
 import { loadRegionData, initRegionLayers } from "./layers/region-layer.js";
 import { BcdcLegalDeltaLayer, BcdcFloodLayer } from "./layers/bcdc-flood-layer.js";
@@ -34,6 +34,7 @@ async function main(){
   wireSearch(map, markerState);
   initGroupCollapse();
   initGroupHide();
+  initActiveIndicator();
 }
 
 main();
