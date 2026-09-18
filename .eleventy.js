@@ -11,6 +11,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("README.md");
   eleventyConfig.addPassthroughCopy("BRIEF.md");
   eleventyConfig.addPassthroughCopy("LICENSE");
+  eleventyConfig.addPassthroughCopy("LICENSE-CONTENT.md");
   eleventyConfig.addPassthroughCopy("robots.txt");
 
   return {

@@ -1,0 +1,59 @@
+---
+layout: base.njk
+permalink: "licenses.html"
+title: Licenses & sources — CA Sea Change Atlas
+description: This project's own code and content licenses, plus every third-party library, dataset, and live data source it depends on.
+nav: licenses
+---
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<h1>Licenses & sources</h1>
+<p class="lede">This project's own licenses, and every third-party library, dataset, and live data source it depends on</p>
+</div>
+</div>
+
+<div class="main">
+<div class="wrap about-body">
+
+<h2>This project's own licenses</h2>
+<p><strong>Code</strong> (Eleventy templates, JavaScript, CSS, build config): <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" rel="noopener">GNU General Public License v3.0</a> — full text in <a href="{{ '/LICENSE' | url }}">LICENSE</a>.</p>
+
+<p><strong>Written content</strong> (page copy, tool comparisons, the <a href="{{ '/about.html' | url }}">About page</a> history): <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> — full text in <a href="{{ '/LICENSE-CONTENT.md' | url }}">LICENSE-CONTENT.md</a>. Share and adapt freely, including commercially, with attribution and share-alike.</p>
+
+<p>Neither license covers the third-party material below.</p>
+
+<p>Full contributor-level detail, including tools cataloged for comparison but not mapped: <a href="https://github.com/petermodracee/ca-sea-change-atlas/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md on GitHub</a>.</p>
+
+<h2>Libraries</h2>
+<ul>
+<li><a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a> — BSD-2-Clause. Map library.</li>
+<li><a href="https://github.com/Esri/esri-leaflet" target="_blank" rel="noopener">esri-leaflet</a> — Apache-2.0. ArcGIS REST client for the NOAA/FEMA layers below.</li>
+<li><a href="https://www.11ty.dev/" target="_blank" rel="noopener">Eleventy</a> — MIT. Static site generator.</li>
+</ul>
+
+<h2>Geospatial data</h2>
+<p>Coverage-region boundaries (<code>data/coverage/*.geojson</code>): <a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code></a> (<code>geojson-counties-fips.json</code>), © Plotly Technologies Inc. — <strong>MIT License</strong>, derived from U.S. Census TIGER data (public domain). Filtered and dissolved into this project's region files; details in <a href="{{ '/data/coverage/SOURCES.md' | url }}">SOURCES.md</a>, license text in <a href="{{ '/data/coverage/ATTRIBUTION.md' | url }}">ATTRIBUTION.md</a>. East Contra Costa's boundary is original hand-drawn content, not derived from the above.</p>
+
+<h2>Live data sources</h2>
+<p>Loaded live from each source's own server, not stored in this project.</p>
+<ul>
+<li><a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Bay Shoreline Flood Explorer</a> — CC-BY-SA (via the Caltrans open data portal). Attribute Caltrans/BCDC; redistributed copies of the dataset must stay share-alike. Planning-level only — see <a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">BCDC's disclaimer</a>.</li>
+<li><a href="https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos" target="_blank" rel="noopener">USGS CoSMoS / Our Coast, Our Future</a> — U.S. public domain. Served via Point Blue Conservation Science.</li>
+<li><a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA Sea Level Rise Viewer</a> — U.S. public domain.</li>
+<li><a href="https://www.fema.gov/flood-maps/national-flood-hazard-layer" target="_blank" rel="noopener">FEMA National Flood Hazard Layer</a> — U.S. public domain.</li>
+<li><a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">NOAA Coastal Flood Exposure Mapper</a> — U.S. public domain.</li>
+<li><a href="https://www.nhc.noaa.gov/nationalsurge/" target="_blank" rel="noopener">NOAA/NWS/NHC National Storm Surge Risk Maps</a> — U.S. public domain.</li>
+<li><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> — ODbL. Base map tiles.</li>
+<li><a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a> — address search and geocoding.</li>
+</ul>
+
+<p>A condensed version of this list also appears on the map's own attribution strip.</p>
+
+</div>
+</div>
