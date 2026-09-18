@@ -287,6 +287,15 @@ const FEMA_NFHL_URL = "https://hazards.fema.gov/arcgis/rest/services/public/NFHL
 const FEMA_NFHL_ZONES_LAYER_ID = 28;
 const FEMA_NFHL_COLOR = "#C0392B";
 const FEMA_NFHL_ATTRIBUTION = 'Flood zones: <a href="https://www.fema.gov/flood-maps/national-flood-hazard-layer" target="_blank" rel="noopener">FEMA National Flood Hazard Layer</a>';
+// Layer 28 has its own server-side minScale (36,111.9, confirmed directly
+// against its metadata) — FEMA just doesn't render/query these zone
+// polygons when zoomed out past roughly a neighborhood view. Confirmed
+// empirically (fetching real export tiles and checking pixel content):
+// fully transparent through zoom 13 at Bay Area latitudes, real content
+// from zoom 14 on. Toggling the layer on while zoomed out further than
+// this produces a real request that legitimately renders nothing — not
+// a bug, but worth a note so it doesn't look like the layer is broken.
+const FEMA_NFHL_MIN_ZOOM = 14;
 
 // --- NOAA Coastal Flood Exposure Mapper (composite) -------------------------
 // The composite "how many hazards overlap here" layer, restricted to its
@@ -1268,8 +1277,16 @@ function initNoaaHtf(){
 
 function initFemaNfhl(){
   const toggle = document.getElementById("femaToggle");
+  const resultEl = document.getElementById("femaResult");
   const swatchEl = document.querySelector('[data-swatch="fema"]');
   if(swatchEl) setSwatch(swatchEl, FEMA_NFHL_COLOR, false);
+
+  function updateFemaStatus(){
+    if(!toggle.checked){ resultEl.textContent = ""; return; }
+    resultEl.textContent = map.getZoom() < FEMA_NFHL_MIN_ZOOM
+      ? "Zoom in further (roughly to a neighborhood view) to see FEMA flood zones — FEMA's own server doesn't render this layer at a regional zoom."
+      : "";
+  }
 
   function refreshFemaLayer(){
     if(femaNfhlLayer){ map.removeLayer(femaNfhlLayer); femaNfhlLayer = null; }
@@ -1283,7 +1300,8 @@ function initFemaNfhl(){
     femaNfhlLayer.addTo(map);
   }
 
-  toggle.addEventListener("change", refreshFemaLayer);
+  toggle.addEventListener("change", () => { refreshFemaLayer(); updateFemaStatus(); });
+  map.on("zoomend", updateFemaStatus);
 
   infoPopup.registerProvider(async latlng => {
     if(!toggle.checked) return null;
