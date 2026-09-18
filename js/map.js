@@ -1278,8 +1278,44 @@ function initNoaaHtf(){
 function initFemaNfhl(){
   const toggle = document.getElementById("femaToggle");
   const resultEl = document.getElementById("femaResult");
+  const legendEl = document.getElementById("femaLegend");
   const swatchEl = document.querySelector('[data-swatch="fema"]');
   if(swatchEl) setSwatch(swatchEl, FEMA_NFHL_COLOR, false);
+
+  let femaLegendPromise = null;
+  function getFemaLegend(){
+    if(!femaLegendPromise){
+      femaLegendPromise = cachedFetch(`${FEMA_NFHL_URL}/legend?f=json`, res => res.json())
+        .then(json => (json.layers.find(l => l.layerId === FEMA_NFHL_ZONES_LAYER_ID) || {}).legend || []);
+    }
+    return femaLegendPromise;
+  }
+
+  async function updateFemaLegend(){
+    if(!toggle.checked){ legendEl.hidden = true; legendEl.innerHTML = ""; return; }
+    const items = await getFemaLegend();
+    legendEl.innerHTML = "";
+    const block = document.createElement("div");
+    block.className = "legend-block";
+    const title = document.createElement("div");
+    title.className = "legend-block-title";
+    title.textContent = "Flood Hazard Zones";
+    block.appendChild(title);
+    items.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "legend-block-row";
+      const sw = document.createElement("img");
+      sw.src = `data:${item.contentType};base64,${item.imageData}`;
+      sw.className = "fema-legend-swatch";
+      const lbl = document.createElement("span");
+      lbl.textContent = item.label.trim();
+      row.appendChild(sw);
+      row.appendChild(lbl);
+      block.appendChild(row);
+    });
+    legendEl.appendChild(block);
+    legendEl.hidden = false;
+  }
 
   function updateFemaStatus(){
     if(!toggle.checked){ resultEl.textContent = ""; return; }
@@ -1300,7 +1336,7 @@ function initFemaNfhl(){
     femaNfhlLayer.addTo(map);
   }
 
-  toggle.addEventListener("change", () => { refreshFemaLayer(); updateFemaStatus(); });
+  toggle.addEventListener("change", () => { refreshFemaLayer(); updateFemaStatus(); updateFemaLegend(); });
   map.on("zoomend", updateFemaStatus);
 
   infoPopup.registerProvider(async latlng => {

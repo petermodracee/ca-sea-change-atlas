@@ -238,6 +238,7 @@ body.map-page{min-height:100vh;display:flex;flex-direction:column;}
   background-image:repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 5px);
   background-color:transparent!important;color:inherit;border:1px solid currentColor;
 }
+.fema-legend-swatch{width:18px;height:18px;flex:0 0 auto;background:#fff;border-radius:2px;}
 
 .info-popup{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;color:var(--ink);min-width:180px;}
 .info-popup.info-popup-loading{color:var(--ink-soft);font-style:italic;}
