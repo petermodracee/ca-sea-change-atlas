@@ -209,7 +209,7 @@ this map's separate NOAA Sea Level Rise Viewer group already shows.
   for Open Graph tags.
 - `index.njk` — the landing page: a short explanation of the two tools
   below, linking out to each, plus a one-line pointer to `about.html`.
-- `map.njk`, `js/map.js` — the map page: Leaflet + switchable basemaps (greyscale default), each
+- `map.njk`, `js/map/` — the map page (see `docs/ARCHITECTURE.md` and `docs/PLUGIN-REVIEW.md`): Leaflet + switchable basemaps (greyscale default), each
   coverage region and the BCDC flood-depth WMS overlay as a checkable
   layer in the right-side panel, and address search (Nominatim).
 - `js/info-popup.js` — a small, tool-agnostic click-to-inspect popup:
