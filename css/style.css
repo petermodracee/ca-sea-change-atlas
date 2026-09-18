@@ -137,12 +137,23 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
   min-height:0;overflow-y:auto;border-left:1px solid var(--line);
   background:var(--paper-2);padding:16px 18px;
 }
-/* Small screens: stacked layout with normal page scroll (map 60vh, panel below). */
+.sheet-handle{display:none;}
+/* Small screens: the panel becomes a bottom sheet — a one-row tab under the map when closed, an overlay over the map's lower 70% when open. */
 @media (max-width:768px){
-  body.map-page{height:auto;min-height:100vh;overflow:visible;}
-  .map-layout{grid-template-columns:1fr;grid-template-rows:60vh auto;overflow:visible;}
-  #map{min-height:340px;}
-  .layer-panel{border-left:0;border-top:1px solid var(--line);overflow-y:visible;}
+  .map-layout{position:relative;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;}
+  .layer-panel{
+    border-left:0;border-top:1px solid var(--line);padding:0 18px;
+    max-height:48px;overflow:hidden;
+  }
+  .layer-panel.sheet-open{position:absolute;left:0;right:0;bottom:0;z-index:1000;max-height:70%;overflow-y:auto;padding-bottom:16px;}
+  .sheet-handle{
+    display:flex;align-items:center;justify-content:space-between;width:calc(100% + 36px);height:48px;
+    margin:0 -18px 8px;padding:0 18px;border:0;border-bottom:1px solid var(--line);
+    background:var(--paper-2);color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;
+    position:sticky;top:0;z-index:2;
+  }
+  .sheet-handle .sheet-chevron{transition:transform .15s ease;}
+  .sheet-handle[aria-expanded="true"] .sheet-chevron{transform:rotate(180deg);}
 }
 .panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
 .layer-panel h2{font-size:14px;margin:0;}

@@ -43,7 +43,8 @@ footerAttribution: >
 
 <div class="map-layout">
 <div id="map"></div>
-<aside class="layer-panel">
+<aside class="layer-panel" id="layerPanel" aria-label="Map layers">
+<button type="button" class="sheet-handle" id="sheetHandle" aria-expanded="false" aria-controls="layerPanel">Layers <span class="sheet-chevron" aria-hidden="true">&#9650;</span></button>
 <div class="panel-heading">
 <h2>Layers</h2>
 <button type="button" id="hideAllLayers" class="group-hide-btn" aria-label="Hide all layers in every group">Hide all</button>

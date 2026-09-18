@@ -47,6 +47,21 @@ export function initGroupCollapse(){
 }
 
 /**
+ * Wires the mobile bottom-sheet handle (only visible <=768px, see style.css) that opens and closes the layer panel.
+ * The map shrinks/grows with the sheet, so Leaflet is told to re-measure.
+ * @param {L.Map} map
+ */
+export function initBottomSheet(map){
+  const panel = document.getElementById("layerPanel");
+  const handle = document.getElementById("sheetHandle");
+  handle.addEventListener("click", () => {
+    const open = panel.classList.toggle("sheet-open");
+    handle.setAttribute("aria-expanded", String(open));
+    map.invalidateSize();
+  });
+}
+
+/**
  * Wires the toolbar Print button. The print stylesheet lays the map out at a fixed
  * page size, so Leaflet is told to re-measure before printing and again afterwards;
  * the footer's attribution <details> is opened so it lands on the page.
