@@ -47,6 +47,26 @@ export function initGroupCollapse(){
 }
 
 /**
+ * Wires the toolbar Print button. The print stylesheet lays the map out at a fixed
+ * page size, so Leaflet is told to re-measure before printing and again afterwards;
+ * the footer's attribution <details> is opened so it lands on the page.
+ * @param {L.Map} map
+ */
+export function initPrint(map){
+  const details = document.querySelector(".site-footer-details");
+  let wasOpen = false;
+  window.addEventListener("beforeprint", () => {
+    if(details){ wasOpen = details.open; details.open = true; }
+    map.invalidateSize();
+  });
+  window.addEventListener("afterprint", () => {
+    if(details) details.open = wasOpen;
+    map.invalidateSize();
+  });
+  document.getElementById("printBtn").addEventListener("click", () => window.print());
+}
+
+/**
  * Wires each group's "Hide" button, plus the panel-level "Hide all" that presses them all: unchecks every checked box in the group's body
  * (dispatching `change` so the layer modules tear down their own overlays), then
  * fires a `layergroup:hide` event on the group so a layer can reset extra UI state.

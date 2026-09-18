@@ -482,3 +482,22 @@ table.cmp tbody tr:last-child td{border-bottom:0;}
 
 /* Greyscale fallback basemap: desaturated OSM tiles when the vector style can't load. */
 .basemap-grayscale{filter:grayscale(1) contrast(.9);}
+
+/* Print / save-as-PDF: map, legends of the active layers, and attribution on landscape pages. */
+@media print{
+  @page{size:landscape;margin:.4in;}
+  body.map-page{display:block;height:auto;overflow:visible;}
+  .site-header,.map-toolbar,.search-status,.site-footer-links,.layer-panel .panel-heading{display:none;}
+  .leaflet-control-zoom,.leaflet-control-layers,.leaflet-control-locate,.leaflet-control-measure{display:none;}
+  .map-layout{display:block;overflow:visible;}
+  #map{width:100%;height:6in;min-height:0;break-inside:avoid;}
+  .layer-panel{overflow:visible;border:0;padding:8px 0;}
+  /* Only what's on the map: hide inactive groups and every interactive control. */
+  .layer-group:not(.has-active){display:none;}
+  .group-collapse-btn,.group-hide-btn,.group-front-btn,.active-badge,.opacity-row,.mode-tabs,.click-hint{display:none;}
+  .layer-group.has-active .layer-group-body[hidden]{display:block !important;}
+  .layer-group{break-inside:avoid;}
+  .site-footer{position:static;padding:8px 0;}
+  .site-footer-details summary{display:none;}
+  .site-footer-details-body{position:static;max-height:none;box-shadow:none;padding:0;}
+}
