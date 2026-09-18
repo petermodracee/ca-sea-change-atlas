@@ -79,10 +79,18 @@ a confirmed-legal path to real overlay data are map-layer candidates.
   Groundwater), a left-right Sea Level Rise slider, and a Storm Frequency
   picker (None/Annual/20-yr/100-yr, region-dependent). Done.
 - NOAA Sea Level Rise Viewer — live esri-leaflet DynamicMapLayer, done.
-- NOAA Coastal Flood Exposure Mapper — live esri-leaflet DynamicMapLayer,
-  **composite hazard-overlap layer only** (see "Corrections from the
-  tier-1 map-layer pass" below — the separate Tsunami service isn't
-  wired up, it doesn't actually render usable data for California).
+- NOAA Coastal Flood Exposure Mapper — composite hazard-overlap layer
+  (esri-leaflet DynamicMapLayer, popup includes the real overlapping-
+  hazard count), plus a full pass at matching the real tool's own layer
+  set: hurricane storm surge (NOAA/NWS/NHC SLOSH data via a separate
+  ArcGIS Online service, Category 1–2 only, Southern California only),
+  High Tide Flooding, FEMA Flood Zones, and Tsunami Run-up — CFEM's own
+  versions of each, each a real separate tiled MapServer, each with a
+  live legend but no click-to-inspect (see "Corrections" below for why).
+  Sea Level Rise isn't duplicated here — CFEM has no dedicated SLR
+  service of its own; its rendering is the same underlying `dc_slr` data
+  this map already shows in its own NOAA Sea Level Rise Viewer group.
+  Great Lakes Water Levels doesn't apply to California.
 - FEMA National Flood Hazard Layer — a new addition, not previously on
   this list (see Licensing below) — live esri-leaflet DynamicMapLayer,
   "Flood Hazard Zones" sublayer only, effective data only.
@@ -121,14 +129,23 @@ going in, confirmed directly rather than worked around silently:
 - **CFEM's real composite sublayer is `CA_FloodComposite`**, not
   `CA_FloodComposite_int` as originally assumed — confirmed via the
   service's own layer list. Code/docs use the real name.
-- **CFEM's Tsunami service doesn't render usable data for California.**
-  `CFEM_Tsunami`'s "Tsunami Hazard Areas" layer (id 0) looked right by
-  name, but its renderer only classifies 2 Alabama FIPS codes, its
-  fields are a leftover county-eligibility table (not tsunami run-up
-  geometry), and a rendered export image over the Bay Area came back a
-  single flat background color — no visible data. Not wired up. Follow-
-  up: find NOAA's actual tsunami-hazard product (this doesn't appear to
-  be it) before adding a tsunami toggle.
+- **CFEM's Tsunami service was wrongly concluded broken, then corrected.**
+  An earlier pass tested `CFEM_Tsunami` by exporting an image over the
+  Bay Area (`dynamicMapLayer`/`/export`) and saw a flat background,
+  concluding it had no real California data. That test was invalid: the
+  service is `singleFusedMapCache: true` (a pre-cached tiled MapServer),
+  and `/export` doesn't reliably reflect what a fused cache actually
+  serves — the exact same bug class as the NOAA SLR Viewer's
+  `dynamicMapLayer` issue fixed elsewhere in this project. Real
+  `/tile/z/y/x` requests confirmed substantial content over the Bay
+  Area. Now wired up. The same re-check found `CFEM_HighTideFlooding`
+  and `CFEM_FEMAFloodZones` are equally real, separate, working tiled
+  services (each with its own distinct legend from what this map's
+  other layer groups show) — also now wired up. None of the three
+  support useful click-to-inspect: their `/query` endpoint returns the
+  same leftover county-eligibility attribute table regardless of which
+  one is queried, disconnected from what the tile cache actually
+  renders — confirmed directly against real coastal points.
 
 **Likely feasible, not yet verified — worth a look before committing to
 comparison-only:**

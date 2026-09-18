@@ -297,7 +297,7 @@ const FEMA_NFHL_ATTRIBUTION = 'Flood zones: <a href="https://www.fema.gov/flood-
 // a bug, but worth a note so it doesn't look like the layer is broken.
 const FEMA_NFHL_MIN_ZOOM = 14;
 
-// --- NOAA Coastal Flood Exposure Mapper (composite) -------------------------
+// --- NOAA Coastal Flood Exposure Mapper --------------------------------------
 // The composite "how many hazards overlap here" layer, restricted to its
 // California sublayer. The real, confirmed sublayer name is
 // `CA_FloodComposite` (id 42) — not `CA_FloodComposite_int`, which doesn't
@@ -309,30 +309,58 @@ const FEMA_NFHL_MIN_ZOOM = 14;
 // Zones... & Sea Level Rise... & Tsunami Run Up Zone"), so click-to-inspect
 // below hand-builds an identify request the same way BCDC's GetFeatureInfo
 // does, rather than going through esri-leaflet's query helpers.
-//
-// The separate CFEM_Tsunami service (a nominally distinct "Tsunami Hazard
-// Areas" layer) is NOT wired up here: verified directly that its renderer
-// only classifies 2 Alabama FIPS codes and its underlying fields are a
-// leftover county-eligibility table, not real tsunami run-up geometry — an
-// exported image over the Bay Area confirmed it renders as a single flat
-// background color, i.e. no visible data for California despite the task's
-// assumption that it does. See BRIEF.md for the full citation trail; this
-// is a follow-up item, not something silently worked around.
 const CFEM_COMPOSITE_URL = "https://coast.noaa.gov/arcgis/rest/services/FloodExposureMapper/CFEM_CoastalFloodHazardComposite/MapServer";
 const CFEM_COMPOSITE_LAYER_ID = 42;
 const CFEM_COLOR = "#B26A00";
 const CFEM_ATTRIBUTION = 'Hazard overlap: <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">NOAA Office for Coastal Management, Coastal Flood Exposure Mapper</a>';
 
-// The real "Coastal Flood Exposure Mapper" tool (coast.noaa.gov/floodexposure)
-// exposes several more hazard layers beyond the composite: High Tide
-// Flooding, FEMA Flood Zones, Tsunami, Storm Surge, Sea Level Rise, Great
-// Lakes Water Levels. High Tide Flooding/FEMA/Sea Level Rise are already
-// wired up elsewhere on this map as their own layer groups (no need to
-// duplicate them here); Tsunami is the CFEM_Tsunami service already
-// confirmed broken for California above; Great Lakes doesn't apply.
-// Storm Surge is the one genuinely new, addable layer — traced from the
-// live tool's own network traffic to a separate ArcGIS Online hosted
-// tile service (not under coast.noaa.gov/arcgis at all), published by
+// The real CFEM tool (coast.noaa.gov/floodexposure) exposes several more
+// hazard layers beyond the composite: High Tide Flooding, FEMA Flood
+// Zones, Tsunami, Storm Surge, Sea Level Rise, Great Lakes Water Levels.
+// This is a comparison site, so "another layer group already shows
+// roughly this hazard" isn't a reason to skip one of CFEM's own — its
+// version may use different data, resolution, or classification, and
+// that's exactly the kind of thing worth being able to compare. So all
+// of these are wired up except:
+//   - Sea Level Rise: CFEM has no dedicated SLR service of its own (its
+//     folder listing has none), and toggling it in the live app visually
+//     matches the same `dc_slr` low-lying-areas rendering already used by
+//     this map's separate NOAA Sea Level Rise Viewer group — same
+//     underlying NOAA data, not an independent CFEM rendering, so
+//     duplicating it wouldn't add real comparison value.
+//   - Great Lakes Water Levels: doesn't apply to California.
+//
+// An earlier pass concluded CFEM_Tsunami was broken for California
+// (based on its renderer only classifying 2 Alabama FIPS codes, and an
+// `/export`-based image test showing a flat background). That was
+// wrong: CFEM_Tsunami is a `singleFusedMapCache: true` tiled service —
+// same bug class as the NOAA SLR `dynamicMapLayer` issue fixed
+// elsewhere in this file — `/export` against a fused cache doesn't
+// reliably reflect what the cache actually serves. Real `/tile/z/y/x`
+// requests confirmed substantial real content over the Bay Area.
+// CFEM_HighTideFlooding and CFEM_FEMAFloodZones are the same story:
+// both are separate, real, working tiled services (confirmed the same
+// way), each with its own distinct legend from what this map's other
+// layer groups show.
+//
+// None of these three support useful click-to-inspect despite their
+// services advertising Query capability: `/query` against each one
+// returns the exact same leftover county-eligibility attribute table
+// (FIPSSTCO, WatershedCounty, etc.) rather than the actual rendered
+// classification — confirmed directly against real coastal points. The
+// vector "Feature Layer" schema these services expose is disconnected
+// from what their tile cache actually renders. So, like CoSMoS's
+// tile-only topics, these get a live legend but no popup provider.
+const CFEM_HTF_URL = "https://coast.noaa.gov/arcgis/rest/services/FloodExposureMapper/CFEM_HighTideFlooding/MapServer";
+const CFEM_HTF_LAYER_ID = 0;
+const CFEM_FEMA_URL = "https://coast.noaa.gov/arcgis/rest/services/FloodExposureMapper/CFEM_FEMAFloodZones/MapServer";
+const CFEM_FEMA_LAYER_ID = 1;
+const CFEM_TSUNAMI_URL = "https://coast.noaa.gov/arcgis/rest/services/FloodExposureMapper/CFEM_Tsunami/MapServer";
+const CFEM_TSUNAMI_LAYER_ID = 0;
+
+// The genuinely new, addable layer: Storm Surge, traced from the live
+// tool's own network traffic to a separate ArcGIS Online hosted tile
+// service (not under coast.noaa.gov/arcgis at all), published by
 // NOAA/NWS/NHC's Storm Surge Unit: SLOSH-model "Maximum of MEOWs"
 // near-worst-case inundation, one tiled MapServer per hurricane category.
 // Confirmed directly (fetching real tiles by hand): only categories 1-2
@@ -341,14 +369,13 @@ const CFEM_ATTRIBUTION = 'Hazard overlap: <a href="https://coast.noaa.gov/digita
 // own note that Southern California coverage was added "for hurricane
 // wind category 1 and 2 storms" specifically. Capabilities are
 // "Map,TilesOnly,Tilemap" (no Query/Data), so — like CoSMoS's tiled
-// topics — there's no click-to-inspect for this one, only a live legend
-// (fetched the same way as FEMA's, via the service's own /legend
-// endpoint).
+// topics — there's no click-to-inspect for this one, only a live legend.
 const CFEM_SURGE_BASE = "https://tiles.arcgis.com/tiles/C8EMgrsFcRFL6LrL/arcgis/rest/services";
 const CFEM_SURGE_CATEGORIES = [1, 2];
 const CFEM_SURGE_LAYER_ID = 0;
 const CFEM_SURGE_COLOR = "#6B4FA0";
 const CFEM_SURGE_ATTRIBUTION = 'Storm surge: <a href="https://www.nhc.noaa.gov/nationalsurge/" target="_blank" rel="noopener">NOAA/NWS/NHC Storm Surge Unit</a>';
+const CFEM_HAZARD_ATTRIBUTION = 'Hazard layer: <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">NOAA Office for Coastal Management, Coastal Flood Exposure Mapper</a>';
 
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
@@ -1451,6 +1478,58 @@ function initCfem(){
   });
 
   initCfemStormSurge();
+  initCfemHazardLayer({ toggleId: "cfemHtfToggle", legendId: "cfemHtfLegend", swatch: "cfem-htf", color: "#2E86AB", url: CFEM_HTF_URL, layerId: CFEM_HTF_LAYER_ID, title: "High Tide Flooding (CFEM)" });
+  initCfemHazardLayer({ toggleId: "cfemFemaToggle", legendId: "cfemFemaLegend", swatch: "cfem-fema", color: "#C0392B", url: CFEM_FEMA_URL, layerId: CFEM_FEMA_LAYER_ID, title: "FEMA Flood Zones (CFEM)" });
+  initCfemHazardLayer({ toggleId: "cfemTsunamiToggle", legendId: "cfemTsunamiLegend", swatch: "cfem-tsunami", color: "#8C2D8C", url: CFEM_TSUNAMI_URL, layerId: CFEM_TSUNAMI_LAYER_ID, title: "Tsunami Run-up (CFEM)" });
+}
+
+// Shared logic for CFEM's simple single-toggle hazard layers (High Tide
+// Flooding, FEMA Flood Zones, Tsunami) — each is a real, separate, tiled
+// MapServer with no usable click-to-inspect (see the comment above their
+// config constants), just a live legend fetched from the service's own
+// /legend endpoint, same pattern as FEMA's main layer group.
+function initCfemHazardLayer({ toggleId, legendId, swatch, color, url, layerId, title }){
+  const toggle = document.getElementById(toggleId);
+  const legendEl = document.getElementById(legendId);
+  const swatchEl = document.querySelector(`[data-swatch="${swatch}"]`);
+  if(swatchEl) setSwatch(swatchEl, color, false);
+  let layer = null;
+
+  async function updateLegend(){
+    if(!toggle.checked){ legendEl.hidden = true; legendEl.innerHTML = ""; return; }
+    const json = await cachedFetch(`${url}/legend?f=json`, res => res.json());
+    const items = ((json.layers || []).find(l => l.layerId === layerId) || {}).legend || [];
+    legendEl.innerHTML = "";
+    const block = document.createElement("div");
+    block.className = "legend-block";
+    const titleEl = document.createElement("div");
+    titleEl.className = "legend-block-title";
+    titleEl.textContent = title;
+    block.appendChild(titleEl);
+    items.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "legend-block-row";
+      const sw = document.createElement("img");
+      sw.src = `data:${item.contentType};base64,${item.imageData}`;
+      sw.className = "fema-legend-swatch";
+      const lbl = document.createElement("span");
+      lbl.textContent = item.label;
+      row.appendChild(sw);
+      row.appendChild(lbl);
+      block.appendChild(row);
+    });
+    legendEl.appendChild(block);
+    legendEl.hidden = false;
+  }
+
+  function refreshLayer(){
+    if(layer){ map.removeLayer(layer); layer = null; }
+    if(!toggle.checked) return;
+    layer = L.esri.tiledMapLayer({ url, opacity: 0.65, attribution: CFEM_HAZARD_ATTRIBUTION });
+    layer.addTo(map);
+  }
+
+  toggle.addEventListener("change", () => { refreshLayer(); updateLegend(); });
 }
 
 function initCfemStormSurge(){
@@ -1469,7 +1548,7 @@ function initCfemStormSurge(){
   async function updateLegend(){
     if(!toggle.checked){ legendEl.hidden = true; legendEl.innerHTML = ""; return; }
     const json = await cachedFetch(`${currentUrl()}/legend?f=json`, res => res.json());
-    const items = ((json.layers || []).find(l => l.id === CFEM_SURGE_LAYER_ID) || {}).legend || [];
+    const items = ((json.layers || []).find(l => l.layerId === CFEM_SURGE_LAYER_ID) || {}).legend || [];
     legendEl.innerHTML = "";
     const block = document.createElement("div");
     block.className = "legend-block";

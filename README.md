@@ -43,7 +43,12 @@ the real overlapping-hazard count) plus a hurricane storm surge toggle
 (NOAA/NWS/NHC SLOSH data, Category 1–2 only, Southern California only —
 traced from the live tool's own network traffic to a separate ArcGIS
 Online hosted service, since neither higher categories nor the rest of
-the California coast have any mapped coverage there). Address search, and a
+the California coast have any mapped coverage there), plus CFEM's own
+High Tide Flooding, FEMA Flood Zones, and Tsunami Run-up layers — this
+is a comparison site, so each tool's own version of a hazard is worth
+seeing separately even where another layer group already covers similar
+ground; CFEM's Sea Level Rise is the one exception, since it isn't its
+own dataset (see "Status" below). Address search, and a
 click-to-inspect popup showing real
 values (depth, acreage, traffic counts, flood zone, hazard overlap,
 etc., queried live from each source's own server) for whichever layers
@@ -150,22 +155,30 @@ the full breakdown and the specific clauses behind each category — that
 distinction (never vs. not-yet) is the important one for anyone picking
 up map work next.
 
-CFEM's implementation covers its composite hazard-overlap layer and a
+CFEM's implementation covers its composite hazard-overlap layer, a
 hurricane storm surge toggle (Category 1–2, Southern California only —
-the only real coverage NOAA's own SLOSH-based service has there). Its
-separate Tsunami service doesn't actually render usable California data
-(verified directly; see `BRIEF.md`'s "Corrections from the tier-1
-map-layer pass"), so it isn't wired up. High Tide Flooding, FEMA Flood
-Zones, and Sea Level Rise — three more layers the real CFEM tool
-exposes — aren't duplicated here since this map already has each as its
-own dedicated layer group elsewhere on the page.
+the only real coverage NOAA's own SLOSH-based service has there), and
+CFEM's own High Tide Flooding, FEMA Flood Zones, and Tsunami Run-up
+layers. An earlier pass concluded the Tsunami service had no usable
+California data based on an `/export` image test — that test was
+invalid against what turned out to be a pre-cached tiled service (same
+bug class as the NOAA SLR Viewer fix above); real tile requests
+confirmed substantial content, and the same re-check found High Tide
+Flooding and FEMA Flood Zones are equally real, separate services (see
+`BRIEF.md`'s "Corrections from the tier-1 map-layer pass"). All three
+support no useful click-to-inspect — their `/query` endpoint returns a
+leftover county-eligibility table, not the actual rendered
+classification — so each gets a live legend only. Sea Level Rise is the
+one CFEM hazard layer not duplicated here: CFEM has no dedicated SLR
+service of its own, and its rendering matches the same `dc_slr` data
+this map's separate NOAA Sea Level Rise Viewer group already shows.
 
 | Tool | Org | Status | Map eligibility |
 |---|---|---|---|
 | Adapting to Rising Tides: Bay Shoreline Flood Explorer | BCDC / SFEI | ✅ Implemented | — |
 | Our Coast, Our Future / CoSMoS | Point Blue / USGS | ✅ Implemented | — |
 | Sea Level Rise Viewer | NOAA Office for Coastal Management | ✅ Implemented | — |
-| Coastal Flood Exposure Mapper | NOAA Office for Coastal Management | ✅ Implemented (composite layer only) | — |
+| Coastal Flood Exposure Mapper | NOAA Office for Coastal Management | ✅ Implemented (composite, storm surge, high tide flooding, FEMA zones, tsunami) | — |
 | National Flood Hazard Layer | FEMA | ✅ Implemented | — |
 | Sea Level Rise – Coastal Inundation Scenarios (Cal-Adapt) | Cal-Adapt | Not implemented | Confirmed open — next up |
 | East Contra Costa Shoreline Flood Explorer | BCDC / SFEI | Not implemented | Likely feasible, unverified |
@@ -322,10 +335,11 @@ Everything the three pages load, beyond this project's own code:
   map updates aren't shown — see the caveat in the layer panel itself.
 - **[NOAA Coastal Flood Exposure
   Mapper](https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html)**
-  — the optional hazard-overlap overlay (California composite layer
-  only) is loaded live from NOAA's own ArcGIS MapServer, not hosted or
-  modified by this project. Same public-domain footing as NOAA's Sea
-  Level Rise Viewer above; credited as a courtesy.
+  — the hazard-overlap composite (California layer only), High Tide
+  Flooding, FEMA Flood Zones, and Tsunami Run-up overlays are each
+  loaded live from NOAA's own ArcGIS MapServers, not hosted or modified
+  by this project. Same public-domain footing as NOAA's Sea Level Rise
+  Viewer above; credited as a courtesy.
 - **[NOAA/NWS/NHC National Storm Surge Risk
   Maps](https://www.nhc.noaa.gov/nationalsurge/)** — the optional
   hurricane storm surge overlay (Category 1–2, Southern California only)
