@@ -168,10 +168,13 @@ body.map-page{min-height:100vh;display:flex;flex-direction:column;}
   color:var(--ink-soft);cursor:pointer;border-bottom:2px solid transparent;
 }
 .mode-tab.active{color:var(--teal-text);border-bottom-color:var(--teal);font-weight:600;}
-#consequenceSelect{
+#consequenceSelect, .layer-group-body select{
   width:100%;font-size:12.5px;padding:6px 8px;border:1px solid var(--line);
-  border-radius:4px;background:var(--paper);color:var(--ink);margin-top:2px;
+  border-radius:4px;background:var(--paper);color:var(--ink);margin-top:2px;margin-bottom:10px;
 }
+.layer-group-body input[type="range"]{width:100%;accent-color:var(--teal);}
+.extra-controls{margin-bottom:10px;}
+.extra-controls label{font-size:11.5px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;margin-bottom:6px;}
 .mode-panel[hidden]{display:none;}
 .mode-panel{margin-bottom:10px;}
 .mode-panel > label{font-size:11.5px;color:var(--ink-soft);white-space:nowrap;}
@@ -215,6 +218,14 @@ body.map-page{min-height:100vh;display:flex;flex-direction:column;}
 .layer-group-body[hidden]{display:none;}
 
 .bcdc-legend{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);}
+/* GeoServer renders these legend graphics server-side as opaque white PNGs
+   with black text baked into the pixels — can't be restyled to match the
+   site's theme (light or dark), so give it a fixed light card instead of
+   letting it float bare against a dark background. */
+.cosmos-legend-img{
+  display:block;max-width:100%;margin-bottom:8px;
+  background:#fff;border:1px solid var(--line);border-radius:5px;padding:6px;
+}
 .legend-block{margin-bottom:12px;}
 .legend-block:last-child{margin-bottom:0;}
 .legend-block-title{
@@ -227,6 +238,7 @@ body.map-page{min-height:100vh;display:flex;flex-direction:column;}
   background-image:repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 5px);
   background-color:transparent!important;color:inherit;border:1px solid currentColor;
 }
+.fema-legend-swatch{width:18px;height:18px;flex:0 0 auto;background:#fff;border-radius:2px;}
 
 .info-popup{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;color:var(--ink);min-width:180px;}
 .info-popup.info-popup-loading{color:var(--ink-soft);font-style:italic;}

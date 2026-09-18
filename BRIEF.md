@@ -68,15 +68,118 @@ a confirmed-legal path to real overlay data are map-layer candidates.
 
 **Implemented:**
 - BCDC Bay Shoreline Flood Explorer — live WMS overlay, done.
+- Our Coast, Our Future / CoSMoS (USGS) — **not ArcGIS REST**, despite
+  the original assumption (see "Corrections" below): live tile/WMS
+  layers from Point Blue Conservation Science's own infrastructure
+  (`geo.pointblue.org`), matching the real "Our Coast, Our Future" tool's
+  own Explore Scenarios panel — a Scenario Region dropdown (California
+  Coast/Russian River/Los Peñasquitos Lagoon), a Scenario Topic dropdown
+  (up to 8 topics per region: Flooding, Flood Duration, Min/Max Flooding,
+  Wave Height, Current Velocity, Cliff Retreat, Shoreline Position,
+  Groundwater), a left-right Sea Level Rise slider, and a Storm Frequency
+  picker (None/Annual/20-yr/100-yr, region-dependent). Done.
+- NOAA Sea Level Rise Viewer — live esri-leaflet DynamicMapLayer, done.
+- NOAA Coastal Flood Exposure Mapper — composite hazard-overlap layer
+  (esri-leaflet DynamicMapLayer, popup includes the real overlapping-
+  hazard count), plus a full pass at matching the real tool's own layer
+  set: hurricane storm surge (NOAA/NWS/NHC SLOSH data via a separate
+  ArcGIS Online service, Category 1–2 only, Southern California only),
+  High Tide Flooding, FEMA Flood Zones, and Tsunami Run-up — CFEM's own
+  versions of each, each a real separate tiled MapServer, each with a
+  live legend but no click-to-inspect (see "Corrections" below for why).
+  Sea Level Rise isn't duplicated here — CFEM has no dedicated SLR
+  service of its own; its rendering is the same underlying `dc_slr` data
+  this map already shows in its own NOAA Sea Level Rise Viewer group.
+  Great Lakes Water Levels doesn't apply to California. CFEM's other
+  nine "exposure" layers (Societal/Infrastructure/Ecosystem Exposure —
+  Population Density, Poverty, Elderly, Employees, Development,
+  Critical Facilities, Development Changes, Pollution Sources, Natural
+  Areas and Open Space) are deliberately not wired up — see "CFEM
+  exposure layers, not implemented" below for why and what's actually
+  in each.
+- FEMA National Flood Hazard Layer — a new addition, not previously on
+  this list (see Licensing below) — live esri-leaflet DynamicMapLayer,
+  "Flood Hazard Zones" sublayer only, effective data only.
 
 **Confirmed legal, not yet wired up — the real next-up list for map work:**
-- NOAA Sea Level Rise Viewer
-- NOAA Coastal Flood Exposure Mapper
 - Cal-Adapt / CNRA statewide SLR data
-- Our Coast, Our Future / CoSMoS (USGS)
 
-All four are public ArcGIS REST/MapServer or FeatureServer endpoints — see
-the Licensing section below for exactly why each is clear to use.
+This is a public ArcGIS REST/MapServer or FeatureServer endpoint — see
+the Licensing section below for why it's clear to use.
+
+### Corrections from the tier-1 map-layer pass
+
+Several things about the tier-1 pass diverged from what was assumed
+going in, confirmed directly rather than worked around silently:
+
+- **CoSMoS isn't an ArcGIS REST service at all.** The initial plan (and
+  first implementation pass) used a Caltrans-hosted ArcGIS FeatureServer
+  mirror (`CoSMoS_SLR`), which is real and live but only covers one
+  topic (Flooding) for one region (California Coast) with reduced
+  granularity (9 SLR stops instead of the real tool's 12, no "Annual"
+  storm frequency). A later revision pass, asked to match the real
+  "Our Coast, Our Future" tool's own UI (region/topic dropdowns, more
+  SLR stops, Annual storm frequency), required tracing that tool's own
+  network traffic directly — which showed it's actually backed by Point
+  Blue Conservation Science's own GeoServer/tile infrastructure
+  (`geo.pointblue.org`), not ArcGIS. CoSMoS was rebuilt on that real
+  backend instead (see js/map.js's CoSMoS section and
+  `data/cosmos-layers.json` for the full detail). esri-leaflet remains
+  in use for the other three sources (NOAA SLR Viewer, FEMA NFHL, NOAA
+  CFEM), which genuinely are ArcGIS REST.
+- **CoSMoS cliff-erosion service doesn't exist** at the Caltrans-mirror
+  URL originally assumed
+  (`gisdata.dot.ca.gov/.../HQstatewide/DEA_Cliff_Erosion/MapServer`,
+  404). Moot after the above — Cliff Retreat is now wired up directly
+  against Point Blue's real infrastructure instead.
+- **CFEM's real composite sublayer is `CA_FloodComposite`**, not
+  `CA_FloodComposite_int` as originally assumed — confirmed via the
+  service's own layer list. Code/docs use the real name.
+- **CFEM's Tsunami service was wrongly concluded broken, then corrected.**
+  An earlier pass tested `CFEM_Tsunami` by exporting an image over the
+  Bay Area (`dynamicMapLayer`/`/export`) and saw a flat background,
+  concluding it had no real California data. That test was invalid: the
+  service is `singleFusedMapCache: true` (a pre-cached tiled MapServer),
+  and `/export` doesn't reliably reflect what a fused cache actually
+  serves — the exact same bug class as the NOAA SLR Viewer's
+  `dynamicMapLayer` issue fixed elsewhere in this project. Real
+  `/tile/z/y/x` requests confirmed substantial content over the Bay
+  Area. Now wired up. The same re-check found `CFEM_HighTideFlooding`
+  and `CFEM_FEMAFloodZones` are equally real, separate, working tiled
+  services (each with its own distinct legend from what this map's
+  other layer groups show) — also now wired up. None of the three
+  support useful click-to-inspect: their `/query` endpoint returns the
+  same leftover county-eligibility attribute table regardless of which
+  one is queried, disconnected from what the tile cache actually
+  renders — confirmed directly against real coastal points.
+
+### CFEM exposure layers, not implemented
+
+Beyond its hazard layers, CFEM also has three "exposure" categories —
+Societal, Infrastructure, and Ecosystem — that show who and what is
+exposed to flood hazards, not the hazards themselves. Deliberately not
+wired up, per direct instruction — this site is scoped to
+sea-level-rise/flood-hazard tools specifically, not general exposure or
+vulnerability mapping. Sourcing turned out mixed, confirmed against
+NOAA's own published data-sources table
+(`coast.noaa.gov/data/digitalcoast/pdf/flood-exposure-data.pdf`), worth
+recording in case this gets revisited:
+
+- **Population Density, Poverty, Elderly** — U.S. Census Bureau (2020
+  Census / American Community Survey), not NOAA.
+- **Employees** — sourced from Esri Business Analyst, a **licensed
+  product**; NOAA's own documentation states this underlying data "are
+  not publicly available." This one can't be wired up regardless of
+  scope, same category of exclusion as the Climate Central/TNC sources
+  under "Licensing per source" below.
+- **Critical Facilities** — USGS (The National Map structures dataset),
+  not NOAA.
+- **Pollution Sources** — EPA (Facility Registry Service), not NOAA.
+- **Development, Development Changes, Natural Areas and Open Space** —
+  NOAA's own Coastal Change Analysis Program (C-CAP) land cover product.
+  These three genuinely are NOAA data, unlike the rest of this list —
+  worth knowing if this scope decision is ever revisited, since "all of
+  CFEM's exposure layers are third-party" isn't quite accurate.
 
 **Likely feasible, not yet verified — worth a look before committing to
 comparison-only:**
@@ -108,7 +211,26 @@ specific clauses that rule it out.
   use directly; credit NOAA as a courtesy, not a legal requirement.
 - **USGS** (CoSMoS / Our Coast Our Future, and HERA's underlying data) —
   same footing: USGS-produced data is explicitly U.S. public domain per
-  USGS's own information policy.
+  USGS's own information policy. The map's CoSMoS layer is actually
+  served through Point Blue Conservation Science's own infrastructure
+  (`geo.pointblue.org`), not USGS's directly — Point Blue asks only for
+  a courtesy citation (confirmed against their own "suggested citations"
+  document, no redistribution restriction stated), same non-mandatory
+  footing as the rest of this bullet.
+- **FEMA (National Flood Hazard Layer, implemented)** — same public-domain
+  footing as NOAA/USGS above: U.S. federal government data under 17
+  U.S.C. §105. Verified directly against FEMA's own NFHL metadata
+  (`hazards.fema.gov/filedownload/metadata/NFHL/NFHL_metadata.xml`) —
+  its use constraint reads "Acknowledgement of FEMA would be appreciated
+  in products derived from these data" and its access constraint is
+  "None." **This is a correction from this pass's initial assumption**
+  that NFHL is CC-BY 3.0 and that attribution is a hard legal
+  requirement — that claim traces to a third-party Data Basin mirror of
+  this same service applying Data Basin's own platform-wide CC-BY 3.0
+  license to their copy, not a term FEMA itself imposes on the original
+  data. FEMA is still credited prominently in the map's attribution
+  strip regardless, as good practice, just not because it's legally
+  mandated the way BCDC/Caltrans's CC-BY-SA terms are.
 - **BCDC (already implemented) and Cal-Adapt/CNRA** — both are mirrored
   through the Caltrans open data portal, licensed **CC-BY-SA**. Usable,
   with real obligations: attribute Caltrans/BCDC/CNRA, and if the
@@ -166,7 +288,9 @@ these resolves it:
   generated per-tool URLs (`/tool/<id>/`) with real per-page metadata for
   SEO and link previews — see "Current architecture" above.
 - Leaflet for the map, loaded from a CDN with a pinned version and
-  Subresource Integrity hash (already done for `map.njk`).
+  Subresource Integrity hash (already done for `map.njk`). Same pattern
+  for esri-leaflet (added for the tier-1 ArcGIS REST sources) — CDN,
+  pinned version, SRI hash.
 - Stay usable on mobile.
 
 ## Non-goals
@@ -180,12 +304,21 @@ these resolves it:
 
 ## Definition of done for the next map-layer pass
 
-1. At least one of the four "confirmed legal, not yet wired up" tools
-   (NOAA SLR Viewer, NOAA CFEM, Cal-Adapt/CNRA, CoSMoS) is added to the
-   map page's layer panel as a real overlay, following the same pattern
-   BCDC's layer already established (live WMS/REST fetch, no local
-   copy of the data, attribution shown on the page).
-2. README.md's Implementation status table is updated to reflect it.
-3. Either the FloodRISE or CREST TODO above is resolved one way or the
-   other, and `sources.njk`'s row for that tool is updated accordingly
-   if the answer is "yes, add it as a map layer too."
+1. ✅ **Done (tier-1 pass):** three of the four "confirmed legal, not yet
+   wired up" tools (NOAA SLR Viewer, NOAA CFEM, CoSMoS) plus FEMA NFHL
+   (a new addition) are added to the map page's layer panel as real
+   overlays, following the same pattern BCDC's layer already
+   established (live fetch from each source's own server — esri-leaflet
+   for the three genuine ArcGIS REST sources, hand-rolled tile/WMS
+   fetching for CoSMoS's Point Blue infrastructure — no local copy of
+   the flood data, attribution shown on the page). Cal-Adapt/CNRA
+   remains the one
+   item still not wired up.
+2. ✅ **Done:** README.md's Implementation status table is updated to
+   reflect it.
+3. Still open: either the FloodRISE or CREST TODO above is resolved one
+   way or the other, and `sources.njk`'s row for that tool is updated
+   accordingly if the answer is "yes, add it as a map layer too."
+4. Still open: Cal-Adapt/CNRA is the one remaining "confirmed legal, not
+   yet wired up" tool from the original four — next candidate for a
+   future map-layer pass.

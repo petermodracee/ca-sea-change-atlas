@@ -43,6 +43,7 @@
 
 {%- if leaflet %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="https://unpkg.com/esri-leaflet@3.1.0/dist/esri-leaflet.js" integrity="sha256-uq3qqAjvt3jW7feZ+rr1jBnGc6o9g4Z/hIy6Yy2ak44=" crossorigin=""></script>
 {%- endif %}
 {%- for src in extraScripts %}
 <script src="{{ src | url }}"></script>
