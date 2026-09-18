@@ -39,3 +39,21 @@ export function initGroupCollapse(){
     });
   });
 }
+
+/**
+ * Wires each group's "Hide" button: unchecks every checked box in the group's body
+ * (dispatching `change` so the layer modules tear down their own overlays), then
+ * fires a `layergroup:hide` event on the group so a layer can reset extra UI state.
+ */
+export function initGroupHide(){
+  document.querySelectorAll(".group-hide-btn").forEach(btn => {
+    const group = btn.closest(".layer-group");
+    btn.addEventListener("click", () => {
+      group.querySelectorAll('.layer-group-body input[type="checkbox"]:checked').forEach(cb => {
+        cb.checked = false;
+        cb.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      group.dispatchEvent(new CustomEvent("layergroup:hide"));
+    });
+  });
+}

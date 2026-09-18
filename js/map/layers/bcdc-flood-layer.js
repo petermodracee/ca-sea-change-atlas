@@ -426,12 +426,8 @@ export class BcdcFloodLayer extends BaseLayer {
 
     this.renderBcdcLegend();
 
-    document.getElementById("hideAllBcdc").addEventListener("click", () => {
-      this.bcdcCheckboxes.forEach(cb => {
-        if(cb.checked){ cb.checked = false; cb.dispatchEvent(new Event("change")); }
-      });
-      const legalDeltaToggle = document.querySelector('[data-static-layer="legaldelta"]');
-      if(legalDeltaToggle.checked){ legalDeltaToggle.checked = false; legalDeltaToggle.dispatchEvent(new Event("change")); }
+    // Checkboxes are unchecked by the generic group Hide button; the scenario dropdown isn't a checkbox, so reset it here.
+    document.getElementById("bcdcGroupBody").closest(".layer-group").addEventListener("layergroup:hide", () => {
       if(this.consequenceSelect.value){ this.consequenceSelect.value = ""; this.consequenceSelect.dispatchEvent(new Event("change")); }
     });
 

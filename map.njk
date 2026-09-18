@@ -57,10 +57,10 @@ footerAttribution: >
 </div>
 
 <div class="layer-group">
-<div class="layer-group-title bcdc-title-row">
+<div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="bcdcGroupBody">▾</button>
 <span>BCDC Flood Explorer <em>(Bay Shoreline Flood Explorer)</em></span>
-<button type="button" id="hideAllBcdc" class="hide-all-btn">Hide all</button>
+<button type="button" class="group-hide-btn" aria-label="Hide all BCDC Flood Explorer layers">Hide</button>
 </div>
 
 <div class="layer-group-body" id="bcdcGroupBody">
@@ -131,6 +131,7 @@ footerAttribution: >
 <div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="cosmosGroupBody">▾</button>
 <span>CoSMoS Flood Explorer <em>(USGS Our Coast, Our Future)</em></span>
+<button type="button" class="group-hide-btn" aria-label="Hide all CoSMoS Flood Explorer layers">Hide</button>
 </div>
 <div class="layer-group-body" id="cosmosGroupBody">
 <p class="click-hint" id="cosmosClickHint">Click the map to see modeled values for the selected scenario, where available.</p>
@@ -163,6 +164,7 @@ footerAttribution: >
 <div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="noaaSlrGroupBody">▾</button>
 <span>NOAA Sea Level Rise Viewer</span>
+<button type="button" class="group-hide-btn" aria-label="Hide all NOAA Sea Level Rise Viewer layers">Hide</button>
 </div>
 <div class="layer-group-body" id="noaaSlrGroupBody">
 <p class="click-hint">Click the map to see whether a point falls within a mapped low-lying area at the selected sea level.</p>
@@ -182,6 +184,7 @@ footerAttribution: >
 <div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="femaGroupBody">▾</button>
 <span>FEMA Flood Zones <em>(National Flood Hazard Layer)</em></span>
+<button type="button" class="group-hide-btn" aria-label="Hide all FEMA Flood Zones layers">Hide</button>
 </div>
 <div class="layer-group-body" id="femaGroupBody">
 <p class="click-hint">Click the map to see the FEMA flood zone at that point.</p>
@@ -196,6 +199,7 @@ footerAttribution: >
 <div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="cfemGroupBody">▾</button>
 <span>NOAA Coastal Flood Exposure Mapper</span>
+<button type="button" class="group-hide-btn" aria-label="Hide all NOAA Coastal Flood Exposure Mapper layers">Hide</button>
 </div>
 <div class="layer-group-body" id="cfemGroupBody">
 <p class="click-hint">Click the map to see which mapped hazards overlap at that point (FEMA zones, high tide flooding, sea level rise, storm surge, tsunami run-up).</p>

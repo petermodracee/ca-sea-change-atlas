@@ -145,14 +145,13 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
   font-size:11px;letter-spacing:.03em;
   text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;
 }
-.bcdc-title-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
-.bcdc-title-row span{flex:1;}
-.hide-all-btn{
+.layer-group-title span{flex:1;}
+.group-hide-btn{
   font-family:'IBM Plex Sans',sans-serif;font-size:10.5px;text-transform:none;
   letter-spacing:0;background:none;border:1px solid var(--line);border-radius:10px;
   padding:2px 8px;color:var(--ink-soft);cursor:pointer;flex:0 0 auto;
 }
-.hide-all-btn:hover{border-color:var(--rust);color:var(--rust-text);}
+.group-hide-btn:hover{border-color:var(--rust);color:var(--rust-text);}
 .layer-item{
   display:flex;align-items:flex-start;gap:8px;font-size:13px;
   margin:8px 0;cursor:pointer;line-height:1.4;
