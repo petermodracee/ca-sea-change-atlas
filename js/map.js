@@ -323,6 +323,33 @@ const CFEM_COMPOSITE_LAYER_ID = 42;
 const CFEM_COLOR = "#B26A00";
 const CFEM_ATTRIBUTION = 'Hazard overlap: <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">NOAA Office for Coastal Management, Coastal Flood Exposure Mapper</a>';
 
+// The real "Coastal Flood Exposure Mapper" tool (coast.noaa.gov/floodexposure)
+// exposes several more hazard layers beyond the composite: High Tide
+// Flooding, FEMA Flood Zones, Tsunami, Storm Surge, Sea Level Rise, Great
+// Lakes Water Levels. High Tide Flooding/FEMA/Sea Level Rise are already
+// wired up elsewhere on this map as their own layer groups (no need to
+// duplicate them here); Tsunami is the CFEM_Tsunami service already
+// confirmed broken for California above; Great Lakes doesn't apply.
+// Storm Surge is the one genuinely new, addable layer — traced from the
+// live tool's own network traffic to a separate ArcGIS Online hosted
+// tile service (not under coast.noaa.gov/arcgis at all), published by
+// NOAA/NWS/NHC's Storm Surge Unit: SLOSH-model "Maximum of MEOWs"
+// near-worst-case inundation, one tiled MapServer per hurricane category.
+// Confirmed directly (fetching real tiles by hand): only categories 1-2
+// have any California coverage, and only for Southern California — a
+// tile request for the Bay Area 404s for every category, matching NOAA's
+// own note that Southern California coverage was added "for hurricane
+// wind category 1 and 2 storms" specifically. Capabilities are
+// "Map,TilesOnly,Tilemap" (no Query/Data), so — like CoSMoS's tiled
+// topics — there's no click-to-inspect for this one, only a live legend
+// (fetched the same way as FEMA's, via the service's own /legend
+// endpoint).
+const CFEM_SURGE_BASE = "https://tiles.arcgis.com/tiles/C8EMgrsFcRFL6LrL/arcgis/rest/services";
+const CFEM_SURGE_CATEGORIES = [1, 2];
+const CFEM_SURGE_LAYER_ID = 0;
+const CFEM_SURGE_COLOR = "#6B4FA0";
+const CFEM_SURGE_ATTRIBUTION = 'Storm surge: <a href="https://www.nhc.noaa.gov/nationalsurge/" target="_blank" rel="noopener">NOAA/NWS/NHC Storm Surge Unit</a>';
+
 let map, marker;
 let regionData = {};       // regionId -> FeatureCollection
 let layerRegistry = {};    // panel layer id -> Leaflet layer instance
@@ -335,6 +362,7 @@ let noaaSlrLayer = null;
 let noaaHtfLayer = null;
 let femaNfhlLayer = null;
 let cfemLayer = null;
+let cfemSurgeLayer = null;
 let infoPopup = null; // set in main(), from js/info-popup.js
 
 async function loadRegionData(){
@@ -1412,11 +1440,87 @@ function initCfem(){
       return { title: "NOAA Coastal Flood Exposure", note: "No mapped hazard overlap at this point." };
     }
     const desc = result.attributes["Raster.DESCRPTN"];
+    const count = result.attributes["Raster.HAZ_NUM"];
     if(!desc){
       return { title: "NOAA Coastal Flood Exposure", note: "No mapped hazard overlap at this point." };
     }
-    return { title: "NOAA Coastal Flood Exposure", rows: [{ label: "Overlapping hazards", value: desc }] };
+    const rows = [];
+    if(count) rows.push({ label: "Number of overlapping hazards", value: count });
+    rows.push({ label: "Overlapping hazards", value: desc });
+    return { title: "NOAA Coastal Flood Exposure", rows };
   });
+
+  initCfemStormSurge();
+}
+
+function initCfemStormSurge(){
+  const toggle = document.getElementById("cfemSurgeToggle");
+  const buttonsEl = document.getElementById("cfemSurgeCategoryButtons");
+  const legendEl = document.getElementById("cfemSurgeLegend");
+  const swatchEl = document.querySelector('[data-swatch="cfem-surge"]');
+  if(swatchEl) setSwatch(swatchEl, CFEM_SURGE_COLOR, false);
+
+  let category = 1;
+
+  function currentUrl(){
+    return `${CFEM_SURGE_BASE}/Storm_Surge_HazardMaps_Category${category}_v3/MapServer`;
+  }
+
+  async function updateLegend(){
+    if(!toggle.checked){ legendEl.hidden = true; legendEl.innerHTML = ""; return; }
+    const json = await cachedFetch(`${currentUrl()}/legend?f=json`, res => res.json());
+    const items = ((json.layers || []).find(l => l.id === CFEM_SURGE_LAYER_ID) || {}).legend || [];
+    legendEl.innerHTML = "";
+    const block = document.createElement("div");
+    block.className = "legend-block";
+    const title = document.createElement("div");
+    title.className = "legend-block-title";
+    title.textContent = `Storm Surge — Category ${category} Inundation Height`;
+    block.appendChild(title);
+    items.forEach(item => {
+      const row = document.createElement("div");
+      row.className = "legend-block-row";
+      const sw = document.createElement("img");
+      sw.src = `data:${item.contentType};base64,${item.imageData}`;
+      sw.className = "fema-legend-swatch";
+      const lbl = document.createElement("span");
+      lbl.textContent = item.label;
+      row.appendChild(sw);
+      row.appendChild(lbl);
+      block.appendChild(row);
+    });
+    legendEl.appendChild(block);
+    legendEl.hidden = false;
+  }
+
+  function refreshLayer(){
+    if(cfemSurgeLayer){ map.removeLayer(cfemSurgeLayer); cfemSurgeLayer = null; }
+    if(!toggle.checked) return;
+    cfemSurgeLayer = L.esri.tiledMapLayer({
+      url: currentUrl(),
+      opacity: 0.7,
+      attribution: CFEM_SURGE_ATTRIBUTION
+    });
+    cfemSurgeLayer.addTo(map);
+  }
+
+  CFEM_SURGE_CATEGORIES.forEach(cat => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "scenario-btn";
+    if(cat === category) b.classList.add("active");
+    b.textContent = `Category ${cat}`;
+    b.addEventListener("click", () => {
+      buttonsEl.querySelectorAll(".scenario-btn").forEach(x => x.classList.remove("active"));
+      b.classList.add("active");
+      category = cat;
+      refreshLayer();
+      updateLegend();
+    });
+    buttonsEl.appendChild(b);
+  });
+
+  toggle.addEventListener("change", () => { refreshLayer(); updateLegend(); });
 }
 
 async function geocode(query){

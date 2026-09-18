@@ -202,6 +202,12 @@ footerAttribution: >
 <div class="layer-group-body" id="cfemGroupBody">
 <p class="click-hint">Click the map to see which mapped hazards overlap at that point (FEMA zones, high tide flooding, sea level rise, storm surge, tsunami run-up).</p>
 <label class="layer-item"><input type="checkbox" id="cfemToggle"><span class="swatch" data-swatch="cfem"></span>Flood hazard overlap</label>
+
+<p class="click-hint" id="cfemSurgeHint">Scales are shown below; click-to-inspect isn't available for this layer.</p>
+<label class="layer-item"><input type="checkbox" id="cfemSurgeToggle"><span class="swatch" data-swatch="cfem-surge"></span>Hurricane storm surge (Southern California only)</label>
+<div id="cfemSurgeCategoryButtons" class="btn-grid" style="grid-template-columns:repeat(2,1fr);"></div>
+<p class="scenario-result" id="cfemSurgeResult">Only Category 1–2 storm surge is mapped, and only for Southern California (San Diego north to around Point Conception) — NOAA's own National Hurricane Center service has no data further north or for higher categories.</p>
+<div class="bcdc-legend" id="cfemSurgeLegend" hidden></div>
 </div>
 </div>
 </aside>

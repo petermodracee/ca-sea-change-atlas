@@ -38,7 +38,12 @@ directly, not a dynamic one) plus a separate High Tide Flooding stations
 toggle (NOAA CO-OPS tide-gauge thresholds, not tied to the sea-level-rise
 amount), FEMA's National Flood Hazard Layer showing effective flood
 zones only (also esri-leaflet), and NOAA's Coastal Flood Exposure Mapper
-composite hazard layer (also esri-leaflet). Address search, and a
+— its composite hazard-overlap layer (also esri-leaflet, popup includes
+the real overlapping-hazard count) plus a hurricane storm surge toggle
+(NOAA/NWS/NHC SLOSH data, Category 1–2 only, Southern California only —
+traced from the live tool's own network traffic to a separate ArcGIS
+Online hosted service, since neither higher categories nor the rest of
+the California coast have any mapped coverage there). Address search, and a
 click-to-inspect popup showing real
 values (depth, acreage, traffic counts, flood zone, hazard overlap,
 etc., queried live from each source's own server) for whichever layers
@@ -145,10 +150,15 @@ the full breakdown and the specific clauses behind each category — that
 distinction (never vs. not-yet) is the important one for anyone picking
 up map work next.
 
-CFEM's implementation covers its composite hazard-overlap layer only —
-its separate Tsunami service doesn't actually render usable California
-data (verified directly; see `BRIEF.md`'s "Corrections from the tier-1
-map-layer pass"), so it isn't wired up.
+CFEM's implementation covers its composite hazard-overlap layer and a
+hurricane storm surge toggle (Category 1–2, Southern California only —
+the only real coverage NOAA's own SLOSH-based service has there). Its
+separate Tsunami service doesn't actually render usable California data
+(verified directly; see `BRIEF.md`'s "Corrections from the tier-1
+map-layer pass"), so it isn't wired up. High Tide Flooding, FEMA Flood
+Zones, and Sea Level Rise — three more layers the real CFEM tool
+exposes — aren't duplicated here since this map already has each as its
+own dedicated layer group elsewhere on the page.
 
 | Tool | Org | Status | Map eligibility |
 |---|---|---|---|
@@ -316,6 +326,13 @@ Everything the three pages load, beyond this project's own code:
   only) is loaded live from NOAA's own ArcGIS MapServer, not hosted or
   modified by this project. Same public-domain footing as NOAA's Sea
   Level Rise Viewer above; credited as a courtesy.
+- **[NOAA/NWS/NHC National Storm Surge Risk
+  Maps](https://www.nhc.noaa.gov/nationalsurge/)** — the optional
+  hurricane storm surge overlay (Category 1–2, Southern California only)
+  is loaded live from a separate ArcGIS Online hosted tile service
+  published by NOAA's National Hurricane Center Storm Surge Unit, not
+  hosted or modified by this project. Same public-domain federal-data
+  footing as the rest of NOAA's sources above; credited as a courtesy.
 
 Attribution is also shown directly on the deployed map (`map.html`'s
 bottom attribution strip and Leaflet's own attribution control).
