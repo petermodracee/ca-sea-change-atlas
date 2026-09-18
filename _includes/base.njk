@@ -48,5 +48,8 @@
 {%- for src in extraScripts %}
 <script src="{{ src | url }}"></script>
 {%- endfor %}
+{%- if mapModuleEntry %}
+<script type="module" src="{{ mapModuleEntry | url }}"></script>
+{%- endif %}
 </body>
 </html>

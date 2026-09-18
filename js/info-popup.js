@@ -7,7 +7,7 @@
 // whatever sections come back into one combined Leaflet popup. Any future
 // map/tool on this page can register its own providers without touching
 // this file.
-function createInfoPopup(map){
+export function createInfoPopup(map){
   const providers = [];
   let popup = null;
   let requestId = 0;
