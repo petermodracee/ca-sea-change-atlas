@@ -119,6 +119,11 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
   background:var(--teal);color:#fff;font-size:13px;font-weight:600;cursor:pointer;
 }
 .search-form button:hover{background:var(--teal-dark);}
+.toolbar-btn{
+  padding:8px 12px;border:1px solid var(--line);border-radius:5px;
+  background:var(--paper);color:var(--ink);font-size:13px;cursor:pointer;
+}
+.toolbar-btn:hover{border-color:var(--teal);color:var(--teal-text);}
 .search-status{font-size:12.5px;color:var(--ink-soft);padding:6px 24px 0;min-height:1.6em;}
 .search-status.error{color:var(--rust-text);}
 

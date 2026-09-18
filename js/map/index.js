@@ -7,6 +7,7 @@
 import { createInfoPopup } from "../info-popup.js";
 import { createMap, createMarkerState, wireMapClick, initGroupCollapse, initGroupHide, initActiveIndicator } from "./app-shell.js";
 import { initOpacitySliders } from "./shared/panes.js";
+import { readPermalink, applyPanelState, replayLayerToggles, initPermalink } from "./permalink.js";
 import { initControls } from "./controls.js";
 import { wireSearch } from "./search.js";
 import { loadRegionData, initRegionLayers } from "./layers/region-layer.js";
@@ -18,8 +19,10 @@ import { FemaNfhlLayer } from "./layers/fema-nfhl-layer.js";
 import { CfemCompositeLayer } from "./layers/cfem-composite-layer.js";
 
 async function main(){
+  const permalink = readPermalink();
+  applyPanelState(permalink); // before layer init(), which reads the panel controls
   const regionData = await loadRegionData();
-  const map = createMap();
+  const { map, getBasemap } = createMap(permalink);
   const infoPopup = createInfoPopup(map);
   const markerState = createMarkerState();
   wireMapClick(map, infoPopup, markerState);
@@ -33,7 +36,9 @@ async function main(){
   new FemaNfhlLayer(map, infoPopup).init();
   new CfemCompositeLayer(map, infoPopup).init(); // also sets up its CFEM hazard + storm-surge sublayers
 
+  replayLayerToggles(permalink);
   initControls(map);
+  initPermalink(map, getBasemap);
   wireSearch(map, markerState);
   initGroupCollapse();
   initGroupHide();

@@ -9,13 +9,18 @@ export function createMarkerState(){
   };
 }
 
-/** Creates the Leaflet map and installs the basemap switcher (greyscale by default). */
-export function createMap(){
+/**
+ * Creates the Leaflet map and installs the basemap switcher (greyscale by default).
+ * @param {{view?: {center: [number, number], zoom: number}|null, basemap?: string|null}} [initial] -
+ *   view/basemap restored from a shared link.
+ * @returns {{map: L.Map, getBasemap: () => string}}
+ */
+export function createMap({ view = null, basemap = null } = {}){
   // maxZoom is set explicitly because the greyscale vector basemap doesn't declare one to Leaflet.
-  const map = L.map("map", { scrollWheelZoom: true, maxZoom: 18 }).setView([37.2, -119.4], 6);
+  const map = L.map("map", { scrollWheelZoom: true, maxZoom: 18 }).setView(view ? view.center : [37.2, -119.4], view ? view.zoom : 6);
   window.map = map; // exposed for debugging/testing
-  initBasemaps(map);
-  return map;
+  const getBasemap = initBasemaps(map, basemap);
+  return { map, getBasemap };
 }
 
 /** Wires the click-to-inspect entry point: clicking the map drops the shared marker and opens the info popup. */

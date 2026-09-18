@@ -111,10 +111,13 @@ const GreyscaleBasemap = L.Layer.extend({
 });
 
 /**
- * Adds the basemap switcher and the default basemap to the map.
+ * Adds the basemap switcher and the initial basemap to the map.
  * Call once, before any overlay is added.
+ * @param {L.Map} map
+ * @param {string|null} [preferred] - basemap name from a shared link; wins over the remembered choice.
+ * @returns {() => string} getter for the currently selected basemap's name.
  */
-export function initBasemaps(map){
+export function initBasemaps(map, preferred = null){
   map.createPane(BASEMAP_PANE).style.zIndex = 150;
 
   const basemaps = {
@@ -132,12 +135,16 @@ export function initBasemaps(map){
 
   let saved = null;
   try { saved = localStorage.getItem(STORAGE_KEY); } catch(err){ /* storage blocked — use the default */ }
-  const initial = basemaps[saved] ? saved : DEFAULT_BASEMAP;
+  const initial = [preferred, saved].find(name => basemaps[name]) || DEFAULT_BASEMAP;
+  let current = initial;
 
   basemaps[initial].addTo(map);
   L.control.layers(basemaps, null, { position: "topright", collapsed: true }).addTo(map);
 
   map.on("baselayerchange", e => {
+    current = e.name;
     try { localStorage.setItem(STORAGE_KEY, e.name); } catch(err){ /* not critical */ }
   });
+
+  return () => current;
 }
