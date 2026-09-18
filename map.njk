@@ -66,6 +66,7 @@ footerAttribution: >
 </div>
 
 <div class="layer-group-body" id="bcdcGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="bcdc" min="20" max="100" step="5" value="100" aria-label="BCDC Flood Explorer opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint">Click the map to see values at that point for the layers checked below.</p>
 
 <div class="mode-tabs" role="tablist">
@@ -136,6 +137,7 @@ footerAttribution: >
 <button type="button" class="group-hide-btn" aria-label="Hide all CoSMoS Flood Explorer layers">Hide</button>
 </div>
 <div class="layer-group-body" id="cosmosGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="cosmos" min="20" max="100" step="5" value="100" aria-label="CoSMoS Flood Explorer opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint" id="cosmosClickHint">Click the map to see modeled values for the selected scenario, where available.</p>
 <label class="layer-item"><input type="checkbox" id="cosmosToggle">Show CoSMoS layer</label>
 
@@ -169,6 +171,7 @@ footerAttribution: >
 <button type="button" class="group-hide-btn" aria-label="Hide all NOAA Sea Level Rise Viewer layers">Hide</button>
 </div>
 <div class="layer-group-body" id="noaaSlrGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="noaaSlr" min="20" max="100" step="5" value="100" aria-label="NOAA Sea Level Rise Viewer opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint">Click the map to see whether a point falls within a mapped low-lying area at the selected sea level.</p>
 <label class="layer-item"><input type="checkbox" id="noaaSlrToggle"><span class="swatch" data-swatch="noaa-slr"></span>Show sea level rise layer</label>
 <div class="scenario-block">
@@ -189,6 +192,7 @@ footerAttribution: >
 <button type="button" class="group-hide-btn" aria-label="Hide all FEMA Flood Zones layers">Hide</button>
 </div>
 <div class="layer-group-body" id="femaGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="fema" min="20" max="100" step="5" value="100" aria-label="FEMA Flood Zones opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint">Click the map to see the FEMA flood zone at that point.</p>
 <label class="layer-item"><input type="checkbox" id="femaToggle"><span class="swatch" data-swatch="fema"></span>Flood Hazard Zones (effective)</label>
 <p class="scenario-result" id="femaResult"></p>
@@ -204,6 +208,7 @@ footerAttribution: >
 <button type="button" class="group-hide-btn" aria-label="Hide all NOAA Coastal Flood Exposure Mapper layers">Hide</button>
 </div>
 <div class="layer-group-body" id="cfemGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="cfem" min="20" max="100" step="5" value="100" aria-label="NOAA Coastal Flood Exposure Mapper opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint">Click the map to see which mapped hazards overlap at that point (FEMA zones, high tide flooding, sea level rise, storm surge, tsunami run-up).</p>
 <label class="layer-item"><input type="checkbox" id="cfemToggle"><span class="swatch" data-swatch="cfem"></span>Flood hazard overlap</label>
 

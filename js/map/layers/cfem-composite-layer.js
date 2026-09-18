@@ -1,4 +1,5 @@
 import { BaseLayer } from "../base-layer.js";
+import { groupPane } from "../shared/panes.js";
 import { cachedFetch } from "../shared/request-cache.js";
 import { CfemHazardLayer } from "./cfem-hazard-layer.js";
 import { CfemStormSurgeLayer } from "./cfem-storm-surge-layer.js";
@@ -104,6 +105,7 @@ export class CfemCompositeLayer extends BaseLayer {
       url: CFEM_COMPOSITE_URL,
       layers: [CFEM_COMPOSITE_LAYER_ID],
       opacity: 0.65,
+      pane: groupPane(this.map, "cfem"),
       attribution: CFEM_ATTRIBUTION
     });
   }

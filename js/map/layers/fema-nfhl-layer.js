@@ -1,4 +1,5 @@
 import { BaseLayer } from "../base-layer.js";
+import { groupPane } from "../shared/panes.js";
 import { fmtNum } from "../shared/format.js";
 import { renderImageLegendBlock } from "../shared/legend.js";
 
@@ -52,6 +53,7 @@ export class FemaNfhlLayer extends BaseLayer {
       url: FEMA_NFHL_URL,
       layers: [FEMA_NFHL_ZONES_LAYER_ID],
       opacity: 0.6,
+      pane: groupPane(this.map, "fema"),
       attribution: FEMA_NFHL_ATTRIBUTION
     });
   }

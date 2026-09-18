@@ -1,4 +1,5 @@
 import { BaseLayer } from "../base-layer.js";
+import { groupPane } from "../shared/panes.js";
 
 // --- NOAA Sea Level Rise Viewer ---------------------------------------------
 // Unlike BCDC/CoSMoS (one service, many sublayers), this is a whole separate
@@ -52,6 +53,7 @@ export class NoaaSlrLayer extends BaseLayer {
     return L.esri.tiledMapLayer({
       url: this.currentScenario().url,
       opacity: 0.75,
+      pane: groupPane(this.map, "noaaSlr"),
       attribution: NOAA_SLR_ATTRIBUTION
     });
   }
