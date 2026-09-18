@@ -301,6 +301,9 @@ this project's own code:
   (ISC), loaded lazily from `unpkg.com` at pinned versions with SRI
   hashes. If WebGL or the style is unavailable, the map falls back to
   greyscale-filtered OSM tiles.
+- **[leaflet.locatecontrol](https://github.com/domoritz/leaflet-locatecontrol)**
+  (MIT) — "show my location" button, loaded from `unpkg.com` at a pinned
+  version with SRI hashes.
 - Optional basemaps: **Humanitarian OSM** (HOT style hosted by OSM
   France; light-use policy) and **Esri World Imagery** (visualization
   only, Esri/Maxar attribution).

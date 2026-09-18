@@ -69,6 +69,9 @@ this page is `/licenses.html` (`licenses.njk`).
   Humanitarian basemap; the host asks for light use only.
 - **[Esri World Imagery](https://www.esri.com/)** — optional Satellite
   basemap, visualization only, with Esri/Maxar attribution.
+- **[leaflet.locatecontrol](https://github.com/domoritz/leaflet-locatecontrol)**
+  (MIT) — the "show my location" button; loaded from unpkg at a pinned
+  version with SRI hashes.
 - **[MapLibre GL JS](https://maplibre.org/)** (BSD-3-Clause) and
   **[maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet)**
   (ISC) — render the vector basemap; loaded lazily from unpkg at pinned

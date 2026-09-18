@@ -21,6 +21,7 @@ export function createMap(){
 /** Wires the click-to-inspect entry point: clicking the map drops the shared marker and opens the info popup. */
 export function wireMapClick(map, infoPopup, markerState){
   map.on("click", e => {
+    if(map.measureActive) return; // the measure tool owns map clicks while it's on
     const existing = markerState.getMarker();
     if(existing) map.removeLayer(existing);
     markerState.setMarker(L.marker([e.latlng.lat, e.latlng.lng]).addTo(map));

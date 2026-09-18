@@ -7,6 +7,7 @@
 import { createInfoPopup } from "../info-popup.js";
 import { createMap, createMarkerState, wireMapClick, initGroupCollapse, initGroupHide, initActiveIndicator } from "./app-shell.js";
 import { initOpacitySliders } from "./shared/panes.js";
+import { initControls } from "./controls.js";
 import { wireSearch } from "./search.js";
 import { loadRegionData, initRegionLayers } from "./layers/region-layer.js";
 import { BcdcLegalDeltaLayer, BcdcFloodLayer } from "./layers/bcdc-flood-layer.js";
@@ -32,6 +33,7 @@ async function main(){
   new FemaNfhlLayer(map, infoPopup).init();
   new CfemCompositeLayer(map, infoPopup).init(); // also sets up its CFEM hazard + storm-surge sublayers
 
+  initControls(map);
   wireSearch(map, markerState);
   initGroupCollapse();
   initGroupHide();
