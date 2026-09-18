@@ -6,7 +6,7 @@
  */
 import { createInfoPopup } from "../info-popup.js";
 import { createMap, createMarkerState, wireMapClick, initGroupCollapse, initGroupHide, initActiveIndicator, initPrint, initBottomSheet } from "./app-shell.js";
-import { initOpacitySliders, initLayerOrder } from "./shared/panes.js";
+import { initOpacitySliders, initLayerOrder, initLoadingIndicators } from "./shared/panes.js";
 import { readPermalink, applyPanelState, replayLayerToggles, initPermalink } from "./permalink.js";
 import { initControls } from "./controls.js";
 import { wireSearch } from "./search.js";
@@ -23,6 +23,7 @@ async function main(){
   applyPanelState(permalink); // before layer init(), which reads the panel controls
   const regionData = await loadRegionData();
   const { map, getBasemap } = createMap(permalink);
+  initLoadingIndicators(map); // before any layer is added, so every layer's loading events are seen
   const infoPopup = createInfoPopup(map);
   const markerState = createMarkerState();
   wireMapClick(map, infoPopup, markerState);

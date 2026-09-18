@@ -38,6 +38,8 @@ export function wireMapClick(map, infoPopup, markerState){
 export function initGroupCollapse(){
   document.querySelectorAll(".group-collapse-btn").forEach(btn => {
     const body = document.getElementById(btn.getAttribute("aria-controls"));
+    const title = btn.parentElement.querySelector("span").textContent.trim();
+    btn.setAttribute("aria-label", `Expand or collapse ${title}`);
     btn.addEventListener("click", () => {
       const expanded = btn.getAttribute("aria-expanded") === "true";
       btn.setAttribute("aria-expanded", String(!expanded));

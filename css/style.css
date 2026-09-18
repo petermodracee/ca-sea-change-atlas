@@ -185,6 +185,14 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
 .opacity-row label{display:flex;align-items:center;gap:8px;}
 .opacity-row input[type="range"]{flex:1;min-width:0;}
 .opacity-value{min-width:3em;text-align:right;}
+/* Loading spinner: appended to the "N on" badge while the group's layers are fetching. */
+.layer-group.is-loading .active-badge::after{
+  content:"";display:inline-block;width:8px;height:8px;margin-left:6px;vertical-align:-1px;
+  border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;
+  animation:group-spin .7s linear infinite;
+}
+@keyframes group-spin{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion:reduce){ .layer-group.is-loading .active-badge::after{animation:none;} }
 .group-front-btn{
   display:none;flex:0 0 auto;padding:2px 6px;border:1px solid var(--line);border-radius:10px;
   background:none;color:var(--ink-soft);font-size:9px;line-height:1.4;cursor:pointer;

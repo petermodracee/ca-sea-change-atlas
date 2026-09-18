@@ -61,6 +61,38 @@ export function initLayerOrder(map){
 }
 
 /**
+ * Shows a small spinner on a layer group's title while any of its layers is
+ * fetching tiles/images. Tile and Esri layers fire `loading`/`load`; layers are
+ * created and destroyed constantly, so listeners are attached as each is added.
+ * @param {L.Map} map
+ */
+export function initLoadingIndicators(map){
+  const groups = new Map(); // pane key -> .layer-group element
+  document.querySelectorAll("input.group-opacity").forEach(slider => {
+    groups.set(`group-${slider.dataset.pane}`, slider.closest(".layer-group"));
+  });
+  const loading = new Map([...groups.keys()].map(pane => [pane, new Set()])); // pane -> layers currently loading
+
+  const sync = pane => groups.get(pane).classList.toggle("is-loading", loading.get(pane).size > 0);
+
+  map.on("layeradd", e => {
+    const layer = e.layer;
+    const pane = layer.options && layer.options.pane;
+    if(!loading.has(pane)) return;
+    layer.on("loading", () => { loading.get(pane).add(layer); sync(pane); });
+    layer.on("load", () => { loading.get(pane).delete(layer); sync(pane); });
+    // `layeradd` fires after the layer's first `loading`, so pick that one up from Leaflet's own flag (no public getter exists).
+    if(layer._loading){ loading.get(pane).add(layer); sync(pane); }
+  });
+  map.on("layerremove", e => {
+    const pane = e.layer.options && e.layer.options.pane;
+    if(!loading.has(pane)) return;
+    loading.get(pane).delete(e.layer);
+    sync(pane);
+  });
+}
+
+/**
  * Wires each `input.group-opacity[data-pane]` range slider in the layer
  * panel to the CSS opacity of that group's pane (slider value is a percentage).
  * @param {L.Map} map
