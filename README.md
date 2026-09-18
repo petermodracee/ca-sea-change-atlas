@@ -269,9 +269,24 @@ Eleventy's dev server serves the site under the same path prefix
 `http://localhost:8080/ca-sea-change-atlas/`. `npm run build` produces a
 one-off build in `_site/` without the dev server.
 
-## Licenses & attribution
+## License
 
-Everything the three pages load, beyond this project's own code:
+This project's **code** (Eleventy templates, JavaScript, CSS, build
+config) is licensed under the GNU General Public License v3.0 — see
+[`LICENSE`](LICENSE).
+
+This project's **written content** (page copy, tool descriptions and
+comparisons, the `about.njk` project history) is licensed separately under
+the **Creative Commons Attribution-ShareAlike 4.0 International License**
+(CC BY-SA 4.0) — see [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md).
+
+Neither license covers third-party material embedded or linked on the
+site — live data pulled from government agencies, geometry derived from
+other open datasets, etc. See [`CREDITS.md`](CREDITS.md) for the full,
+per-source breakdown of what those are and their own licenses/terms; the
+site's own condensed version of the same list is at `/licenses.html`
+(`licenses.njk`). Short version, everything the three pages load beyond
+this project's own code:
 
 - **[Leaflet](https://leafletjs.com/)** (BSD-2-Clause) — the map library
   itself, loaded from the `unpkg.com` CDN in `map.html` at the pinned

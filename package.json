@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "CA Sea Change Atlas — a map of, and comparison guide to, California sea-level-rise and coastal-flooding visualization tools.",
+  "license": "GPL-3.0-only",
   "scripts": {
     "build": "eleventy",
     "serve": "eleventy --serve"
