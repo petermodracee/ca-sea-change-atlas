@@ -458,3 +458,6 @@ table.cmp tbody tr:last-child td{border-bottom:0;}
 .tool-detail-section p{font-size:13.8px;color:var(--ink-soft);margin:0;}
 .tool-detail-section ul{margin:0;padding-left:18px;font-size:13.8px;color:var(--ink-soft);}
 .tool-detail-section li{margin:2px 0;}
+
+/* Greyscale fallback basemap: desaturated OSM tiles when the vector style can't load. */
+.basemap-grayscale{filter:grayscale(1) contrast(.9);}

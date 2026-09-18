@@ -1,3 +1,5 @@
+import { initBasemaps } from "./basemaps.js";
+
 /** Tracks the single "clicked/searched point" marker shared between the map-click handler and the search box. */
 export function createMarkerState(){
   let marker = null;
@@ -7,14 +9,12 @@ export function createMarkerState(){
   };
 }
 
-/** Creates the Leaflet map and its OpenStreetMap base tile layer. */
+/** Creates the Leaflet map and installs the basemap switcher (greyscale by default). */
 export function createMap(){
-  const map = L.map("map", { scrollWheelZoom: true }).setView([37.2, -119.4], 6);
+  // maxZoom is set explicitly because the greyscale vector basemap doesn't declare one to Leaflet.
+  const map = L.map("map", { scrollWheelZoom: true, maxZoom: 18 }).setView([37.2, -119.4], 6);
   window.map = map; // exposed for debugging/testing
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
+  initBasemaps(map);
   return map;
 }
 
