@@ -34,6 +34,7 @@ const FEMA_NFHL_ATTRIBUTION = 'Flood zones: <a href="https://www.fema.gov/flood-
 // a bug, but worth a note so it doesn't look like the layer is broken.
 const FEMA_NFHL_MIN_ZOOM = 14;
 
+/** FEMA's effective Flood Hazard Zones sublayer, zoom-gated below FEMA_NFHL_MIN_ZOOM, with a live image legend and a zone-query identify popup provider. */
 export class FemaNfhlLayer extends BaseLayer {
   constructor(map, infoPopup){
     super(map, infoPopup);

@@ -30,6 +30,7 @@ const NOAA_SLR_SCENARIOS = (() => {
 const NOAA_SLR_ATTRIBUTION = 'Flood data: <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA Office for Coastal Management, Sea Level Rise Viewer</a>';
 const NOAA_SLR_COLOR = "#2F6FA0";
 
+/** One `L.esri.tiledMapLayer` scenario at a time, swapped by the SLR-amount slider; also registers a low-lying-area identify popup provider. */
 export class NoaaSlrLayer extends BaseLayer {
   constructor(map, infoPopup){
     super(map, infoPopup);

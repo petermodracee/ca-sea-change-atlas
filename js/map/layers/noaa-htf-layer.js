@@ -20,6 +20,7 @@ const NOAA_HTF_LAYER_ID = 1;
 const NOAA_HTF_COLOR = "#E8A33D";
 const NOAA_HTF_ATTRIBUTION = 'High tide flooding stations: <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA Office for Coastal Management</a>';
 
+/** NOAA CO-OPS tide-gauge stations as circle markers, with a nearest-station identify popup provider. */
 export class NoaaHtfLayer extends BaseLayer {
   constructor(map, infoPopup){
     super(map, infoPopup);

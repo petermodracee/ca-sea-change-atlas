@@ -83,6 +83,12 @@ function cfemIdentifyUrl(map, latlng){
   return `${CFEM_COMPOSITE_URL}/identify?${params.toString()}`;
 }
 
+/**
+ * The CFEM "how many hazards overlap here" composite raster layer, plus
+ * orchestration for its sibling layer groups (the three simple hazard
+ * layers and storm surge), which are all part of the same CFEM panel
+ * section but toggled independently.
+ */
 export class CfemCompositeLayer extends BaseLayer {
   constructor(map, infoPopup){
     super(map, infoPopup);

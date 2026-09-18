@@ -1,3 +1,9 @@
+/**
+ * Map page entry point — the one <script type="module"> the page loads.
+ * Builds the map and every layer group in the same order the old
+ * map.js's main() did, so registered click-to-inspect popup providers
+ * (and thus popup section ordering) are unchanged.
+ */
 import { createInfoPopup } from "../info-popup.js";
 import { createMap, createMarkerState, wireMapClick, initGroupCollapse } from "./app-shell.js";
 import { wireSearch } from "./search.js";

@@ -20,6 +20,7 @@ const CFEM_SURGE_LAYER_ID = 0;
 const CFEM_SURGE_COLOR = "#6B4FA0";
 const CFEM_SURGE_ATTRIBUTION = 'Storm surge: <a href="https://www.nhc.noaa.gov/nationalsurge/" target="_blank" rel="noopener">NOAA/NWS/NHC Storm Surge Unit</a>';
 
+/** SLOSH-model hurricane storm surge, category 1 or 2, Southern California only; tiles-only, so legend-only, no click-to-inspect. */
 export class CfemStormSurgeLayer extends BaseLayer {
   constructor(map, infoPopup){
     super(map, infoPopup);
