@@ -144,7 +144,8 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
   #map{min-height:340px;}
   .layer-panel{border-left:0;border-top:1px solid var(--line);overflow-y:visible;}
 }
-.layer-panel h2{font-size:14px;margin-bottom:12px;}
+.panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+.layer-panel h2{font-size:14px;margin:0;}
 .layer-group{margin-bottom:20px;}
 .layer-group-title{
   font-size:11px;letter-spacing:.03em;
@@ -166,6 +167,12 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
 .opacity-row label{display:flex;align-items:center;gap:8px;}
 .opacity-row input[type="range"]{flex:1;min-width:0;}
 .opacity-value{min-width:3em;text-align:right;}
+.group-front-btn{
+  display:none;flex:0 0 auto;padding:2px 6px;border:1px solid var(--line);border-radius:10px;
+  background:none;color:var(--ink-soft);font-size:9px;line-height:1.4;cursor:pointer;
+}
+.layer-group.has-active .group-front-btn{display:inline-block;}
+.group-front-btn:hover{border-color:var(--teal);color:var(--teal-text);}
 .group-hide-btn:disabled{opacity:.45;cursor:default;}
 .group-hide-btn:disabled:hover{border-color:var(--line);color:var(--ink-soft);}
 .group-hide-btn{

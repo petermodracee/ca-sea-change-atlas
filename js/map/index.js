@@ -6,7 +6,7 @@
  */
 import { createInfoPopup } from "../info-popup.js";
 import { createMap, createMarkerState, wireMapClick, initGroupCollapse, initGroupHide, initActiveIndicator } from "./app-shell.js";
-import { initOpacitySliders } from "./shared/panes.js";
+import { initOpacitySliders, initLayerOrder } from "./shared/panes.js";
 import { readPermalink, applyPanelState, replayLayerToggles, initPermalink } from "./permalink.js";
 import { initControls } from "./controls.js";
 import { wireSearch } from "./search.js";
@@ -43,6 +43,7 @@ async function main(){
   initGroupCollapse();
   initGroupHide();
   initOpacitySliders(map);
+  initLayerOrder(map);
   initActiveIndicator();
 }
 

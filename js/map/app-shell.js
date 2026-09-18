@@ -47,12 +47,12 @@ export function initGroupCollapse(){
 }
 
 /**
- * Wires each group's "Hide" button: unchecks every checked box in the group's body
+ * Wires each group's "Hide" button, plus the panel-level "Hide all" that presses them all: unchecks every checked box in the group's body
  * (dispatching `change` so the layer modules tear down their own overlays), then
  * fires a `layergroup:hide` event on the group so a layer can reset extra UI state.
  */
 export function initGroupHide(){
-  document.querySelectorAll(".group-hide-btn").forEach(btn => {
+  document.querySelectorAll(".layer-group .group-hide-btn").forEach(btn => {
     const group = btn.closest(".layer-group");
     btn.addEventListener("click", () => {
       group.querySelectorAll('.layer-group-body input[type="checkbox"]:checked').forEach(cb => {
@@ -61,6 +61,9 @@ export function initGroupHide(){
       });
       group.dispatchEvent(new CustomEvent("layergroup:hide"));
     });
+  });
+  document.getElementById("hideAllLayers").addEventListener("click", () => {
+    document.querySelectorAll(".layer-group .group-hide-btn:not(:disabled)").forEach(btn => btn.click());
   });
 }
 
@@ -77,6 +80,7 @@ export function initActiveIndicator(){
     group.querySelector(".active-badge").textContent = `${count} on`;
     const hideBtn = group.querySelector(".group-hide-btn");
     if(hideBtn) hideBtn.disabled = count === 0;
+    document.getElementById("hideAllLayers").disabled = !groups.some(g => g.classList.contains("has-active"));
   };
   groups.forEach(group => {
     const badge = document.createElement("span");
