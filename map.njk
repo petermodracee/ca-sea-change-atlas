@@ -33,13 +33,14 @@ footerAttribution: >
 <div class="map-toolbar">
 <span class="topbar-disclaimer">Unofficial tool — verify before relying on this for planning decisions.</span>
 <form class="search-form" id="searchForm">
-<input type="text" id="searchInput" placeholder="Search an address or place in California…" autocomplete="off">
+<input type="text" id="searchInput" aria-label="Search an address or place in California" placeholder="Search an address or place in California…" autocomplete="off">
 <button type="submit">Search</button>
 </form>
 <button type="button" id="copyLinkBtn" class="toolbar-btn" title="Copy a link to this exact view and layer selection">Copy link</button>
 <button type="button" id="printBtn" class="toolbar-btn" title="Print or save as PDF: map, legends for active layers, and attribution">Print</button>
 </div>
-<div class="search-status" id="searchStatus"></div>
+<div class="search-status" id="searchStatus" role="status" aria-live="polite"></div>
+<div class="search-results" id="searchResults" hidden></div>
 
 <div class="map-layout">
 <div id="map"></div>
