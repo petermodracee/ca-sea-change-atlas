@@ -90,7 +90,13 @@ a confirmed-legal path to real overlay data are map-layer candidates.
   Sea Level Rise isn't duplicated here — CFEM has no dedicated SLR
   service of its own; its rendering is the same underlying `dc_slr` data
   this map already shows in its own NOAA Sea Level Rise Viewer group.
-  Great Lakes Water Levels doesn't apply to California.
+  Great Lakes Water Levels doesn't apply to California. CFEM's other
+  nine "exposure" layers (Societal/Infrastructure/Ecosystem Exposure —
+  Population Density, Poverty, Elderly, Employees, Development,
+  Critical Facilities, Development Changes, Pollution Sources, Natural
+  Areas and Open Space) are deliberately not wired up — see "CFEM
+  exposure layers, not implemented" below for why and what's actually
+  in each.
 - FEMA National Flood Hazard Layer — a new addition, not previously on
   this list (see Licensing below) — live esri-leaflet DynamicMapLayer,
   "Flood Hazard Zones" sublayer only, effective data only.
@@ -146,6 +152,34 @@ going in, confirmed directly rather than worked around silently:
   same leftover county-eligibility attribute table regardless of which
   one is queried, disconnected from what the tile cache actually
   renders — confirmed directly against real coastal points.
+
+### CFEM exposure layers, not implemented
+
+Beyond its hazard layers, CFEM also has three "exposure" categories —
+Societal, Infrastructure, and Ecosystem — that show who and what is
+exposed to flood hazards, not the hazards themselves. Deliberately not
+wired up, per direct instruction — this site is scoped to
+sea-level-rise/flood-hazard tools specifically, not general exposure or
+vulnerability mapping. Sourcing turned out mixed, confirmed against
+NOAA's own published data-sources table
+(`coast.noaa.gov/data/digitalcoast/pdf/flood-exposure-data.pdf`), worth
+recording in case this gets revisited:
+
+- **Population Density, Poverty, Elderly** — U.S. Census Bureau (2020
+  Census / American Community Survey), not NOAA.
+- **Employees** — sourced from Esri Business Analyst, a **licensed
+  product**; NOAA's own documentation states this underlying data "are
+  not publicly available." This one can't be wired up regardless of
+  scope, same category of exclusion as the Climate Central/TNC sources
+  under "Licensing per source" below.
+- **Critical Facilities** — USGS (The National Map structures dataset),
+  not NOAA.
+- **Pollution Sources** — EPA (Facility Registry Service), not NOAA.
+- **Development, Development Changes, Natural Areas and Open Space** —
+  NOAA's own Coastal Change Analysis Program (C-CAP) land cover product.
+  These three genuinely are NOAA data, unlike the rest of this list —
+  worth knowing if this scope decision is ever revisited, since "all of
+  CFEM's exposure layers are third-party" isn't quite accurate.
 
 **Likely feasible, not yet verified — worth a look before committing to
 comparison-only:**
