@@ -29,6 +29,14 @@ rather than checkboxes. Popups come from `identify` (ArcGIS query), `identifyTil
 cover, read off the tile pixel against the legend) or `identifyRoad` (Caltrans counts drawn on
 state highway lines).
 
+Two layer groups don't follow the ArcGIS/esri-leaflet pattern. `layers/bcdc-ecc-layer.js`
+(East Contra Costa) reuses BCDC's WMS URL, `buildBcdcWmsLayer` and GML parsing (same server as the
+Bay explorer, so it goes through the shared per-session cache). `layers/caladapt-slr-layer.js`
+(Cal-Adapt SLR-CIS) draws plain XYZ tiles from `api.cal-adapt.org/tiles/`, one tile layer per
+regional mosaic clipped to its footprint; those tiles carry a one-year `Cache-Control` and CORS
+`*`, so they deliberately skip the session cache, and its identify reads the rendered tile's alpha
+(the service has no per-point value query).
+
 See `docs/PLUGIN-REVIEW.md` for which plugins are used and why others weren't.
 
 

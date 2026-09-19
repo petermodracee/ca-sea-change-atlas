@@ -37,9 +37,9 @@
       "org": "BCDC / SFEI",
       "scope": "bay-area",
       "scopeLabel": "Eastern Contra Costa County / Delta",
-      "implementationStatus": "not-implemented",
+      "implementationStatus": "implemented",
       "released": "2021",
-      "url": null,
+      "url": "https://eccexplorer.adaptingtorisingtides.org/",
       "description": "A companion to the Bay Shoreline Flood Explorer, extending the same total-water-level mapping approach into the Delta-adjacent shoreline of eastern Contra Costa County.",
       "processes": ["SLR inundation", "Storm surge / extreme tide", "Levee overtopping"],
       "exposure": ["Infrastructure & buildings"],
@@ -54,7 +54,7 @@
       "limitations": [
         "Very narrow geography",
         "Same today's-shoreline limitation as the Bay-wide tool",
-        "Harder to find now that it isn't centrally indexed \u2014 link unverified"
+        "Lives on its own subdomain, so it's easy to miss from the Bay explorer's main page"
       ]
     },
     {
@@ -63,9 +63,9 @@
       "org": "Cal-Adapt",
       "scope": "statewide",
       "scopeLabel": "California coast and San Francisco Bay",
-      "implementationStatus": "not-implemented",
+      "implementationStatus": "implemented",
       "released": "2018, relaunched 2022",
-      "url": "https://cal-adapt.org/tools/slr-coastal-inundation",
+      "url": "https://cmip5.cal-adapt.org/tools/slr-coastal-inundation/",
       "description": "Cal-Adapt's original CalFloD-3D viewer now lives inside the SLR \u2013 Coastal Inundation Scenarios tool, which compares two dynamic flood models (CalFloD3D-TFS and CoSMoS) side by side for the same storm and SLR scenario.",
       "processes": ["SLR inundation", "Storm surge / extreme tide", "Dynamic hydrodynamic modeling"],
       "exposure": [],
