@@ -2,7 +2,7 @@
 
 An unofficial successor to California's discontinued "Sea the Future"
 tool — a map of, and comparison guide to, sea-level-rise and coastal-
-flooding visualization tools, meant to help someone pick which of the 12
+flooding visualization tools, meant to help someone pick which of the 15
 tools actually applies to their patch of coastline, and see real flood
 data for the ones that are open to reuse. (Working name through most of
 this project's development: "Sea the Future." Renamed once the project
