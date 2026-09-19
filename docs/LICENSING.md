@@ -29,6 +29,9 @@ A source goes on the map only if it has a confirmed, documented path to reuse. L
 
 - **USGS HERA.** Public domain, but its coastal-flooding, groundwater and shoreline-change hazard data is itself sourced from CoSMoS, which is already on the map. HERA is an exposure-analytics tool built on top of those hazard zones (Census population, InfoGroup economic assets, parcel values, NLCD land cover, roads, rail, critical facilities), not new flood-extent geometry.
 
+- **NOAA Coastal Inundation Dashboard.** Federal data (no license statement on the page). It is station-based, and the flood thresholds it shows are the CO-OPS ones the map already draws as High Tide Flooding stations; its sea-level-rise mapping is NOAA's Sea Level Rise Viewer, also on the map. Redundant.
+- **NOAA Coastal County Snapshots.** Per-county reports, not a queryable service; NOAA says the datasets are no longer updated. Its flood inputs (FEMA, NOAA SLR) are already mapped. Redundant.
+
 **No reuse license found**
 
 - **FloodRISE (UC Irvine).** The UCI Blum Center project page carries a blanket "All Rights Reserved" footer, and no terms of use were found for the live viewers (hosted on a `floodrise.uci.edu` subdomain).
