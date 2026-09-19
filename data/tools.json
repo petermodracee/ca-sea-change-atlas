@@ -177,7 +177,7 @@
       "scope": "national",
       "scopeLabel": "Coastal United States, including California",
       "coverageRegion": "california-state",
-      "implementationStatus": "not-implemented",
+      "implementationStatus": "implemented",
       "released": "2016",
       "url": "https://coast.noaa.gov/floodexposure/",
       "description": "Overlays flood-hazard layers \u2014 SLR, storm surge, king tides \u2014 with social, economic, and environmental data to show who and what is exposed in a given area.",
@@ -204,7 +204,7 @@
       "scope": "national",
       "scopeLabel": "Coastal United States, including California",
       "coverageRegion": "california-state",
-      "implementationStatus": "not-implemented",
+      "implementationStatus": "implemented",
       "released": "2011, continually updated",
       "url": "https://coast.noaa.gov/slr/",
       "description": "NOAA's flagship, slider-based sea-level-rise viewer, showing projected inundation depth, marsh-migration potential, and social/economic overlays for the entire U.S. coastline.",
@@ -231,7 +231,7 @@
       "scope": "statewide",
       "scopeLabel": "California coast, including the Bay Area",
       "coverageRegion": "california-state",
-      "implementationStatus": "not-implemented",
+      "implementationStatus": "implemented",
       "released": "2013, updated regularly",
       "url": "https://ourcoastourfuture.org/",
       "description": "Built on USGS's Coastal Storm Modeling System, this tool dynamically models waves, storm surge, and sea-level rise together to map coastal flooding and erosion at high resolution.",
@@ -249,6 +249,87 @@
         "Heavier, more technical map interface than screening tools",
         "Statewide coverage was built out over years, so some regions arrived later",
         "Large data layers can be slow to load"
+      ]
+    },
+    {
+      "id": "fema-nfhl",
+      "name": "National Flood Hazard Layer",
+      "org": "FEMA",
+      "scope": "national",
+      "scopeLabel": "United States (national), including California",
+      "coverageRegion": "california-state",
+      "implementationStatus": "implemented",
+      "released": "Ongoing, effective maps updated on a rolling basis",
+      "url": "https://www.fema.gov/flood-maps/national-flood-hazard-layer",
+      "description": "FEMA's official effective flood insurance rate map data, showing regulatory flood zones (e.g. Zone AE, Zone X) and base flood elevations used for insurance and floodplain-management decisions today.",
+      "processes": ["Riverine and coastal flood zones", "Regulatory base flood elevation"],
+      "exposure": ["Infrastructure & buildings"],
+      "floodInfo": ["FEMA flood zones", "Base flood elevation"],
+      "reportsData": "Zone lookup and downloadable GIS flood-zone layers via the FEMA Flood Map Service Center.",
+      "slrModel": "None — reflects today's regulatory floodplain, not a future sea-level-rise scenario.",
+      "strengths": [
+        "The authoritative source for regulatory flood zones and insurance requirements",
+        "Public domain, well documented, and continuously maintained by a federal agency",
+        "Distinguishes zone subtype and base flood elevation, not just a yes/no flood extent"
+      ],
+      "limitations": [
+        "Reflects present-day conditions only — no sea-level-rise or future-scenario projections",
+        "Zone detail only renders at close-in, neighborhood-level zoom",
+        "Coverage and currency of the underlying study vary by county"
+      ]
+    },
+    {
+      "id": "noaa-htf-stations",
+      "name": "High Tide Flooding Stations",
+      "org": "NOAA Office for Coastal Management / NOAA CO-OPS",
+      "scope": "national",
+      "scopeLabel": "Coastal United States, including California",
+      "coverageRegion": "california-state",
+      "implementationStatus": "implemented",
+      "released": "Ongoing, part of the NOAA Sea Level Rise Viewer",
+      "url": "https://coast.noaa.gov/slr/",
+      "description": "NOAA CO-OPS tide-gauge stations shown as points, each with today's minor, moderate, and major high-tide-flooding thresholds — about a dozen stations along the California coast.",
+      "processes": ["High tide flooding", "Tide-gauge monitoring"],
+      "exposure": [],
+      "floodInfo": ["High tide flooding thresholds (minor/moderate/major)"],
+      "reportsData": "Per-station flood thresholds via NOAA's tide-gauge network; no downloadable report generator.",
+      "slrModel": "None — today's tide-gauge-based thresholds, not tied to a future sea-level-rise scenario.",
+      "strengths": [
+        "Grounded in real, ongoing tide-gauge measurements rather than a modeled projection",
+        "Distinguishes minor, moderate, and major flooding severity at each station",
+        "Free, public, and continuously maintained by NOAA"
+      ],
+      "limitations": [
+        "Sparse point data (~12 California stations), not a continuous flood-extent layer",
+        "Doesn't shift with the sea-level-rise scenario slider — reflects today's thresholds only",
+        "No exposure or infrastructure-impact analysis"
+      ]
+    },
+    {
+      "id": "nhc-storm-surge",
+      "name": "National Storm Surge Risk Maps",
+      "org": "NOAA/NWS/NHC Storm Surge Unit",
+      "scope": "national",
+      "scopeLabel": "Southern California only (hurricane categories 1–2)",
+      "coverageRegion": "orange-county",
+      "implementationStatus": "implemented",
+      "released": "Ongoing",
+      "url": "https://www.nhc.noaa.gov/nationalsurge/",
+      "description": "SLOSH-model “Maximum of MEOWs” hurricane storm-surge inundation maps, one per hurricane category — California coverage is limited to categories 1 and 2 in Southern California.",
+      "processes": ["Hurricane storm surge"],
+      "exposure": [],
+      "floodInfo": ["Storm surge / extreme tide"],
+      "reportsData": "Tiled map imagery only; no per-feature query or downloadable report.",
+      "slrModel": "None — a present-day worst-case hurricane storm-surge scenario, not a sea-level-rise projection.",
+      "strengths": [
+        "Purpose-built hurricane storm-surge modeling (SLOSH) from NOAA's National Hurricane Center",
+        "Shows a genuine worst-case scenario across multiple hurricane categories",
+        "Free, public, and nationally consistent methodology"
+      ],
+      "limitations": [
+        "California coverage is limited to Southern California, categories 1–2 only",
+        "Tiles-only service — no click-to-inspect or downloadable data",
+        "Hurricane-driven surge, not the more common California storm systems (atmospheric rivers, extratropical storms)"
       ]
     },
     {
