@@ -50,7 +50,7 @@ seeing separately even where another layer group already covers similar
 ground; CFEM's Sea Level Rise is the one exception, since it isn't its
 own dataset (see "Status" below). Address search, and a
 click-to-inspect popup showing real
-values (depth, acreage, traffic counts, flood zone, hazard overlap,
+values (depth, acreage, flood zone, hazard overlap,
 etc., queried live from each source's own server) for whichever layers
 are checked at the clicked point. `sources.html` is the tool comparison —
 the filterable 12-tool grid and compare-up-to-three table from the
@@ -105,13 +105,13 @@ CFEM composite layer's raster values do use `identify` (the composite
 layer, being a raster, doesn't support `query` at all — it returns an
 error).
 
-Three consequence categories — vehicle traffic, truck traffic, and rail —
-are disabled with an explanatory note rather than silently showing
-nothing: BCDC's live server returns zero features for all three across
-multiple real highway/rail locations and a bbox spanning the whole Bay,
-while every other consequence category queried the same way returns real
-data. That's a gap in BCDC's own published data, confirmed directly, not
-a request-format issue on this project's side.
+BCDC's transportation consequence layers (vehicle traffic, truck traffic, rail)
+are left out of the consequence picker: BCDC's live server returns empty tiles
+and zero features for all three across multiple real highway/rail locations and
+a bbox spanning the whole Bay, while every other consequence category queried
+the same way returns real data. That's a gap in BCDC's own published data,
+confirmed directly, not a request-format issue on this project's side. The
+picker points users to BCDC's own tool instead.
 
 The map/comparison split (map and grid on separate pages, rather than
 stacked on one page with a click-a-point-to-see-matching-tools feature)

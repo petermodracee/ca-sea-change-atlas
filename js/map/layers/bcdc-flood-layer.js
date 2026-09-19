@@ -73,9 +73,6 @@ const LAYER_LEGENDS = {
 };
 
 const CONSEQUENCE_LEGENDS = {
-  highway_vehicle: { label: "Daily Vehicle Traffic (Vehicles (AADT))", colors: ["#ED6E22", "#BE0031", "#793518"], labels: ["18,476 - 48,500", "48,501 - 161,000", "161,000 - 275,000"], line: true },
-  highway_truck: { label: "Daily Truck Traffic (Trucks (AADTT))", colors: ["#ED6E22", "#BE0031", "#793518"], labels: ["623 - 2,133", "2,135 - 5,900", "5,901 - 25,359"], line: true },
-  rail: { label: "Passenger Flow (Daily Average Passengers)", colors: ["#ED6E22", "#BE0031", "#793518"], labels: ["471 - 2,263", "2,264 - 9,287", "9,288 - 236,300"], line: true },
   recreation: { label: "Visitation (Photo User Days per county)", colors: ["#42A858", "#348F58", "#2B6647"], labels: ["Low", "Medium", "High"] },
   tidalhabitat: { label: "Tidal Marsh Impacted (Acres per county)", colors: ["#42A858", "#348F58", "#2B6647"], labels: ["0 - 2,548", "2,548 - 4,448", "4,448 - 12,787"] },
   housing: { label: "Housing (Residential Units (2010) per census block group)", colors: ["#109ECD", "#1C889D", "#06597C"], labels: ["1 - 84", "85 - 334", "335 - 6,331"] },
@@ -85,25 +82,19 @@ const CONSEQUENCE_LEGENDS = {
 };
 
 // Consequence-indicator layers from ART Bay Area's regional analysis.
-// levelDependent ones only exist for the 10 non-zero water levels
+// All of these only exist for the 10 non-zero water levels
 // (BCDC_WATER_LEVELS minus 0) — there's no "at 0 inches" consequence layer.
 //
-// brokenUpstream: confirmed directly against BCDC's live server (not a
-// request-format issue on our side) — GetFeatureInfo returns zero features
-// for these three layers across multiple real highway/rail locations and a
-// bbox spanning the whole Bay, while other consequence layers queried the
-// same way return real data. Looks like a gap in BCDC's own published data,
-// so these are disabled here rather than silently showing nothing.
+// BCDC's transportation consequence layers (highway vehicle/truck, rail) are
+// deliberately not listed: their WMS layers return empty tiles and no
+// features from BCDC's live server, so they can't be shown.
 const CONSEQUENCE_LAYERS = {
-  "highway_vehicle": { name: "consequence_highway_vehicle", levelDependent: false, brokenUpstream: true },
-  "highway_truck": { name: "consequence_highway_truck", levelDependent: false, brokenUpstream: true },
-  "rail": { name: "consequence_rail", levelDependent: false, brokenUpstream: true },
-  "recreation": { prefix: "consequence_recreation_", levelDependent: true },
-  "tidalhabitat": { prefix: "consequence_tidalhabitat_", levelDependent: true },
-  "housing": { prefix: "consequence_housing_", levelDependent: true },
-  "jobs": { prefix: "consequence_jobs_", levelDependent: true },
-  "vulcom_social": { prefix: "consequence_vulcom_social_", levelDependent: true },
-  "vulcom_contam": { prefix: "consequence_vulcom_contam_", levelDependent: true }
+  "recreation": { prefix: "consequence_recreation_" },
+  "tidalhabitat": { prefix: "consequence_tidalhabitat_" },
+  "housing": { prefix: "consequence_housing_" },
+  "jobs": { prefix: "consequence_jobs_" },
+  "vulcom_social": { prefix: "consequence_vulcom_social_" },
+  "vulcom_contam": { prefix: "consequence_vulcom_contam_" }
 };
 
 function buildBcdcWmsLayer(map, layerName, opacity){
@@ -139,32 +130,6 @@ function parseGmlFeatures(xmlText, layerName){
   });
 }
 
-function parseHighwayInfo(features, aadtField, aadtLabel){
-  if(!features.length) return null;
-  const f = features[0];
-  const rows = [];
-  if(f.route) rows.push({ label: "Route", value: f.route });
-  if(f.r_length_m) rows.push({ label: "Length", value: `${fmtNum(Number(f.r_length_m) * 0.000621371, 1)} mi` });
-  if(f[aadtField] !== undefined) rows.push({ label: aadtLabel, value: fmtNum(f[aadtField], 0) });
-  if(Number(f.lifeline_rt)) rows.push({ label: "Lifeline Route", value: "Yes" });
-  return rows.length ? { title: "Highway / Interstate Impacts", rows } : null;
-}
-
-function parseRailInfo(features){
-  if(!features.length) return null;
-  const f = features[0];
-  if("station_na" in f){
-    return { title: "Rail Station Impacts", rows: [
-      { label: "Station", value: `${f.agencyname || ""} — ${f.station_na}` },
-      { label: "Daily Avg. Passengers", value: fmtNum(f.total_ride, 0) }
-    ]};
-  }
-  return { title: "Rail Line Impacts", rows: [
-    { label: "Operator", value: f.operator || "—" },
-    { label: "Daily Avg. Passengers", value: fmtNum(f.ridership, 0) }
-  ]};
-}
-
 function parseTwlFieldInfo(features, suffix, label, decimals){
   if(!features.length) return null;
   const f = features[0];
@@ -183,9 +148,6 @@ function parseVulcomInfo(features, rankField){
 }
 
 const CONSEQUENCE_INFO_PARSERS = {
-  highway_vehicle: features => parseHighwayInfo(features, "veh_aadt_num_av", "Vehicles (AADT)"),
-  highway_truck: features => parseHighwayInfo(features, "truckaadt_num_av", "Trucks (AADTT)"),
-  rail: features => parseRailInfo(features),
   recreation: features => parseTwlFieldInfo(features, "sum", "Photo User Days", 1),
   tidalhabitat: features => parseTwlFieldInfo(features, "acres", "Acres", 0),
   housing: features => parseTwlFieldInfo(features, "res_units_2010", "Residential Units (2010)", 0),
@@ -270,15 +232,11 @@ export class BcdcFloodLayer extends BaseLayer {
     this.consequenceNoteEl.textContent = "";
     if(!key) return;
     const def = CONSEQUENCE_LAYERS[key];
-    if(def.brokenUpstream){
-      this.consequenceNoteEl.textContent = "BCDC's live server currently returns no data for this category (confirmed directly — not a bug in this map). No layer to show.";
-      return;
-    }
-    if(def.levelDependent && this.currentInches() === 0){
+    if(this.currentInches() === 0){
       this.consequenceNoteEl.textContent = "No consequence layer at 0\" — pick a non-zero water level to see this category.";
       return;
     }
-    const layerName = def.levelDependent ? `${def.prefix}${this.currentInches()}` : def.name;
+    const layerName = `${def.prefix}${this.currentInches()}`;
     this.consequenceLayer = buildBcdcWmsLayer(this.map, layerName, 0.85);
     this.consequenceLayer.addTo(this.map);
   }
@@ -293,7 +251,7 @@ export class BcdcFloodLayer extends BaseLayer {
     const items = [];
     this.bcdcCheckboxes.forEach(cb => { if(cb.checked) items.push(LAYER_LEGENDS[cb.dataset.bcdcLayer]); });
     const consKey = this.consequenceSelect.value;
-    if(consKey && !CONSEQUENCE_LAYERS[consKey].brokenUpstream) items.push(CONSEQUENCE_LEGENDS[consKey]);
+    if(consKey) items.push(CONSEQUENCE_LEGENDS[consKey]);
 
     this.bcdcLegendEl.innerHTML = "";
     this.bcdcLegendEl.hidden = items.length === 0;
@@ -467,13 +425,10 @@ export class BcdcFloodLayer extends BaseLayer {
     const key = this.consequenceSelect.value;
     if(!key) return null;
     const def = CONSEQUENCE_LAYERS[key];
-    if(def.brokenUpstream){
-      return { title: CONSEQUENCE_LEGENDS[key].label, note: "BCDC's live server currently returns no data for this category." };
-    }
-    if(def.levelDependent && this.currentInches() === 0){
+    if(this.currentInches() === 0){
       return { title: CONSEQUENCE_LEGENDS[key].label, note: 'No consequence layer at 0" above MHHW.' };
     }
-    const layerName = def.levelDependent ? `${def.prefix}${this.currentInches()}` : def.name;
+    const layerName = `${def.prefix}${this.currentInches()}`;
     const features = await this.fetchBcdcFeatures(layerName, latlng);
     const parsed = CONSEQUENCE_INFO_PARSERS[key](features);
     return parsed || { title: CONSEQUENCE_LEGENDS[key].label, note: "No data at this point." };
