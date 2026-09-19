@@ -80,8 +80,8 @@ function whenSettled(map){
  * The map is resized to its print size (inline px, matching the print CSS) *before*
  * the print dialog opens. Button path: resize, wait for tiles to finish loading at the
  * new size, then print — resizing during `beforeprint` isn't enough because the new
- * tiles arrive after the print snapshot. Ctrl+P path: `beforeprint` does the resize but
- * can't wait, so tiles at the edges may be missing; the Print button is the reliable route.
+ * tiles arrive after the print snapshot. File-menu path: `beforeprint` does the resize but
+ * can't wait, so tiles at the edges may be missing. Ctrl/Cmd+P is intercepted and sent down the button path.
  * The map keeps the on-screen center and zoom, so it looks like what was on screen, cropped to page shape.
  * @param {L.Map} map
  */
@@ -119,7 +119,8 @@ export function initPrint(map){
   window.addEventListener("beforeprint", enterPrintMode);
   window.addEventListener("afterprint", exitPrintMode);
 
-  button.addEventListener("click", async () => {
+  const printWhenReady = async () => {
+    if(button.disabled) return; // already preparing
     button.disabled = true;
     statusEl.textContent = "Preparing print view…";
     enterPrintMode();
@@ -127,5 +128,15 @@ export function initPrint(map){
     statusEl.textContent = "";
     button.disabled = false;
     window.print(); // afterprint restores the screen layout
+  };
+
+  button.addEventListener("click", printWhenReady);
+
+  // Route Ctrl/Cmd+P through the same wait-for-tiles path as the button.
+  document.addEventListener("keydown", e => {
+    if((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && e.key.toLowerCase() === "p"){
+      e.preventDefault();
+      printWhenReady();
+    }
   });
 }
