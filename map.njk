@@ -3,7 +3,7 @@ layout: base.njk
 permalink: "map.html"
 title: CA Sea Change Atlas — map
 ogImage: /img/preview-map.png
-description: A Leaflet map of California sea-level-rise and flood hazards, with live flood-hazard overlays from BCDC, USGS CoSMoS, NOAA, and FEMA, and click-to-inspect flood data.
+description: A Leaflet map of California sea-level-rise and flood hazards, with live flood-hazard overlays from BCDC, Cal-Adapt, USGS CoSMoS, NOAA, and FEMA, and click-to-inspect flood data.
 nav: map
 bodyClass: map-page
 leaflet: true
@@ -13,6 +13,10 @@ footerAttribution: >
   <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC's Adapting to Rising Tides Bay Shoreline Flood Explorer</a> —
   planning-level only, not for parcel-scale, permitting, or engineering use; see
   <a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">their full disclaimer</a>.
+  East Contra Costa flood layers: same BCDC program, from
+  <a href="https://eccexplorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC's East Contra Costa Shoreline Flood Explorer</a>.
+  Coastal inundation scenarios: live tiles from
+  <a href="https://cmip5.cal-adapt.org/tools/slr-coastal-inundation/" target="_blank" rel="noopener">Cal-Adapt's Sea Level Rise – Coastal Inundation Scenarios</a> (CoSMoS and CalFloD3D-TFS).
   CoSMoS flood extent: live data from
   <a href="https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos" target="_blank" rel="noopener">USGS CoSMoS / Our Coast, Our Future</a>.
   Sea level rise and coastal flood exposure layers: live data from
@@ -172,6 +176,31 @@ footerAttribution: >
 
 <div class="layer-group">
 <div class="layer-group-title collapsible-title">
+<button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="eccGroupBody">▾</button>
+<span>East Contra Costa Shoreline Flood Explorer <em>(BCDC / SFEI)</em></span>
+<button type="button" class="group-hide-btn" aria-label="Hide all East Contra Costa Shoreline Flood Explorer layers">Hide</button>
+</div>
+<div class="layer-group-body" id="eccGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="bcdcEcc" min="20" max="100" step="5" value="100" aria-label="East Contra Costa Shoreline Flood Explorer opacity"><span class="opacity-value">100%</span></label></div>
+<p class="click-hint">Click the map to see flood depth and shoreline overtopping at that point. Covers eastern Contra Costa County / the Delta shoreline only (Bay-side flooding is in the group above).</p>
+<div class="scenario-block">
+<div class="scenario-label">Sea level rise (above MHHW), <span id="eccSlrValue">0"</span></div>
+<input type="range" id="eccSlider" min="0" max="4" step="1" value="0">
+</div>
+<div class="scenario-block">
+<div class="scenario-label">Storm event</div>
+<div class="btn-grid" id="eccStormButtons"></div>
+</div>
+<p class="scenario-result" id="eccResult"></p>
+<label class="layer-item"><input type="checkbox" id="eccInundationToggle" data-ecc-layer="inundation"><span class="swatch" data-swatch="ecc-inundation"></span>Depth of Flooding</label>
+<label class="layer-item"><input type="checkbox" id="eccOvertoppingToggle" data-ecc-layer="overtopping"><span class="swatch" data-swatch="ecc-overtopping"></span>Shoreline Overtopping</label>
+<label class="layer-item"><input type="checkbox" id="eccLowlyingToggle" data-ecc-layer="lowlying"><span class="swatch" data-swatch="ecc-lowlying"></span>Disconnected Low-lying Areas</label>
+<div class="bcdc-legend" id="eccLegend" hidden></div>
+</div>
+</div>
+
+<div class="layer-group">
+<div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="cosmosGroupBody">▾</button>
 <span>CoSMoS Flood Explorer <em>(USGS Our Coast, Our Future)</em></span>
 <button type="button" class="group-hide-btn" aria-label="Hide all CoSMoS Flood Explorer layers">Hide</button>
@@ -201,6 +230,35 @@ footerAttribution: >
 
 <p class="scenario-result" id="cosmosResult"></p>
 <div class="bcdc-legend" id="cosmosLegend" hidden></div>
+</div>
+</div>
+
+<div class="layer-group">
+<div class="layer-group-title collapsible-title">
+<button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="caladaptGroupBody">▾</button>
+<span>Cal-Adapt Coastal Inundation <em>(SLR–CIS: CoSMoS &amp; CalFloD3D-TFS)</em></span>
+<button type="button" class="group-hide-btn" aria-label="Hide all Cal-Adapt Coastal Inundation layers">Hide</button>
+</div>
+<div class="layer-group-body" id="caladaptGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="calAdapt" min="20" max="100" step="5" value="100" aria-label="Cal-Adapt Coastal Inundation opacity"><span class="opacity-value">100%</span></label></div>
+<p class="click-hint">Click the map to see whether a point is in each checked model's flood extent. Turn on both models to see where they agree.</p>
+<label class="layer-item"><input type="checkbox" id="caladaptCosmosToggle" data-caladapt-model="cosmos"><span class="swatch" data-swatch="caladapt-cosmos"></span>CoSMoS <em>(statewide coast, 2 m)</em></label>
+<label class="layer-item"><input type="checkbox" id="caladaptCalflod5Toggle" data-caladapt-model="calflod5m"><span class="swatch" data-swatch="caladapt-calflod5m"></span>CalFloD3D-TFS 5 m <em>(LA, San Diego, SF Bay)</em></label>
+<label class="layer-item"><input type="checkbox" id="caladaptCalflod50Toggle" data-caladapt-model="calflod50m"><span class="swatch" data-swatch="caladapt-calflod50m"></span>CalFloD3D-TFS 50 m <em>(entire coast &amp; Bay)</em></label>
+<label for="caladaptPeriod" class="scenario-label">Time period</label>
+<select id="caladaptPeriod">
+<option value="2020-2040">2020–2040</option>
+<option value="2080-2100" selected>2080–2100</option>
+</select>
+<label for="caladaptScenario" class="scenario-label">Flood scenario</label>
+<select id="caladaptScenario">
+<option value="min">Minimum</option>
+<option value="med" selected>Median</option>
+<option value="max">Maximum</option>
+</select>
+<p class="scenario-result" id="caladaptResult"></p>
+<p class="scenario-result">Sea level rise amounts differ by region and model (CoSMoS: 0–250 cm across the scenarios); see <a href="https://cmip5.cal-adapt.org/tools/slr-coastal-inundation/" target="_blank" rel="noopener">Cal-Adapt's own tool</a> for details.</p>
+<div class="bcdc-legend" id="caladaptLegend" hidden></div>
 </div>
 </div>
 

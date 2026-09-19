@@ -12,7 +12,9 @@ import { initPrint } from "./print.js";
 import { initControls } from "./controls.js";
 import { wireSearch } from "./search.js";
 import { BcdcLegalDeltaLayer, BcdcFloodLayer } from "./layers/bcdc-flood-layer.js";
+import { BcdcEccLayer } from "./layers/bcdc-ecc-layer.js";
 import { CosmosLayer } from "./layers/cosmos-layer.js";
+import { CalAdaptSlrLayer } from "./layers/caladapt-slr-layer.js";
 import { NoaaSlrLayer } from "./layers/noaa-slr-layer.js";
 import { NoaaHtfLayer } from "./layers/noaa-htf-layer.js";
 import { FemaNfhlLayer } from "./layers/fema-nfhl-layer.js";
@@ -30,7 +32,9 @@ async function main(){
 
   new BcdcLegalDeltaLayer(map, infoPopup).init();
   new BcdcFloodLayer(map, infoPopup).init();
+  new BcdcEccLayer(map, infoPopup).init();
   new CosmosLayer(map, infoPopup).init();
+  new CalAdaptSlrLayer(map, infoPopup).init();
   new NoaaSlrLayer(map, infoPopup).init();
   new NoaaHtfLayer(map, infoPopup).init();
   new FemaNfhlLayer(map, infoPopup).init();

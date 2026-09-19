@@ -6,14 +6,14 @@
  */
 
 // Panes stack in this order (bottom to top); bringGroupToFront() reorders it. All sit above the basemap pane (150) and Leaflet's tilePane (200).
-const GROUP_PANE_KEYS = ["geoLand", "geoPeople", "geoFacilities", "noaaSlr", "fema", "cfem", "cosmos", "bcdc"];
+const GROUP_PANE_KEYS = ["geoLand", "geoPeople", "geoFacilities", "noaaSlr", "fema", "cfem", "calAdapt", "cosmos", "bcdc", "bcdcEcc"];
 const FIRST_Z_INDEX = 210;
 
 /**
  * Returns the name of a layer group's pane, creating it on first use.
  * Pass the result as the `pane` option when building that group's layers.
  * @param {L.Map} map
- * @param {"geoLand"|"geoPeople"|"geoFacilities"|"noaaSlr"|"fema"|"cfem"|"cosmos"|"bcdc"} key - layer group key.
+ * @param {"geoLand"|"geoPeople"|"geoFacilities"|"noaaSlr"|"fema"|"cfem"|"calAdapt"|"cosmos"|"bcdc"|"bcdcEcc"} key - layer group key.
  * @returns {string}
  */
 export function groupPane(map, key){
