@@ -252,6 +252,33 @@
       ]
     },
     {
+      "id": "fema-nfhl",
+      "name": "National Flood Hazard Layer",
+      "org": "FEMA",
+      "scope": "national",
+      "scopeLabel": "United States (national), including California",
+      "coverageRegion": "california-state",
+      "implementationStatus": "implemented",
+      "released": "Ongoing, effective maps updated on a rolling basis",
+      "url": "https://www.fema.gov/flood-maps/national-flood-hazard-layer",
+      "description": "FEMA's official effective flood insurance rate map data, showing regulatory flood zones (e.g. Zone AE, Zone X) and base flood elevations used for insurance and floodplain-management decisions today.",
+      "processes": ["Riverine and coastal flood zones", "Regulatory base flood elevation"],
+      "exposure": ["Infrastructure & buildings"],
+      "floodInfo": ["FEMA flood zones", "Base flood elevation"],
+      "reportsData": "Zone lookup and downloadable GIS flood-zone layers via the FEMA Flood Map Service Center.",
+      "slrModel": "None — reflects today's regulatory floodplain, not a future sea-level-rise scenario.",
+      "strengths": [
+        "The authoritative source for regulatory flood zones and insurance requirements",
+        "Public domain, well documented, and continuously maintained by a federal agency",
+        "Distinguishes zone subtype and base flood elevation, not just a yes/no flood extent"
+      ],
+      "limitations": [
+        "Reflects present-day conditions only — no sea-level-rise or future-scenario projections",
+        "Zone detail only renders at close-in, neighborhood-level zoom",
+        "Coverage and currency of the underlying study vary by county"
+      ]
+    },
+    {
       "id": "tnc-resilience",
       "name": "Coastal Resilience Mapping Portal",
       "org": "The Nature Conservancy",
