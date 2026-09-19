@@ -41,13 +41,10 @@ extraScripts:
 {%- for item in cat.items %}
 <li>
 <div class="license-head"><a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}</a></div>
-<div class="license-tags">
-{%- for key in item.licenses %}{% set lic = licenseTypes[key] %}<a class="license-badge" href="{{ lic.url }}" target="_blank" rel="noopener">{{ lic.name }}</a>{% endfor %}
-{%- if item.licenseNote %}<span class="license-badge license-plain">{{ item.licenseNote }}</span>{% endif %}
-</div>
-{%- if item.attribution %}
-<div class="license-line"><strong>Credit required:</strong> {{ item.attribution }}</div>
-{%- endif %}
+<div class="license-line"><strong>License:</strong>
+{%- for key in item.licenses %}{% set lic = licenseTypes[key] %}{% if not loop.first %},{% endif %} <a href="{{ lic.url }}" target="_blank" rel="noopener">{{ lic.name }}</a>{% endfor %}
+{%- if item.licenseNote %}{% if item.licenses.length %};{% endif %} {{ item.licenseNote }}{% endif %}
+{%- if item.attribution %} &nbsp;·&nbsp; <strong>Credit:</strong> {{ item.attribution }}{% endif %}</div>
 {%- if item.note or item.links or item.toolId %}
 <div class="license-line">
 {%- if item.note %}{{ item.note }}{% endif %}
@@ -67,7 +64,7 @@ extraScripts:
 </ul>
 {%- endfor %}
 
-<p>Credits marked required are also shown on the map's own attribution strip. Sources with no credit line are public domain and are listed for transparency.</p>
+<p>Credits listed here are also shown on the map's own attribution strip. Sources with no credit line are public domain and are listed for transparency.</p>
 
 </div>
 </div>

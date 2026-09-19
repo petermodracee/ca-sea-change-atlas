@@ -506,10 +506,6 @@ table.cmp tbody tr:last-child td{border-bottom:0;}
 .license-head{font-size:15px;font-weight:600;}
 .license-line{font-size:14px;color:var(--ink-soft);margin-top:3px;}
 .license-studies{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--ink-soft);}
-.license-tags{margin-top:4px;display:flex;flex-wrap:wrap;gap:6px;}
-.license-badge{display:inline-block;padding:2px 7px;border:1px solid var(--sand-deep);border-radius:4px;font-size:12px;font-weight:600;letter-spacing:.01em;background:var(--sand);color:var(--ink);text-decoration:none;}
-a.license-badge:hover{text-decoration:underline;}
-.license-plain{border-color:var(--line);background:var(--paper);color:var(--ink-soft);font-weight:500;}
 
 /* ---------- tool detail page ---------- */
 .tool-detail{padding-bottom:60px;}
