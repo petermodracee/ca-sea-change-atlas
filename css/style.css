@@ -519,9 +519,9 @@ table.cmp tbody tr:last-child td{border-bottom:0;}
   .site-header,.map-toolbar,.search-status,.search-results,.site-footer-links,.layer-panel{display:none !important;}
   .leaflet-control-zoom,.leaflet-control-layers,.leaflet-control-locate,.leaflet-control-measure{display:none;}
   .map-layout{display:grid;grid-template-columns:700px 1fr;grid-template-rows:auto;gap:0 14px;overflow:visible;}
-  #map{width:700px;height:590px;min-height:0;border:1px solid #999;}
+  #map{width:700px;height:610px;min-height:0;border:1px solid #999;}
   #printSheet{
-    display:block;font-size:8pt;line-height:1.3;color:#000;overflow:hidden;max-height:590px;
+    display:block;font-size:8pt;line-height:1.3;color:#000;overflow:hidden;max-height:610px;
   }
   #printSheet h2{font-size:12pt;margin:0 0 2px;}
   #printSheet h3{font-size:8.5pt;margin:8px 0 2px;text-transform:uppercase;letter-spacing:.02em;border-bottom:1px solid #999;}

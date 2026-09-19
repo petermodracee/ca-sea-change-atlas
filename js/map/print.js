@@ -7,7 +7,9 @@
 
 // Must match the print CSS: map and legend column widths in px (landscape Letter, .4in margins).
 const PRINT_MAP_WIDTH_PX = 700;
-const PRINT_MAP_HEIGHT_PX = 590;
+const PRINT_MAP_HEIGHT_PX = 610;
+const SETTLE_POLL_MS = 400;
+const SETTLE_TIMEOUT_MS = 12000;
 
 /** Builds the print sheet element from the layer panel's current state. */
 function buildPrintSheet(){
@@ -54,39 +56,76 @@ function buildPrintSheet(){
   return sheet;
 }
 
+/** Whether every tile, image overlay and vector basemap on the map has finished loading. */
+function mapIsSettled(map){
+  if(document.querySelector(".layer-group.is-loading, .leaflet-tile-loading")) return false;
+  return !Object.values(map._layers).some(layer => typeof layer.getMaplibreMap === "function" && layer.getMaplibreMap() && !layer.getMaplibreMap().loaded());
+}
+
+/** Resolves once the map has settled, or after SETTLE_TIMEOUT_MS so a stuck layer can't block printing. */
+function whenSettled(map){
+  return new Promise(resolve => {
+    const started = Date.now();
+    const check = () => {
+      if(mapIsSettled(map) || Date.now() - started > SETTLE_TIMEOUT_MS) resolve();
+      else setTimeout(check, SETTLE_POLL_MS);
+    };
+    setTimeout(check, SETTLE_POLL_MS); // give freshly-resized layers a beat to start requesting tiles
+  });
+}
+
 /**
  * Wires the toolbar Print button and the before/after-print hooks.
- * Leaflet only re-measures on window resize, and Chrome applies print CSS after
- * `beforeprint` fires — so the map's print size is set inline here (same px as
- * the print CSS), then the view is re-fitted to what was on screen.
+ *
+ * The map is resized to its print size (inline px, matching the print CSS) *before*
+ * the print dialog opens. Button path: resize, wait for tiles to finish loading at the
+ * new size, then print — resizing during `beforeprint` isn't enough because the new
+ * tiles arrive after the print snapshot. Ctrl+P path: `beforeprint` does the resize but
+ * can't wait, so tiles at the edges may be missing; the Print button is the reliable route.
+ * The map keeps the on-screen center and zoom, so it looks like what was on screen, cropped to page shape.
  * @param {L.Map} map
  */
 export function initPrint(map){
   const mapEl = document.getElementById("map");
+  const button = document.getElementById("printBtn");
+  const statusEl = document.getElementById("searchStatus");
   const details = document.querySelector(".site-footer-details");
-  let wasOpen = false;
   let sheet = null;
-  let screenBounds = null;
+  let saved = null; // {center, zoom, detailsOpen} from before print mode
 
-  window.addEventListener("beforeprint", () => {
-    if(details){ wasOpen = details.open; details.open = true; }
-    screenBounds = map.getBounds();
+  const enterPrintMode = () => {
+    if(sheet) return;
+    saved = { center: map.getCenter(), zoom: map.getZoom(), detailsOpen: details ? details.open : false };
+    if(details) details.open = true;
     sheet = buildPrintSheet();
     mapEl.after(sheet);
     mapEl.style.width = `${PRINT_MAP_WIDTH_PX}px`;
     mapEl.style.height = `${PRINT_MAP_HEIGHT_PX}px`;
     map.invalidateSize({ animate: false });
-    map.fitBounds(screenBounds, { animate: false });
-  });
+    map.setView(saved.center, saved.zoom, { animate: false });
+  };
 
-  window.addEventListener("afterprint", () => {
-    if(details) details.open = wasOpen;
-    if(sheet){ sheet.remove(); sheet = null; }
+  const exitPrintMode = () => {
+    if(!sheet) return;
+    sheet.remove();
+    sheet = null;
     mapEl.style.width = "";
     mapEl.style.height = "";
+    if(details) details.open = saved.detailsOpen;
     map.invalidateSize({ animate: false });
-    if(screenBounds) map.fitBounds(screenBounds, { animate: false });
-  });
+    map.setView(saved.center, saved.zoom, { animate: false });
+  };
 
-  document.getElementById("printBtn").addEventListener("click", () => window.print());
+  window.addEventListener("beforeprint", enterPrintMode);
+  window.addEventListener("afterprint", exitPrintMode);
+
+  button.addEventListener("click", async () => {
+    button.disabled = true;
+    statusEl.textContent = "Preparing print view…";
+    enterPrintMode();
+    await whenSettled(map);
+    statusEl.textContent = "";
+    button.disabled = false;
+    window.print(); // afterprint restores the screen layout
+  });
 }
