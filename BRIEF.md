@@ -101,11 +101,30 @@ a confirmed-legal path to real overlay data are map-layer candidates.
   this list (see Licensing below) — live esri-leaflet DynamicMapLayer,
   "Flood Hazard Zones" sublayer only, effective data only.
 
-**Confirmed legal, not yet wired up — the real next-up list for map work:**
-- Cal-Adapt / CNRA statewide SLR data
+- **East Contra Costa Shoreline Flood Explorer (BCDC / SFEI)** — wired up
+  as its own layer group. Confirmed against the live tool
+  (`eccexplorer.adaptingtorisingtides.org`): its `query.php?q=getConfig`
+  returns the same WMS server and mapfile as the Bay explorer
+  (`mapserver.adaptingtorisingtides.org`, `bcdc.map`), so it reuses BCDC's
+  WMS URL, session cache, and GetFeatureInfo parsing; only the layer names
+  differ (`ecc{inundation|overtopping|lowlying}{0|12|24|36|83}`, plus a
+  `flood100` suffix for its 100-year storm toggle). Depth and overtopping
+  support click-to-inspect.
+- **Cal-Adapt Sea Level Rise – Coastal Inundation Scenarios (SLR-CIS)** —
+  wired up as one layer group with a checkbox per model. Confirmed against
+  the live tool (`cmip5.cal-adapt.org/tools/slr-coastal-inundation/`):
+  it renders pre-rendered XYZ raster tiles from
+  `api.cal-adapt.org/tiles/{slug}/{z}/{x}/{y}.png` — 72 raster mosaics:
+  CoSMoS (8 regions), CalFloD3D-TFS 5 m (LA, San Diego, SF Bay) and 50 m
+  (statewide), each for two periods (2020–2040, 2080–2100) × min/median/max.
+  It does **not** call CNRA's
+  `gis.cnra.ca.gov/.../CSMW_Sea_Level_Rise/MapServer`, which is a separate,
+  older (Third Assessment-era) dataset, so esri-leaflet isn't used. Tiles
+  send a one-year `Cache-Control`, so they skip the shared session cache.
+  No per-point value service exists, so click-to-inspect samples the tile
+  pixel and reports extent only.
 
-This is a public ArcGIS REST/MapServer or FeatureServer endpoint — see
-the Licensing section below for why it's clear to use.
+**Confirmed legal, not yet wired up:** none remaining from the original list.
 
 ### Corrections from the tier-1 map-layer pass
 
@@ -183,8 +202,6 @@ recording in case this gets revisited:
 
 **Likely feasible, not yet verified — worth a look before committing to
 comparison-only:**
-- East Contra Costa Shoreline Flood Explorer (probably shares BCDC's own
-  Caltrans-hosted infrastructure)
 - USGS HERA (probably reuses CoSMoS/USGS data already confirmed open)
 
 **Pending an actual licensing answer — see TODO below — comparison-only
@@ -311,14 +328,15 @@ these resolves it:
    established (live fetch from each source's own server — esri-leaflet
    for the three genuine ArcGIS REST sources, hand-rolled tile/WMS
    fetching for CoSMoS's Point Blue infrastructure — no local copy of
-   the flood data, attribution shown on the page). Cal-Adapt/CNRA
-   remains the one
-   item still not wired up.
+   the flood data, attribution shown on the page). Cal-Adapt/CNRA was
+   left over from this pass; see item 4 below.
 2. ✅ **Done:** README.md's Implementation status table is updated to
    reflect it.
 3. Still open: either the FloodRISE or CREST TODO above is resolved one
    way or the other, and `sources.njk`'s row for that tool is updated
    accordingly if the answer is "yes, add it as a map layer too."
-4. Still open: Cal-Adapt/CNRA is the one remaining "confirmed legal, not
-   yet wired up" tool from the original four — next candidate for a
-   future map-layer pass.
+4. ✅ **Done (East Contra Costa + Cal-Adapt pass):** the East Contra
+   Costa Shoreline Flood Explorer (same BCDC WMS server, own layer group)
+   and Cal-Adapt SLR-CIS (its own XYZ tile API) are wired up, each with a
+   click-to-inspect provider, and README.md/CREDITS.md/`licenses.njk` are
+   updated. Nothing from the original "confirmed legal" list remains.

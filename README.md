@@ -138,21 +138,31 @@ off-limits, some just aren't wired up yet. "Implemented" below means
 `map.html` actually renders that tool's own flood/hazard data as a live
 layer, not just that it's listed on `sources.html`.
 
-Five tools have real data wired up now: BCDC's Bay Shoreline Flood
-Explorer (live WMS), plus USGS CoSMoS, NOAA's Sea Level Rise Viewer,
-NOAA's Coastal Flood Exposure Mapper, and FEMA's National Flood Hazard
-Layer (all four added directly to the map's layer panel via
-[esri-leaflet](https://github.com/Esri/esri-leaflet), since they're
-ArcGIS REST services rather than WMS like BCDC). The other 7 are
-cataloged on `sources.html` for comparison. One more (Cal-Adapt/CNRA) is
-confirmed legal and is the real next-up item for map work; two are
-likely feasible but unverified; two are pending an actual licensing
-answer; and three are **permanently** comparison-only because their own
+Seven tools have real data wired up now: BCDC's Bay Shoreline Flood
+Explorer and its East Contra Costa companion (both live WMS from the same
+BCDC server), plus USGS CoSMoS, NOAA's Sea Level Rise Viewer, NOAA's
+Coastal Flood Exposure Mapper, and FEMA's National Flood Hazard Layer
+(the NOAA and FEMA ArcGIS REST services are added via
+[esri-leaflet](https://github.com/Esri/esri-leaflet)), and Cal-Adapt's
+Sea Level Rise – Coastal Inundation Scenarios (its own pre-rendered XYZ
+raster tiles, not ArcGIS — see below). The other 6 are cataloged on
+`sources.html` for comparison: one is likely feasible but unverified; two
+are pending an actual licensing answer; and three are **permanently**
+comparison-only because their own
 Terms of Use confirm they prohibit exactly this kind of overlay. See
 `BRIEF.md`'s "Map-layer scope" and "Licensing per source" sections for
 the full breakdown and the specific clauses behind each category — that
 distinction (never vs. not-yet) is the important one for anyone picking
 up map work next.
+
+Cal-Adapt's SLR-CIS layer draws the same tiles the live tool does
+(`api.cal-adapt.org/tiles/...`, confirmed from the tool's own network
+traffic and JS). It is *not* the CNRA `CSMW_Sea_Level_Rise` MapServer —
+that is a separate, older (Third Assessment-era) dataset the live tool
+doesn't call. The tool shows CoSMoS and CalFloD3D-TFS together, so this
+is one layer group with a checkbox per model. There is no per-point value
+service, so click-to-inspect reports flood *extent* only, read from the
+rendered tile pixel.
 
 CFEM's implementation covers its composite hazard-overlap layer, a
 hurricane storm surge toggle (Category 1–2, Southern California only —
@@ -179,8 +189,8 @@ this map's separate NOAA Sea Level Rise Viewer group already shows.
 | Sea Level Rise Viewer | NOAA Office for Coastal Management | ✅ Implemented | — |
 | Coastal Flood Exposure Mapper | NOAA Office for Coastal Management | ✅ Implemented (composite, storm surge, high tide flooding, FEMA zones, tsunami) | — |
 | National Flood Hazard Layer | FEMA | ✅ Implemented | — |
-| Sea Level Rise – Coastal Inundation Scenarios (Cal-Adapt) | Cal-Adapt | Not implemented | Confirmed open — next up |
-| East Contra Costa Shoreline Flood Explorer | BCDC / SFEI | Not implemented | Likely feasible, unverified |
+| Sea Level Rise – Coastal Inundation Scenarios (Cal-Adapt) | Cal-Adapt | ✅ Implemented (CoSMoS + CalFloD3D-TFS) | — |
+| East Contra Costa Shoreline Flood Explorer | BCDC / SFEI | ✅ Implemented | — |
 | Hazard Exposure Reporting and Analytics (HERA) | USGS | Not implemented | Likely feasible, unverified |
 | FloodRISE | UC Irvine | Not implemented | Pending license check (TODO) |
 | Coastal Resilience Evaluation and Siting Tool (CREST) | NFWF, with partners | Not implemented | Pending license check (TODO) |

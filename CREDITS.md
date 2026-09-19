@@ -31,6 +31,30 @@ this page is `/licenses.html` (`licenses.njk`).
   redistributed copy of the dataset itself must stay share-alike.
   Planning-level only; see
   [BCDC's disclaimer](https://explorer.adaptingtorisingtides.org/about/a-disclaimer).
+- **[BCDC's East Contra Costa Shoreline Flood
+  Explorer](https://eccexplorer.adaptingtorisingtides.org/)** (BCDC /
+  SFEI) — same BCDC Adapting to Rising Tides program, WMS server and
+  terms as the Bay Shoreline Flood Explorer above (CC-BY-SA via the
+  Caltrans open data portal; attribute Caltrans/BCDC; planning-level
+  only, see
+  [BCDC's disclaimer](https://eccexplorer.adaptingtorisingtides.org/about/a-disclaimer)).
+- **[Cal-Adapt Sea Level Rise – Coastal Inundation
+  Scenarios](https://cmip5.cal-adapt.org/tools/slr-coastal-inundation/)**
+  — flood-extent tiles for two models, loaded live from
+  `api.cal-adapt.org`, mosaicked by UC Berkeley's Geospatial Innovation
+  Facility for Cal-Adapt. The tool page states no separate license (the
+  CoSMoS component is USGS, U.S. public domain); attribute Cal-Adapt and
+  cite the underlying studies:
+  - CoSMoS — Barnard, P.L., et al. (2019). Dynamic flood modeling
+    essential to assess the coastal impacts of climate change.
+    *Scientific Reports*, 9, 4309.
+    [doi:10.1038/s41598-019-40742-z](https://doi.org/10.1038/s41598-019-40742-z)
+  - CalFloD3D-TFS — Radke, J., et al. (2018). *Assessing extreme
+    weather-related vulnerability and identifying resilience options for
+    California's interdependent transportation fuel sector.* California's
+    Fourth Climate Change Assessment, California Energy Commission,
+    CCCA4-CEC-2018-012.
+    [PDF](https://www.energy.ca.gov/sites/default/files/2019-11/Energy_CCCA4-CEC-2018-012_ADA.pdf)
 - **[USGS CoSMoS / Our Coast, Our
   Future](https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos)**
   — U.S. public domain (17 U.S.C. §105). Served via Point Blue
@@ -77,11 +101,7 @@ this page is `/licenses.html` (`licenses.njk`).
 See `BRIEF.md`'s "Licensing per source" section for the full detail behind
 each of these, including why some are permanently comparison-only:
 
-- **Cal-Adapt (CNRA)** — mirrored through the Caltrans open data portal,
-  **CC-BY-SA**, same terms as BCDC above. Confirmed legal for map use;
-  not yet implemented as a layer.
-- **East Contra Costa Shoreline Flood Explorer (BCDC/SFEI)**, **HERA
-  (USGS)** — likely feasible, unverified license.
+- **HERA (USGS)** — likely feasible, unverified license.
 - **FloodRISE (UC Irvine)**, **CREST (NFWF)** — pending a license check;
   see `BRIEF.md`'s TODO list for the specific verification steps.
 - **Coastal Risk Screening Tool** and **Surging Seas Risk Finder**
