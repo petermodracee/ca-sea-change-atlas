@@ -52,7 +52,7 @@ click-to-inspect popup showing real
 values (depth, acreage, flood zone, hazard overlap,
 etc., queried live from each source's own server) for whichever layers
 are checked at the clicked point. `sources.html` is the tool comparison —
-the filterable 12-tool grid and compare-up-to-three table from the
+the filterable tool grid and compare-up-to-three table from the
 original prototype, with each card linking to a real, generated detail
 page at `/tool/<id>/` (see "Per-tool pages" below). `about.html` carries
 the "Sea the Future" background story that used to be duplicated across
@@ -133,23 +133,27 @@ link.
 
 ## Map-layer scope
 
-Not all 12 tools' data can be reproduced on the map — some are legally
+Not all 15 tools' data can be reproduced on the map — some are legally
 off-limits, some just aren't wired up yet. "Implemented" below means
 `map.html` actually renders that tool's own flood/hazard data as a live
 layer, not just that it's listed on `sources.html`.
 
-Seven tools have real data wired up now: BCDC's Bay Shoreline Flood
+Nine tools have real data wired up now: BCDC's Bay Shoreline Flood
 Explorer and its East Contra Costa companion (both live WMS from the same
 BCDC server), plus USGS CoSMoS, NOAA's Sea Level Rise Viewer, NOAA's
 Coastal Flood Exposure Mapper, and FEMA's National Flood Hazard Layer
 (the NOAA and FEMA ArcGIS REST services are added via
 [esri-leaflet](https://github.com/Esri/esri-leaflet)), and Cal-Adapt's
 Sea Level Rise – Coastal Inundation Scenarios (its own pre-rendered XYZ
-raster tiles, not ArcGIS — see below). The other 6 are cataloged on
-`sources.html` for comparison: one is likely feasible but unverified; two
-are pending an actual licensing answer; and three are **permanently**
-comparison-only because their own
-Terms of Use confirm they prohibit exactly this kind of overlay. See
+raster tiles, not ArcGIS — see below), plus two smaller NOAA-sourced
+additions, High Tide Flooding stations and the NHC National Storm Surge
+Risk Maps. The other 6 are cataloged on `sources.html` as **external
+tools only**, permanently: Climate Central's two tools and TNC's portal
+because their own Terms of Use prohibit this kind of overlay; FloodRISE
+because no reuse license was found; CREST because its composite output
+has no stated license (its federal inputs are public domain); and HERA
+because it is an exposure-analytics tool built on CoSMoS hazard zones,
+which are already on the map. See
 `BRIEF.md`'s "Map-layer scope" and "Licensing per source" sections for
 the full breakdown and the specific clauses behind each category — that
 distinction (never vs. not-yet) is the important one for anyone picking
@@ -191,9 +195,11 @@ this map's separate NOAA Sea Level Rise Viewer group already shows.
 | National Flood Hazard Layer | FEMA | ✅ Implemented | — |
 | Sea Level Rise – Coastal Inundation Scenarios (Cal-Adapt) | Cal-Adapt | ✅ Implemented (CoSMoS + CalFloD3D-TFS) | — |
 | East Contra Costa Shoreline Flood Explorer | BCDC / SFEI | ✅ Implemented | — |
-| Hazard Exposure Reporting and Analytics (HERA) | USGS | Not implemented | Likely feasible, unverified |
-| FloodRISE | UC Irvine | Not implemented | Pending license check (TODO) |
-| Coastal Resilience Evaluation and Siting Tool (CREST) | NFWF, with partners | Not implemented | Pending license check (TODO) |
+| NOAA High Tide Flooding stations | NOAA | ✅ Implemented | — |
+| NOAA/NWS/NHC National Storm Surge Risk Maps | NOAA / NWS / NHC | ✅ Implemented | — |
+| Hazard Exposure Reporting and Analytics (HERA) | USGS | Not implemented | **External tool only** — built on CoSMoS hazard zones, redundant with the CoSMoS layer |
+| FloodRISE | UC Irvine | Not implemented | **External tool only** — no reuse license found ("All Rights Reserved") |
+| Coastal Resilience Evaluation and Siting Tool (CREST) | NFWF, with partners | Not implemented | **External tool only** — public federal inputs, but the composite output has no stated license |
 | Coastal Risk Screening Tool | Climate Central | Not implemented | **Permanently comparison-only** |
 | Surging Seas Risk Finder | Climate Central | Not implemented | **Permanently comparison-only** |
 | Coastal Resilience Mapping Portal | The Nature Conservancy | Not implemented | **Permanently comparison-only** |
@@ -228,7 +234,7 @@ this map's separate NOAA Sea Level Rise Viewer group already shows.
   nothing about this file is BCDC-specific — a future map/tool on this
   page registers its own providers without touching it.
 - `sources.njk`, `js/sources.js` — the tool comparison page: the
-  filterable 12-tool grid and compare-up-to-three table.
+  filterable tool grid and compare-up-to-three table.
 - `about.njk` — the project's history: what "Sea the Future" was, why
   this project is two tools instead of one, and the "not affiliated"
   disclaimer in full.
@@ -244,10 +250,10 @@ this map's separate NOAA Sea Level Rise Viewer group already shows.
   just doesn't render) if either file is missing.
 - `img/favicon.svg` — the site favicon, referenced from `_includes/base.njk`.
 - `robots.txt`, `sitemap.njk` — `sitemap.njk` generates `sitemap.xml` at
-  build time from every page Eleventy knows about (including all 12 tool
-  pages, via `addAllPagesToCollections` in `tool.njk`'s pagination
+  build time from every page Eleventy knows about (including every tool
+  page, via `addAllPagesToCollections` in `tool.njk`'s pagination
   config); `robots.txt` points crawlers at it.
-- `data/tools.json` — the 12-tool dataset (descriptions, scope, links,
+- `data/tools.json` — the tool dataset (15 entries) (descriptions, scope, links,
   strengths/limitations, etc.).
 - `reference/sea-the-future-prototype.html` — the original single-file
   prototype with the filter-and-compare UI (no map). Kept for reference,

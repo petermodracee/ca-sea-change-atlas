@@ -38,7 +38,7 @@ concern hand-duplicating chrome:
   level scenario picker, live WMS queries, per-session caching, etc.)
   and README.md is the accurate source for exactly what's built.
 - **`sources.njk`** — the reference/comparison side. The filterable
-  12-tool grid and compare-up-to-three table, inherited from the original
+  tool grid and compare-up-to-three table, inherited from the original
   single-file prototype, each card linking to that tool's own generated
   detail page.
 - **`about.njk`** — the project history (what "Sea the Future" was, why
@@ -59,11 +59,12 @@ doesn't depend on anything the map computes. The landing page carries no
 logic of its own; it exists purely to route a first-time visitor to the
 tool they actually want.
 
-## Map-layer scope: only some of the 12 tools will ever get a map layer
+## Map-layer scope: only some of the 15 tools will ever get a map layer
 
 This is the important scoping decision for anyone picking up map work:
-**most of the 12 tools are staying comparison-only, permanently, by
-design — not because they haven't been gotten to yet.** Only tools with
+**6 of the 15 tools are staying comparison-only ("external tool
+only"), permanently, by design — not because they haven't been gotten to
+yet.** Only tools with
 a confirmed-legal path to real overlay data are map-layer candidates.
 
 **Implemented:**
@@ -200,14 +201,21 @@ recording in case this gets revisited:
   worth knowing if this scope decision is ever revisited, since "all of
   CFEM's exposure layers are third-party" isn't quite accurate.
 
-**Likely feasible, not yet verified — worth a look before committing to
-comparison-only:**
-- USGS HERA (probably reuses CoSMoS/USGS data already confirmed open)
+**Permanently external-tool-only — redundant, not a licensing problem:**
+- USGS HERA — public domain, but its coastal-flooding / groundwater /
+  shoreline-change hazard data is itself sourced from CoSMoS, which is
+  already on the map. HERA is an exposure-analytics tool built on top of
+  those hazard zones (Census population, InfoGroup economic assets,
+  parcel values, NLCD land cover, roads / rail / critical facilities),
+  not new flood-extent geometry.
 
-**Pending an actual licensing answer — see TODO below — comparison-only
-until resolved:**
-- FloodRISE (UC Irvine)
-- CREST (NFWF)
+**Permanently external-tool-only — no reuse license:**
+- FloodRISE (UC Irvine) — its UCI Blum Center project page carries a
+  blanket "All Rights Reserved" footer, and no terms of use were found
+  for the live viewers (hosted on a floodrise.uci.edu subdomain).
+- CREST (NFWF) — underlying federal hazard inputs are public domain, but
+  the Resilience Hub composite output is NFWF/NEMAC's own derived work
+  with no stated license.
 
 **Permanently comparison-only — confirmed legally off-limits for a map
 overlay, don't revisit this without new information:**
@@ -269,11 +277,12 @@ specific clauses that rule it out.
   in its layer metadata — so even where a TNC service is technically
   reachable, it explicitly doesn't grant reuse rights.
 
-## TODO — resolve before FloodRISE or CREST can become map layers
+## Resolved — FloodRISE and CREST stay external-tool-only
 
 Both tools are live and technically probably reachable, but neither has
-a confirmed reuse license. Don't add either as a map overlay until one of
-these resolves it:
+a reuse license, so both are permanently external-tool-only (see the
+scope section above). The checks below are kept as a record of how to
+revisit that if either publisher ever posts license terms:
 
 - [ ] **FloodRISE**: check whether the ArcGIS Online items carry a
   publisher-set `licenseInfo` field — fetch
@@ -332,9 +341,9 @@ these resolves it:
    left over from this pass; see item 4 below.
 2. ✅ **Done:** README.md's Implementation status table is updated to
    reflect it.
-3. Still open: either the FloodRISE or CREST TODO above is resolved one
-   way or the other, and `sources.njk`'s row for that tool is updated
-   accordingly if the answer is "yes, add it as a map layer too."
+3. ✅ **Resolved:** FloodRISE and CREST are permanently external-tool-only
+   (no reuse license), and HERA is external-tool-only as redundant with
+   CoSMoS. `data/tools.json` marks all three `mapEligibility: "excluded"`.
 4. ✅ **Done (East Contra Costa + Cal-Adapt pass):** the East Contra
    Costa Shoreline Flood Explorer (same BCDC WMS server, own layer group)
    and Cal-Adapt SLR-CIS (its own XYZ tile API) are wired up, each with a
