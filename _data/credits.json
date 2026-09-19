@@ -1,0 +1,302 @@
+{
+  "_meta": "Single source for /licenses.html. Every third-party library, dataset and service the site loads or credits belongs here, listed alphabetically within each category (scripts/ checks will enforce this). 'licenses' are keys into _data/licenseTypes.json, which holds each license's name and a link to its text. 'attribution' is present ONLY where the license or terms require a credit line, and mirrors what the map's attribution strip shows; public-domain sources are listed for transparency and carry none. 'toolId' links an entry to data/tools.json. Comparison-only tools use no data, so they are not listed. Rationale and ToU clauses live in docs/LICENSING.md.",
+  "categories": [
+    {
+      "id": "flood",
+      "title": "Flood & hazard data",
+      "intro": "Loaded live from each publisher's own server. Nothing here is stored or modified by this project.",
+      "items": [
+        {
+          "name": "BCDC Adapting to Rising Tides — Bay Shoreline Flood Explorer",
+          "url": "https://explorer.adaptingtorisingtides.org/",
+          "toolId": "art-bay",
+          "note": "Served via the Caltrans open data portal. Planning-level only. Displaying it as a live layer is fine; a redistributed copy of the dataset itself must stay share-alike.",
+          "links": [
+            {
+              "text": "BCDC's disclaimer",
+              "url": "https://explorer.adaptingtorisingtides.org/about/a-disclaimer"
+            }
+          ],
+          "licenses": [
+            "cc-by-sa"
+          ],
+          "attribution": "Caltrans; BCDC Adapting to Rising Tides"
+        },
+        {
+          "name": "BCDC East Contra Costa Shoreline Flood Explorer",
+          "url": "https://eccexplorer.adaptingtorisingtides.org/",
+          "toolId": "art-ecc",
+          "note": "Same program, WMS server and terms as the Bay explorer. Planning-level only.",
+          "links": [
+            {
+              "text": "BCDC's disclaimer",
+              "url": "https://eccexplorer.adaptingtorisingtides.org/about/a-disclaimer"
+            }
+          ],
+          "licenses": [
+            "cc-by-sa"
+          ],
+          "attribution": "Caltrans; BCDC Adapting to Rising Tides"
+        },
+        {
+          "name": "Cal-Adapt Sea Level Rise – Coastal Inundation Scenarios",
+          "url": "https://cmip5.cal-adapt.org/tools/slr-coastal-inundation/",
+          "toolId": "cal-adapt-slr",
+          "note": "Flood-extent tiles for two models, mosaicked and served by Cal-Adapt (UC Berkeley Geospatial Innovation Facility). The CoSMoS component is USGS (public domain). Please cite the studies below.",
+          "studies": [
+            "Barnard, P.L., Erikson, L.H., Foxgrover, A.C., Finzi Hart, J.A., Limber, P., O'Neill, A.C., van Ormondt, M., Vitousek, S., Wood, N., Hayden, M.K., & Jones, J.M. (2019). Dynamic flood modeling essential to assess the coastal impacts of climate change. Scientific Reports, 9, Article 4309. https://doi.org/10.1038/s41598-019-40742-z",
+            "Radke, J., et al. (2018). Assessing extreme weather-related vulnerability and identifying resilience options for California's interdependent transportation fuel sector. California's Fourth Climate Change Assessment, California Energy Commission, CCCA4-CEC-2018-012. https://www.energy.ca.gov/sites/default/files/2019-11/Energy_CCCA4-CEC-2018-012_ADA.pdf"
+          ],
+          "licenses": [],
+          "licenseNote": "No separate license stated by the tool"
+        },
+        {
+          "name": "FEMA National Flood Hazard Layer",
+          "url": "https://www.fema.gov/flood-maps/national-flood-hazard-layer",
+          "toolId": "fema-nfhl",
+          "licenses": [
+            "pd-us"
+          ],
+          "note": "Effective data only; preliminary maps are not shown. FEMA asks for acknowledgement."
+        },
+        {
+          "name": "NOAA Coastal Flood Exposure Mapper",
+          "url": "https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html",
+          "toolId": "noaa-cfem",
+          "note": "Hazard-overlap composite, High Tide Flooding, FEMA Flood Zones and Tsunami Run-up overlays.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA High Tide Flooding stations",
+          "url": "https://coast.noaa.gov/slr/",
+          "toolId": "noaa-htf-stations",
+          "note": "NOAA CO-OPS tide-gauge flood thresholds, from the Sea Level Rise Viewer's point-layer service.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA Sea Level Rise Viewer",
+          "url": "https://coast.noaa.gov/slr/",
+          "toolId": "noaa-slrv",
+          "note": "The sea-level-rise scenario overlay.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA/NWS/NHC National Storm Surge Risk Maps",
+          "url": "https://www.nhc.noaa.gov/nationalsurge/",
+          "toolId": "nhc-storm-surge",
+          "note": "Hurricane storm surge overlay (Category 1–2, Southern California only).",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "USGS CoSMoS / Our Coast, Our Future",
+          "url": "https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos",
+          "toolId": "cosmos",
+          "note": "Served through Point Blue Conservation Science's tile/WMS infrastructure (geo.pointblue.org), which asks for a courtesy citation.",
+          "licenses": [
+            "pd-us"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "context",
+      "title": "Geo / demographic context layers",
+      "intro": "Non-flood layers you can overlay on the flood data, each loaded from the agency that publishes it.",
+      "items": [
+        {
+          "name": "Caltrans traffic volumes (AADT)",
+          "url": "https://data.ca.gov/dataset/annual-average-daily-traffic",
+          "licenses": [
+            "cc-by"
+          ],
+          "attribution": "Caltrans"
+        },
+        {
+          "name": "Caltrans truck volumes (AADT)",
+          "url": "https://data.ca.gov/dataset/truck-average-daily-traffic",
+          "licenses": [
+            "cc-by"
+          ],
+          "attribution": "Caltrans"
+        },
+        {
+          "name": "CDC/ATSDR Social Vulnerability Index",
+          "url": "https://www.atsdr.cdc.gov/place-health/php/svi/index.html",
+          "note": "Poverty and age 65+ (tract).",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "EPA Facility Registry Service",
+          "url": "https://www.epa.gov/frs",
+          "note": "Regulated facilities.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "EPA Smart Location Database",
+          "url": "https://www.epa.gov/smartgrowth/smart-location-mapping",
+          "note": "Population and jobs density (block group).",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA C-CAP land cover and Wetland Potential",
+          "url": "https://coast.noaa.gov/digitalcoast/data/ccapregional.html",
+          "note": "Served through NOAA's Coastal Flood Exposure Mapper services.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "USGS The National Map — Structures",
+          "url": "https://www.usgs.gov/national-digital-trends/structures",
+          "note": "Critical facilities: hospitals, fire/EMS, police, schools.",
+          "licenses": [
+            "pd-us"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "basemaps",
+      "title": "Basemaps & address search",
+      "items": [
+        {
+          "name": "Esri World Imagery",
+          "url": "https://www.esri.com/",
+          "note": "Optional Satellite basemap.",
+          "licenses": [
+            "esri-terms"
+          ],
+          "licenseNote": "Visualization only",
+          "attribution": "Imagery © Esri, Maxar, Earthstar Geographics, and the GIS User Community"
+        },
+        {
+          "name": "Humanitarian OpenStreetMap Team style, hosted by OpenStreetMap France",
+          "url": "https://www.hotosm.org/",
+          "note": "Optional Humanitarian basemap.",
+          "links": [
+            {
+              "text": "OpenStreetMap France",
+              "url": "https://openstreetmap.fr/"
+            }
+          ],
+          "licenses": [
+            "odbl"
+          ],
+          "licenseNote": "Data is OSM; the host asks for light use only",
+          "attribution": "© OpenStreetMap contributors, tiles style by Humanitarian OpenStreetMap Team, hosted by OpenStreetMap France"
+        },
+        {
+          "name": "OpenFreeMap and OpenMapTiles",
+          "url": "https://openfreemap.org/",
+          "note": "Free, keyless hosting of the default greyscale (Positron) vector basemap.",
+          "links": [
+            {
+              "text": "OpenMapTiles",
+              "url": "https://openmaptiles.org/"
+            }
+          ],
+          "licenses": [
+            "mit",
+            "cc-by"
+          ],
+          "attribution": "OpenFreeMap © OpenMapTiles, data from OpenStreetMap"
+        },
+        {
+          "name": "OpenStreetMap",
+          "url": "https://www.openstreetmap.org/copyright",
+          "note": "Data behind every basemap.",
+          "licenses": [
+            "odbl"
+          ],
+          "attribution": "© OpenStreetMap contributors"
+        },
+        {
+          "name": "OpenStreetMap Nominatim",
+          "url": "https://nominatim.org/",
+          "note": "Address search and geocoding. Search runs on submit only, never per keystroke, per the usage policy.",
+          "licenses": [
+            "odbl",
+            "nominatim-policy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "libraries",
+      "title": "Libraries & fonts",
+      "intro": "Loaded from public CDNs at pinned versions with Subresource Integrity hashes, not bundled into this repository (except Eleventy, which only runs at build time).",
+      "items": [
+        {
+          "name": "Eleventy",
+          "url": "https://www.11ty.dev/",
+          "note": "Static site generator (build time only).",
+          "licenses": [
+            "mit"
+          ]
+        },
+        {
+          "name": "esri-leaflet",
+          "url": "https://github.com/Esri/esri-leaflet",
+          "note": "ArcGIS REST client for the NOAA and FEMA layers.",
+          "licenses": [
+            "apache-2"
+          ]
+        },
+        {
+          "name": "Leaflet",
+          "url": "https://leafletjs.com/",
+          "note": "Map library.",
+          "licenses": [
+            "bsd-2"
+          ]
+        },
+        {
+          "name": "leaflet.locatecontrol",
+          "url": "https://github.com/domoritz/leaflet-locatecontrol",
+          "note": "The \"show my location\" button.",
+          "licenses": [
+            "mit"
+          ]
+        },
+        {
+          "name": "MapLibre GL JS",
+          "url": "https://maplibre.org/",
+          "note": "Renders the vector basemap; loaded lazily.",
+          "licenses": [
+            "bsd-3"
+          ]
+        },
+        {
+          "name": "maplibre-gl-leaflet",
+          "url": "https://github.com/maplibre/maplibre-gl-leaflet",
+          "note": "Leaflet adapter for MapLibre.",
+          "licenses": [
+            "isc"
+          ]
+        },
+        {
+          "name": "Spectral and IBM Plex Sans",
+          "url": "https://fonts.google.com/",
+          "note": "Page fonts, via Google Fonts.",
+          "licenses": [
+            "ofl"
+          ]
+        }
+      ]
+    }
+  ]
+}

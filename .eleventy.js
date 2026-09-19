@@ -8,8 +8,6 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("data");
   eleventyConfig.addPassthroughCopy("img");
   eleventyConfig.addPassthroughCopy("reference");
-  eleventyConfig.addPassthroughCopy("README.md");
-  eleventyConfig.addPassthroughCopy("BRIEF.md");
   eleventyConfig.addPassthroughCopy("LICENSE");
   eleventyConfig.addPassthroughCopy("LICENSE-CONTENT.md");
   eleventyConfig.addPassthroughCopy("robots.txt");
