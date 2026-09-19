@@ -4,6 +4,8 @@ permalink: "licenses.html"
 title: Licenses & sources — CA Sea Change Atlas
 description: This project's own code and content licenses, plus every third-party dataset, library, and service it depends on, grouped by type.
 nav: licenses
+extraScripts:
+  - /js/toc.js
 ---
 <div class="hero">
 <svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
@@ -17,16 +19,12 @@ nav: licenses
 <p class="lede">This project's own licenses, and every third-party library, dataset, and live data source it depends on</p>
 </div>
 </div>
+</div>
 
 <div class="main">
-<div class="wrap about-body">
-
-<nav class="license-nav" aria-label="On this page">
-<a href="#project">This project</a>
-{%- for cat in credits.categories %}
-<a href="#{{ cat.id }}">{{ cat.title }}</a>
-{%- endfor %}
-</nav>
+<div class="wrap page-toc">
+{% include "toc.njk" %}
+<div class="about-body" data-toc-source>
 
 <h2 id="project">This project's own licenses</h2>
 <p><strong>Code</strong> (Eleventy templates, JavaScript, CSS, build config): <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" rel="noopener">GNU General Public License v3.0</a> — full text in <a href="{{ '/LICENSE' | url }}">LICENSE</a>.</p>
@@ -71,5 +69,6 @@ nav: licenses
 
 <p>Credits marked required are also shown on the map's own attribution strip. Sources with no credit line are public domain and are listed for transparency.</p>
 
+</div>
 </div>
 </div>

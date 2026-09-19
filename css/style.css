@@ -483,8 +483,22 @@ table.cmp tbody tr:last-child td{border-bottom:0;}
 .about-body h2:first-child{margin-top:0;}
 .about-body p{font-size:15px;color:var(--ink-soft);}
 
+/* ---------- table of contents (_includes/toc.njk + js/toc.js) ---------- */
+.page-toc{display:block;}
+.toc{display:none;font-size:14px;}
+.toc.toc-ready{display:block;margin:0 0 20px;padding:0 0 14px;border-bottom:1px solid var(--line);}
+.toc-title{margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+.toc-list{list-style:none;margin:0;padding:0;}
+.toc-list li{margin:0;}
+.toc-list a{display:block;padding:4px 0 4px 10px;border-left:2px solid var(--line);color:var(--ink-soft);text-decoration:none;}
+.toc-list a:hover{color:var(--teal-text);}
+.toc-list a.active{border-left-color:var(--teal);color:var(--teal-text);font-weight:600;}
+@media (min-width:900px){
+  .page-toc{display:grid;grid-template-columns:220px minmax(0,74ch);gap:0 48px;padding-top:8px;}
+  .toc.toc-ready{position:sticky;top:16px;align-self:start;margin:0;padding:0;border-bottom:0;}
+}
+
 /* ---------- licenses page ---------- */
-.license-nav{display:flex;flex-wrap:wrap;gap:6px 14px;margin:0 0 24px;padding:0 0 14px;border-bottom:1px solid var(--line);font-size:14px;}
 .about-body h2[id]{scroll-margin-top:16px;}
 .license-list{list-style:none;margin:0 0 8px;padding:0;}
 .license-list > li{padding:12px 0;border-bottom:1px solid var(--line);}

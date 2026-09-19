@@ -16,7 +16,7 @@ This file covers the site as a whole. The two applications inside it have their 
 | `/sources.html` | `sources.njk`, `js/sources.js` | Filterable tool grid and compare table |
 | `/tool/<id>/` | `tool.njk` | One generated page per entry in `data/tools.json` |
 | `/about.html` | `about.njk` | Project history, sources, author, disclaimers |
-| `/licenses.html` | `licenses.njk`, `_data/credits.json` | Licenses and credits |
+| `/licenses.html` | `licenses.njk`, `_data/credits.json`, `_data/licenseTypes.json` | Licenses and credits |
 | `/sitemap.xml` | `sitemap.njk` | Generated from every page Eleventy knows about |
 
 ## Build and deploy
@@ -39,18 +39,23 @@ Front-matter keys the layout understands:
 | `bodyClass` | Class on `<body>` (`map-page` switches the footer to its compact form) |
 | `leaflet: true` | Loads Leaflet, esri-leaflet and leaflet.locatecontrol (CSS and JS) |
 | `mapModuleEntry` | Adds a `<script type="module">` for the map entry point |
-| `extraScripts` | Extra plain `<script>` files (used by `sources.njk`) |
+| `extraScripts` | Extra plain `<script>` files (`sources.njk`, and `toc.js` on pages with a table of contents) |
 | `ogImage` | Social preview image; defaults to `img/preview-map.png` |
 | `footerAttribution` | Per-page attribution text shown in the footer |
 
 Third-party scripts come from unpkg at pinned versions with Subresource Integrity hashes (`base.njk` for Leaflet, esri-leaflet and locatecontrol; `js/map/basemaps.js` for the lazily loaded MapLibre pair). When bumping one, regenerate its hash. `img/preview-map.png` and `img/preview-sources.png` are screenshots used on the landing page and as social previews; they are not generated, so refresh them by hand when those pages change substantially.
+
+### Table of contents component
+
+`_includes/toc.njk` plus `js/toc.js` give a page a sticky left-hand table of contents (a top block on narrow screens). To use it: wrap the page body in `<div class="wrap page-toc">`, `{% include "toc.njk" %}`, put the content in a container with `data-toc-source`, and add `/js/toc.js` to `extraScripts`. The script lists the container's `<h2>` headings, adds slug ids to any that lack one, and highlights the section in view. `licenses.njk` is the reference example; it needs no changes to the page's prose, so it can be adopted by `about.njk` the same way.
 
 ## Data
 
 | File | Used by | Notes |
 |---|---|---|
 | `data/tools.json` | `_data/tools.js` (build time, feeds `tool.njk`) and `js/sources.js` (browser fetch) | The tool dataset and the **single source of truth for per-tool status**. See [`TOOLS.md`](TOOLS.md). |
-| `_data/credits.json` | `licenses.njk` | Every third-party library, dataset and service credited on `/licenses.html`. See [`LICENSING.md`](LICENSING.md). |
+| `_data/credits.json` | `licenses.njk` | Every third-party library, dataset and service credited on `/licenses.html`, alphabetical within each category. A credit line (`attribution`) is present only where the license requires one. |
+| `_data/licenseTypes.json` | `licenses.njk` | License names and links to their texts, referenced by key from `credits.json`. Rationale for what is used: [`LICENSING.md`](LICENSING.md). |
 | `_data/site.js` | `base.njk`, `index.njk` | Deployed site URL and name for canonical and Open Graph tags |
 | `data/cosmos-layers.json` | `js/map/layers/cosmos-layer.js` | URL and layer-name templates for CoSMoS. See [`MAP.md`](MAP.md#local-configuration-cosmos). |
 
