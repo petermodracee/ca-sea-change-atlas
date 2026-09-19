@@ -384,7 +384,7 @@
       "mapEligibility": "excluded",
       "released": "2017, expanded since",
       "url": "https://www.usgs.gov/apps/hera",
-      "description": "A USGS exposure-analytics tool built on top of CoSMoS hazard zones (coastal flooding, groundwater, and shoreline change), which this atlas already maps directly. Users pick an SLR-plus-storm scenario, and HERA adds population (Census), economic asset (InfoGroup), parcel value, land cover (NLCD), and infrastructure (roads, rail, critical facilities) exposure estimates, comparable across communities and scenarios. It provides exposure estimates rather than new flood-extent geometry. External tool only: its data is public domain, but it is redundant with the CoSMoS layer, so it won'+B+'u2019t get its own map layer.",
+      "description": "A USGS exposure-analytics tool built on top of CoSMoS hazard zones (coastal flooding, groundwater, and shoreline change), which this atlas already maps directly. Users pick an SLR-plus-storm scenario, and HERA adds population (Census), economic asset (InfoGroup), parcel value, land cover (NLCD), and infrastructure (roads, rail, critical facilities) exposure estimates, comparable across communities and scenarios. It provides exposure estimates rather than new flood-extent geometry. External tool only: its data is public domain, but it is redundant with the CoSMoS layer, so it won’t get its own map layer.",
       "processes": ["SLR inundation", "Storm surge / extreme tide", "Coastal groundwater", "Shoreline erosion"],
       "exposure": ["Population / demographics", "Infrastructure & buildings", "Economic / property value", "Critical facilities"],
       "floodInfo": ["Storm surge / extreme tide", "Coastal groundwater flooding", "Shoreline erosion"],
@@ -399,6 +399,84 @@
         "Requires picking a scenario first, which assumes some baseline knowledge",
         "National tool, so hyper-local California factors may be generalized",
         "Dashboard-heavy interface takes more clicks than a simple map"
+      ]
+    },
+    {
+      "id": "noaa-inundation-dashboard",
+      "name": "Coastal Inundation Dashboard",
+      "org": "NOAA Tides & Currents (CO-OPS)",
+      "scope": "national",
+      "scopeLabel": "U.S. coasts, including California",
+      "implementationStatus": "not-implemented",
+      "mapEligibility": "excluded",
+      "released": "Ongoing",
+      "url": "https://tidesandcurrents.noaa.gov/inundationdb/",
+      "description": "A station-based dashboard of real-time, forecast and historical water levels at 200+ NOAA tide gauges, with each station's minor, moderate and major flood thresholds. It shows gauge readings rather than flood-extent areas; its sea-level-rise mapping comes from NOAA's Sea Level Rise Viewer. External tool only: it is public-domain federal data, but this atlas already maps the same gauge thresholds and the Sea Level Rise Viewer, so it won’t get its own map layer.",
+      "processes": ["High tide flooding", "Tide-gauge monitoring", "Storm surge / extreme tide"],
+      "exposure": [],
+      "floodInfo": ["High tide flooding thresholds (minor/moderate/major)", "Storm surge / extreme tide"],
+      "reportsData": "Water-level data downloadable through the CO-OPS API; flood thresholds through the CO-OPS Metadata API.",
+      "slrModel": "None of its own; links to NOAA's Sea Level Rise Viewer for scenario mapping.",
+      "strengths": [
+        "Live and 48-hour forecast water levels, so it answers “is it flooding now?”",
+        "Grounded in measured tide-gauge data",
+        "Flags stations that may flood in the near term"
+      ],
+      "limitations": [
+        "Point data at gauges only, no flood-extent areas",
+        "No exposure or infrastructure-impact analysis"
+      ]
+    },
+    {
+      "id": "noaa-coastal-county-snapshots",
+      "name": "Coastal County Snapshots",
+      "org": "NOAA Office for Coastal Management",
+      "scope": "national",
+      "scopeLabel": "U.S. coastal counties, including California",
+      "implementationStatus": "not-implemented",
+      "mapEligibility": "excluded",
+      "released": "2015, no longer updated",
+      "url": "https://coast.noaa.gov/snapshots/",
+      "description": "County-level report pages (Flood Exposure, Ocean Jobs, Wetland Benefits) that turn FEMA flood hazard, Census, labor and land-cover data into printable charts and maps. NOAA states the datasets are no longer updated, so the reports do not reflect the most current conditions. External tool only: it is a per-county report, not a queryable map service, and its flood inputs are already mapped here.",
+      "processes": ["SLR inundation", "Riverine and coastal flood zones"],
+      "exposure": ["Population / demographics", "Economic / property value", "Critical facilities"],
+      "floodInfo": ["FEMA flood zones"],
+      "reportsData": "Printable county reports with charts and maps.",
+      "slrModel": "NOAA Sea Level Rise Viewer inundation scenarios, as of the last update.",
+      "strengths": [
+        "Quick county-wide summary for a planning or grant document",
+        "Combines flood, economic and wetland facts in one page"
+      ],
+      "limitations": [
+        "Data is no longer updated",
+        "Fixed county reports, not an explorable or queryable map",
+        "No downloadable flood-extent geometry"
+      ]
+    },
+    {
+      "id": "nasa-slr-scenario-tool",
+      "name": "Interagency Sea Level Rise Scenario Tool",
+      "org": "Interagency Sea Level Rise Task Force (hosted by NASA)",
+      "scope": "national",
+      "scopeLabel": "U.S. coasts, including California (13 California tide gauges)",
+      "implementationStatus": "implemented",
+      "released": "2022, from the Interagency Sea Level Rise Technical Report",
+      "url": "https://sealevel.nasa.gov/task-force-scenario-tool",
+      "description": "A map of U.S. tide-gauge points where you pick a decade (relative to 2000) and a scenario from Low to High to see projected relative sea-level rise at that gauge, with a full projection for each gauge out to 2150. It gives values at points rather than flood-extent areas.",
+      "processes": ["SLR inundation", "Tide-gauge monitoring"],
+      "exposure": [],
+      "floodInfo": [],
+      "reportsData": "Per-gauge projection graphs and tables; the underlying report data and code are published on Zenodo under CC BY 4.0.",
+      "slrModel": "The 2022 Interagency Task Force scenarios (Low, Intermediate-Low, Intermediate, Intermediate-High, High), with local vertical land motion.",
+      "strengths": [
+        "The federal reference scenarios that state and local guidance builds on",
+        "A full projection per gauge, out to 2150",
+        "Openly licensed source data"
+      ],
+      "limitations": [
+        "Point values at tide gauges only, no flood-extent areas",
+        "Only a handful of gauges along the California coast",
+        "Relative sea-level rise only, with no storm surge or flooding depth"
       ]
     }
   ]

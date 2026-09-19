@@ -17,6 +17,8 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `js/map
 | `shared/identify-url.js` | Builds WMS GetFeatureInfo URLs (bbox and pixel math) for BCDC and CoSMoS. |
 | `shared/legend.js` | Static swatch legends, image legends, and legends fetched from an ArcGIS `/legend` endpoint. |
 | `shared/button-grid.js`, `dom.js`, `format.js` | Scenario button rows, swatch coloring, number formatting. |
+| `shared/load-script.js` | `loadScript({src, integrity})`: injects an SRI-checked `<script>` for lazily loaded libraries (MapLibre, h5wasm). |
+| `shared/zenodo-projections.js` | `loadCaliforniaProjections()`: range-reads one NetCDF file out of the task force's 298 MB Zenodo zip and parses it with h5wasm. See [`DECISIONS.md`](DECISIONS.md#nasa-interagency-sea-level-rise-scenario-tool-a-point-layer-built-from-the-zenodo-data). |
 | `permalink.js` | URL-hash state (see below). |
 | `controls.js` | Scale bar, locate button, distance-measure tool (sets `map.measureActive`). |
 | `search.js` | Nominatim address search, California-biased, submit-only, with alternative matches listed. |
@@ -32,6 +34,7 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `js/map
 | CoSMoS | `CosmosLayer` (`cosmos-layer.js`) | `cosmos` | Point Blue tile/WMS infrastructure, not ArcGIS. Region and topic dropdowns, SLR slider, storm-frequency picker. Templates in `data/cosmos-layers.json`. |
 | Cal-Adapt | `CalAdaptSlrLayer` (`caladapt-slr-layer.js`) | `calAdapt` | Plain XYZ tiles from `api.cal-adapt.org`, one layer per regional mosaic, clipped to its footprint. |
 | NOAA Sea Level Rise Viewer | `NoaaSlrLayer` (`noaa-slr-layer.js`), `NoaaHtfLayer` (`noaa-htf-layer.js`) | `noaaSlr` (SLR only) | SLR is one pre-cached tiled MapServer per half-foot scenario (`L.esri.tiledMapLayer`). High Tide Flooding stations are circle markers with a nearest-station popup; they sit in the same panel group but not in its pane. |
+| Interagency Sea Level Scenarios | `NasaScenarioLayer` (`nasa-scenario-layer.js`) | `nasaSlr` | Point layer: 13 California tide gauges as labelled circle markers, with scenario (Low to High) and year (2020–2150) dropdowns. Values are median relative sea level rise above 2000, in feet. Popup shows every scenario at the selected year for the nearest gauge. Data is fetched on first toggle (about 7 MB: h5wasm plus the projection file). Not an area layer. |
 | FEMA Flood Zones | `FemaNfhlLayer` (`fema-nfhl-layer.js`) | `fema` | Effective NFHL data only. |
 | NOAA Coastal Flood Exposure Mapper | `CfemCompositeLayer` (`cfem-composite-layer.js`) constructs `CfemStormSurgeLayer` and three `CfemHazardLayer`s | `cfem` | Composite hazard overlap, hurricane storm surge, and CFEM's own High Tide Flooding, FEMA Flood Zones and Tsunami Run-up. The hazard layers have legends only. |
 | Geo / demographic info | `initGeoInfoLayers` (`geo-info-layer.js`) | `geoPeople`, `geoFacilities`, `geoLand` | Context layers from EPA, CDC/ATSDR, USGS, NOAA C-CAP and Caltrans. People and Land sections are dropdowns (one layer at a time, `data-layer-select`); Facilities are checkboxes. Config-driven: each entry declares its service, legend and popup rows. |

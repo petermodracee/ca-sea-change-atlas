@@ -4,6 +4,11 @@
     "url": "https://www.law.cornell.edu/uscode/text/17/105",
     "note": "17 U.S.C. §105"
   },
+  "nist": {
+    "name": "NIST software notice",
+    "url": "https://github.com/usnistgov/h5wasm/blob/main/LICENSE.txt",
+    "note": "Keep the notice intact and acknowledge NIST as the source"
+  },
   "cc-by": {
     "name": "CC BY 4.0",
     "url": "https://creativecommons.org/licenses/by/4.0/"

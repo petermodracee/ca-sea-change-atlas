@@ -60,6 +60,19 @@
           "note": "Effective data only; preliminary maps are not shown. FEMA asks for acknowledgement."
         },
         {
+          "name": "Interagency Sea Level Rise Technical Report scenarios",
+          "url": "https://zenodo.org/records/6067895",
+          "toolId": "nasa-slr-scenario-tool",
+          "note": "Tide-gauge sea level projections from the Interagency Sea Level Rise Task Force (NOAA, NASA, EPA, USGS, USACE, FEMA, DoD), read live from the task force's Zenodo record (version 1.1). Values can differ from NASA's Interagency Sea Level Rise Scenario Tool.",
+          "studies": [
+            "Sweet, W.V., Hamlington, B.D., Kopp, R.E., Weaver, C.P., Barnard, P.L., et al. (2022). Global and Regional Sea Level Rise Scenarios for the United States: Updated Mean Projections and Extreme Water Level Probabilities Along U.S. Coastlines. NOAA Technical Report NOS 01. https://oceanservice.noaa.gov/hazards/sealevelrise/sealevelrise-tech-report.html"
+          ],
+          "licenses": [
+            "cc-by"
+          ],
+          "attribution": "Interagency Sea Level Rise Task Force, 2022 Technical Report data (Zenodo, CC BY 4.0)"
+        },
+        {
           "name": "NOAA Coastal Flood Exposure Mapper",
           "url": "https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html",
           "toolId": "noaa-cfem",
@@ -255,6 +268,15 @@
           "licenses": [
             "apache-2"
           ]
+        },
+        {
+          "name": "h5wasm",
+          "url": "https://github.com/usnistgov/h5wasm",
+          "note": "Reads the sea level projection file (HDF5) in the browser, from the National Institute of Standards and Technology (NIST); loaded lazily.",
+          "licenses": [
+            "nist"
+          ],
+          "attribution": "h5wasm, National Institute of Standards and Technology (NIST)"
         },
         {
           "name": "Leaflet",

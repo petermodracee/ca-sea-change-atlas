@@ -3,6 +3,7 @@
  * colourful overlays stand out, plus Humanitarian, standard OSM and satellite
  * options behind a core L.control.layers switcher. The user's pick is remembered.
  */
+import { loadScript } from "./shared/load-script.js";
 
 const STORAGE_KEY = "atlas.basemap";
 const BASEMAP_PANE = "basemapPane"; // below Leaflet's tilePane (200) so overlays always sit above any basemap
@@ -26,19 +27,6 @@ const MAPLIBRE_LEAFLET_JS = {
   src: "https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js",
   integrity: "sha384-tXYNKOHx4T02jMP7YYCtBxPIv1B5gaA5mcVPBzqMp6d7VzWzxJgI2aWF/nJLrQdS"
 };
-
-/** Injects a <script> and resolves once it has loaded. */
-function loadScript({ src, integrity }){
-  return new Promise((resolve, reject) => {
-    const el = document.createElement("script");
-    el.src = src;
-    el.integrity = integrity;
-    el.crossOrigin = "";
-    el.onload = resolve;
-    el.onerror = () => reject(new Error(`Failed to load ${src}`));
-    document.head.appendChild(el);
-  });
-}
 
 /** Injects a stylesheet <link> (no need to wait for it). */
 function loadStyle({ href, integrity }){
