@@ -2,7 +2,7 @@
 layout: base.njk
 permalink: "licenses.html"
 title: Licenses & sources — CA Sea Change Atlas
-description: This project's own code and content licenses, plus every third-party library, dataset, and live data source it depends on.
+description: This project's own code and content licenses, plus every third-party dataset, library, and service it depends on, grouped by type.
 nav: licenses
 ---
 <div class="hero">
@@ -21,48 +21,55 @@ nav: licenses
 <div class="main">
 <div class="wrap about-body">
 
-<h2>This project's own licenses</h2>
+<nav class="license-nav" aria-label="On this page">
+<a href="#project">This project</a>
+{%- for cat in credits.categories %}
+<a href="#{{ cat.id }}">{{ cat.title }}</a>
+{%- endfor %}
+</nav>
+
+<h2 id="project">This project's own licenses</h2>
 <p><strong>Code</strong> (Eleventy templates, JavaScript, CSS, build config): <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" rel="noopener">GNU General Public License v3.0</a> — full text in <a href="{{ '/LICENSE' | url }}">LICENSE</a>.</p>
-
 <p><strong>Written content</strong> (page copy, tool comparisons, the <a href="{{ '/about.html' | url }}">About page</a> history): <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> — full text in <a href="{{ '/LICENSE-CONTENT.md' | url }}">LICENSE-CONTENT.md</a>. Share and adapt freely, including commercially, with attribution and share-alike.</p>
+<p>Neither license covers the third-party material below. Why each source is or isn't on the map is recorded in <a href="https://github.com/petermodracee/ca-sea-change-atlas/blob/main/docs/LICENSING.md" target="_blank" rel="noopener">docs/LICENSING.md</a> on GitHub.</p>
 
-<p>Neither license covers the third-party material below.</p>
+{%- for cat in credits.categories %}
 
-<p>Full contributor-level detail, including tools cataloged for comparison but not mapped: <a href="https://github.com/petermodracee/ca-sea-change-atlas/blob/main/CREDITS.md" target="_blank" rel="noopener">CREDITS.md on GitHub</a>.</p>
-
-<h2>Libraries</h2>
-<ul>
-<li><a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a> — BSD-2-Clause. Map library.</li>
-<li><a href="https://github.com/Esri/esri-leaflet" target="_blank" rel="noopener">esri-leaflet</a> — Apache-2.0. ArcGIS REST client for the NOAA/FEMA layers below.</li>
-<li><a href="https://www.11ty.dev/" target="_blank" rel="noopener">Eleventy</a> — MIT. Static site generator.</li>
+<h2 id="{{ cat.id }}">{{ cat.title }}</h2>
+{%- if cat.intro %}
+<p>{{ cat.intro }}</p>
+{%- endif %}
+<ul class="license-list">
+{%- for item in cat.items %}
+<li>
+<div class="license-head"><a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.name }}</a></div>
+<div class="license-tags">
+{%- for key in item.licenses %}{% set lic = licenseTypes[key] %}<a class="license-badge" href="{{ lic.url }}" target="_blank" rel="noopener">{{ lic.name }}</a>{% endfor %}
+{%- if item.licenseNote %}<span class="license-badge license-plain">{{ item.licenseNote }}</span>{% endif %}
+</div>
+{%- if item.attribution %}
+<div class="license-line"><strong>Credit required:</strong> {{ item.attribution }}</div>
+{%- endif %}
+{%- if item.note or item.links or item.toolId %}
+<div class="license-line">
+{%- if item.note %}{{ item.note }}{% endif %}
+{%- for link in item.links %} <a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.text }}</a>.{% endfor %}
+{%- if item.toolId %} <a href="{{ ('/tool/' + item.toolId + '/') | url }}">About this tool</a>.{% endif %}
+</div>
+{%- endif %}
+{%- if item.studies %}
+<ul class="license-studies">
+{%- for study in item.studies %}
+<li>{{ study }}</li>
+{%- endfor %}
 </ul>
-
-<h2>Live data sources</h2>
-<p>Loaded live from each source's own server, not stored in this project.</p>
-<ul>
-<li><a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Bay Shoreline Flood Explorer</a> — CC-BY-SA (via the Caltrans open data portal). Attribute Caltrans/BCDC; redistributed copies of the dataset must stay share-alike. Planning-level only — see <a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">BCDC's disclaimer</a>.</li>
-<li><a href="https://eccexplorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC East Contra Costa Shoreline Flood Explorer</a> — same program, server, and terms as the Bay explorer above: CC-BY-SA (via the Caltrans open data portal); attribute Caltrans/BCDC. Planning-level only — see <a href="https://eccexplorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">BCDC's disclaimer</a>.</li>
-<li><a href="https://cmip5.cal-adapt.org/tools/slr-coastal-inundation/" target="_blank" rel="noopener">Cal-Adapt Sea Level Rise – Coastal Inundation Scenarios</a> — CoSMoS (USGS, U.S. public domain) and CalFloD3D-TFS (California Energy Commission / California's Fourth Climate Change Assessment) flood extents, mosaicked and served by Cal-Adapt (UC Berkeley Geospatial Innovation Facility). The tool page states no separate license; attribute Cal-Adapt and cite the studies behind each model:
-<ul>
-<li>CoSMoS: Barnard, P.L., Erikson, L.H., Foxgrover, A.C., Finzi Hart, J.A., Limber, P., O'Neill, A.C., van Ormondt, M., Vitousek, S., Wood, N., Hayden, M.K., &amp; Jones, J.M. (2019). Dynamic flood modeling essential to assess the coastal impacts of climate change. <em>Scientific Reports</em>, 9, Article 4309. <a href="https://doi.org/10.1038/s41598-019-40742-z" target="_blank" rel="noopener">doi:10.1038/s41598-019-40742-z</a></li>
-<li>CalFloD3D-TFS: Radke, J., et al. (2018). <em>Assessing extreme weather-related vulnerability and identifying resilience options for California's interdependent transportation fuel sector.</em> California's Fourth Climate Change Assessment, California Energy Commission, CCCA4-CEC-2018-012. <a href="https://www.energy.ca.gov/sites/default/files/2019-11/Energy_CCCA4-CEC-2018-012_ADA.pdf" target="_blank" rel="noopener">PDF</a></li>
-</ul></li>
-<li><a href="https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos" target="_blank" rel="noopener">USGS CoSMoS / Our Coast, Our Future</a> — U.S. public domain. Served via Point Blue Conservation Science.</li>
-<li><a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA Sea Level Rise Viewer</a> — U.S. public domain.</li>
-<li><a href="https://www.fema.gov/flood-maps/national-flood-hazard-layer" target="_blank" rel="noopener">FEMA National Flood Hazard Layer</a> — U.S. public domain.</li>
-<li><a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">NOAA Coastal Flood Exposure Mapper</a> — U.S. public domain.</li>
-<li><a href="https://www.nhc.noaa.gov/nationalsurge/" target="_blank" rel="noopener">NOAA/NWS/NHC National Storm Surge Risk Maps</a> — U.S. public domain.</li>
-<li>Geo / demographic info layers, each loaded from the agency that publishes the data: <a href="https://www.epa.gov/smartgrowth/smart-location-mapping" target="_blank" rel="noopener">EPA Smart Location Database</a> (population and jobs density) and <a href="https://www.epa.gov/frs" target="_blank" rel="noopener">EPA Facility Registry Service</a>; <a href="https://www.atsdr.cdc.gov/place-health/php/svi/index.html" target="_blank" rel="noopener">CDC/ATSDR Social Vulnerability Index</a> (poverty, age 65+); <a href="https://www.usgs.gov/national-digital-trends/structures" target="_blank" rel="noopener">USGS The National Map Structures</a> (critical facilities); <a href="https://coast.noaa.gov/digitalcoast/data/ccapregional.html" target="_blank" rel="noopener">NOAA C-CAP land cover and Wetland Potential</a> — all U.S. public domain. <a href="https://data.ca.gov/dataset/annual-average-daily-traffic" target="_blank" rel="noopener">Caltrans traffic volumes</a> and <a href="https://data.ca.gov/dataset/truck-average-daily-traffic" target="_blank" rel="noopener">truck volumes</a> — CC BY (attribute Caltrans).</li>
-<li><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> — ODbL. Base map data (all basemaps).</li>
-<li><a href="https://openfreemap.org/" target="_blank" rel="noopener">OpenFreeMap</a> and <a href="https://openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> — free, keyless hosting of the default greyscale (Positron) vector basemap; style and code MIT, schema/design CC-BY 4.0.</li>
-<li><a href="https://www.hotosm.org/" target="_blank" rel="noopener">Humanitarian OpenStreetMap Team</a> style, hosted by <a href="https://openstreetmap.fr/" target="_blank" rel="noopener">OpenStreetMap France</a> — optional Humanitarian basemap (light use).</li>
-<li><a href="https://www.esri.com/" target="_blank" rel="noopener">Esri World Imagery</a> — optional Satellite basemap, for visualization only, with Esri/Maxar attribution.</li>
-<li><a href="https://github.com/domoritz/leaflet-locatecontrol" target="_blank" rel="noopener">leaflet.locatecontrol</a> (MIT) — the "show my location" button; loaded from unpkg with SRI hashes.</li>
-<li><a href="https://maplibre.org/" target="_blank" rel="noopener">MapLibre GL JS</a> (BSD-3-Clause) and <a href="https://github.com/maplibre/maplibre-gl-leaflet" target="_blank" rel="noopener">maplibre-gl-leaflet</a> (ISC) — render the vector basemap; loaded from unpkg with SRI hashes.</li>
-<li><a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a> — address search and geocoding.</li>
+{%- endif %}
+</li>
+{%- endfor %}
 </ul>
+{%- endfor %}
 
-<p>A condensed version of this list also appears on the map's own attribution strip.</p>
+<p>Credits marked required are also shown on the map's own attribution strip. Sources with no credit line are public domain and are listed for transparency.</p>
 
 </div>
 </div>
