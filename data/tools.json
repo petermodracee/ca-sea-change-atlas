@@ -279,6 +279,33 @@
       ]
     },
     {
+      "id": "noaa-htf-stations",
+      "name": "High Tide Flooding Stations",
+      "org": "NOAA Office for Coastal Management / NOAA CO-OPS",
+      "scope": "national",
+      "scopeLabel": "Coastal United States, including California",
+      "coverageRegion": "california-state",
+      "implementationStatus": "implemented",
+      "released": "Ongoing, part of the NOAA Sea Level Rise Viewer",
+      "url": "https://coast.noaa.gov/slr/",
+      "description": "NOAA CO-OPS tide-gauge stations shown as points, each with today's minor, moderate, and major high-tide-flooding thresholds — about a dozen stations along the California coast.",
+      "processes": ["High tide flooding", "Tide-gauge monitoring"],
+      "exposure": [],
+      "floodInfo": ["High tide flooding thresholds (minor/moderate/major)"],
+      "reportsData": "Per-station flood thresholds via NOAA's tide-gauge network; no downloadable report generator.",
+      "slrModel": "None — today's tide-gauge-based thresholds, not tied to a future sea-level-rise scenario.",
+      "strengths": [
+        "Grounded in real, ongoing tide-gauge measurements rather than a modeled projection",
+        "Distinguishes minor, moderate, and major flooding severity at each station",
+        "Free, public, and continuously maintained by NOAA"
+      ],
+      "limitations": [
+        "Sparse point data (~12 California stations), not a continuous flood-extent layer",
+        "Doesn't shift with the sea-level-rise scenario slider — reflects today's thresholds only",
+        "No exposure or infrastructure-impact analysis"
+      ]
+    },
+    {
       "id": "tnc-resilience",
       "name": "Coastal Resilience Mapping Portal",
       "org": "The Nature Conservancy",
