@@ -6,14 +6,14 @@
  */
 
 // Panes stack in this order (bottom to top); bringGroupToFront() reorders it. All sit above the basemap pane (150) and Leaflet's tilePane (200).
-const GROUP_PANE_KEYS = ["noaaSlr", "fema", "cfem", "cosmos", "bcdc"];
+const GROUP_PANE_KEYS = ["geoLand", "geoPeople", "geoFacilities", "noaaSlr", "fema", "cfem", "cosmos", "bcdc"];
 const FIRST_Z_INDEX = 210;
 
 /**
  * Returns the name of a layer group's pane, creating it on first use.
  * Pass the result as the `pane` option when building that group's layers.
  * @param {L.Map} map
- * @param {"noaaSlr"|"fema"|"cfem"|"cosmos"|"bcdc"} key - layer group key.
+ * @param {"geoLand"|"geoPeople"|"geoFacilities"|"noaaSlr"|"fema"|"cfem"|"cosmos"|"bcdc"} key - layer group key.
  * @returns {string}
  */
 export function groupPane(map, key){
@@ -42,20 +42,25 @@ export function bringGroupToFront(map, key){
 
 /**
  * Adds a "bring to front" button to each layer group's title row (shown only
- * while the group has layers on, via CSS). Groups are found through their opacity slider's pane key.
+ * while the group has layers on, via CSS). Groups are found through their opacity sliders' pane keys;
+ * a group with several sliders (Geo / demographic info) moves all its panes, keeping their order.
  * @param {L.Map} map
  */
 export function initLayerOrder(map){
   document.querySelectorAll(".layer-group").forEach(group => {
-    const slider = group.querySelector("input.group-opacity");
-    if(!slider) return;
+    const sliders = [...group.querySelectorAll("input.group-opacity")];
+    if(!sliders.length) return;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "group-front-btn";
     button.textContent = "▲";
     button.title = "Bring this group's layers to the front";
     button.setAttribute("aria-label", button.title);
-    button.addEventListener("click", () => bringGroupToFront(map, slider.dataset.pane));
+    button.addEventListener("click", () => {
+      sliders.map(slider => slider.dataset.pane)
+        .sort((a, b) => GROUP_PANE_KEYS.indexOf(a) - GROUP_PANE_KEYS.indexOf(b))
+        .forEach(key => bringGroupToFront(map, key));
+    });
     group.querySelector(".group-hide-btn").before(button);
   });
 }

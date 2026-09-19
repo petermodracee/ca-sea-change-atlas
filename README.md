@@ -19,8 +19,7 @@ duplicated HTML. `index.html` is a short landing page explaining the map
 and comparison tool and linking to each, since they answer different
 questions and aren't a duplicate of the same information, plus a short
 pointer to `about.html` for the project's history. `map.html` is the
-map-first page — a Leaflet map with each tool's coverage area as a
-checkable layer in a right-side panel (like ArcGIS Online's Layers
+map-first page — a Leaflet map with a checkable-layer panel (like ArcGIS Online's Layers
 widget, with collapsible group sections), a live BCDC Bay Shoreline Flood
 Explorer overlay (a Total Water Level slider or a "choose a scenario" SLR
 + storm-surge picker — mirroring BCDC's own "One Map, Many Futures" panel
@@ -50,7 +49,7 @@ seeing separately even where another layer group already covers similar
 ground; CFEM's Sea Level Rise is the one exception, since it isn't its
 own dataset (see "Status" below). Address search, and a
 click-to-inspect popup showing real
-values (depth, acreage, traffic counts, flood zone, hazard overlap,
+values (depth, acreage, flood zone, hazard overlap,
 etc., queried live from each source's own server) for whichever layers
 are checked at the clicked point. `sources.html` is the tool comparison —
 the filterable 12-tool grid and compare-up-to-three table from the
@@ -105,13 +104,13 @@ CFEM composite layer's raster values do use `identify` (the composite
 layer, being a raster, doesn't support `query` at all — it returns an
 error).
 
-Three consequence categories — vehicle traffic, truck traffic, and rail —
-are disabled with an explanatory note rather than silently showing
-nothing: BCDC's live server returns zero features for all three across
-multiple real highway/rail locations and a bbox spanning the whole Bay,
-while every other consequence category queried the same way returns real
-data. That's a gap in BCDC's own published data, confirmed directly, not
-a request-format issue on this project's side.
+BCDC's transportation consequence layers (vehicle traffic, truck traffic, rail)
+are left out of the consequence picker: BCDC's live server returns empty tiles
+and zero features for all three across multiple real highway/rail locations and
+a bbox spanning the whole Bay, while every other consequence category queried
+the same way returns real data. That's a gap in BCDC's own published data,
+confirmed directly, not a request-format issue on this project's side. The
+picker points users to BCDC's own tool instead.
 
 The map/comparison split (map and grid on separate pages, rather than
 stacked on one page with a click-a-point-to-see-matching-tools feature)
@@ -209,9 +208,9 @@ this map's separate NOAA Sea Level Rise Viewer group already shows.
   for Open Graph tags.
 - `index.njk` — the landing page: a short explanation of the two tools
   below, linking out to each, plus a one-line pointer to `about.html`.
-- `map.njk`, `js/map/` — the map page (see `docs/ARCHITECTURE.md` and `docs/PLUGIN-REVIEW.md`): Leaflet + switchable basemaps (greyscale default), each
-  coverage region and the BCDC flood-depth WMS overlay as a checkable
-  layer in the right-side panel, and address search (Nominatim).
+- `map.njk`, `js/map/` — the map page (see `docs/ARCHITECTURE.md` and `docs/PLUGIN-REVIEW.md`): Leaflet + switchable basemaps (greyscale default), and each
+  flood-data source (BCDC, CoSMoS, NOAA, FEMA) as a group of checkable
+  layers in the right-side panel, and address search (Nominatim).
 - `js/info-popup.js` — a small, tool-agnostic click-to-inspect popup:
   register a provider function per data layer (`(latlng) => section |
   null`), and it renders whatever providers return into one combined
@@ -239,15 +238,7 @@ this map's separate NOAA Sea Level Rise Viewer group already shows.
   pages, via `addAllPagesToCollections` in `tool.njk`'s pagination
   config); `robots.txt` points crawlers at it.
 - `data/tools.json` — the 12-tool dataset (descriptions, scope, links,
-  strengths/limitations, etc.), with a `coverageRegion` field on each
-  tool pointing at a region id (used only for documentation now — the map
-  page's layer panel is built directly from the region ids, not by
-  cross-referencing tools.json).
-- `data/coverage/*.geojson` — boundary geometry for each `coverageRegion`
-  id (Bay Area counties, East Contra Costa, California state outline,
-  Orange County). See `data/coverage/SOURCES.md` for where each came from,
-  including the live BCDC WMS flood-depth layer, and
-  `data/coverage/ATTRIBUTION.md` for the required license credit.
+  strengths/limitations, etc.).
 - `reference/sea-the-future-prototype.html` — the original single-file
   prototype with the filter-and-compare UI (no map). Kept for reference,
   untouched by the Eleventy build; its comparison-table logic and visual
@@ -309,24 +300,12 @@ this project's own code:
   only, Esri/Maxar attribution).
 - **[OpenStreetMap Nominatim](https://nominatim.org/)** — address search
   and geocoding.
-- **[Plotly `datasets` repository](https://github.com/plotly/datasets)**
-  (`geojson-counties-fips.json`), © Plotly Technologies Inc., **MIT
-  License** — coverage-region boundaries (`data/coverage/*.geojson`,
-  except `east-contra-costa.geojson`, which is a hand-drawn approximation
-  and original content, not derived from the above). That file's county
-  boundaries originate from U.S. Census Bureau TIGER data (public domain).
-  This project filtered it to the relevant counties and dissolved
-  California's counties into the state outline used for
-  statewide/national-tool layers — see `data/coverage/SOURCES.md` for
-  details and `data/coverage/ATTRIBUTION.md` for the full MIT license
-  text.
 - **[BCDC's Adapting to Rising Tides Bay Shoreline Flood
   Explorer](https://explorer.adaptingtorisingtides.org/)** — the optional
   flood-depth overlay on the map page is loaded live from BCDC's own WMS
   map server, not hosted or modified by this project. Planning-level only;
   see [their disclaimer](https://explorer.adaptingtorisingtides.org/about/a-disclaimer)
-  before relying on it. See `data/coverage/SOURCES.md` for how the overlay
-  is wired up.
+  before relying on it.
 - **[esri-leaflet](https://github.com/Esri/esri-leaflet)** (Apache-2.0) —
   the ArcGIS REST client library used for the NOAA/FEMA sources below,
   loaded from the `unpkg.com` CDN in `map.html` at a pinned version

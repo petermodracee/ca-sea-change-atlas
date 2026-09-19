@@ -30,7 +30,7 @@ concern hand-duplicating chrome:
   tool) — they aren't the same information duplicated, so neither page
   should have to double as the entry point for the other.
 - **`map.njk`** — the map. Leaflet + OSM base map, a right-side layer
-  panel (coverage-region outlines plus any tool that has a real data
+  panel (any tool that has a real data
   overlay wired up), address search, and a click-to-inspect popup that
   queries live values from whichever data layers are active. See
   README.md's "Status" section for the full current feature list — it's

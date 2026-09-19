@@ -10,7 +10,7 @@
  */
 
 // Controls whose value is restored: static in map.njk, so they exist (and are read by the layer modules) at init.
-const VALUE_CONTROL_IDS = ["floodLevel", "noaaSlrSlider", "consequenceSelect"];
+const VALUE_CONTROL_IDS = ["floodLevel", "noaaSlrSlider", "consequenceSelect", "geoPeopleSelect", "geoLandSelect"];
 const WRITE_DELAY_MS = 300;
 // Layer toggles left out of links because the state they depend on isn't restorable (see header comment).
 const UNTRACKED_CHECKBOX_IDS = new Set(["cosmosToggle"]);
@@ -19,7 +19,6 @@ const UNTRACKED_CHECKBOX_IDS = new Set(["cosmosToggle"]);
 function checkboxKey(el){
   if(UNTRACKED_CHECKBOX_IDS.has(el.id)) return null;
   if(el.id) return `id:${el.id}`;
-  if(el.dataset.layer) return `l:${el.dataset.layer}`;
   if(el.dataset.bcdcLayer) return `b:${el.dataset.bcdcLayer}`;
   if(el.dataset.staticLayer) return `s:${el.dataset.staticLayer}`;
   return null;
@@ -80,15 +79,18 @@ export function applyPanelState(state){
 /**
  * Re-fires `change` on restored layer toggles so each layer module draws its overlay.
  * Layer modules don't render initially-checked toggles on their own (all default off),
- * so this must run after every layer's init(). Coverage outlines (`l:` keys) already draw at init.
+ * so this must run after every layer's init().
  */
 export function replayLayerToggles(state){
-  if(!state.on) return;
-  trackedCheckboxes().forEach(([key, el]) => {
-    if(el.checked && !key.startsWith("l:")) el.dispatchEvent(new Event("change", { bubbles: true }));
-  });
   const consequence = document.getElementById("consequenceSelect");
   if(consequence && consequence.value) consequence.dispatchEvent(new Event("change", { bubbles: true }));
+  document.querySelectorAll("select[data-layer-select]").forEach(sel => {
+    if(sel.value) sel.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  if(!state.on) return;
+  trackedCheckboxes().forEach(([key, el]) => {
+    if(el.checked) el.dispatchEvent(new Event("change", { bubbles: true }));
+  });
 }
 
 /** Builds the hash string for the map's current state. */

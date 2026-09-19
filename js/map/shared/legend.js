@@ -32,6 +32,19 @@ export function renderSwatchLegendBlock(item){
 }
 
 /**
+ * Fetches an Esri REST `/legend?f=json` endpoint and returns one sublayer's
+ * entries (`{label, contentType, imageData}`; the image is a base64 swatch).
+ *
+ * @param {string} url - the service's base MapServer URL (no trailing slash).
+ * @param {number} layerId - the sublayer id whose legend entries to use.
+ * @returns {Promise<object[]>}
+ */
+export async function fetchLegendItems(url, layerId){
+  const json = await cachedFetch(`${url}/legend?f=json`, res => res.json());
+  return ((json.layers || []).find(l => l.layerId === layerId) || {}).legend || [];
+}
+
+/**
  * Fetches an Esri REST `/legend?f=json` endpoint and renders one
  * "legend-block" div (title + base64 image swatch rows) from it — the
  * shape shared by FEMA NFHL, all three simple CFEM hazard layers, and
@@ -44,8 +57,7 @@ export function renderSwatchLegendBlock(item){
  * @returns {Promise<HTMLElement>}
  */
 export async function renderImageLegendBlock(url, layerId, title){
-  const json = await cachedFetch(`${url}/legend?f=json`, res => res.json());
-  const items = ((json.layers || []).find(l => l.layerId === layerId) || {}).legend || [];
+  const items = await fetchLegendItems(url, layerId);
   const block = document.createElement("div");
   block.className = "legend-block";
   const titleEl = document.createElement("div");

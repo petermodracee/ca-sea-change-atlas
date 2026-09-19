@@ -92,7 +92,8 @@ export function initGroupHide(){
 export function initActiveIndicator(){
   const groups = [...document.querySelectorAll(".layer-group:not([data-no-active])")];
   const update = group => {
-    const count = group.querySelectorAll('.layer-group-body input[type="checkbox"]:checked').length;
+    const count = group.querySelectorAll('.layer-group-body input[type="checkbox"]:checked').length
+      + [...group.querySelectorAll(".layer-group-body select[data-layer-select]")].filter(sel => sel.value).length;
     group.classList.toggle("has-active", count > 0);
     group.querySelector(".active-badge").textContent = `${count} on`;
     const hideBtn = group.querySelector(".group-hide-btn");
