@@ -217,6 +217,11 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
   width:18px;height:10px;border-radius:2px;flex:0 0 auto;margin-top:3px;
   background:var(--line);
 }
+.leaflet-tooltip.nasa-slr-label{
+  background:rgba(255,255,255,.9);border:1px solid #1A365D;color:#1A365D;
+  font-size:11px;font-weight:600;padding:1px 5px;box-shadow:none;
+}
+.leaflet-tooltip.nasa-slr-label::before{display:none;}
 .impact-tab{
   flex:1;font-size:11.5px;padding:6px 4px;border:0;background:none;
   color:var(--ink-soft);cursor:pointer;border-bottom:2px solid transparent;

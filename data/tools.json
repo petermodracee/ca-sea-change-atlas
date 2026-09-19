@@ -459,7 +459,7 @@
       "org": "Interagency Sea Level Rise Task Force (hosted by NASA)",
       "scope": "national",
       "scopeLabel": "U.S. coasts, including California (13 California tide gauges)",
-      "implementationStatus": "not-implemented",
+      "implementationStatus": "implemented",
       "released": "2022, from the Interagency Sea Level Rise Technical Report",
       "url": "https://sealevel.nasa.gov/task-force-scenario-tool",
       "description": "A map of U.S. tide-gauge points where you pick a decade (relative to 2000) and a scenario from Low to High to see projected relative sea-level rise at that gauge, with a full projection for each gauge out to 2150. It gives values at points rather than flood-extent areas.",

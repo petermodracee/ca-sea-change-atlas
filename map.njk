@@ -22,6 +22,10 @@ footerAttribution: >
   Sea level rise and coastal flood exposure layers: live data from
   <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA's Sea Level Rise Viewer</a> and
   <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">Coastal Flood Exposure Mapper</a>.
+  Sea level scenarios at tide gauges: 2022
+  <a href="https://oceanservice.noaa.gov/hazards/sealevelrise/sealevelrise-tech-report-sections.html" target="_blank" rel="noopener">Interagency Sea Level Rise Technical Report</a>
+  data (CC BY 4.0), read live from
+  <a href="https://zenodo.org/records/6067895" target="_blank" rel="noopener">Zenodo</a>.
   Geo / demographic info layers: live data from EPA, CDC/ATSDR, USGS, NOAA C-CAP, and Caltrans (credited on each layer and on the
   <a href="/ca-sea-change-atlas/licenses.html">Licenses & sources</a> page).
   Flood zones: live effective-data-only layer from
@@ -280,6 +284,46 @@ footerAttribution: >
 
 <p class="click-hint">Click the map to see the nearest tide station's high tide flooding thresholds — today's thresholds, not tied to the sea level rise amount above.</p>
 <label class="layer-item"><input type="checkbox" id="noaaHtfToggle"><span class="swatch" data-swatch="noaa-htf"></span>High Tide Flooding stations</label>
+</div>
+</div>
+
+<div class="layer-group">
+<div class="layer-group-title collapsible-title">
+<button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="nasaSlrGroupBody">▾</button>
+<span>Interagency Sea Level Scenarios <em>(tide gauges)</em></span>
+<button type="button" class="group-hide-btn" aria-label="Hide all Interagency Sea Level Scenario layers">Hide</button>
+</div>
+<div class="layer-group-body" id="nasaSlrGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="nasaSlr" min="20" max="100" step="5" value="100" aria-label="Interagency Sea Level Scenarios opacity"><span class="opacity-value">100%</span></label></div>
+<p class="click-hint">Click the map to see the nearest tide gauge's projected sea level rise under every scenario. These are values at points, not flood areas.</p>
+<label class="layer-item"><input type="checkbox" id="nasaSlrToggle"><span class="swatch" data-swatch="nasa-slr"></span>Projected sea level rise at tide gauges</label>
+<label for="nasaSlrScenario" class="scenario-label">Scenario</label>
+<select id="nasaSlrScenario">
+<option value="Low">Low</option>
+<option value="IntLow">Intermediate-Low</option>
+<option value="Int" selected>Intermediate</option>
+<option value="IntHigh">Intermediate-High</option>
+<option value="High">High</option>
+</select>
+<label for="nasaSlrYear" class="scenario-label">Year</label>
+<select id="nasaSlrYear">
+<option value="2020">2020</option>
+<option value="2030">2030</option>
+<option value="2040">2040</option>
+<option value="2050" selected>2050</option>
+<option value="2060">2060</option>
+<option value="2070">2070</option>
+<option value="2080">2080</option>
+<option value="2090">2090</option>
+<option value="2100">2100</option>
+<option value="2110">2110</option>
+<option value="2120">2120</option>
+<option value="2130">2130</option>
+<option value="2140">2140</option>
+<option value="2150">2150</option>
+</select>
+<p class="scenario-result" id="nasaSlrResult"></p>
+<p class="click-hint">From the 2022 <a href="https://oceanservice.noaa.gov/hazards/sealevelrise/sealevelrise-tech-report-sections.html" target="_blank" rel="noopener">Interagency Sea Level Rise Technical Report</a>, read live from its <a href="https://zenodo.org/records/6067895" target="_blank" rel="noopener">Zenodo data</a>. Values can differ from <a href="https://sealevel.nasa.gov/task-force-scenario-tool" target="_blank" rel="noopener">NASA's scenario tool</a>. The first time you turn it on it downloads about 7 MB.</p>
 </div>
 </div>
 

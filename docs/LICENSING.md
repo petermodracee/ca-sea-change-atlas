@@ -21,6 +21,8 @@ A source goes on the map only if it has a confirmed, documented path to reuse. L
 | BCDC Adapting to Rising Tides (Bay and East Contra Costa) | CC BY-SA, via the Caltrans open data portal. | Attribute Caltrans/BCDC. If the *dataset itself* were ever redistributed in modified form it would need to stay share-alike; displaying it as a live layer is fine. |
 | Cal-Adapt Sea Level Rise – Coastal Inundation Scenarios | No separate license stated on the tool. The CoSMoS component is USGS (public domain); CalFloD3D-TFS is California Energy Commission / Fourth Climate Change Assessment. | Attribute Cal-Adapt and cite the underlying studies (listed in `credits.json`). |
 | Caltrans traffic and truck volumes | CC BY. | Attribute Caltrans. |
+| Interagency Sea Level Rise Task Force 2022 Technical Report data (Zenodo record 6067895) | CC BY 4.0, stated on the Zenodo record. NASA's own scenario tool states no license, and its JSON feed (`sealevel.nasa.gov/taskforce-passthru/`) is not used. | Attribute the task force and cite the report (`credits.json`). |
+| h5wasm (library) | NIST public-service software notice (not a standard license): copy and modify freely, keep the notice intact, acknowledge NIST. | Credited on the licenses page. |
 | OpenStreetMap, OpenFreeMap / OpenMapTiles | ODbL data; MIT style and code; CC BY 4.0 schema. | Attribution shown on the map. |
 
 ## Comparison-only sources
