@@ -7,7 +7,7 @@ import { renderSwatchLegendBlock } from "../shared/legend.js";
 import { buildWmsIdentifyUrl } from "../shared/identify-url.js";
 import { buildButtonGrid } from "../shared/button-grid.js";
 
-const BCDC_WMS_URL = "https://mapserver.adaptingtorisingtides.org/cgi-bin/mapserv?map=/opt/slrviewer/mapfiles/bcdc.map";
+export const BCDC_WMS_URL = "https://mapserver.adaptingtorisingtides.org/cgi-bin/mapserv?map=/opt/slrviewer/mapfiles/bcdc.map";
 const BCDC_WATER_LEVELS = [0, 12, 24, 36, 48, 52, 66, 77, 84, 96, 108]; // inches above MHHW, matches BCDC's own "Total Water Level" slider
 
 const SLR_OPTIONS = BCDC_WATER_LEVELS.map(v => ({ inches: v, label: v === 0 ? "No SLR" : `${v}"` }));
@@ -97,14 +97,14 @@ const CONSEQUENCE_LAYERS = {
   "vulcom_contam": { prefix: "consequence_vulcom_contam_" }
 };
 
-function buildBcdcWmsLayer(map, layerName, opacity){
+export function buildBcdcWmsLayer(map, layerName, opacity, paneKey = "bcdc"){
   return new CachedWmsTileLayer(BCDC_WMS_URL, {
     layers: layerName,
     version: "1.3.0",
     format: "image/png",
     transparent: true,
     opacity: opacity,
-    pane: groupPane(map, "bcdc"),
+    pane: groupPane(map, paneKey),
     attribution: 'Flood data: <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Adapting to Rising Tides</a>'
   });
 }
@@ -115,7 +115,7 @@ function buildBcdcWmsLayer(map, layerName, opacity){
 // BCDC's own build/slr.js click-render module, fetched and read directly —
 // the WMS server's GetFeatureInfo has no documented schema of its own.
 
-function parseGmlFeatures(xmlText, layerName){
+export function parseGmlFeatures(xmlText, layerName){
   const featureTag = `${layerName}_feature`;
   const blocks = [...xmlText.matchAll(new RegExp(`<${featureTag}>([\\s\\S]*?)</${featureTag}>`, "g"))].map(m => m[1]);
   return blocks.map(block => {
