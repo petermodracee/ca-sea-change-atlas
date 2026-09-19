@@ -30,6 +30,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 {%- if leaflet %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol@0.90.1/dist/L.Control.Locate.min.css" integrity="sha384-71M4mrilXHJO54OLYzaJ+wRg/RuwOXcMW4OaLe/G0WamhbdNCNpCn6SvpVZ6Lf5N" crossorigin="">
 {%- endif %}
 <link rel="stylesheet" href="{{ '/css/style.css' | url }}">
 </head>
@@ -44,6 +45,7 @@
 {%- if leaflet %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://unpkg.com/esri-leaflet@3.1.0/dist/esri-leaflet.js" integrity="sha256-uq3qqAjvt3jW7feZ+rr1jBnGc6o9g4Z/hIy6Yy2ak44=" crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.locatecontrol@0.90.1/dist/L.Control.Locate.min.js" integrity="sha384-59TTE1BOzlD9d1Eos6CaVvKNnMh2h2pll99VpZqrJpeHqoXYW/RCuit5u39X9XtQ" crossorigin=""></script>
 {%- endif %}
 {%- for src in extraScripts %}
 <script src="{{ src | url }}"></script>

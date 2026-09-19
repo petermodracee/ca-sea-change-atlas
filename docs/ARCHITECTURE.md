@@ -1,5 +1,32 @@
 # Architecture
 
+> **Note:** the sections below describe the original single-file `js/app.js`
+> prototype and are partly stale. The map page (`map.html`) now lives in
+> `js/map/` and is documented in the next section.
+
+## Map page (`js/map/`)
+
+`js/map/index.js` is the only `<script type="module">` on the map page. It
+builds the map and each layer group, then wires the panel behavior.
+
+| Module | Role |
+|---|---|
+| `index.js` | Entry point: reads the permalink, creates the map, inits every layer, then the panel behaviors. Order matters: permalink DOM state is applied before layers init; loading indicators are registered before any layer is added. |
+| `app-shell.js` | Map creation, click-to-inspect wiring, and panel behavior: collapse, per-group/global Hide, active indicator, print, mobile bottom sheet. |
+| `basemaps.js` | Basemap switcher; greyscale OpenFreeMap default rendered with MapLibre (lazy, SRI-pinned) with a greyscale-OSM fallback. |
+| `base-layer.js`, `layers/*.js` | One class per layer group (`BaseLayer` lifecycle). Each builds its Leaflet layers into its group's pane. |
+| `shared/panes.js` | One Leaflet pane per layer group: gives each group a z-order slot (bring-to-front), a CSS opacity (panel slider) and a loading state. Layers must pass `pane: groupPane(map, key)`. |
+| `permalink.js` | URL-hash state: view, basemap, active layers, scenario sliders, opacity. |
+| `controls.js` | Scale bar, locate button, distance-measure tool. |
+| `search.js` | Nominatim address search (submit-only) with alternative matches. |
+
+Panel markup lives in `map.njk`; each `.layer-group` has a title row (collapse,
+title, "N on" badge, bring-to-front, Hide) and a body. Groups with an opacity
+slider carry `data-pane="<key>"`, which is what links the panel to the pane.
+
+See `docs/PLUGIN-REVIEW.md` for which plugins are used and why others weren't.
+
+
 How the map-based Sea the Future recreation works, so the next person (or
 agent) touching this codebase doesn't have to re-derive it by reading
 every file from scratch. See `BRIEF.md` for *why* this exists and the

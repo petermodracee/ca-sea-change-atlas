@@ -1,4 +1,5 @@
 import { BaseLayer } from "../base-layer.js";
+import { groupPane } from "../shared/panes.js";
 import { setSwatch } from "../shared/dom.js";
 import { renderImageLegendBlock } from "../shared/legend.js";
 
@@ -28,7 +29,7 @@ export class CfemHazardLayer extends BaseLayer {
   }
 
   buildLayer(){
-    return L.esri.tiledMapLayer({ url: this.config.url, opacity: 0.65, attribution: CFEM_HAZARD_ATTRIBUTION });
+    return L.esri.tiledMapLayer({ url: this.config.url, opacity: 0.65, pane: groupPane(this.map, "cfem"), attribution: CFEM_HAZARD_ATTRIBUTION });
   }
 
   async updateLegend(){

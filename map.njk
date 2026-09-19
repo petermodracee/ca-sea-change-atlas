@@ -24,25 +24,34 @@ footerAttribution: >
   Flood zones: live effective-data-only layer from
   <a href="https://www.fema.gov/flood-maps/national-flood-hazard-layer" target="_blank" rel="noopener">FEMA's National Flood Hazard Layer</a> —
   see the layer panel for the effective-vs-preliminary caveat.
-  Base map &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Address search via
+  Base maps: data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors; default greyscale style by
+  <a href="https://openfreemap.org/" target="_blank" rel="noopener">OpenFreeMap</a> &copy; <a href="https://openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>;
+  optional Humanitarian (HOT / OpenStreetMap France) and Esri World Imagery tiles. Address search via
   <a href="https://nominatim.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>. Full license list:
   <a href="/ca-sea-change-atlas/licenses.html">Licenses & sources</a>.
 ---
 <div class="map-toolbar">
 <span class="topbar-disclaimer">Unofficial tool — verify before relying on this for planning decisions.</span>
 <form class="search-form" id="searchForm">
-<input type="text" id="searchInput" placeholder="Search an address or place in California…" autocomplete="off">
+<input type="text" id="searchInput" aria-label="Search an address or place in California" placeholder="Search an address or place in California…" autocomplete="off">
 <button type="submit">Search</button>
 </form>
+<button type="button" id="copyLinkBtn" class="toolbar-btn" title="Copy a link to this exact view and layer selection">Copy link</button>
+<button type="button" id="printBtn" class="toolbar-btn" title="Print or save as PDF: map, legends for active layers, and attribution">Print</button>
 </div>
-<div class="search-status" id="searchStatus"></div>
+<div class="search-status" id="searchStatus" role="status" aria-live="polite"></div>
+<div class="search-results" id="searchResults" hidden></div>
 
 <div class="map-layout">
 <div id="map"></div>
-<aside class="layer-panel">
+<aside class="layer-panel" id="layerPanel" aria-label="Map layers">
+<button type="button" class="sheet-handle" id="sheetHandle" aria-expanded="false" aria-controls="layerPanel">Layers <span class="sheet-chevron" aria-hidden="true">&#9650;</span></button>
+<div class="panel-heading">
 <h2>Layers</h2>
+<button type="button" id="hideAllLayers" class="group-hide-btn" aria-label="Hide all layers in every group">Hide all</button>
+</div>
 
-<div class="layer-group">
+<div class="layer-group" data-no-active>
 <div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="coverageGroupBody">▾</button>
 <span>Tool coverage areas</span>
@@ -57,13 +66,14 @@ footerAttribution: >
 </div>
 
 <div class="layer-group">
-<div class="layer-group-title bcdc-title-row">
+<div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="bcdcGroupBody">▾</button>
 <span>BCDC Flood Explorer <em>(Bay Shoreline Flood Explorer)</em></span>
-<button type="button" id="hideAllBcdc" class="hide-all-btn">Hide all</button>
+<button type="button" class="group-hide-btn" aria-label="Hide all BCDC Flood Explorer layers">Hide</button>
 </div>
 
 <div class="layer-group-body" id="bcdcGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="bcdc" min="20" max="100" step="5" value="100" aria-label="BCDC Flood Explorer opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint">Click the map to see values at that point for the layers checked below.</p>
 
 <div class="mode-tabs" role="tablist">
@@ -131,8 +141,10 @@ footerAttribution: >
 <div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="cosmosGroupBody">▾</button>
 <span>CoSMoS Flood Explorer <em>(USGS Our Coast, Our Future)</em></span>
+<button type="button" class="group-hide-btn" aria-label="Hide all CoSMoS Flood Explorer layers">Hide</button>
 </div>
 <div class="layer-group-body" id="cosmosGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="cosmos" min="20" max="100" step="5" value="100" aria-label="CoSMoS Flood Explorer opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint" id="cosmosClickHint">Click the map to see modeled values for the selected scenario, where available.</p>
 <label class="layer-item"><input type="checkbox" id="cosmosToggle">Show CoSMoS layer</label>
 
@@ -163,8 +175,10 @@ footerAttribution: >
 <div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="noaaSlrGroupBody">▾</button>
 <span>NOAA Sea Level Rise Viewer</span>
+<button type="button" class="group-hide-btn" aria-label="Hide all NOAA Sea Level Rise Viewer layers">Hide</button>
 </div>
 <div class="layer-group-body" id="noaaSlrGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="noaaSlr" min="20" max="100" step="5" value="100" aria-label="NOAA Sea Level Rise Viewer opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint">Click the map to see whether a point falls within a mapped low-lying area at the selected sea level.</p>
 <label class="layer-item"><input type="checkbox" id="noaaSlrToggle"><span class="swatch" data-swatch="noaa-slr"></span>Show sea level rise layer</label>
 <div class="scenario-block">
@@ -182,8 +196,10 @@ footerAttribution: >
 <div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="femaGroupBody">▾</button>
 <span>FEMA Flood Zones <em>(National Flood Hazard Layer)</em></span>
+<button type="button" class="group-hide-btn" aria-label="Hide all FEMA Flood Zones layers">Hide</button>
 </div>
 <div class="layer-group-body" id="femaGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="fema" min="20" max="100" step="5" value="100" aria-label="FEMA Flood Zones opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint">Click the map to see the FEMA flood zone at that point.</p>
 <label class="layer-item"><input type="checkbox" id="femaToggle"><span class="swatch" data-swatch="fema"></span>Flood Hazard Zones (effective)</label>
 <p class="scenario-result" id="femaResult"></p>
@@ -196,8 +212,10 @@ footerAttribution: >
 <div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="cfemGroupBody">▾</button>
 <span>NOAA Coastal Flood Exposure Mapper</span>
+<button type="button" class="group-hide-btn" aria-label="Hide all NOAA Coastal Flood Exposure Mapper layers">Hide</button>
 </div>
 <div class="layer-group-body" id="cfemGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="cfem" min="20" max="100" step="5" value="100" aria-label="NOAA Coastal Flood Exposure Mapper opacity"><span class="opacity-value">100%</span></label></div>
 <p class="click-hint">Click the map to see which mapped hazards overlap at that point (FEMA zones, high tide flooding, sea level rise, storm surge, tsunami run-up).</p>
 <label class="layer-item"><input type="checkbox" id="cfemToggle"><span class="swatch" data-swatch="cfem"></span>Flood hazard overlap</label>
 

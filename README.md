@@ -209,7 +209,7 @@ this map's separate NOAA Sea Level Rise Viewer group already shows.
   for Open Graph tags.
 - `index.njk` — the landing page: a short explanation of the two tools
   below, linking out to each, plus a one-line pointer to `about.html`.
-- `map.njk`, `js/map.js` — the map page: Leaflet + OSM base map, each
+- `map.njk`, `js/map/` — the map page (see `docs/ARCHITECTURE.md` and `docs/PLUGIN-REVIEW.md`): Leaflet + switchable basemaps (greyscale default), each
   coverage region and the BCDC flood-depth WMS overlay as a checkable
   layer in the right-side panel, and address search (Nominatim).
 - `js/info-popup.js` — a small, tool-agnostic click-to-inspect popup:
@@ -292,7 +292,21 @@ this project's own code:
   itself, loaded from the `unpkg.com` CDN in `map.html` at the pinned
   version (`leaflet@1.9.4`) with a Subresource Integrity hash.
 - **[OpenStreetMap](https://www.openstreetmap.org/copyright)** contributors
-  (ODbL) — the base map tile imagery.
+  (ODbL) — the data behind every basemap.
+- **[OpenFreeMap](https://openfreemap.org/)** / **OpenMapTiles** — the
+  default greyscale (Positron) vector basemap: free, no API key, no
+  request limits, donation-funded; style and code MIT. Rendered with
+  **[MapLibre GL JS](https://maplibre.org/)** (BSD-3-Clause) via
+  **[maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet)**
+  (ISC), loaded lazily from `unpkg.com` at pinned versions with SRI
+  hashes. If WebGL or the style is unavailable, the map falls back to
+  greyscale-filtered OSM tiles.
+- **[leaflet.locatecontrol](https://github.com/domoritz/leaflet-locatecontrol)**
+  (MIT) — "show my location" button, loaded from `unpkg.com` at a pinned
+  version with SRI hashes.
+- Optional basemaps: **Humanitarian OSM** (HOT style hosted by OSM
+  France; light-use policy) and **Esri World Imagery** (visualization
+  only, Esri/Maxar attribution).
 - **[OpenStreetMap Nominatim](https://nominatim.org/)** — address search
   and geocoding.
 - **[Plotly `datasets` repository](https://github.com/plotly/datasets)**

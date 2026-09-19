@@ -1,4 +1,5 @@
 import { BaseLayer } from "../base-layer.js";
+import { groupPane } from "../shared/panes.js";
 import { renderImageLegendBlock } from "../shared/legend.js";
 import { buildButtonGrid } from "../shared/button-grid.js";
 
@@ -42,6 +43,7 @@ export class CfemStormSurgeLayer extends BaseLayer {
     return L.esri.tiledMapLayer({
       url: this.currentUrl(),
       opacity: 0.7,
+      pane: groupPane(this.map, "cfem"),
       attribution: CFEM_SURGE_ATTRIBUTION
     });
   }

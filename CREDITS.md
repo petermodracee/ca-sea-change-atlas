@@ -58,7 +58,24 @@ this page is `/licenses.html` (`licenses.njk`).
   Maps](https://www.nhc.noaa.gov/nationalsurge/)** — U.S. public domain.
   Hurricane storm surge overlay, Category 1–2, Southern California only.
 - **[OpenStreetMap](https://www.openstreetmap.org/copyright)** — ODbL.
-  Base map tile imagery.
+  Base map data behind every basemap option.
+- **[OpenFreeMap](https://openfreemap.org/)** /
+  **[OpenMapTiles](https://openmaptiles.org/)** — free, keyless hosting
+  and schema of the default greyscale (Positron) vector basemap. Style
+  and code MIT; OpenMapTiles design CC-BY 4.0; data © OpenStreetMap
+  contributors (ODbL).
+- **[Humanitarian OpenStreetMap Team](https://www.hotosm.org/)** style,
+  hosted by [OpenStreetMap France](https://openstreetmap.fr/) — optional
+  Humanitarian basemap; the host asks for light use only.
+- **[Esri World Imagery](https://www.esri.com/)** — optional Satellite
+  basemap, visualization only, with Esri/Maxar attribution.
+- **[leaflet.locatecontrol](https://github.com/domoritz/leaflet-locatecontrol)**
+  (MIT) — the "show my location" button; loaded from unpkg at a pinned
+  version with SRI hashes.
+- **[MapLibre GL JS](https://maplibre.org/)** (BSD-3-Clause) and
+  **[maplibre-gl-leaflet](https://github.com/maplibre/maplibre-gl-leaflet)**
+  (ISC) — render the vector basemap; loaded lazily from unpkg at pinned
+  versions with SRI hashes.
 - **[OpenStreetMap Nominatim](https://nominatim.org/)** — address search
   and geocoding.
 

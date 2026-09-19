@@ -1,4 +1,5 @@
 import { BaseLayer } from "../base-layer.js";
+import { groupPane } from "../shared/panes.js";
 import { CachedWmsTileLayer } from "../shared/tile-layers.js";
 import { cachedFetch } from "../shared/request-cache.js";
 import { fmtNum } from "../shared/format.js";
@@ -105,13 +106,14 @@ const CONSEQUENCE_LAYERS = {
   "vulcom_contam": { prefix: "consequence_vulcom_contam_", levelDependent: true }
 };
 
-function buildBcdcWmsLayer(layerName, opacity){
+function buildBcdcWmsLayer(map, layerName, opacity){
   return new CachedWmsTileLayer(BCDC_WMS_URL, {
     layers: layerName,
     version: "1.3.0",
     format: "image/png",
     transparent: true,
     opacity: opacity,
+    pane: groupPane(map, "bcdc"),
     attribution: 'Flood data: <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Adapting to Rising Tides</a>'
   });
 }
@@ -204,7 +206,7 @@ export class BcdcLegalDeltaLayer extends BaseLayer {
   }
 
   buildLayer(){
-    return buildBcdcWmsLayer("legaldelta", 0.9);
+    return buildBcdcWmsLayer(this.map, "legaldelta", 0.9);
   }
 
   init(){
@@ -258,7 +260,7 @@ export class BcdcFloodLayer extends BaseLayer {
   refreshLayer(typeId){
     const t = BCDC_LAYER_TYPES[typeId];
     if(this.bcdcLayers[typeId]) this.map.removeLayer(this.bcdcLayers[typeId]);
-    this.bcdcLayers[typeId] = buildBcdcWmsLayer(`${t.prefix}${this.currentInches()}`, t.opacity);
+    this.bcdcLayers[typeId] = buildBcdcWmsLayer(this.map, `${t.prefix}${this.currentInches()}`, t.opacity);
     this.bcdcLayers[typeId].addTo(this.map);
   }
 
@@ -277,7 +279,7 @@ export class BcdcFloodLayer extends BaseLayer {
       return;
     }
     const layerName = def.levelDependent ? `${def.prefix}${this.currentInches()}` : def.name;
-    this.consequenceLayer = buildBcdcWmsLayer(layerName, 0.85);
+    this.consequenceLayer = buildBcdcWmsLayer(this.map, layerName, 0.85);
     this.consequenceLayer.addTo(this.map);
   }
 
@@ -426,12 +428,8 @@ export class BcdcFloodLayer extends BaseLayer {
 
     this.renderBcdcLegend();
 
-    document.getElementById("hideAllBcdc").addEventListener("click", () => {
-      this.bcdcCheckboxes.forEach(cb => {
-        if(cb.checked){ cb.checked = false; cb.dispatchEvent(new Event("change")); }
-      });
-      const legalDeltaToggle = document.querySelector('[data-static-layer="legaldelta"]');
-      if(legalDeltaToggle.checked){ legalDeltaToggle.checked = false; legalDeltaToggle.dispatchEvent(new Event("change")); }
+    // Checkboxes are unchecked by the generic group Hide button; the scenario dropdown isn't a checkbox, so reset it here.
+    document.getElementById("bcdcGroupBody").closest(".layer-group").addEventListener("layergroup:hide", () => {
       if(this.consequenceSelect.value){ this.consequenceSelect.value = ""; this.consequenceSelect.dispatchEvent(new Event("change")); }
     });
 

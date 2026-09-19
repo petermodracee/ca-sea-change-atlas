@@ -1,4 +1,5 @@
 import { BaseLayer } from "../base-layer.js";
+import { groupPane } from "../shared/panes.js";
 import { CachedWmsTileLayer, CachedXyzTileLayer } from "../shared/tile-layers.js";
 import { cachedFetch } from "../shared/request-cache.js";
 import { buildWmsIdentifyUrl } from "../shared/identify-url.js";
@@ -292,11 +293,11 @@ export class CosmosLayer extends BaseLayer {
       if(!filled) return;
       let layer;
       if(def.kind === "tilexyz"){
-        layer = new CachedXyzTileLayer("https:" + filled, { opacity: 0.7, attribution: COSMOS_TILE_ATTRIBUTION });
+        layer = new CachedXyzTileLayer("https:" + filled, { opacity: 0.7, pane: groupPane(this.map, "cosmos"), attribution: COSMOS_TILE_ATTRIBUTION });
       } else if(def.kind === "imagewms"){
         layer = new CachedWmsTileLayer(COSMOS_WMS_URL, {
           layers: filled, styles: def.style || "", version: "1.1.1",
-          format: "image/png", transparent: true, opacity: 0.7,
+          format: "image/png", transparent: true, opacity: 0.7, pane: groupPane(this.map, "cosmos"),
           attribution: COSMOS_TILE_ATTRIBUTION
         });
       }
