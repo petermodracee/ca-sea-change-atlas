@@ -306,6 +306,33 @@
       ]
     },
     {
+      "id": "nhc-storm-surge",
+      "name": "National Storm Surge Risk Maps",
+      "org": "NOAA/NWS/NHC Storm Surge Unit",
+      "scope": "national",
+      "scopeLabel": "Southern California only (hurricane categories 1–2)",
+      "coverageRegion": "orange-county",
+      "implementationStatus": "implemented",
+      "released": "Ongoing",
+      "url": "https://www.nhc.noaa.gov/nationalsurge/",
+      "description": "SLOSH-model “Maximum of MEOWs” hurricane storm-surge inundation maps, one per hurricane category — California coverage is limited to categories 1 and 2 in Southern California.",
+      "processes": ["Hurricane storm surge"],
+      "exposure": [],
+      "floodInfo": ["Storm surge / extreme tide"],
+      "reportsData": "Tiled map imagery only; no per-feature query or downloadable report.",
+      "slrModel": "None — a present-day worst-case hurricane storm-surge scenario, not a sea-level-rise projection.",
+      "strengths": [
+        "Purpose-built hurricane storm-surge modeling (SLOSH) from NOAA's National Hurricane Center",
+        "Shows a genuine worst-case scenario across multiple hurricane categories",
+        "Free, public, and nationally consistent methodology"
+      ],
+      "limitations": [
+        "California coverage is limited to Southern California, categories 1–2 only",
+        "Tiles-only service — no click-to-inspect or downloadable data",
+        "Hurricane-driven surge, not the more common California storm systems (atmospheric rivers, extratropical storms)"
+      ]
+    },
+    {
       "id": "tnc-resilience",
       "name": "Coastal Resilience Mapping Portal",
       "org": "The Nature Conservancy",
