@@ -22,7 +22,12 @@ builds the map and each layer group, then wires the panel behavior.
 
 Panel markup lives in `map.njk`; each `.layer-group` has a title row (collapse,
 title, "N on" badge, bring-to-front, Hide) and a body. Groups with an opacity
-slider carry `data-pane="<key>"`, which is what links the panel to the pane.
+slider carry `data-pane="<key>"`, which is what links the panel to the pane. The
+Geo / demographic info group has three (`geoPeople`, `geoFacilities`, `geoLand`), one per
+section. Its People and Land sections are dropdowns (one layer at a time; `data-layer-select`)
+rather than checkboxes. Popups come from `identify` (ArcGIS query), `identifyTile` (NOAA land
+cover, read off the tile pixel against the legend) or `identifyRoad` (Caltrans counts drawn on
+state highway lines).
 
 See `docs/PLUGIN-REVIEW.md` for which plugins are used and why others weren't.
 

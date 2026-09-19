@@ -10,7 +10,7 @@
  */
 
 // Controls whose value is restored: static in map.njk, so they exist (and are read by the layer modules) at init.
-const VALUE_CONTROL_IDS = ["floodLevel", "noaaSlrSlider", "consequenceSelect"];
+const VALUE_CONTROL_IDS = ["floodLevel", "noaaSlrSlider", "consequenceSelect", "geoPeopleSelect", "geoLandSelect"];
 const WRITE_DELAY_MS = 300;
 // Layer toggles left out of links because the state they depend on isn't restorable (see header comment).
 const UNTRACKED_CHECKBOX_IDS = new Set(["cosmosToggle"]);
@@ -82,12 +82,15 @@ export function applyPanelState(state){
  * so this must run after every layer's init().
  */
 export function replayLayerToggles(state){
+  const consequence = document.getElementById("consequenceSelect");
+  if(consequence && consequence.value) consequence.dispatchEvent(new Event("change", { bubbles: true }));
+  document.querySelectorAll("select[data-layer-select]").forEach(sel => {
+    if(sel.value) sel.dispatchEvent(new Event("change", { bubbles: true }));
+  });
   if(!state.on) return;
   trackedCheckboxes().forEach(([key, el]) => {
     if(el.checked) el.dispatchEvent(new Event("change", { bubbles: true }));
   });
-  const consequence = document.getElementById("consequenceSelect");
-  if(consequence && consequence.value) consequence.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
 /** Builds the hash string for the map's current state. */

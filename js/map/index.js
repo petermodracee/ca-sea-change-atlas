@@ -17,6 +17,7 @@ import { NoaaSlrLayer } from "./layers/noaa-slr-layer.js";
 import { NoaaHtfLayer } from "./layers/noaa-htf-layer.js";
 import { FemaNfhlLayer } from "./layers/fema-nfhl-layer.js";
 import { CfemCompositeLayer } from "./layers/cfem-composite-layer.js";
+import { initGeoInfoLayers } from "./layers/geo-info-layer.js";
 
 async function main(){
   const permalink = readPermalink();
@@ -34,6 +35,7 @@ async function main(){
   new NoaaHtfLayer(map, infoPopup).init();
   new FemaNfhlLayer(map, infoPopup).init();
   new CfemCompositeLayer(map, infoPopup).init(); // also sets up its CFEM hazard + storm-surge sublayers
+  initGeoInfoLayers(map, infoPopup);
 
   replayLayerToggles(permalink);
   initControls(map);

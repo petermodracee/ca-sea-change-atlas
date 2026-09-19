@@ -19,6 +19,12 @@ this page is `/licenses.html` (`licenses.njk`).
 
 ## Live data sources (not stored in this repo)
 
+- **Geo / demographic info layers** — each loaded from the agency that
+  publishes the data: EPA Smart Location Database and Facility Registry
+  Service, CDC/ATSDR Social Vulnerability Index, USGS The National Map
+  Structures, and NOAA C-CAP land cover and Wetland Potential (all U.S.
+  public domain); Caltrans traffic and truck volumes
+  (CC BY — attribute Caltrans).
 - **[BCDC's Adapting to Rising Tides Bay Shoreline Flood
   Explorer](https://explorer.adaptingtorisingtides.org/)** — CC-BY-SA
   (via the Caltrans open data portal). Attribute Caltrans/BCDC; a

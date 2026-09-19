@@ -18,6 +18,8 @@ footerAttribution: >
   Sea level rise and coastal flood exposure layers: live data from
   <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA's Sea Level Rise Viewer</a> and
   <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">Coastal Flood Exposure Mapper</a>.
+  Geo / demographic info layers: live data from EPA, CDC/ATSDR, USGS, NOAA C-CAP, and Caltrans (credited on each layer and on the
+  <a href="/ca-sea-change-atlas/licenses.html">Licenses & sources</a> page).
   Flood zones: live effective-data-only layer from
   <a href="https://www.fema.gov/flood-maps/national-flood-hazard-layer" target="_blank" rel="noopener">FEMA's National Flood Hazard Layer</a> —
   see the layer panel for the effective-vs-preliminary caveat.
@@ -46,6 +48,56 @@ footerAttribution: >
 <div class="panel-heading">
 <h2>Layers</h2>
 <button type="button" id="hideAllLayers" class="group-hide-btn" aria-label="Hide all layers in every group">Hide all</button>
+</div>
+
+<div class="layer-group">
+<div class="layer-group-title collapsible-title">
+<button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="geoGroupBody">▾</button>
+<span>Geo / demographic info</span>
+<button type="button" class="group-hide-btn" aria-label="Hide all geo and demographic layers">Hide</button>
+</div>
+<div class="layer-group-body" id="geoGroupBody">
+<p class="click-hint">Context layers to overlay under any flood layer, each from the agency that publishes the data (EPA, CDC, USGS, NOAA, Caltrans). Click the map to inspect where a popup is available.</p>
+
+<label for="geoPeopleSelect" class="scenario-label">People</label>
+<select id="geoPeopleSelect" data-layer-select>
+<option value="">None</option>
+<option value="geoPopDensity">Population density (EPA)</option>
+<option value="geoJobsDensity">Jobs density (EPA)</option>
+<option value="geoPoverty">Poverty (CDC SVI; zoom in)</option>
+<option value="geoElderly">Population age 65+ (CDC SVI; zoom in)</option>
+</select>
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="geoPeople" min="20" max="100" step="5" value="100" aria-label="People layers opacity"><span class="opacity-value">100%</span></label></div>
+<div class="bcdc-legend" id="geoPopDensityLegend" hidden></div>
+<div class="bcdc-legend" id="geoJobsDensityLegend" hidden></div>
+<div class="bcdc-legend" id="geoPovertyLegend" hidden></div>
+<div class="bcdc-legend" id="geoElderlyLegend" hidden></div>
+
+<p class="scenario-label">Facilities and infrastructure</p>
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="geoFacilities" min="20" max="100" step="5" value="100" aria-label="Facilities and infrastructure layers opacity"><span class="opacity-value">100%</span></label></div>
+<label class="layer-item"><input type="checkbox" id="geoFacilities"><span class="swatch" data-swatch="geoFacilities"></span>Critical facilities <em>(USGS; zoom in)</em></label>
+<div class="bcdc-legend" id="geoFacilitiesLegend" hidden></div>
+<label class="layer-item"><input type="checkbox" id="geoFrs"><span class="swatch" data-swatch="geoFrs"></span>Regulated facilities, pollution sources <em>(EPA; zoom in)</em></label>
+<div class="bcdc-legend" id="geoFrsLegend" hidden></div>
+<label class="layer-item"><input type="checkbox" id="geoAadt"><span class="swatch" data-swatch="geoAadt"></span>Highway traffic counts <em>(Caltrans; zoom in)</em></label>
+<div class="bcdc-legend" id="geoAadtLegend" hidden></div>
+<label class="layer-item"><input type="checkbox" id="geoTruck"><span class="swatch" data-swatch="geoTruck"></span>Highway truck counts <em>(Caltrans; zoom in)</em></label>
+<div class="bcdc-legend" id="geoTruckLegend" hidden></div>
+
+<label for="geoLandSelect" class="scenario-label">Land and ecosystems</label>
+<select id="geoLandSelect" data-layer-select>
+<option value="">None</option>
+<option value="geoDeveloped">Developed land (NOAA C-CAP)</option>
+<option value="geoNatural">Wetlands, natural areas &amp; open space (NOAA C-CAP)</option>
+<option value="geoDevChange">Land converted to development, 1996–2016 (NOAA C-CAP)</option>
+<option value="geoWetlandPotential">Wetland potential (NOAA C-CAP)</option>
+</select>
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="geoLand" min="20" max="100" step="5" value="100" aria-label="Land and ecosystems layers opacity"><span class="opacity-value">100%</span></label></div>
+<div class="bcdc-legend" id="geoDevelopedLegend" hidden></div>
+<div class="bcdc-legend" id="geoNaturalLegend" hidden></div>
+<div class="bcdc-legend" id="geoDevChangeLegend" hidden></div>
+<div class="bcdc-legend" id="geoWetlandPotentialLegend" hidden></div>
+</div>
 </div>
 
 <div class="layer-group">
@@ -216,5 +268,6 @@ footerAttribution: >
 <div class="bcdc-legend" id="cfemTsunamiLegend" hidden></div>
 </div>
 </div>
+
 </aside>
 </div>
