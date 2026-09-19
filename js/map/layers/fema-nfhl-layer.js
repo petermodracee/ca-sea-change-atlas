@@ -19,7 +19,7 @@ import { renderImageLegendBlock } from "../shared/legend.js";
 // footing as the NOAA/USGS sources above. A CC-BY 3.0 label appears on a
 // third-party Data Basin mirror of this same service, but that's Data
 // Basin's own platform-wide license on their copy, not a term FEMA itself
-// imposes — see BRIEF.md for the full citation trail. FEMA is still credited
+// imposes — see docs/LICENSING.md for the citation trail. FEMA is still credited
 // prominently below regardless, as good practice.
 const FEMA_NFHL_URL = "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer";
 const FEMA_NFHL_ZONES_LAYER_ID = 28;

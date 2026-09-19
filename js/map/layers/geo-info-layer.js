@@ -45,8 +45,8 @@ const EPA_SLD_ATTR = attribution("EPA Smart Location Database", "https://www.epa
 const CDC_ATTR = attribution("CDC/ATSDR Social Vulnerability Index", "https://www.atsdr.cdc.gov/place-health/php/svi/index.html");
 const USGS_ATTR = attribution("USGS The National Map, Structures", "https://www.usgs.gov/national-digital-trends/structures");
 const EPA_FRS_ATTR = attribution("EPA Facility Registry Service", "https://www.epa.gov/frs");
-const CALTRANS_AADT_ATTR = attribution("Caltrans traffic volumes (AADT), CC BY", "https://data.ca.gov/dataset/traffic-volumes-aadt");
-const CALTRANS_TRUCK_ATTR = attribution("Caltrans truck volumes (AADT), CC BY", "https://data.ca.gov/dataset/truck-volumes-aadt");
+const CALTRANS_AADT_ATTR = attribution("Caltrans traffic volumes (AADT), CC BY", "https://data.ca.gov/dataset/annual-average-daily-traffic");
+const CALTRANS_TRUCK_ATTR = attribution("Caltrans truck volumes (AADT), CC BY", "https://data.ca.gov/dataset/truck-average-daily-traffic");
 
 // Some of these services return upper-case field names on one sublayer and lower-case on another.
 const field = (props, name) => props[name] !== undefined ? props[name] : props[name.toLowerCase()];
