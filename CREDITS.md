@@ -17,19 +17,6 @@ this page is `/licenses.html` (`licenses.njk`).
 - **[@11ty/eleventy](https://www.11ty.dev/)** — MIT. Static site
   generator (`devDependency`, not shipped to the browser).
 
-## Geospatial data
-
-- **[Plotly `datasets` repository](https://github.com/plotly/datasets)**
-  (`geojson-counties-fips.json`), © Plotly Technologies Inc. — **MIT
-  License**. Source for `data/coverage/bay-area-counties.geojson`,
-  `california-state.geojson`, and `orange-county.geojson`; originally
-  derived from U.S. Census Bureau TIGER data (public domain), filtered and
-  dissolved into this project's region files. License text and
-  provenance: `data/coverage/ATTRIBUTION.md`, `data/coverage/SOURCES.md`.
-- `data/coverage/east-contra-costa.geojson` is original, hand-drawn
-  content, not derived from the Plotly/Census data — this project's own
-  license terms apply (GPLv3 code / CC BY-SA 4.0 content).
-
 ## Live data sources (not stored in this repo)
 
 - **[BCDC's Adapting to Rising Tides Bay Shoreline Flood

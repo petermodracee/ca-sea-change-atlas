@@ -1,18 +1,15 @@
 ---
 layout: base.njk
 permalink: "map.html"
-title: CA Sea Change Atlas — coverage map
+title: CA Sea Change Atlas — map
 ogImage: /img/preview-map.png
-description: A Leaflet map of California sea-level-rise tool coverage, with live flood-hazard overlays from BCDC, USGS CoSMoS, NOAA, and FEMA, and click-to-inspect flood data.
+description: A Leaflet map of California sea-level-rise and flood hazards, with live flood-hazard overlays from BCDC, USGS CoSMoS, NOAA, and FEMA, and click-to-inspect flood data.
 nav: map
 bodyClass: map-page
 leaflet: true
 mapModuleEntry: /js/map/index.js
 footerAttribution: >
-  Coverage boundaries: county/state data from the
-  <a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly <code>datasets</code> repository</a>
-  (MIT license), originally derived from U.S. Census TIGER data — full provenance in
-  <a href="/ca-sea-change-atlas/data/coverage/ATTRIBUTION.md">data/coverage/ATTRIBUTION.md</a>. Flood-depth overlay: live map layers from
+  Flood-depth overlay: live map layers from
   <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC's Adapting to Rising Tides Bay Shoreline Flood Explorer</a> —
   planning-level only, not for parcel-scale, permitting, or engineering use; see
   <a href="https://explorer.adaptingtorisingtides.org/about/a-disclaimer" target="_blank" rel="noopener">their full disclaimer</a>.
@@ -49,20 +46,6 @@ footerAttribution: >
 <div class="panel-heading">
 <h2>Layers</h2>
 <button type="button" id="hideAllLayers" class="group-hide-btn" aria-label="Hide all layers in every group">Hide all</button>
-</div>
-
-<div class="layer-group" data-no-active>
-<div class="layer-group-title collapsible-title">
-<button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="coverageGroupBody">▾</button>
-<span>Tool coverage areas</span>
-</div>
-<div class="layer-group-body" id="coverageGroupBody">
-<label class="layer-item"><input type="checkbox" data-layer="bay-area-counties" checked><span class="swatch" data-swatch="bay-area-counties"></span>Bay Area counties <em>(BCDC ART, East CC Flood Explorer)</em></label>
-<label class="layer-item"><input type="checkbox" data-layer="east-contra-costa" checked><span class="swatch swatch-dashed" data-swatch="east-contra-costa"></span>East Contra Costa study area <em>(approximate)</em></label>
-<label class="layer-item"><input type="checkbox" data-layer="california-state" checked><span class="swatch" data-swatch="california-state"></span>California statewide tools <em>(Cal-Adapt, CoSMoS, CREST)</em></label>
-<label class="layer-item"><input type="checkbox" data-layer="national" checked><span class="swatch swatch-dashed" data-swatch="national"></span>National tools <em>(CA portion shown)</em></label>
-<label class="layer-item"><input type="checkbox" data-layer="orange-county" checked><span class="swatch" data-swatch="orange-county"></span>Orange County / Newport Bay <em>(FloodRISE)</em></label>
-</div>
 </div>
 
 <div class="layer-group">
