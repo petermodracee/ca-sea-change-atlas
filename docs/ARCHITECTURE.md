@@ -91,7 +91,7 @@ directly rather than trusting an in-sandbox test run.
 
 Ported from `reference/sea-the-future-prototype.html` with one change:
 the base list `matches()` filters is now the location-filtered subset
-instead of the full 12.
+instead of the full list.
 
 ```js
 function matches(tool){
@@ -121,7 +121,7 @@ unchanged from the prototype — same row list, same up-to-3 cap, same
 mutation (filter checkbox change, map click, search, compare toggle,
 clear buttons). It's a full re-render (clears and rebuilds the grid,
 compare bar, and table each time) — there's no diffing, which is fine at
-this data scale (12 tools) but worth knowing if this ever grows.
+this data scale (15 tools) but worth knowing if this ever grows.
 
 ## Known limitations / things to revisit
 
