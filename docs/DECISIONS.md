@@ -22,6 +22,9 @@ Each tool page can show up to two screenshots so a reader gets a feel for a tool
 ### Routes nested by tool, source moved into `site/`
 Adding a third tool (County Profiles, rebuilding NOAA's discontinued Coastal County Snapshots for California) turned the flat root namespace (`map.html`, `sources.html`, `compare.html`, `tool/<id>/`) into a naming problem: three tools' pages and a fourth `about.html` would keep landing at the same level with no grouping. Pages now nest under their tool (`/map/`, `/compare/`, `/compare/side-by-side/`, `/compare/tool/<id>/`, `/county-profiles/…`), and `/about/` holds only site-level history, author bio and licensing; each tool's own methodology moves to its own `about/` page (`/compare/about/` holds what used to be the About page's "About the sources" section). Old flat URLs 404 outright — the site had no external links to them yet, so this was the cheap moment to do it. Eleventy's `dir.input` moved from `.` to `site/`, separating hand-authored templates/JS/CSS/data from repo-level project files (docs, README, license text) and from the county-profiles build scripts and generated data archive that don't belong mixed into the same root-level directories.
 
+### `/data/`'s passthrough copy is a JSON glob, not the whole directory
+`site/data/index.njk` lives in the same folder as the JSON files it lists. A whole-directory `addPassthroughCopy({"site/data": "data"})` copies every file byte-for-byte regardless of extension, independent of Eleventy's own template rendering — confirmed by a probe `.njk` file landing in the output both raw (`.njk`) and rendered (`.html`). So the data directory is passed through with a `**/*.json` glob instead, which also means non-JSON files placed there (like `site/data/county-profiles/README.md`, a repo-facing scaffold note) are never served, which is the correct behavior for that file anyway.
+
 ## Data services
 
 ### CoSMoS is not an ArcGIS service

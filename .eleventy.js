@@ -6,7 +6,7 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addPassthroughCopy({ "site/css": "css" });
   eleventyConfig.addPassthroughCopy({ "site/js": "js" });
-  eleventyConfig.addPassthroughCopy({ "site/data": "data" });
+  eleventyConfig.addPassthroughCopy({ "site/data/**/*.json": "data" });
   eleventyConfig.addPassthroughCopy({ "site/img": "img" });
   eleventyConfig.addPassthroughCopy("LICENSE");
   eleventyConfig.addPassthroughCopy("LICENSE-CONTENT.md");
