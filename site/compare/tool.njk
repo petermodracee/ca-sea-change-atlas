@@ -5,8 +5,8 @@ pagination:
   size: 1
   alias: tool
   addAllPagesToCollections: true
-permalink: "tool/{{ tool.id }}/index.html"
-nav: sources
+permalink: "compare/tool/{{ tool.id }}/index.html"
+nav: compare
 eleventyComputed:
   title: "{{ tool.name }} — CA Sea Change Atlas"
   description: "{{ tool.description }}"
@@ -26,7 +26,7 @@ eleventyComputed:
 <div class="wrap tool-detail">
 
 <div class="tool-detail-sticky">
-<p class="hero-nav"><a href="{{ '/sources.html' | url }}">Back to tool comparison</a></p>
+<p class="hero-nav"><a href="{{ '/compare/' | url }}">Back to tool comparison</a></p>
 
 <div class="tool-detail-head">
 {%- if tool.implementationStatus == 'implemented' %}

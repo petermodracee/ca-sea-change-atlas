@@ -1,6 +1,6 @@
 ---
 layout: base.njk
-permalink: "about.html"
+permalink: "about/index.html"
 title: About — CA Sea Change Atlas
 description: The history behind CA Sea Change Atlas — why it exists, what "Sea the Future" was, and who this project is and isn't affiliated with.
 nav: about
@@ -31,9 +31,9 @@ extraScripts:
 <h2>About the California Sea Change Atlas</h2>
 <p>The California Sea Change Atlas (CASCA) was originally envisioned as a recreation of the "Sea the Future" tool summarizing sea level rise and flood visualization tools and an effort to build out a mapping component which did not exist in the original tool, enabling side-by-side view of the different layers from the different source models. However, climate science evolves constantly and research and funding is cyclical; some of the 12 tools and models from the original tool have not been updated or maintained, and new ones have cropped up in their place. This is intended as a spiritual successor.</p>
 
-<p>The CASCA <a href="{{ '/sources.html' | url }}">comparison tool</a> is intended as a spiritual successor of the "Sea the Future" tool describing the differences in each model and resource. As with the original, this is not intended to tell you which tool is ultimately the "best" or "worst"; it's only intended to help with determining which tool may be most useful for your given question or project. In addition, the original tool did not have a map that allows the user to flip back and forth between resources for comparison, requiring pulling up the multiple resources side by side.</p>
+<p>The CASCA <a href="{{ '/compare/' | url }}">comparison tool</a> is intended as a spiritual successor of the "Sea the Future" tool describing the differences in each model and resource. As with the original, this is not intended to tell you which tool is ultimately the "best" or "worst"; it's only intended to help with determining which tool may be most useful for your given question or project. In addition, the original tool did not have a map that allows the user to flip back and forth between resources for comparison, requiring pulling up the multiple resources side by side. For how the sources themselves were chosen, see <a href="{{ '/compare/about/' | url }}">About the sources</a>.</p>
 
-<p>The CASCA <a href="{{ '/map.html' | url }}">map</a> is an attempt to collate any resources that provide publically accessible data, primarily from government or openly licensable sources (e.g. in the public domain), onto a single map. As a Californian, I wanted to keep the tool California-centric, both because I call it home and because the data is a little more familiar to me to verify. In an effort to maintain it's longevity, even if I've moved on to other projects, I have hosted this on GitHub with GNU licensing so others may continue the work if desired.</p>
+<p>The CASCA <a href="{{ '/map/' | url }}">map</a> is an attempt to collate any resources that provide publically accessible data, primarily from government or openly licensable sources (e.g. in the public domain), onto a single map. As a Californian, I wanted to keep the tool California-centric, both because I call it home and because the data is a little more familiar to me to verify. In an effort to maintain it's longevity, even if I've moved on to other projects, I have hosted this on GitHub with GNU licensing so others may continue the work if desired.</p>
 
 <p>CASCA is built on <a href="https://www.11ty.dev/" target="_blank" rel="noopener">eleventy</a> and hosted on <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a>. The map is powered by <a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a> and uses <a href="https://github.com/plotly/datasets" target="_blank" rel="noopener">Plotly datasets</a> for region boundaries (e.g. county). <a href="http://claude.ai/" target="_blank" rel="noopener">Claude</a> helped out with the code, but the web copy text and eventually research into the different tools are all my own.</p>
 
@@ -57,7 +57,7 @@ extraScripts:
 <h2>Affiliations, licenses, and disclosures</h2>
 <p>This project is a personal project and not affiliated with, endorsed by, or produced by the University of San Diego, the California State Coastal Conservancy, NOAA, FEMA, the San Francisco Bay Conservation and Development Commission (BCDC), or any of the organizations or agencies mentioned on the resources page or on this site. Descriptions and data from each resource are a good-faith summary compiled from each provider's own public materials, not the original agency content. This site is intended for education and initial research and should not be used as a primary source for research, planning, and/or implementation; always confirm details on the resource's own site and use in accordance with relevant agency, organizational, or official guidance. Data sources and licensing attributions are available directly from each tool.</p>
 
-<p>This site's code is licensed under the GNU General Public License v3.0, and its written content is licensed under Creative Commons Attribution-ShareAlike 4.0 — see the <a href="{{ '/licenses.html' | url }}">Licenses & sources</a> page for the full detail, including every third-party library and data source this project depends on.</p>
+<p>This site's code is licensed under the GNU General Public License v3.0, and its written content is licensed under Creative Commons Attribution-ShareAlike 4.0 — see the <a href="{{ '/about/licenses/' | url }}">Licenses & sources</a> page for the full detail, including every third-party library and data source this project depends on.</p>
 
 </div>
 </div>

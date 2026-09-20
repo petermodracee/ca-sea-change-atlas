@@ -151,7 +151,7 @@ function render(note){
 
   const corner = el("div", "cmp-head-corner");
   const back = el("a", "cmp-top", "Back to tool list");
-  back.href = "sources.html";
+  back.href = "../";
   corner.appendChild(back);
   if(selected.length === 2){
     const add = toolSelect("Add a third tool", "", "add", selected, "+ Add a third tool");
@@ -178,7 +178,7 @@ function render(note){
       cell.appendChild(org);
       const links = el("div", "cmp-head-links");
       const d = el("a", "linkbtn", "Details");
-      d.href = "tool/" + encodeURIComponent(t.id) + "/";
+      d.href = "../tool/" + encodeURIComponent(t.id) + "/";
       links.appendChild(d);
       if(selected.length > 2){
         const rm = el("button", "linkbtn", "Remove");
@@ -217,8 +217,8 @@ async function main(){
   const msg = document.getElementById("cmpMsg");
   try {
     const [tools, schema] = await Promise.all([
-      fetch("data/tools.json").then(r => r.json()),
-      fetch("data/toolDetailSchema.json").then(r => r.json())
+      fetch("../../data/tools.json").then(r => r.json()),
+      fetch("../../data/toolDetailSchema.json").then(r => r.json())
     ]);
     TOOLS = tools.tools;
     SCHEMA = schema;
