@@ -1,0 +1,60 @@
+[
+  {
+    "title": "General Information",
+    "rows": [
+      { "label": "URL", "field": "url", "kind": "link" },
+      { "label": "Fact sheet", "field": "factSheetUrl", "kind": "link" },
+      { "label": "Geographic scope within coastal California", "field": "scopeLabel" },
+      { "label": "Tool release year and updates", "field": "released" }
+    ]
+  },
+  {
+    "title": "Sea Level Rise and Flood Projections and Metrics",
+    "rows": [
+      { "label": "Increments of flooding from sea level rise or storm surge available to project", "field": "slrMetrics.increments" },
+      { "label": "Other flood-related layers and flood information available", "field": "slrMetrics.otherLayers" }
+    ]
+  },
+  {
+    "title": "Projected Flood Information",
+    "kind": "tag-table",
+    "tagField": "floodInfo",
+    "detailField": "floodInfoDetail"
+  },
+  {
+    "title": "Shoreline Processes",
+    "kind": "tag-table",
+    "tagField": "processes",
+    "detailField": "processesDetail"
+  },
+  {
+    "title": "Exposure Analysis Provided on Flooding Impacts to Assets",
+    "kind": "tag-table",
+    "tagField": "exposure",
+    "detailField": "exposureDetail"
+  },
+  {
+    "title": "Data, Reports, and Summary Information Available",
+    "rows": [
+      { "label": "Reports, summary info, or other analyses available for download", "field": "dataAvailability.reportsAvailable", "fallbackField": "reportsData" },
+      { "label": "What types of data are available to download?", "field": "dataAvailability.dataTypes" },
+      { "label": "Can data be uploaded by the user?", "field": "dataAvailability.uploadable" }
+    ]
+  },
+  {
+    "title": "General Information Regarding Sea Level Rise Model",
+    "rows": [
+      { "label": "Base sea level rise model", "field": "slrModelDetail.baseModel", "fallbackField": "slrModel" },
+      { "label": "Main elevation source", "field": "slrModelDetail.elevationSource" },
+      { "label": "Base sea level elevation", "field": "slrModelDetail.baseElevation" },
+      { "label": "Horizontal resolution", "field": "slrModelDetail.horizontalResolution" }
+    ]
+  },
+  {
+    "title": "Strengths and Limitations",
+    "rows": [
+      { "label": "Top 3 strengths", "field": "strengths", "kind": "list" },
+      { "label": "Top 3 limitations", "field": "limitations", "kind": "list" }
+    ]
+  }
+]

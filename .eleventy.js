@@ -2,6 +2,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.setTemplateFormats(["njk"]);
 
   eleventyConfig.addFilter("jsonify", (obj) => JSON.stringify(obj));
+  eleventyConfig.addFilter("toolSections", require("./js/tool-detail.js").toolSections);
 
   eleventyConfig.addPassthroughCopy("css");
   eleventyConfig.addPassthroughCopy("js");

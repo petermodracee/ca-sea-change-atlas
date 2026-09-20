@@ -151,7 +151,6 @@ function render(){
   });
 
   renderCompareBar();
-  renderComparisonTable();
 }
 
 function renderCompareBar(){
@@ -175,87 +174,7 @@ function renderCompareBar(){
     slot.appendChild(btn);
     slots.appendChild(slot);
   });
-  document.getElementById("scrollToCompare").onclick = () => {
-    document.getElementById("comparison").scrollIntoView({behavior:"smooth", block:"start"});
-  };
-}
-
-function listCell(items){
-  if(!items || !items.length) return "—";
-  const ul = document.createElement("ul");
-  items.forEach(i => {
-    const li = document.createElement("li");
-    li.textContent = i;
-    ul.appendChild(li);
-  });
-  return ul;
-}
-
-function renderComparisonTable(){
-  const wrap = document.getElementById("comparison");
-  const table = document.getElementById("cmpTable");
-  table.innerHTML = "";
-  if(state.compare.length < 2){ wrap.style.display = "none"; return; }
-  wrap.style.display = "block";
-
-  const tools = state.compare.map(id => TOOLS.find(t=>t.id===id));
-  const rows = [
-    ["Implemented in the map tool", t => t.implementationStatus === "implemented" ? "✓ Implemented" : t.mapEligibility === "excluded" ? "External tool only" : "Not implemented"],
-    ["Organization", t => t.org],
-    ["Geographic scope", t => t.scopeLabel],
-    ["Released", t => t.released],
-    ["Description", t => t.description],
-    ["Shoreline processes", t => listCell(t.processes)],
-    ["Exposure analysis", t => listCell(t.exposure)],
-    ["Projected flood info", t => listCell(t.floodInfo)],
-    ["Reports & data", t => t.reportsData],
-    ["Sea-level-rise model", t => t.slrModel],
-    ["Strengths", t => listCell(t.strengths)],
-    ["Limitations", t => listCell(t.limitations)],
-    ["Link", t => t.url]
-  ];
-
-  const thead = document.createElement("thead");
-  const trh = document.createElement("tr");
-  const th0 = document.createElement("th");
-  th0.className = "rowlabel-head";
-  trh.appendChild(th0);
-  tools.forEach(t => {
-    const th = document.createElement("th");
-    th.textContent = t.name;
-    trh.appendChild(th);
-  });
-  thead.appendChild(trh);
-  table.appendChild(thead);
-
-  const tbody = document.createElement("tbody");
-  rows.forEach(([label, fn]) => {
-    const tr = document.createElement("tr");
-    const tdLabel = document.createElement("td");
-    tdLabel.className = "rowlabel";
-    tdLabel.textContent = label;
-    tr.appendChild(tdLabel);
-    tools.forEach(t => {
-      const td = document.createElement("td");
-      if(label === "Link"){
-        if(t.url){
-          const a = document.createElement("a");
-          a.href = t.url; a.target = "_blank"; a.rel = "noopener";
-          a.textContent = "Open tool ↗";
-          td.appendChild(a);
-        } else {
-          td.textContent = "Link unverified";
-        }
-      } else {
-        const val = fn(t);
-        if(val instanceof Node) td.appendChild(val);
-        else td.textContent = val;
-      }
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  });
-  table.appendChild(tbody);
+  document.getElementById("compareLink").href = "compare.html?tools=" + state.compare.map(encodeURIComponent).join(",");
 }
 
 async function main(){

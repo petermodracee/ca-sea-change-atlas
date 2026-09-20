@@ -8,7 +8,7 @@ Live site: <https://petermodracee.github.io/ca-sea-change-atlas/>
 
 **Map** (`map.html`): a Leaflet map that overlays flood and hazard data from publicly accessible sources so you can flip between them for the same stretch of coast. Layers load live from each publisher's own server; nothing is copied into this repository. Click anywhere to see what each active layer reports at that point, search an address, and share a link to the exact view and layer selection.
 
-**Comparison tool** (`sources.html`): a filterable grid of sea-level-rise and coastal-flooding tools, with a compare-up-to-three table covering scope, processes, exposure, data, and limitations. Each tool also has its own page at `/tool/<id>/`. It includes tools that can't legally be drawn on the map.
+**Comparison tool** (`sources.html`): a filterable grid of sea-level-rise and coastal-flooding tools, with a side-by-side compare page (`compare.html`) for up to three tools covering scope, processes, exposure, data, and limitations. Each tool also has its own page at `/tool/<id>/`. It includes tools that can't legally be drawn on the map.
 
 ## Status
 

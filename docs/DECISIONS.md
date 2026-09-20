@@ -10,6 +10,15 @@ The map and the comparison grid answer different questions (what does this stret
 ### A build step, on purpose
 The site started as zero-build static HTML. Eleventy was adopted so each tool can have its own URL (`/tool/<id>/`) with real per-page title, description and Open Graph tags, and so header/footer aren't hand-duplicated. Deploys stay automatic (GitHub Actions), but local development needs Node.
 
+### Tool detail layout lives in a schema
+The tool page and the compare page show the same sections, so the layout is data (`data/toolDetailSchema.json`) rather than markup in each template. The optional detail fields were added to `tools.json` at the same time, so entries can be filled in gradually: anything a tool doesn't have is simply absent from its page. The resolver is one small module in `js/` (loaded by Eleventy and by the browser) rather than in a separate `lib/` directory, because `js/` is already copied to the site. `keyFeatures` stays out of the schema because it is a headline list on the tool page, not a row to compare.
+
+### Compare page: the URL is the state
+`compare.html?tools=<id>,<id>` holds the selection so a comparison can be bookmarked or shared, and it replaces the inline table that used to live on the tool list page. The tool pickers sit in the sticky column headings so a tool can be swapped from anywhere on a long page. A tool with nothing in a section shows "No data available" in its own column instead of the section vanishing, so the columns stay aligned; a section is dropped only when no selected tool has anything for it. The tool page makes the opposite choice for a single tool (empty sections disappear), because there is nothing to line up.
+
+### Screenshots: small, credited, and fair use
+Each tool page can show up to two screenshots so a reader gets a feel for a tool before clicking through. They are kept small (about 800px) because they are an at-a-glance aid, not a replacement for the tool, and each opens full size in a new tab. The project treats them as fair use (commentary, demonstration rather than a live copy, small, not a substitute), which is why comparison-only tools can have them too, and why each needs a credit, a capture date and, where stated, a copyright notice. They stay off the compare page to keep it a plain table, and they are not the page's social-preview image because a tool screenshot in a link preview would suggest the link goes to the tool rather than to this description.
+
 ## Data services
 
 ### CoSMoS is not an ArcGIS service

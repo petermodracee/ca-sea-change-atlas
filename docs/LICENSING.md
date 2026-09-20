@@ -49,6 +49,19 @@ To revisit either if the publisher posts license terms:
 - **Climate Central** (Coastal Risk Screening Tool, Surging Seas Risk Finder). Terms of Use (`climatecentral.org/what-we-do/legal`) state that bulk downloading is prohibited and that use of any automated system or software to extract data from the site for any purpose ("screen scraping") is prohibited. The flood-risk maps are separately flagged as not for reuse outside their own context.
 - **The Nature Conservancy** (Coastal Resilience Mapping Portal). Terms of Use (`coastalresilience.org/terms-of-use`) restrict reuse to personal, non-commercial single copies and prohibit mirroring content on any other server. TNC's own public ArcGIS REST server (`services2.coastalresilience.org`) carries "The Nature Conservancy reserves all rights in data provided" in its layer metadata, so even where a service is reachable it grants no reuse rights.
 
+## Screenshots
+
+Screenshots on tool pages are their own category, not data or code, and are not held to the open-license test above. The project's position is that they are fair use:
+
+- they accompany commentary (each tool's description);
+- they demonstrate what a tool looks like rather than reproduce it: a still image, not a live copy;
+- they are small, at-a-glance images (about 800px wide);
+- they are no substitute for the original tool, which every page links to.
+
+So every tool, comparison-only ones included, can have up to two. Each one must carry a credit, a capture date and, where the publisher states one, a copyright notice (`credit`, `capturedOn`, `copyright` in `data/tools.json`). Capture them by hand and store them in `img/tools/`; never hotlink an image from a publisher's server.
+
+The ban on fetching or embedding a comparison-only source's data is unchanged: it is about live data, and a hand-captured screenshot is neither. This is the project's policy, not legal advice. If a publisher objects to a screenshot, remove it.
+
 ## Context layers and the old "no exposure" scope
 
 The map originally scoped itself to sea-level-rise and flood-hazard tools and deliberately left out NOAA CFEM's "exposure" layers (who and what is exposed, as opposed to the hazard). It now includes a Geo / demographic info group of context layers. They come from the agency that publishes each dataset, not from CFEM's repackaging, so the licensing is the publisher's own (see the table above). What CFEM's exposure layers are sourced from, in case it matters again (per NOAA's published data-sources table, `coast.noaa.gov/data/digitalcoast/pdf/flood-exposure-data.pdf`):
