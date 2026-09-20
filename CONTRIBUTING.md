@@ -46,13 +46,13 @@ Notes:
 
 Before a new source or library is merged:
 
-- add it to [`_data/credits.json`](_data/credits.json) with its license and the attribution it requires (this feeds `/licenses.html`);
-- for a tool, add or update its entry in [`data/tools.json`](data/tools.json) (`mapEligibility: "excluded"` if it can't go on the map);
+- add it to [`site/_data/credits.json`](site/_data/credits.json) with its license and the attribution it requires (this feeds `/about/licenses/`);
+- for a tool, add or update its entry in [`site/data/tools.json`](site/data/tools.json) (`mapEligibility: "excluded"` if it can't go on the map);
 - record why a source was excluded, with the ToU clause or how you verified it, in [`docs/LICENSING.md`](docs/LICENSING.md).
 
 ## Documentation rules
 
-- Per-tool status lives in `data/tools.json`. Don't restate it, or counts of tools, in prose; link to it.
+- Per-tool status lives in `site/data/tools.json`. Don't restate it, or counts of tools, in prose; link to it.
 - Docs describe what the code does now. Verify names and paths, and remove text that no longer applies rather than annotating it.
 - Findings about a live service that weren't obvious go in [`docs/DECISIONS.md`](docs/DECISIONS.md), briefly.
 

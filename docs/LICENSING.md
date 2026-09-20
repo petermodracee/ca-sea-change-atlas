@@ -1,12 +1,12 @@
 # Licensing of data sources
 
-This is the reasoning behind what is and isn't drawn on the map. The visitor-facing list of licenses and attributions is `/licenses.html`, generated from [`_data/credits.json`](../_data/credits.json); keep that current first. This file records the evidence and the rules, so the decisions don't have to be re-researched.
+This is the reasoning behind what is and isn't drawn on the map. The visitor-facing list of licenses and attributions is `/about/licenses/`, generated from [`site/_data/credits.json`](../site/_data/credits.json); keep that current first. This file records the evidence and the rules, so the decisions don't have to be re-researched.
 
 The project's own licenses (GPLv3 code, CC BY-SA 4.0 content) are in [`LICENSE`](../LICENSE) and [`LICENSE-CONTENT.md`](../LICENSE-CONTENT.md). Contribution rules are in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
 ## The rule
 
-A source goes on the map only if it has a confirmed, documented path to reuse. Layers are always loaded live from the publisher's own server and never copied into this repository. A source that fails the test stays on the comparison page only ("external tool only"), and `data/tools.json` records `mapEligibility: "excluded"`; the reason is recorded here.
+A source goes on the map only if it has a confirmed, documented path to reuse. Layers are always loaded live from the publisher's own server and never copied into this repository. A source that fails the test stays on the comparison page only ("external tool only"), and `site/data/tools.json` records `mapEligibility: "excluded"`; the reason is recorded here.
 
 **Do not fetch, proxy, scrape or embed the data of a comparison-only source**, however technically reachable it is. That is a permissions problem, not a technical one.
 
@@ -58,7 +58,7 @@ Screenshots on tool pages are their own category, not data or code, and are not 
 - they are small, at-a-glance images (about 800px wide);
 - they are no substitute for the original tool, which every page links to.
 
-So every tool, comparison-only ones included, can have up to two. Each one must carry a credit, a capture date and, where the publisher states one, a copyright notice (`credit`, `capturedOn`, `copyright` in `data/tools.json`). Capture them by hand and store them in `img/tools/`; never hotlink an image from a publisher's server.
+So every tool, comparison-only ones included, can have up to two. Each one must carry a credit, a capture date and, where the publisher states one, a copyright notice (`credit`, `capturedOn`, `copyright` in `site/data/tools.json`). Capture them by hand and store them in `site/img/tools/`; never hotlink an image from a publisher's server.
 
 The ban on fetching or embedding a comparison-only source's data is unchanged: it is about live data, and a hand-captured screenshot is neither. This is the project's policy, not legal advice. If a publisher objects to a screenshot, remove it.
 
