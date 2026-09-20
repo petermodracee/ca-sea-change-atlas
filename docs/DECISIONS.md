@@ -16,6 +16,9 @@ The tool page and the compare page show the same sections, so the layout is data
 ### Compare page: the URL is the state
 `compare.html?tools=<id>,<id>` holds the selection so a comparison can be bookmarked or shared, and it replaces the inline table that used to live on the tool list page. The tool pickers sit in the sticky column headings so a tool can be swapped from anywhere on a long page. A tool with nothing in a section shows "No data available" in its own column instead of the section vanishing, so the columns stay aligned; a section is dropped only when no selected tool has anything for it. The tool page makes the opposite choice for a single tool (empty sections disappear), because there is nothing to line up.
 
+### Screenshots: small, credited, and fair use
+Each tool page can show up to two screenshots so a reader gets a feel for a tool before clicking through. They are kept small (about 800px) because they are an at-a-glance aid, not a replacement for the tool, and each opens full size in a new tab. The project treats them as fair use (commentary, demonstration rather than a live copy, small, not a substitute), which is why comparison-only tools can have them too, and why each needs a credit, a capture date and, where stated, a copyright notice. They stay off the compare page to keep it a plain table, and they are not the page's social-preview image because a tool screenshot in a link preview would suggest the link goes to the tool rather than to this description.
+
 ## Data services
 
 ### CoSMoS is not an ArcGIS service

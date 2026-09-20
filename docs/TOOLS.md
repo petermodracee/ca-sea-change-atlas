@@ -25,6 +25,7 @@ Top level: `_meta` (source, compile date, disclaimer) and `tools` (array). Each 
 | `processesDetail`, `exposureDetail`, `floodInfoDetail` | Optional. Objects mapping a tag to free-text elaboration, e.g. `"processesDetail": { "SLR inundation": "..." }`. Keys must be values that appear in the same tool's `processes`, `exposure` or `floodInfo` array respectively. |
 | `dataAvailability` | Optional. `{ reportsAvailable?, dataTypes?, uploadable? }`, all free text. `reportsAvailable` takes precedence over `reportsData` where both exist. |
 | `slrModelDetail` | Optional. `{ baseModel?, elevationSource?, baseElevation?, horizontalResolution? }`, all free text. `baseModel` takes precedence over `slrModel` where both exist. |
+| `screenshots` | Optional. Up to two `{ src, alt, caption, credit, capturedOn, copyright? }` objects. `src` starts with `/img/` (files live in `img/tools/`); `alt`, `caption`, `credit` and `capturedOn` (`YYYY-MM-DD`) are required, `copyright` is optional. Shown on the tool page only, not part of `toolDetailSchema`. The build fails on a malformed entry (`_data/tools.js`). See [Screenshots](#screenshots). |
 
 Every field from `keyFeatures` down is optional and safe to omit; renderers must treat a missing field, key or sub-key as "no information" rather than an error. Existing entries do not have to be backfilled.
 
@@ -63,12 +64,23 @@ Status is per *tool*, not per panel group. A tool can be implemented inside anot
 Each `/tool/<id>/` page is laid out in two columns under a sticky header.
 
 - **Sticky header:** status tag, name, organization and release note, and the "Visit" link. It stays pinned while you scroll; a small inline script measures its height into `--tool-sticky-h` so the contents box and in-page anchors sit just below it. Under 800px it stops being sticky.
-- **Content column:** the description, then a "Key features" card (when `keyFeatures` is present), then one card per `toolDetailSchema` section, in schema order. All sections are shown open; there are no collapsibles.
-- **"On this page" box:** a sticky list of anchors to Key features and each section that is shown.
+- **Content column:** the description, then a "Key features" card (when `keyFeatures` is present), then a "Screenshots" card (when `screenshots` is present), then one card per `toolDetailSchema` section, in schema order. All sections are shown open; there are no collapsibles.
+- **"On this page" box:** a sticky list of anchors to Key features, Screenshots and each section that is shown.
 - **Empty data:** anything with nothing to show is left out, not rendered as an empty shell. A row is omitted when its field (and `fallbackField`) is empty, a section is omitted when it has no rows, and a tag-table section is omitted when the tool has no tags in that field. A `null` `url` shows "Link unverified" on the row; other empty links are omitted.
 - **Tag tables:** every distinct tag across all tools is listed with Yes or No, and the `*Detail` text next to Yes.
 
 The resolving logic is `js/tool-detail.js`, exposed to the template as the `toolSections` filter; `tool.njk` only loops over what it returns.
+
+### Screenshots
+
+Up to two small, at-a-glance images per tool, with a caption. They sit side by side (stacked on narrow screens); each opens the same image at full size in a new tab, and the tool page's "Visit" link is where a reader goes for the real thing. Under each image a line reads "Screenshot: <credit> · <copyright> · captured <date>".
+
+- **Size:** aim for about 800px wide, WebP or PNG, roughly 100 KB. They are shown at about half that width, so 800px is already sharp on high-density screens. Keep them in `img/tools/`, named `<tool-id>-1.webp` and `-2.webp`.
+- **Text:** `alt` describes what the screenshot shows, `caption` says what to look at, `credit` names the publisher, `copyright` is the publisher's notice where one is stated, and `capturedOn` is the day you took it.
+- **Not on the compare page**, and not used as the page's social-preview image (a tool screenshot as a link preview would read as a link to the tool itself, not to this description).
+- **Licensing:** screenshots follow their own rule; see [`LICENSING.md`](LICENSING.md#screenshots).
+
+The `todo-screenshot-*.svg` files in `img/tools/` are placeholders used by the three placeholder entries.
 
 ## Compare page (`compare.njk` + `js/compare.js`)
 
@@ -84,5 +96,5 @@ The resolving logic is `js/tool-detail.js`, exposed to the template as the `tool
 2. Add the entry to `tools.json`. Reuse existing `processes`/`exposure`/`floodInfo` tag values where they fit. If it can never be mapped, set `mapEligibility: "excluded"` and record why in [`LICENSING.md`](LICENSING.md).
 3. If it is a map layer, follow [Adding a layer](MAP.md#adding-a-layer) and set `implementationStatus: "implemented"`.
 4. Add a `_data/credits.json` entry if the map loads its data. Comparison-only tools use no data, so they get no credits entry.
-5. Optionally fill the detail fields (`keyFeatures`, `slrMetrics`, the `*Detail` maps and so on) so the tool page and compare page have more to show. Omitted fields just don't appear.
+5. Add one or two [screenshots](#screenshots) (every tool can have them, including comparison-only ones), and optionally fill the other detail fields (`keyFeatures`, `slrMetrics`, the `*Detail` maps and so on) so the tool page and compare page have more to show. Omitted fields just don't appear.
 6. `npm run build` and check the new `/tool/<id>/` page and try it in `compare.html`.

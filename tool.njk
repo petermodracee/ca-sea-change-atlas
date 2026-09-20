@@ -49,7 +49,7 @@ eleventyComputed:
 <div class="tool-detail-layout">
 <nav class="tool-detail-toc" aria-label="On this page">
 <h2>On this page</h2>
-<ul>{% if tool.keyFeatures and tool.keyFeatures.length %}<li><a href="#key-features">Key features</a></li>{% endif %}{% for section in sections %}<li><a href="#{{ section.id }}">{{ section.title }}</a></li>{% endfor %}</ul>
+<ul>{% if tool.keyFeatures and tool.keyFeatures.length %}<li><a href="#key-features">Key features</a></li>{% endif %}{% if tool.screenshots and tool.screenshots.length %}<li><a href="#screenshots">Screenshots</a></li>{% endif %}{% for section in sections %}<li><a href="#{{ section.id }}">{{ section.title }}</a></li>{% endfor %}</ul>
 </nav>
 <div class="tool-detail-grid">
 <p class="tool-detail-lede">{{ tool.description }}</p>
@@ -57,6 +57,19 @@ eleventyComputed:
 <section class="tool-detail-section" id="key-features">
 <h2>Key features</h2>
 <ul class="tool-key-features">{% for f in tool.keyFeatures %}<li>{{ f }}</li>{% endfor %}</ul>
+</section>
+{%- endif %}
+{%- if tool.screenshots and tool.screenshots.length %}
+<section class="tool-detail-section" id="screenshots">
+<h2>Screenshots</h2>
+<div class="tool-screenshots">
+{%- for shot in tool.screenshots %}
+<figure>
+<a href="{{ shot.src | url }}" target="_blank" rel="noopener" title="Open full-size image"><img src="{{ shot.src | url }}" alt="{{ shot.alt }}" loading="lazy" decoding="async"></a>
+<figcaption>{{ shot.caption }}<span class="tool-screenshot-credit">Screenshot: {{ shot.credit }}{% if shot.copyright %} · {{ shot.copyright }}{% endif %} · captured {{ shot.capturedOn }}</span></figcaption>
+</figure>
+{%- endfor %}
+</div>
 </section>
 {%- endif %}
 {%- for section in sections %}

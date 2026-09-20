@@ -85,7 +85,25 @@
         "elevationSource": "TODO: elevation source",
         "baseElevation": "TODO: base elevation",
         "horizontalResolution": "TODO: horizontal resolution"
-      }
+      },
+      "screenshots": [
+        {
+          "src": "/img/tools/todo-screenshot-1.svg",
+          "alt": "TODO: alt text describing screenshot 1",
+          "caption": "TODO: caption for screenshot 1",
+          "credit": "TODO: publisher name",
+          "copyright": "TODO: © year publisher",
+          "capturedOn": "2026-09-20"
+        },
+        {
+          "src": "/img/tools/todo-screenshot-2.svg",
+          "alt": "TODO: alt text describing screenshot 2",
+          "caption": "TODO: caption for screenshot 2",
+          "credit": "TODO: publisher name",
+          "copyright": "TODO: © year publisher",
+          "capturedOn": "2026-09-20"
+        }
+      ]
     },
     {
       "id": "cal-adapt-slr",
@@ -138,7 +156,17 @@
         "elevationSource": "TODO: elevation source",
         "baseElevation": "TODO: base elevation",
         "horizontalResolution": "TODO: horizontal resolution"
-      }
+      },
+      "screenshots": [
+        {
+          "src": "/img/tools/todo-screenshot-1.svg",
+          "alt": "TODO: alt text describing screenshot 1",
+          "caption": "TODO: caption for screenshot 1",
+          "credit": "TODO: publisher name",
+          "copyright": "TODO: © year publisher",
+          "capturedOn": "2026-09-20"
+        }
+      ]
     },
     {
       "id": "cc-screening",
@@ -222,7 +250,25 @@
         "elevationSource": "TODO: elevation source",
         "baseElevation": "TODO: base elevation",
         "horizontalResolution": "TODO: horizontal resolution"
-      }
+      },
+      "screenshots": [
+        {
+          "src": "/img/tools/todo-screenshot-1.svg",
+          "alt": "TODO: alt text describing screenshot 1",
+          "caption": "TODO: caption for screenshot 1",
+          "credit": "TODO: publisher name",
+          "copyright": "TODO: © year publisher",
+          "capturedOn": "2026-09-20"
+        },
+        {
+          "src": "/img/tools/todo-screenshot-2.svg",
+          "alt": "TODO: alt text describing screenshot 2",
+          "caption": "TODO: caption for screenshot 2",
+          "credit": "TODO: publisher name",
+          "copyright": "TODO: © year publisher",
+          "capturedOn": "2026-09-20"
+        }
+      ]
     },
     {
       "id": "nfwf-crest",

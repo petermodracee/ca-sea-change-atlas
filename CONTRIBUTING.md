@@ -39,6 +39,7 @@ Notes:
 
 - **Live-loaded data** (the map's layers) isn't stored or redistributed by this project, but it still needs a license or terms that permit this use, and its attribution is shown to visitors.
 - **Share-alike sources** (CC BY-SA, ODbL): fine to display live. If a dataset itself is ever copied into this repository, that copy must stay under the same license.
+- **Screenshots** of a tool are a separate category: the project treats small, credited, dated screenshots on tool pages as fair use, so they don't need an open license. The rules are in [`docs/LICENSING.md`](docs/LICENSING.md#screenshots).
 - **Not sure?** Open an issue before writing code. A source that fails the test can still be listed on the comparison page as an external tool; see [`docs/LICENSING.md`](docs/LICENSING.md) for how past sources were judged.
 
 ### Record it

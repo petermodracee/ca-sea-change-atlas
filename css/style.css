@@ -500,6 +500,12 @@ legend{
 .tool-detail-head h1{font-size:clamp(24px,3.6vw,34px);margin:10px 0 4px;}
 .tool-detail-head .org{font-size:13px;color:var(--teal-text);font-weight:600;margin-bottom:10px;}
 .tool-detail-lede{font-size:15.5px;color:var(--ink-soft);max-width:70ch;margin:0;}
+.tool-screenshots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}
+.tool-screenshots figure{margin:0;}
+.tool-screenshots img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:6px;}
+.tool-screenshots figcaption{margin-top:8px;font-size:13px;color:var(--ink-soft);}
+.tool-screenshot-credit{display:block;margin-top:2px;font-size:11.5px;}
+@media (max-width:600px){.tool-screenshots{grid-template-columns:1fr;}}
 .tool-key-features{font-size:13.8px;color:var(--ink-soft);}
 .tool-detail-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px;align-items:start;}
 .tool-detail-toc{

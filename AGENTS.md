@@ -33,7 +33,7 @@ npm run build   # one-off build into _site/ (gitignored); must pass before a PR
 - **`data/tools.json` is the single source of truth for per-tool status** (`implementationStatus`, `mapEligibility`). Never restate status or tool counts in prose or other data; link or derive in a template.
 - **`data/toolDetailSchema.json` is the single source of truth for the tool page's and compare page's section/row layout.** Add or reorder sections there, not in `tool.njk` or `compare.js`.
 - **Never overlay a comparison-only source's data.** No fetching, proxying or embedding of a tool marked `mapEligibility: "excluded"`. See `docs/LICENSING.md`.
-- Every source or library needs an entry in `_data/credits.json`, and only openly licensed material is added (`CONTRIBUTING.md`).
+- Every source or library needs an entry in `_data/credits.json`, and only openly licensed material is added (`CONTRIBUTING.md`). The exception is small, credited, dated tool screenshots (`docs/LICENSING.md#screenshots`).
 - Map data is loaded live from publishers' servers, never copied into the repo.
 - Map layers use `groupPane(map, key)` from `js/map/shared/panes.js`; new keys go in `GROUP_PANE_KEYS`.
 - Third-party scripts are pinned to a version with an SRI hash.
