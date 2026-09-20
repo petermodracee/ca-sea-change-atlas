@@ -54,7 +54,7 @@ Status is per *tool*, not per panel group. A tool can be implemented inside anot
 
 - **Filters:** three checkbox groups built from the distinct values in `processes`, `exposure` and `floodInfo`. Within and across groups a tool must have *every* selected value (AND). There is no location filter and no scope filter.
 - **Cards:** name, org, description, a status tag (implemented / external tool only / not implemented), scope and first two process tags, release note, a "Details" link to `/tool/<id>/`, an "Open tool" link (or "Link unverified"), and a compare toggle.
-- **Compare:** up to three tools. The bar shows selections; the table appears once two or more are selected and covers status, organization, scope, release, description, processes, exposure, flood info, data, SLR model, strengths, limitations and link.
+- **Compare:** up to three tools. The bar shows selections, and its "View comparison" link opens `compare.html?tools=<id>,<id>[,<id>]` (see below). There is no inline comparison table any more.
 - `render()` is a full re-render on every state change. That is fine at this data size.
 - The `Details` link and the `tools.json` footer link in `sources.njk` hardcode the `/ca-sea-change-atlas/` path prefix, so a prefix change needs edits in `js/sources.js` and `sources.njk` as well as `.eleventy.js`.
 

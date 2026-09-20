@@ -13,7 +13,7 @@ This file covers the site as a whole. The two applications inside it have their 
 |---|---|---|
 | `/` | `index.njk` | Landing page: explains the two tools and links to each |
 | `/map.html` | `map.njk`, `js/map/` | The map |
-| `/sources.html` | `sources.njk`, `js/sources.js` | Filterable tool grid and compare table |
+| `/sources.html` | `sources.njk`, `js/sources.js` | Filterable tool grid and compare picker |
 | `/compare.html` | `compare.njk`, `js/compare.js`, `js/tool-detail.js` | Side-by-side comparison of two or three tools (`?tools=` ids), rendered in the browser |
 | `/tool/<id>/` | `tool.njk` | One generated page per entry in `data/tools.json` |
 | `/about.html` | `about.njk` | Project history, sources, author, disclaimers |
