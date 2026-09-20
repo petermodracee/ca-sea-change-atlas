@@ -5,7 +5,7 @@ A static site built with [Eleventy](https://www.11ty.dev/) (v3) and deployed to 
 This file covers the site as a whole. The two applications inside it have their own docs:
 
 - [`MAP.md`](MAP.md): the map page (`js/map/`)
-- [`TOOLS.md`](TOOLS.md): the tool dataset, comparison page and per-tool pages
+- [`TOOLS.md`](TOOLS.md): the tool dataset, the tool list, the compare page and per-tool pages
 
 ## Pages
 
@@ -15,14 +15,14 @@ This file covers the site as a whole. The two applications inside it have their 
 | `/map.html` | `map.njk`, `js/map/` | The map |
 | `/sources.html` | `sources.njk`, `js/sources.js` | Filterable tool grid and compare picker |
 | `/compare.html` | `compare.njk`, `js/compare.js`, `js/tool-detail.js` | Side-by-side comparison of two or three tools (`?tools=` ids), rendered in the browser |
-| `/tool/<id>/` | `tool.njk` | One generated page per entry in `data/tools.json` |
+| `/tool/<id>/` | `tool.njk`, `data/toolDetailSchema.json` | One generated page per entry in `data/tools.json`; its sections come from the detail schema |
 | `/about.html` | `about.njk` | Project history, sources, author, disclaimers |
 | `/licenses.html` | `licenses.njk`, `_data/credits.json`, `_data/licenseTypes.json` | Licenses and credits |
 | `/sitemap.xml` | `sitemap.njk` | Generated from every page Eleventy knows about |
 
 ## Build and deploy
 
-- `.eleventy.js`: only `.njk` files are templates. `css/`, `js/`, `data/`, `img/`, `reference/`, `LICENSE`, `LICENSE-CONTENT.md` and `robots.txt` are passthrough-copied. `pathPrefix` is `/ca-sea-change-atlas/`; use the `url` filter for every internal link so it works under that prefix (front-matter values can't use filters, so `footerAttribution` hardcodes it).
+- `.eleventy.js`: only `.njk` files are templates. It registers the `toolSections` filter (from `js/tool-detail.js`) used by `tool.njk`. `css/`, `js/`, `data/`, `img/`, `reference/`, `LICENSE`, `LICENSE-CONTENT.md` and `robots.txt` are passthrough-copied. `pathPrefix` is `/ca-sea-change-atlas/`; use the `url` filter for every internal link so it works under that prefix (front-matter values can't use filters, so `footerAttribution` hardcodes it).
 - `.github/workflows/deploy.yml`: on push to `main` (or manually), Node 20, `npm ci`, `npx eleventy`, then upload `_site/` to GitHub Pages. The repo's Pages source is "GitHub Actions".
 - `.claude/launch.json`: defines the `eleventy-dev` preview server on port 8080.
 - Local dev: see the [README](../README.md#run-it-locally).
@@ -55,6 +55,8 @@ Third-party scripts come from unpkg at pinned versions with Subresource Integrit
 | File | Used by | Notes |
 |---|---|---|
 | `data/tools.json` | `_data/tools.js` (build time, feeds `tool.njk`) and `js/sources.js` and `js/compare.js` (browser fetch) | The tool dataset and the **single source of truth for per-tool status**. See [`TOOLS.md`](TOOLS.md). |
+| `data/toolDetailSchema.json` | `_data/toolDetailSchema.js` (build time, feeds `tool.njk`) and `js/compare.js` (browser fetch) | Section and row layout for a tool's detail view, shared by the tool page and the compare page. See [`TOOLS.md`](TOOLS.md#detail-layout-tooldetailschema). |
+| `_data/toolTagMasters.js` | `tool.njk` | Distinct tag values per tag-table field across all tools, computed once at build time from `js/tool-detail.js`. |
 | `_data/credits.json` | `licenses.njk` | Every third-party library, dataset and service credited on `/licenses.html`, alphabetical within each category. A credit line (`attribution`) is present only where the license requires one. |
 | `_data/licenseTypes.json` | `licenses.njk` | License names and links to their texts, referenced by key from `credits.json`. Rationale for what is used: [`LICENSING.md`](LICENSING.md). |
 | `_data/site.js` | `base.njk`, `index.njk` | Deployed site URL and name for canonical and Open Graph tags |

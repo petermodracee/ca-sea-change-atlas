@@ -1,4 +1,4 @@
-# Tool dataset and comparison page
+# Tool dataset, tool list, tool pages and compare page
 
 The comparison side of the site is driven by one file, `data/tools.json`. It is a good-faith summary of each tool compiled from the provider's own public materials, not the original agency content (see its `_meta`).
 
@@ -16,10 +16,10 @@ Top level: `_meta` (source, compile date, disclaimer) and `tools` (array). Each 
 | `released` | Free-text release/update note. |
 | `url` | Public link, or `null` if no stable link could be confirmed (shown as "Link unverified"). |
 | `description` | Plain-English summary. |
-| `processes`, `exposure`, `floodInfo` | Arrays of tags. These are the three filter groups on the comparison page, so keep spellings consistent with existing values. |
+| `processes`, `exposure`, `floodInfo` | Arrays of tags. These are the three filter groups on the tool list page, so keep spellings consistent with existing values. |
 | `reportsData`, `slrModel` | Free-text: what data/reports it offers and what SLR model it uses. |
 | `strengths`, `limitations` | Arrays of short statements. |
-| `keyFeatures` | Optional. Array of short bullet strings. Shown as a list under the description in the tool page header (not part of `toolDetailSchema`). |
+| `keyFeatures` | Optional. Array of short bullet strings. Shown as a "Key features" card above the schema sections on the tool page, with its own link in the contents box (not part of `toolDetailSchema`, so the compare page doesn't show it). |
 | `factSheetUrl` | Optional. Link to a fact sheet, or `null`. |
 | `slrMetrics` | Optional. `{ increments?, otherLayers? }`: free text on the flooding increments the tool can project, and other flood layers it offers. |
 | `processesDetail`, `exposureDetail`, `floodInfoDetail` | Optional. Objects mapping a tag to free-text elaboration, e.g. `"processesDetail": { "SLR inundation": "..." }`. Keys must be values that appear in the same tool's `processes`, `exposure` or `floodInfo` array respectively. |
@@ -41,16 +41,16 @@ Add or reorder sections in the schema, not in templates.
 
 ### Status is defined here and only here
 
-`implementationStatus` and `mapEligibility` are the single source of truth for what is on the map. The comparison cards, the compare table and each tool page all read them. Don't restate status, or counts of tools, in prose or in another data file; link here or derive it in a template.
+`implementationStatus` and `mapEligibility` are the single source of truth for what is on the map. The tool list cards, the compare page's column headings and each tool page all read them. Don't restate status, or counts of tools, in prose or in another data file; link here or derive it in a template.
 
 Status is per *tool*, not per panel group. A tool can be implemented inside another tool's panel group (for example the NHC storm-surge overlay lives in the CFEM group), and some map layers are context data with no tool entry (the geo / demographic group). See [`MAP.md`](MAP.md#layer-groups).
 
 ## How it is consumed
 
-- **Build time:** `_data/tools.js` re-exports `data/tools.json`'s `tools` array as Eleventy global data (`tools`). `tool.njk` paginates over it (size 1, `permalink: tool/{{ tool.id }}/index.html`, `addAllPagesToCollections` so each page lands in the sitemap) and emits per-tool `<title>`, meta description, Open Graph tags and `schema.org` Dataset JSON-LD.
+- **Build time:** `_data/tools.js` re-exports `data/tools.json`'s `tools` array as Eleventy global data (`tools`); `_data/toolDetailSchema.js` and `_data/toolTagMasters.js` add the detail schema and the master tag lists. `tool.njk` paginates over it (size 1, `permalink: tool/{{ tool.id }}/index.html`, `addAllPagesToCollections` so each page lands in the sitemap) and emits per-tool `<title>`, meta description, Open Graph tags and `schema.org` Dataset JSON-LD.
 - **Browser:** `js/sources.js` fetches `data/tools.json` (a relative path, which is why `data/` is passthrough-copied) and renders everything on `sources.html`. `js/compare.js` fetches `data/tools.json` and `data/toolDetailSchema.json` and renders `compare.html`.
 
-## Comparison page (`sources.njk` + `js/sources.js`)
+## Tool list page (`sources.njk` + `js/sources.js`)
 
 - **Filters:** three checkbox groups built from the distinct values in `processes`, `exposure` and `floodInfo`. Within and across groups a tool must have *every* selected value (AND). There is no location filter and no scope filter.
 - **Cards:** name, org, description, a status tag (implemented / external tool only / not implemented), scope and first two process tags, release note, a "Details" link to `/tool/<id>/`, an "Open tool" link (or "Link unverified"), and a compare toggle.
@@ -58,9 +58,21 @@ Status is per *tool*, not per panel group. A tool can be implemented inside anot
 - `render()` is a full re-render on every state change. That is fine at this data size.
 - The `Details` link and the `tools.json` footer link in `sources.njk` hardcode the `/ca-sea-change-atlas/` path prefix, so a prefix change needs edits in `js/sources.js` and `sources.njk` as well as `.eleventy.js`.
 
+## Tool page (`tool.njk`)
+
+Each `/tool/<id>/` page is laid out in two columns under a sticky header.
+
+- **Sticky header:** status tag, name, organization and release note, and the "Visit" link. It stays pinned while you scroll; a small inline script measures its height into `--tool-sticky-h` so the contents box and in-page anchors sit just below it. Under 800px it stops being sticky.
+- **Content column:** the description, then a "Key features" card (when `keyFeatures` is present), then one card per `toolDetailSchema` section, in schema order. All sections are shown open; there are no collapsibles.
+- **"On this page" box:** a sticky list of anchors to Key features and each section that is shown.
+- **Empty data:** anything with nothing to show is left out, not rendered as an empty shell. A row is omitted when its field (and `fallbackField`) is empty, a section is omitted when it has no rows, and a tag-table section is omitted when the tool has no tags in that field. A `null` `url` shows "Link unverified" on the row; other empty links are omitted.
+- **Tag tables:** every distinct tag across all tools is listed with Yes or No, and the `*Detail` text next to Yes.
+
+The resolving logic is `js/tool-detail.js`, exposed to the template as the `toolSections` filter; `tool.njk` only loops over what it returns.
+
 ## Compare page (`compare.njk` + `js/compare.js`)
 
-`/compare.html?tools=<id>,<id>[,<id>]` compares two or three tools side by side. Ids come from the query string (unknown ids are reported and ignored, at most three are used), and the column headings hold the pickers: each is a dropdown that swaps that tool, the top-left cell has "Back to tool list" (to `sources.html`) plus an "Add a third tool" dropdown, and a third tool has a Remove link. Every change keeps the address in sync with `history.replaceState`, so any comparison can be bookmarked or shared. With fewer than two valid tools it shows two empty pickers and a prompt instead of a table.
+`/compare.html?tools=<id>,<id>[,<id>]` compares two or three tools side by side. Ids come from the query string (unknown ids are reported and ignored, at most three are used), and the column headings hold the pickers: each is a dropdown that swaps that tool, the top-left cell has "Back to tool list" (to `sources.html`) plus an "Add a third tool" dropdown, and a third tool has a Remove link. Every change keeps the address in sync with `history.replaceState`, so any comparison can be bookmarked or shared. With fewer than two valid tools it shows two empty pickers and a prompt instead of a table. Re-rendering preserves the scroll position and refocuses the picker you changed. Links and fetches use relative paths (`tool/<id>/`, `sources.html`, `data/…`), which work because `compare.html` sits at the site root, so it needs no hardcoded path prefix.
 
 - **Layout:** a sticky header row with each tool's status, name dropdown, organization and a Details link to its page, then one collapsible section per `toolDetailSchema` entry, each a table with the row label plus one value column per tool.
 - **Missing data:** if a tool has nothing in a section, its column shows "No data available" (one spanning cell, so columns stay aligned). A section is omitted only when no selected tool has anything for it. Within a section, a row is dropped only when no selected tool has a value, and an empty cell in a partly filled row shows a dash.
@@ -72,4 +84,5 @@ Status is per *tool*, not per panel group. A tool can be implemented inside anot
 2. Add the entry to `tools.json`. Reuse existing `processes`/`exposure`/`floodInfo` tag values where they fit. If it can never be mapped, set `mapEligibility: "excluded"` and record why in [`LICENSING.md`](LICENSING.md).
 3. If it is a map layer, follow [Adding a layer](MAP.md#adding-a-layer) and set `implementationStatus: "implemented"`.
 4. Add a `_data/credits.json` entry if the map loads its data. Comparison-only tools use no data, so they get no credits entry.
-5. `npm run build` and check the new `/tool/<id>/` page and the compare table.
+5. Optionally fill the detail fields (`keyFeatures`, `slrMetrics`, the `*Detail` maps and so on) so the tool page and compare page have more to show. Omitted fields just don't appear.
+6. `npm run build` and check the new `/tool/<id>/` page and try it in `compare.html`.

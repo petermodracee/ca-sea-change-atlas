@@ -22,7 +22,8 @@ npm run build   # one-off build into _site/ (gitignored); must pass before a PR
 | The map (modules, layer table, popups, permalink) | `js/map/`, `map.njk`; [`docs/MAP.md`](docs/MAP.md) |
 | One map layer | `js/map/layers/<source>-layer.js` |
 | The tool dataset (and per-tool status) | `data/tools.json`; [`docs/TOOLS.md`](docs/TOOLS.md) |
-| Comparison page logic | `js/sources.js`, `sources.njk`, `tool.njk`; side-by-side: `compare.njk`, `js/compare.js`, `js/tool-detail.js`, `data/toolDetailSchema.json` |
+| Tool list page | `sources.njk`, `js/sources.js` |
+| Tool page and compare page | `tool.njk`; `compare.njk`, `js/compare.js`; layout in `data/toolDetailSchema.json`, resolved by `js/tool-detail.js` |
 | Licenses and credits page | `licenses.njk` fed by `_data/credits.json`; [`docs/LICENSING.md`](docs/LICENSING.md) |
 | Why something is the way it is | [`docs/DECISIONS.md`](docs/DECISIONS.md) |
 | How to contribute, license rules | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
@@ -30,6 +31,7 @@ npm run build   # one-off build into _site/ (gitignored); must pass before a PR
 ## Invariants
 
 - **`data/tools.json` is the single source of truth for per-tool status** (`implementationStatus`, `mapEligibility`). Never restate status or tool counts in prose or other data; link or derive in a template.
+- **`data/toolDetailSchema.json` is the single source of truth for the tool page's and compare page's section/row layout.** Add or reorder sections there, not in `tool.njk` or `compare.js`.
 - **Never overlay a comparison-only source's data.** No fetching, proxying or embedding of a tool marked `mapEligibility: "excluded"`. See `docs/LICENSING.md`.
 - Every source or library needs an entry in `_data/credits.json`, and only openly licensed material is added (`CONTRIBUTING.md`).
 - Map data is loaded live from publishers' servers, never copied into the repo.
