@@ -48,7 +48,7 @@ Third-party scripts come from unpkg at pinned versions with Subresource Integrit
 
 ### Table of contents component
 
-`_includes/toc.njk` plus `js/toc.js` give a page a sticky left-hand table of contents (a top block on narrow screens). To use it: wrap the page body in `<div class="wrap page-toc">`, `{% include "toc.njk" %}`, put the content in a container with `data-toc-source`, and add `/js/toc.js` to `extraScripts`. The script lists the container's `<h2>` headings, adds slug ids to any that lack one, and highlights the section in view. `licenses.njk` is the reference example; it needs no changes to the page's prose, so it can be adopted by `about.njk` the same way.
+`_includes/toc.njk` plus `js/toc.js` give a page a sticky left-hand table of contents (a top block on narrow screens). To use it: wrap the page body in `<div class="wrap page-toc">`, `{% include "toc.njk" %}`, put the content in a container with `data-toc-source`, and add `/js/toc.js` to `extraScripts`. The script lists the container's `<h2>` headings, adds slug ids to any that lack one, and highlights the section in view. `licenses.njk` is the reference example, and `about.njk` uses it too; adopting it needed no changes to a page's prose.
 
 ## Data
 

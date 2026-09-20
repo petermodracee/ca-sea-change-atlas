@@ -4,6 +4,8 @@ permalink: "about.html"
 title: About — CA Sea Change Atlas
 description: The history behind CA Sea Change Atlas — why it exists, what "Sea the Future" was, and who this project is and isn't affiliated with.
 nav: about
+extraScripts:
+  - /js/toc.js
 ---
 <div class="hero">
 <svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
@@ -19,7 +21,9 @@ nav: about
 </div>
 
 <div class="main">
-<div class="wrap about-body">
+<div class="wrap page-toc">
+{% include "toc.njk" %}
+<div class="about-body" data-toc-source>
 
 <h2>Project Status</h2>
 <p>This tool is currently in its infancy and it may be buggy or incorrect while I update the information. It is under active development as of September 2026. You can view the progress on <a href="https://github.com/petermodracee/ca-sea-change-atlas" target="_blank" rel="noopener">GitHub</a>.</p>
@@ -55,5 +59,6 @@ nav: about
 
 <p>This site's code is licensed under the GNU General Public License v3.0, and its written content is licensed under Creative Commons Attribution-ShareAlike 4.0 — see the <a href="{{ '/licenses.html' | url }}">Licenses & sources</a> page for the full detail, including every third-party library and data source this project depends on.</p>
 
+</div>
 </div>
 </div>
