@@ -25,6 +25,9 @@ Adding a third tool (County Profiles, rebuilding NOAA's discontinued Coastal Cou
 ### `/data/`'s passthrough copy is a JSON glob, not the whole directory
 `site/data/index.njk` lives in the same folder as the JSON files it lists. A whole-directory `addPassthroughCopy({"site/data": "data"})` copies every file byte-for-byte regardless of extension, independent of Eleventy's own template rendering — confirmed by a probe `.njk` file landing in the output both raw (`.njk`) and rendered (`.html`). So the data directory is passed through with a `**/*.json` glob instead, which also means non-JSON files placed there (like `site/data/county-profiles/README.md`, a repo-facing scaffold note) are never served, which is the correct behavior for that file anyway.
 
+### `LICENSE-CONTENT.md` isn't served
+It used to be passthrough-copied and linked from the licenses page as CC BY-SA 4.0's "full text," but it never contained the full text — it's a 43-line summary that itself links out to creativecommons.org for the real legal text. The licenses page now links straight to that legal text instead. `LICENSE-CONTENT.md` stays in the repo unpassed-through, since it's a GitHub-browsing convenience (GitHub auto-detects `LICENSE` for the code license; this is the equivalent declaration for the separately-licensed written content, for anyone reading the repo rather than the live site).
+
 ## Data services
 
 ### CoSMoS is not an ArcGIS service
