@@ -22,7 +22,7 @@ nav: home
 </svg>
 <div class="wrap">
 <div class="hero-title">
-<img src="{{ '/img/casca-logo.svg' | url }}" alt="" width="84" height="84">
+<span class="hero-logo" id="heroLogo"><img src="{{ '/img/casca-logo.svg' | url }}" alt=""></span>
 <h1>California Sea Change Atlas</h1>
 </div>
 <p class="lede">The CA Sea Change Atlas (CASCA) is two tools for making sense of California's sea-level-rise and coastal-flooding visualisation tools: a side-by-side map collating publicly accessible data, and a side-by-side comparison of select tools.</p>
@@ -50,3 +50,16 @@ nav: home
 
 </div>
 </div>
+
+<script>
+// Size the logo to the home page heading's height so it matches the title text at any width.
+(function () {
+  var h1 = document.querySelector(".hero-title h1");
+  var box = document.querySelector(".hero-title");
+  if (!h1 || !box) return;
+  function sync() { box.style.setProperty("--logo-size", h1.offsetHeight + "px"); }
+  sync();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(sync);
+  if (window.ResizeObserver) new ResizeObserver(sync).observe(h1);
+})();
+</script>

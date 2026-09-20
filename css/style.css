@@ -62,8 +62,11 @@ h1,h2,h3{font-family:'Spectral',Georgia,serif;font-weight:600;margin:0 0 .4em;co
 .hero svg.contours{position:absolute;inset:0;width:100%;height:100%;opacity:.16;}
 .hero .wrap{position:relative;z-index:1;}
 .hero h1{font-size:clamp(30px,4.6vw,46px);color:#FBF8F1;max-width:20ch;}
-.hero-title{display:flex;align-items:center;gap:clamp(14px,2.4vw,24px);}
-.hero-title img{display:block;flex:none;width:clamp(56px,8vw,84px);height:auto;aspect-ratio:1;}
+/* The logo is sized to the heading's height by a small script on the home page (84px without it). */
+.hero-title{display:flex;align-items:center;gap:clamp(14px,2.4vw,24px);margin-bottom:18px;}
+.hero-title h1{line-height:1.15;margin:0;}
+.hero-logo{flex:none;width:var(--logo-size,84px);height:var(--logo-size,84px);}
+.hero-logo img{display:block;width:100%;height:100%;}
 .hero p.lede{font-size:17px;max-width:66ch;color:#DCE6DE;margin:12px 0 0;}
 .hero .notice{
   margin-top:22px;
