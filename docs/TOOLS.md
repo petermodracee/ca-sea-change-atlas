@@ -19,6 +19,25 @@ Top level: `_meta` (source, compile date, disclaimer) and `tools` (array). Each 
 | `processes`, `exposure`, `floodInfo` | Arrays of tags. These are the three filter groups on the comparison page, so keep spellings consistent with existing values. |
 | `reportsData`, `slrModel` | Free-text: what data/reports it offers and what SLR model it uses. |
 | `strengths`, `limitations` | Arrays of short statements. |
+| `keyFeatures` | Optional. Array of short bullet strings. |
+| `factSheetUrl` | Optional. Link to a fact sheet, or `null`. |
+| `slrMetrics` | Optional. `{ increments?, otherLayers? }`: free text on the flooding increments the tool can project, and other flood layers it offers. |
+| `processesDetail`, `exposureDetail`, `floodInfoDetail` | Optional. Objects mapping a tag to free-text elaboration, e.g. `"processesDetail": { "SLR inundation": "..." }`. Keys must be values that appear in the same tool's `processes`, `exposure` or `floodInfo` array respectively. |
+| `dataAvailability` | Optional. `{ reportsAvailable?, dataTypes?, uploadable? }`, all free text. `reportsAvailable` takes precedence over `reportsData` where both exist. |
+| `slrModelDetail` | Optional. `{ baseModel?, elevationSource?, baseElevation?, horizontalResolution? }`, all free text. `baseModel` takes precedence over `slrModel` where both exist. |
+
+Every field from `keyFeatures` down is optional and safe to omit; renderers must treat a missing field, key or sub-key as "no information" rather than an error. Existing entries do not have to be backfilled.
+
+### Detail layout: `toolDetailSchema`
+
+`data/toolDetailSchema.json` is the single source of truth for which sections and rows appear on a tool's detail view, and in what order. It is shared by the tool page and the upcoming compare page, so neither should hardcode its own section list. `_data/toolDetailSchema.js` re-exports it as Eleventy global data (`toolDetailSchema`); the JSON file is passthrough-copied with the rest of `data/` so `js/sources.js` and the future `js/compare.js` can fetch it.
+
+The file is an array of sections, each `{ title, ... }` in one of two shapes:
+
+- **Row section:** `rows: [{ label, field, kind?, fallbackField? }]`. `field` is a dotted path into the tool (`slrMetrics.increments`). `kind` is `"link"`, `"list"` or omitted for plain text. If `field` is empty or missing, use `fallbackField` (a legacy top-level field such as `reportsData`); if that is also empty, show a "Not provided" placeholder.
+- **Tag-table section:** `kind: "tag-table", tagField, detailField`. The renderer lists the full distinct set of values of `tagField` across all tools (the same master list `js/sources.js` builds for the filter checkboxes) and shows Yes/No for each tag depending on whether this tool's `tagField` array contains it. On Yes, the text from `detailField[tag]` is shown alongside when present.
+
+Add or reorder sections in the schema, not in templates.
 
 ### Status is defined here and only here
 
