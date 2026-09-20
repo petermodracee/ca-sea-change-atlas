@@ -117,7 +117,7 @@ function render(){
 
     const details = document.createElement("a");
     details.className = "linkbtn";
-    details.href = "/ca-sea-change-atlas/tool/" + tool.id + "/";
+    details.href = "/ca-sea-change-atlas/compare/tool/" + tool.id + "/";
     details.textContent = "Details";
     actions.appendChild(details);
 
@@ -174,7 +174,7 @@ function renderCompareBar(){
     slot.appendChild(btn);
     slots.appendChild(slot);
   });
-  document.getElementById("compareLink").href = "compare.html?tools=" + state.compare.map(encodeURIComponent).join(",");
+  document.getElementById("compareLink").href = "side-by-side/?tools=" + state.compare.map(encodeURIComponent).join(",");
 }
 
 async function main(){

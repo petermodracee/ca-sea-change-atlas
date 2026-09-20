@@ -1,0 +1,9 @@
+<header class="site-header">
+<a class="site-brand" href="{{ '/index.html' | url }}"><img src="{{ '/img/casca-logo.svg' | url }}" alt="" width="30" height="30"><span>{{ site.name }}</span></a>
+<nav class="site-nav">
+<a href="{{ '/map/' | url }}"{% if nav == "map" %} aria-current="page"{% endif %}>Map</a>
+<a href="{{ '/compare/' | url }}"{% if nav == "compare" %} aria-current="page"{% endif %}>Compare tools</a>
+<a href="{{ '/compare/side-by-side/' | url }}"{% if nav == "compare-side-by-side" %} aria-current="page"{% endif %}>Side by side</a>
+<a href="{{ '/about/' | url }}"{% if nav == "about" %} aria-current="page"{% endif %}>About</a>
+</nav>
+</header>

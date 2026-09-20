@@ -1,6 +1,6 @@
-# Map (`map.html`)
+# Map (`/map/`)
 
-Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `js/map/index.js` is the only `<script type="module">` on the page (set by `mapModuleEntry` in `map.njk`). Panel markup is static HTML in `map.njk`; layer modules look up their controls by id at construction, so an id in `map.njk` and the module that reads it must change together.
+Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `site/js/map/index.js` is the only `<script type="module">` on the page (set by `mapModuleEntry` in `site/map/index.njk`). Panel markup is static HTML in `site/map/index.njk`; layer modules look up their controls by id at construction, so an id in `site/map/index.njk` and the module that reads it must change together.
 
 ## Modules
 
@@ -31,7 +31,7 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `js/map
 |---|---|---|---|
 | BCDC Flood Explorer | `BcdcFloodLayer`, `BcdcLegalDeltaLayer` (`bcdc-flood-layer.js`) | `bcdc` | Live WMS. Total-water-level slider or scenario picker, impact layers, consequence picker. Regional storm-surge baseline only. Also exports the WMS URL and GML parser reused by ECC. |
 | East Contra Costa | `BcdcEccLayer` (`bcdc-ecc-layer.js`) | `bcdcEcc` | Same BCDC WMS server and session cache; only layer names differ. |
-| CoSMoS | `CosmosLayer` (`cosmos-layer.js`) | `cosmos` | Point Blue tile/WMS infrastructure, not ArcGIS. Region and topic dropdowns, SLR slider, storm-frequency picker. Templates in `data/cosmos-layers.json`. |
+| CoSMoS | `CosmosLayer` (`cosmos-layer.js`) | `cosmos` | Point Blue tile/WMS infrastructure, not ArcGIS. Region and topic dropdowns, SLR slider, storm-frequency picker. Templates in `site/data/cosmos-layers.json`. |
 | Cal-Adapt | `CalAdaptSlrLayer` (`caladapt-slr-layer.js`) | `calAdapt` | Plain XYZ tiles from `api.cal-adapt.org`, one layer per regional mosaic, clipped to its footprint. |
 | NOAA Sea Level Rise Viewer | `NoaaSlrLayer` (`noaa-slr-layer.js`), `NoaaHtfLayer` (`noaa-htf-layer.js`) | `noaaSlr` (SLR only) | SLR is one pre-cached tiled MapServer per half-foot scenario (`L.esri.tiledMapLayer`). High Tide Flooding stations are circle markers with a nearest-station popup; they sit in the same panel group but not in its pane. |
 | Interagency Sea Level Scenarios | `NasaScenarioLayer` (`nasa-scenario-layer.js`) | `nasaSlr` | Point layer: 13 California tide gauges as labelled circle markers, with scenario (Low to High) and year (2020–2150) dropdowns. Values are median relative sea level rise above 2000, in feet. Popup shows every scenario at the selected year for the nearest gauge. Data is fetched on first toggle (about 7 MB: h5wasm plus the projection file). Not an area layer. |
@@ -39,7 +39,7 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `js/map
 | NOAA Coastal Flood Exposure Mapper | `CfemCompositeLayer` (`cfem-composite-layer.js`) constructs `CfemStormSurgeLayer` and three `CfemHazardLayer`s | `cfem` | Composite hazard overlap, hurricane storm surge, and CFEM's own High Tide Flooding, FEMA Flood Zones and Tsunami Run-up. The hazard layers have legends only. |
 | Geo / demographic info | `initGeoInfoLayers` (`geo-info-layer.js`) | `geoPeople`, `geoFacilities`, `geoLand` | Context layers from EPA, CDC/ATSDR, USGS, NOAA C-CAP and Caltrans. People and Land sections are dropdowns (one layer at a time, `data-layer-select`); Facilities are checkboxes. Config-driven: each entry declares its service, legend and popup rows. |
 
-Tool status (implemented, comparison-only) is in `data/tools.json`, not here. Note that one panel group can cover several tools (CFEM contains the storm-surge overlay, which also has its own tool entry), so the panel and the dataset are not one-to-one.
+Tool status (implemented, comparison-only) is in `site/data/tools.json`, not here. Note that one panel group can cover several tools (CFEM contains the storm-surge overlay, which also has its own tool entry), so the panel and the dataset are not one-to-one.
 
 ## Click-to-inspect
 
@@ -62,7 +62,7 @@ BCDC, ECC and CoSMoS tiles and identify calls, the CFEM composite identify, and 
 
 ## Local configuration: CoSMoS
 
-CoSMoS's layer catalog is not CORS-enabled for cross-origin fetches even though its tile/WMS server is, so `data/cosmos-layers.json` holds the URL and layer-name templates (verified against the live catalog). It is configuration, not data: every tile and WMS render still comes live from `geo.pointblue.org`.
+CoSMoS's layer catalog is not CORS-enabled for cross-origin fetches even though its tile/WMS server is, so `site/data/cosmos-layers.json` holds the URL and layer-name templates (verified against the live catalog). It is configuration, not data: every tile and WMS render still comes live from `geo.pointblue.org`.
 
 ## Library and plugin choices
 
@@ -92,15 +92,15 @@ Baseline: Leaflet 1.9.4 and esri-leaflet 3.1.0 plus the custom code above.
 
 ## Adding a layer
 
-1. **Licensing first.** Confirm the source is openly licensed ([`CONTRIBUTING.md`](../CONTRIBUTING.md#licensing-requirements)). If it isn't, it belongs on the comparison page only; mark it `mapEligibility: "excluded"` in `data/tools.json` and record why in [`LICENSING.md`](LICENSING.md).
-2. **Layer class** in `js/map/layers/`, extending `BaseLayer`. Implement `buildLayer()` for a single sublayer, or override `refresh()` like BCDC and CoSMoS for several. Build layers with `pane: groupPane(map, "<key>")`.
+1. **Licensing first.** Confirm the source is openly licensed ([`CONTRIBUTING.md`](../CONTRIBUTING.md#licensing-requirements)). If it isn't, it belongs on the comparison page only; mark it `mapEligibility: "excluded"` in `site/data/tools.json` and record why in [`LICENSING.md`](LICENSING.md).
+2. **Layer class** in `site/js/map/layers/`, extending `BaseLayer`. Implement `buildLayer()` for a single sublayer, or override `refresh()` like BCDC and CoSMoS for several. Build layers with `pane: groupPane(map, "<key>")`.
 3. **Pane key**: add it to `GROUP_PANE_KEYS` and the JSDoc union in `shared/panes.js`.
-4. **Panel markup** in `map.njk`: a `.layer-group` with a collapsible title and body, an opacity slider carrying `data-pane="<key>"`, and controls whose ids the class reads.
-5. **Init** it in `js/map/index.js` (order sets popup section order).
+4. **Panel markup** in `site/map/index.njk`: a `.layer-group` with a collapsible title and body, an opacity slider carrying `data-pane="<key>"`, and controls whose ids the class reads.
+5. **Init** it in `site/js/map/index.js` (order sets popup section order).
 6. **Popup provider** via `registerPopupProvider` if the source supports a point query.
 7. **Permalink**: add any new slider/select id to `VALUE_CONTROL_IDS` in `permalink.js`; checkboxes with an id are tracked automatically.
-8. **Data and credits**: add or update the entry in `data/tools.json` ([`TOOLS.md`](TOOLS.md#adding-a-tool)) and an entry in `_data/credits.json`.
-9. **Attribution**: set `attribution` on the Leaflet layer and add the credit to `footerAttribution` in `map.njk`.
+8. **Data and credits**: add or update the entry in `site/data/tools.json` ([`TOOLS.md`](TOOLS.md#adding-a-tool)) and an entry in `site/_data/credits.json`.
+9. **Attribution**: set `attribution` on the Leaflet layer and add the credit to `footerAttribution` in `site/map/index.njk`.
 10. Verify against the live service directly before trusting an assumption about it; see [`DECISIONS.md`](DECISIONS.md) for how that has gone wrong before.
 
 ## Known limitations

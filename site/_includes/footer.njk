@@ -2,7 +2,11 @@
 <div class="wrap">
 <div class="site-footer-links">
 <a href="{{ '/index.html' | url }}">{{ site.name }}</a>
-<a href="{{ '/licenses.html' | url }}"{% if nav == "licenses" %} aria-current="page"{% endif %}>Licenses</a>
+<a href="{{ '/map/' | url }}"{% if nav == "map" %} aria-current="page"{% endif %}>Map</a>
+<a href="{{ '/compare/' | url }}"{% if nav == "compare" %} aria-current="page"{% endif %}>Compare tools</a>
+<a href="{{ '/about/' | url }}"{% if nav == "about" %} aria-current="page"{% endif %}>About</a>
+<a href="{{ '/about/licenses/' | url }}"{% if nav == "about-licenses" %} aria-current="page"{% endif %}>Licenses</a>
+<a href="{{ '/data/' | url }}"{% if nav == "data" %} aria-current="page"{% endif %}>Data</a>
 <a href="https://github.com/petermodracee/ca-sea-change-atlas" target="_blank" rel="noopener">GitHub</a>
 </div>
 {%- if bodyClass == "map-page" %}
