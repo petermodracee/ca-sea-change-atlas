@@ -29,7 +29,7 @@ This file covers the site as a whole. The two applications inside it have their 
 
 ## Templates
 
-`_includes/base.njk` wraps every page: head metadata (title, description, Open Graph and Twitter tags, canonical URL from `_data/site.js`), fonts, the header and footer includes, and scripts. `header.njk` renders the nav; `footer.njk` renders the copyright/license line and each page's `footerAttribution`. On the map page the footer collapses into a `<details>` because the page is a fixed-viewport app shell.
+`_includes/base.njk` wraps every page: head metadata (title, description, Open Graph and Twitter tags, canonical URL from `_data/site.js`), fonts, the header and footer includes, and scripts. `header.njk` renders the logo (`img/casca-logo.svg`, decorative since the site name sits beside it) and the nav; the browser-tab icon is `img/favicon.svg`, linked from `base.njk`. Both are SVG exports that were slimmed with `svgo`, which is worth repeating if they are re-exported from Inkscape; `footer.njk` renders the copyright/license line and each page's `footerAttribution`. On the map page the footer collapses into a `<details>` because the page is a fixed-viewport app shell.
 
 Front-matter keys the layout understands:
 

@@ -89,8 +89,9 @@ h1,h2,h3{font-family:'Spectral',Georgia,serif;font-weight:600;margin:0 0 .4em;co
   padding:14px 24px;border-bottom:1px solid var(--line);
   background:var(--navy);color:#F3EFE0;
 }
-.site-brand{font-size:18px;font-weight:600;color:#FBF8F1;text-decoration:none;}
-.site-brand:hover{text-decoration:underline;}
+.site-brand{display:inline-flex;align-items:center;gap:10px;font-size:18px;font-weight:600;color:#FBF8F1;text-decoration:none;}
+.site-brand img{display:block;flex:none;width:30px;height:30px;}
+.site-brand:hover span{text-decoration:underline;}
 .site-nav{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap;}
 .site-nav a{
   font-size:13.5px;color:#DCE6DE;text-decoration:none;font-weight:500;
