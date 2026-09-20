@@ -4,6 +4,8 @@ permalink: "about.html"
 title: About — CA Sea Change Atlas
 description: The history behind CA Sea Change Atlas — why it exists, what "Sea the Future" was, and who this project is and isn't affiliated with.
 nav: about
+extraScripts:
+  - /js/toc.js
 ---
 <div class="hero">
 <svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
@@ -19,13 +21,15 @@ nav: about
 </div>
 
 <div class="main">
-<div class="wrap about-body">
+<div class="wrap page-toc">
+{% include "toc.njk" %}
+<div class="about-body" data-toc-source>
 
 <h2>Project Status</h2>
 <p>This tool is currently in its infancy and it may be buggy or incorrect while I update the information. It is under active development as of September 2026. You can view the progress on <a href="https://github.com/petermodracee/ca-sea-change-atlas" target="_blank" rel="noopener">GitHub</a>.</p>
 
 <h2>About the California Sea Change Atlas</h2>
-<p>The California Sea Chat Atlas (CASCA) was originally envisioned as a recreation of the "Sea the Future" tool summarizing sea level rise and flood visualization tools and an effort to build out a mapping component which did not exist in the original tool, enabling side-by-side view of the different layers from the different source models. However, climate science evolves constantly and research and funding is cyclical; some of the 12 tools and models from the original tool have not been updated or maintained, and new ones have cropped up in their place. This is intended as a spiritual successor.</p>
+<p>The California Sea Change Atlas (CASCA) was originally envisioned as a recreation of the "Sea the Future" tool summarizing sea level rise and flood visualization tools and an effort to build out a mapping component which did not exist in the original tool, enabling side-by-side view of the different layers from the different source models. However, climate science evolves constantly and research and funding is cyclical; some of the 12 tools and models from the original tool have not been updated or maintained, and new ones have cropped up in their place. This is intended as a spiritual successor.</p>
 
 <p>The CASCA <a href="{{ '/sources.html' | url }}">comparison tool</a> is intended as a spiritual successor of the "Sea the Future" tool describing the differences in each model and resource. As with the original, this is not intended to tell you which tool is ultimately the "best" or "worst"; it's only intended to help with determining which tool may be most useful for your given question or project. In addition, the original tool did not have a map that allows the user to flip back and forth between resources for comparison, requiring pulling up the multiple resources side by side.</p>
 
@@ -55,5 +59,6 @@ nav: about
 
 <p>This site's code is licensed under the GNU General Public License v3.0, and its written content is licensed under Creative Commons Attribution-ShareAlike 4.0 — see the <a href="{{ '/licenses.html' | url }}">Licenses & sources</a> page for the full detail, including every third-party library and data source this project depends on.</p>
 
+</div>
 </div>
 </div>

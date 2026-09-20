@@ -29,7 +29,7 @@ This file covers the site as a whole. The two applications inside it have their 
 
 ## Templates
 
-`_includes/base.njk` wraps every page: head metadata (title, description, Open Graph and Twitter tags, canonical URL from `_data/site.js`), fonts, the header and footer includes, and scripts. `header.njk` renders the nav; `footer.njk` renders the copyright/license line and each page's `footerAttribution`. On the map page the footer collapses into a `<details>` because the page is a fixed-viewport app shell.
+`_includes/base.njk` wraps every page: head metadata (title, description, Open Graph and Twitter tags, canonical URL from `_data/site.js`), fonts, the header and footer includes, and scripts. `header.njk` renders the logo (`img/casca-logo.svg`, decorative since the site name sits beside it) and the nav; the browser-tab icon is `img/favicon.svg`, linked from `base.njk`. Both are SVG exports that were slimmed with `svgo`, which is worth repeating if they are re-exported from Inkscape; `footer.njk` renders the copyright/license line and each page's `footerAttribution`. On the map page the footer collapses into a `<details>` because the page is a fixed-viewport app shell.
 
 Front-matter keys the layout understands:
 
@@ -48,7 +48,7 @@ Third-party scripts come from unpkg at pinned versions with Subresource Integrit
 
 ### Table of contents component
 
-`_includes/toc.njk` plus `js/toc.js` give a page a sticky left-hand table of contents (a top block on narrow screens). To use it: wrap the page body in `<div class="wrap page-toc">`, `{% include "toc.njk" %}`, put the content in a container with `data-toc-source`, and add `/js/toc.js` to `extraScripts`. The script lists the container's `<h2>` headings, adds slug ids to any that lack one, and highlights the section in view. `licenses.njk` is the reference example; it needs no changes to the page's prose, so it can be adopted by `about.njk` the same way.
+`_includes/toc.njk` plus `js/toc.js` give a page a sticky left-hand table of contents (a top block on narrow screens). To use it: wrap the page body in `<div class="wrap page-toc">`, `{% include "toc.njk" %}`, put the content in a container with `data-toc-source`, and add `/js/toc.js` to `extraScripts`. The script lists the container's `<h2>` headings, adds slug ids to any that lack one, and highlights the section in view. `licenses.njk` is the reference example, and `about.njk` uses it too; adopting it needed no changes to a page's prose.
 
 ## Data
 
