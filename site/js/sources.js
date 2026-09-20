@@ -8,7 +8,7 @@ const state = {
 let TOOLS = [];
 
 async function loadTools(){
-  const res = await fetch("data/tools.json");
+  const res = await fetch("../data/tools.json");
   const data = await res.json();
   TOOLS = data.tools;
 }
