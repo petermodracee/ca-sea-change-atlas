@@ -55,7 +55,37 @@
         "Very narrow geography",
         "Same today's-shoreline limitation as the Bay-wide tool",
         "Lives on its own subdomain, so it's easy to miss from the Bay explorer's main page"
-      ]
+      ],
+      "keyFeatures": [
+        "TODO: key feature 1",
+        "TODO: key feature 2",
+        "TODO: key feature 3"
+      ],
+      "factSheetUrl": "https://example.com/TODO-fact-sheet",
+      "slrMetrics": {
+        "increments": "TODO: increments text",
+        "otherLayers": "TODO: other layers text"
+      },
+      "processesDetail": {
+        "SLR inundation": "TODO: processes detail text"
+      },
+      "exposureDetail": {
+        "Infrastructure & buildings": "TODO: exposure detail text"
+      },
+      "floodInfoDetail": {
+        "Storm surge / extreme tide": "TODO: flood info detail text"
+      },
+      "dataAvailability": {
+        "reportsAvailable": "TODO: reports available",
+        "dataTypes": "TODO: data types",
+        "uploadable": "TODO: uploadable"
+      },
+      "slrModelDetail": {
+        "baseModel": "TODO: base model",
+        "elevationSource": "TODO: elevation source",
+        "baseElevation": "TODO: base elevation",
+        "horizontalResolution": "TODO: horizontal resolution"
+      }
     },
     {
       "id": "cal-adapt-slr",
@@ -81,7 +111,34 @@
         "The original CalFloD-3D-only viewer has been folded in, so old links may not resolve",
         "Only two time horizons (2020\u20132040 and 2080\u20132100)",
         "More technical interface aimed at modelers than the general public"
-      ]
+      ],
+      "keyFeatures": [
+        "TODO: key feature 1",
+        "TODO: key feature 2",
+        "TODO: key feature 3"
+      ],
+      "factSheetUrl": "https://example.com/TODO-fact-sheet",
+      "slrMetrics": {
+        "increments": "TODO: increments text",
+        "otherLayers": "TODO: other layers text"
+      },
+      "processesDetail": {
+        "SLR inundation": "TODO: processes detail text"
+      },
+      "floodInfoDetail": {
+        "Storm surge / extreme tide": "TODO: flood info detail text"
+      },
+      "dataAvailability": {
+        "reportsAvailable": "TODO: reports available",
+        "dataTypes": "TODO: data types",
+        "uploadable": "TODO: uploadable"
+      },
+      "slrModelDetail": {
+        "baseModel": "TODO: base model",
+        "elevationSource": "TODO: elevation source",
+        "baseElevation": "TODO: base elevation",
+        "horizontalResolution": "TODO: horizontal resolution"
+      }
     },
     {
       "id": "cc-screening",
@@ -135,7 +192,37 @@
         "Still largely elevation-based rather than a dynamic hydrodynamic model",
         "National-scale approach can miss California-specific factors like levees",
         "Some layers are coarser than California-built tools"
-      ]
+      ],
+      "keyFeatures": [
+        "TODO: key feature 1",
+        "TODO: key feature 2",
+        "TODO: key feature 3"
+      ],
+      "factSheetUrl": "https://example.com/TODO-fact-sheet",
+      "slrMetrics": {
+        "increments": "TODO: increments text",
+        "otherLayers": "TODO: other layers text"
+      },
+      "processesDetail": {
+        "SLR inundation": "TODO: processes detail text"
+      },
+      "exposureDetail": {
+        "Population / demographics": "TODO: exposure detail text"
+      },
+      "floodInfoDetail": {
+        "Storm surge / extreme tide": "TODO: flood info detail text"
+      },
+      "dataAvailability": {
+        "reportsAvailable": "TODO: reports available",
+        "dataTypes": "TODO: data types",
+        "uploadable": "TODO: uploadable"
+      },
+      "slrModelDetail": {
+        "baseModel": "TODO: base model",
+        "elevationSource": "TODO: elevation source",
+        "baseElevation": "TODO: base elevation",
+        "horizontalResolution": "TODO: horizontal resolution"
+      }
     },
     {
       "id": "nfwf-crest",
