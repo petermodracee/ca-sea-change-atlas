@@ -32,7 +32,7 @@ County Profiles routes are documented in [`COUNTY-PROFILES.md`](COUNTY-PROFILES.
 
 ## Build and deploy
 
-- `.eleventy.js`: `dir.input` is `site/`; only `.njk` files are templates. It registers the `toolSections` filter (from `site/js/tool-detail.js`) used by `compare/tool.njk`. `site/css/`, `site/js/`, `site/data/`, `site/img/` and `site/reference/` are passthrough-copied to their same relative path under the output root; `LICENSE`, `LICENSE-CONTENT.md` and `robots.txt` stay at the repo root and are passthrough-copied from there. `pathPrefix` is `/ca-sea-change-atlas/`; use the `url` filter for every internal link so it works under that prefix (front-matter values can't use filters, so `footerAttribution` hardcodes it).
+- `.eleventy.js`: `dir.input` is `site/`; only `.njk` files are templates. It registers the `toolSections` filter (from `site/js/tool-detail.js`) used by `compare/tool.njk`. `site/css/`, `site/js/`, `site/data/` and `site/img/` are passthrough-copied to their same relative path under the output root; `LICENSE`, `LICENSE-CONTENT.md` and `robots.txt` stay at the repo root and are passthrough-copied from there. `pathPrefix` is `/ca-sea-change-atlas/`; use the `url` filter for every internal link so it works under that prefix (front-matter values can't use filters, so `footerAttribution` hardcodes it).
 - `.github/workflows/deploy.yml`: on push to `main` (or manually), Node 20, `npm ci`, `npx eleventy`, then upload `_site/` to GitHub Pages. The repo's Pages source is "GitHub Actions".
 - `.claude/launch.json`: defines the `eleventy-dev` preview server on port 8080.
 - Local dev: see the [README](../README.md#run-it-locally).
@@ -74,7 +74,7 @@ Third-party scripts come from unpkg at pinned versions with Subresource Integrit
 
 `site/data.njk` renders `/data/`, the landing page listing the JSON files above, since `/data/` itself is a plain passthrough-copied directory with no index. County Profiles' generated snapshot archive lives at `site/data/county-profiles/`; see [`COUNTY-PROFILES.md`](COUNTY-PROFILES.md).
 
-`site/reference/sea-the-future-prototype.html` is the original single-file, map-less prototype, kept for reference. It is passthrough-copied and not used by anything.
+`reference/sea-the-future-prototype.html` is the original single-file, map-less prototype, kept for reference. It lives at the repo root, not under `site/`, since it isn't part of the deployed site — it is never passthrough-copied or linked from anywhere.
 
 ## Documentation conventions
 
