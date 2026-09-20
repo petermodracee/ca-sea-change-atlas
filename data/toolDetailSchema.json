@@ -5,8 +5,7 @@
       { "label": "URL", "field": "url", "kind": "link" },
       { "label": "Fact sheet", "field": "factSheetUrl", "kind": "link" },
       { "label": "Geographic scope within coastal California", "field": "scopeLabel" },
-      { "label": "Tool release year and updates", "field": "released" },
-      { "label": "Key features", "field": "keyFeatures", "kind": "list" }
+      { "label": "Tool release year and updates", "field": "released" }
     ]
   },
   {

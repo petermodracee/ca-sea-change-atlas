@@ -19,7 +19,7 @@ Top level: `_meta` (source, compile date, disclaimer) and `tools` (array). Each 
 | `processes`, `exposure`, `floodInfo` | Arrays of tags. These are the three filter groups on the comparison page, so keep spellings consistent with existing values. |
 | `reportsData`, `slrModel` | Free-text: what data/reports it offers and what SLR model it uses. |
 | `strengths`, `limitations` | Arrays of short statements. |
-| `keyFeatures` | Optional. Array of short bullet strings. |
+| `keyFeatures` | Optional. Array of short bullet strings. Shown as a list under the description in the tool page header (not part of `toolDetailSchema`). |
 | `factSheetUrl` | Optional. Link to a fact sheet, or `null`. |
 | `slrMetrics` | Optional. `{ increments?, otherLayers? }`: free text on the flooding increments the tool can project, and other flood layers it offers. |
 | `processesDetail`, `exposureDetail`, `floodInfoDetail` | Optional. Objects mapping a tag to free-text elaboration, e.g. `"processesDetail": { "SLR inundation": "..." }`. Keys must be values that appear in the same tool's `processes`, `exposure` or `floodInfo` array respectively. |

@@ -514,21 +514,48 @@ table.cmp tbody tr:last-child td{border-bottom:0;}
 
 /* ---------- tool detail page ---------- */
 .tool-detail{padding-bottom:60px;}
-.tool-detail-head{max-width:74ch;margin-bottom:32px;}
+.tool-detail-sticky{
+  position:sticky;top:0;z-index:3;background:var(--paper);padding:4px 0 12px;margin-bottom:20px;
+  border-bottom:1px solid var(--line);
+}
+.tool-detail-sticky .hero-nav{margin-bottom:10px;}
+.tool-detail-head{max-width:74ch;}
 .tool-detail-head h1{font-size:clamp(24px,3.6vw,34px);margin:10px 0 4px;}
 .tool-detail-head .org{font-size:13px;color:var(--teal-text);font-weight:600;margin-bottom:10px;}
-.tool-detail-head .lede{font-size:15.5px;color:var(--ink-soft);max-width:70ch;margin:10px 0 18px;}
-.tool-detail-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;
+.tool-detail-lede{font-size:15.5px;color:var(--ink-soft);max-width:70ch;margin:0;}
+.tool-key-features{font-size:13.8px;color:var(--ink-soft);}
+.tool-detail-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px;align-items:start;}
+.tool-detail-toc{
+  position:sticky;top:calc(var(--tool-sticky-h,0px) + 16px);border:1px solid var(--line);border-radius:8px;background:var(--paper-2);
+  padding:14px 16px;font-size:13px;
 }
+.tool-detail-toc h2{font-size:14px;margin:0 0 8px;}
+.tool-detail-toc ul{list-style:none;margin:0;padding:0;}
+.tool-detail-toc li{margin:6px 0;}
+.tool-detail-toc a{color:var(--ink-soft);text-decoration:none;}
+.tool-detail-toc a:hover{color:var(--ink);text-decoration:underline;}
+.tool-detail-grid{display:flex;flex-direction:column;gap:22px;max-width:900px;}
 .tool-detail-section{
   border:1px solid var(--line);border-radius:8px;background:var(--paper-2);
-  padding:16px 18px;
+  padding:16px 18px;scroll-margin-top:calc(var(--tool-sticky-h,0px) + 16px);
 }
-.tool-detail-section h2{font-size:14px;margin-bottom:8px;}
-.tool-detail-section p{font-size:13.8px;color:var(--ink-soft);margin:0;}
-.tool-detail-section ul{margin:0;padding-left:18px;font-size:13.8px;color:var(--ink-soft);}
+.tool-detail-section h2{font-size:14px;margin:0 0 8px;}
+.tool-detail-rows{margin:0;}
+.tool-detail-row{
+  display:grid;grid-template-columns:minmax(140px,1fr) 2fr;gap:4px 18px;
+  padding:9px 0;border-top:1px solid var(--line);font-size:13.8px;
+}
+.tool-detail-row dt{font-weight:600;color:var(--ink);}
+.tool-detail-row dd{margin:0;color:var(--ink-soft);overflow-wrap:anywhere;}
+.tool-detail-row dd strong{color:var(--teal-text);}
+.tool-detail-section ul{margin:0;padding-left:18px;}
 .tool-detail-section li{margin:2px 0;}
+@media (max-width:800px){
+  .tool-detail-layout{grid-template-columns:1fr;}
+  .tool-detail-toc{position:static;}
+  .tool-detail-sticky{position:static;}
+  .tool-detail-row{grid-template-columns:1fr;}
+}
 
 /* Measure tool button + cursor. */
 .leaflet-control-measure a{display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;}
