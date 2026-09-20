@@ -30,12 +30,12 @@ Every field from `keyFeatures` down is optional and safe to omit; renderers must
 
 ### Detail layout: `toolDetailSchema`
 
-`data/toolDetailSchema.json` is the single source of truth for which sections and rows appear on a tool's detail view, and in what order. It is shared by the tool page and the upcoming compare page, so neither should hardcode its own section list. `_data/toolDetailSchema.js` re-exports it as Eleventy global data (`toolDetailSchema`); the JSON file is passthrough-copied with the rest of `data/` so `js/sources.js` and the future `js/compare.js` can fetch it.
+`data/toolDetailSchema.json` is the single source of truth for which sections and rows appear on a tool's detail view, and in what order. It is shared by the tool page and the compare page, so neither should hardcode its own section list. `_data/toolDetailSchema.js` re-exports it as Eleventy global data (`toolDetailSchema`); the JSON file is passthrough-copied with the rest of `data/` so `js/compare.js` can fetch it. The resolving logic (dotted paths, fallbacks, empty checks, tag master lists) lives once in `js/tool-detail.js`, a small module loaded by both Eleventy (the `toolSections` filter and `_data/toolTagMasters.js`) and the browser (`window.ToolDetail`).
 
 The file is an array of sections, each `{ title, ... }` in one of two shapes:
 
-- **Row section:** `rows: [{ label, field, kind?, fallbackField? }]`. `field` is a dotted path into the tool (`slrMetrics.increments`). `kind` is `"link"`, `"list"` or omitted for plain text. If `field` is empty or missing, use `fallbackField` (a legacy top-level field such as `reportsData`); if that is also empty, show a "Not provided" placeholder.
-- **Tag-table section:** `kind: "tag-table", tagField, detailField`. The renderer lists the full distinct set of values of `tagField` across all tools (the same master list `js/sources.js` builds for the filter checkboxes) and shows Yes/No for each tag depending on whether this tool's `tagField` array contains it. On Yes, the text from `detailField[tag]` is shown alongside when present.
+- **Row section:** `rows: [{ label, field, kind?, fallbackField? }]`. `field` is a dotted path into the tool (`slrMetrics.increments`). `kind` is `"link"`, `"list"` or omitted for plain text. If `field` is empty or missing, use `fallbackField` (a legacy top-level field such as `reportsData`); if that is also empty the row has no value: the tool page omits it, and the compare page shows a dash in that tool's column (the row is dropped only when no selected tool has a value).
+- **Tag-table section:** `kind: "tag-table", tagField, detailField`. The renderer lists the full distinct set of values of `tagField` across all tools (the same master list `js/sources.js` builds for the filter checkboxes) and shows Yes/No for each tag depending on whether this tool's `tagField` array contains it. A tool with no tags in that field has nothing for the section. On Yes, the text from `detailField[tag]` is shown alongside when present.
 
 Add or reorder sections in the schema, not in templates.
 
@@ -48,7 +48,7 @@ Status is per *tool*, not per panel group. A tool can be implemented inside anot
 ## How it is consumed
 
 - **Build time:** `_data/tools.js` re-exports `data/tools.json`'s `tools` array as Eleventy global data (`tools`). `tool.njk` paginates over it (size 1, `permalink: tool/{{ tool.id }}/index.html`, `addAllPagesToCollections` so each page lands in the sitemap) and emits per-tool `<title>`, meta description, Open Graph tags and `schema.org` Dataset JSON-LD.
-- **Browser:** `js/sources.js` fetches `data/tools.json` (a relative path, which is why `data/` is passthrough-copied) and renders everything on `sources.html`.
+- **Browser:** `js/sources.js` fetches `data/tools.json` (a relative path, which is why `data/` is passthrough-copied) and renders everything on `sources.html`. `js/compare.js` fetches `data/tools.json` and `data/toolDetailSchema.json` and renders `compare.html`.
 
 ## Comparison page (`sources.njk` + `js/sources.js`)
 
@@ -57,6 +57,14 @@ Status is per *tool*, not per panel group. A tool can be implemented inside anot
 - **Compare:** up to three tools. The bar shows selections; the table appears once two or more are selected and covers status, organization, scope, release, description, processes, exposure, flood info, data, SLR model, strengths, limitations and link.
 - `render()` is a full re-render on every state change. That is fine at this data size.
 - The `Details` link and the `tools.json` footer link in `sources.njk` hardcode the `/ca-sea-change-atlas/` path prefix, so a prefix change needs edits in `js/sources.js` and `sources.njk` as well as `.eleventy.js`.
+
+## Compare page (`compare.njk` + `js/compare.js`)
+
+`/compare.html?tools=<id>,<id>[,<id>]` compares two or three tools side by side. Ids come from the query string (unknown ids are reported and ignored, at most three are used), and the column headings hold the pickers: each is a dropdown that swaps that tool, the top-left cell has "Back to tool list" (to `sources.html`) plus an "Add a third tool" dropdown, and a third tool has a Remove link. Every change keeps the address in sync with `history.replaceState`, so any comparison can be bookmarked or shared. With fewer than two valid tools it shows two empty pickers and a prompt instead of a table.
+
+- **Layout:** a sticky header row with each tool's status, name dropdown, organization and a Details link to its page, then one collapsible section per `toolDetailSchema` entry, each a table with the row label plus one value column per tool.
+- **Missing data:** if a tool has nothing in a section, its column shows "No data available" (one spanning cell, so columns stay aligned). A section is omitted only when no selected tool has anything for it. Within a section, a row is dropped only when no selected tool has a value, and an empty cell in a partly filled row shows a dash.
+- **Tag tables:** every distinct tag across all tools is listed, with Yes (plus detail text) or No per tool.
 
 ## Adding a tool
 

@@ -22,7 +22,7 @@ npm run build   # one-off build into _site/ (gitignored); must pass before a PR
 | The map (modules, layer table, popups, permalink) | `js/map/`, `map.njk`; [`docs/MAP.md`](docs/MAP.md) |
 | One map layer | `js/map/layers/<source>-layer.js` |
 | The tool dataset (and per-tool status) | `data/tools.json`; [`docs/TOOLS.md`](docs/TOOLS.md) |
-| Comparison page logic | `js/sources.js`, `sources.njk`, `tool.njk` |
+| Comparison page logic | `js/sources.js`, `sources.njk`, `tool.njk`; side-by-side: `compare.njk`, `js/compare.js`, `js/tool-detail.js`, `data/toolDetailSchema.json` |
 | Licenses and credits page | `licenses.njk` fed by `_data/credits.json`; [`docs/LICENSING.md`](docs/LICENSING.md) |
 | Why something is the way it is | [`docs/DECISIONS.md`](docs/DECISIONS.md) |
 | How to contribute, license rules | [`CONTRIBUTING.md`](CONTRIBUTING.md) |

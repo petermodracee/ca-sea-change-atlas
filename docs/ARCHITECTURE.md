@@ -14,6 +14,7 @@ This file covers the site as a whole. The two applications inside it have their 
 | `/` | `index.njk` | Landing page: explains the two tools and links to each |
 | `/map.html` | `map.njk`, `js/map/` | The map |
 | `/sources.html` | `sources.njk`, `js/sources.js` | Filterable tool grid and compare table |
+| `/compare.html` | `compare.njk`, `js/compare.js`, `js/tool-detail.js` | Side-by-side comparison of two or three tools (`?tools=` ids), rendered in the browser |
 | `/tool/<id>/` | `tool.njk` | One generated page per entry in `data/tools.json` |
 | `/about.html` | `about.njk` | Project history, sources, author, disclaimers |
 | `/licenses.html` | `licenses.njk`, `_data/credits.json`, `_data/licenseTypes.json` | Licenses and credits |
@@ -39,7 +40,7 @@ Front-matter keys the layout understands:
 | `bodyClass` | Class on `<body>` (`map-page` switches the footer to its compact form) |
 | `leaflet: true` | Loads Leaflet, esri-leaflet and leaflet.locatecontrol (CSS and JS) |
 | `mapModuleEntry` | Adds a `<script type="module">` for the map entry point |
-| `extraScripts` | Extra plain `<script>` files (`sources.njk`, and `toc.js` on pages with a table of contents) |
+| `extraScripts` | Extra plain `<script>` files (`sources.njk`, `compare.njk`, and `toc.js` on pages with a table of contents) |
 | `ogImage` | Social preview image; defaults to `img/preview-map.png` |
 | `footerAttribution` | Per-page attribution text shown in the footer |
 
@@ -53,7 +54,7 @@ Third-party scripts come from unpkg at pinned versions with Subresource Integrit
 
 | File | Used by | Notes |
 |---|---|---|
-| `data/tools.json` | `_data/tools.js` (build time, feeds `tool.njk`) and `js/sources.js` (browser fetch) | The tool dataset and the **single source of truth for per-tool status**. See [`TOOLS.md`](TOOLS.md). |
+| `data/tools.json` | `_data/tools.js` (build time, feeds `tool.njk`) and `js/sources.js` and `js/compare.js` (browser fetch) | The tool dataset and the **single source of truth for per-tool status**. See [`TOOLS.md`](TOOLS.md). |
 | `_data/credits.json` | `licenses.njk` | Every third-party library, dataset and service credited on `/licenses.html`, alphabetical within each category. A credit line (`attribution`) is present only where the license requires one. |
 | `_data/licenseTypes.json` | `licenses.njk` | License names and links to their texts, referenced by key from `credits.json`. Rationale for what is used: [`LICENSING.md`](LICENSING.md). |
 | `_data/site.js` | `base.njk`, `index.njk` | Deployed site URL and name for canonical and Open Graph tags |

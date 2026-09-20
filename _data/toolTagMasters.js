@@ -1,9 +1,5 @@
-// Distinct, sorted values of each tag field across all tools (same set js/sources.js
-// builds for the filter checkboxes). Computed once at build time for the tag-table sections.
+// Distinct tag values per tag-table field across all tools, computed once at build time.
 const { tools } = require("../data/tools.json");
+const { tagMasters } = require("../js/tool-detail.js");
 
-const distinct = (key) => [...new Set(tools.flatMap((t) => t[key] || []))].sort();
-
-module.exports = Object.fromEntries(
-  ["processes", "exposure", "floodInfo"].map((key) => [key, distinct(key)])
-);
+module.exports = tagMasters(tools, require("../data/toolDetailSchema.json"));
