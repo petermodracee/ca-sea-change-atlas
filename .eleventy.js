@@ -10,9 +10,10 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "site/img": "img" });
   eleventyConfig.addPassthroughCopy("LICENSE");
   eleventyConfig.addPassthroughCopy("robots.txt");
+  eleventyConfig.addPassthroughCopy({ "site/CNAME": "CNAME" });
 
   return {
-    pathPrefix: "/ca-sea-change-atlas/",
+    pathPrefix: "/",
     dir: {
       input: "site",
       includes: "_includes",

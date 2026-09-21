@@ -11,7 +11,7 @@ Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)**.
 This does not apply to third-party material embedded or linked on the
 site (data pulled live from government agencies, geometry derived from
 other open datasets, quoted third-party sources, etc.) — see
-[`/about/licenses/`](https://petermodracee.github.io/ca-sea-change-atlas/about/licenses/) (source: [`site/_data/credits.json`](site/_data/credits.json)) for what those are and their own licenses/terms.
+[`/about/licenses/`](https://seachangeatlas.org/about/licenses/) (source: [`site/_data/credits.json`](site/_data/credits.json)) for what those are and their own licenses/terms.
 
 ## Summary
 

@@ -2,7 +2,7 @@
 
 An unofficial spiritual successor to California's discontinued "Sea the Future" tool, expanded into three tools for making sense of California's sea-level-rise and coastal-flooding visualization resources.
 
-Live site: <https://petermodracee.github.io/ca-sea-change-atlas/>
+Live site: <https://seachangeatlas.org/>
 
 ## The tools
 
@@ -25,7 +25,7 @@ npm install
 npm run serve
 ```
 
-Then open <http://localhost:8080/ca-sea-change-atlas/>. The dev server uses the same path prefix the site deploys under. `npm run build` writes a one-off build to `_site/`. Pushes to `main` deploy to GitHub Pages automatically.
+Then open <http://localhost:8080/>. The site deploys at the root of <https://seachangeatlas.org>, so there is no path prefix. `npm run build` writes a one-off build to `_site/`. Pushes to `main` deploy to GitHub Pages automatically.
 
 ## Documentation
 
@@ -42,6 +42,6 @@ Then open <http://localhost:8080/ca-sea-change-atlas/>. The dev server uses the 
 
 - **Code**: GNU GPL v3.0, see [`LICENSE`](LICENSE).
 - **Written content** (page copy, tool descriptions, the About page): CC BY-SA 4.0, see [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md).
-- **Third-party data and libraries** keep their own terms, listed by category at [`/about/licenses/`](https://petermodracee.github.io/ca-sea-change-atlas/about/licenses/) (source: [`site/_data/credits.json`](site/_data/credits.json)).
+- **Third-party data and libraries** keep their own terms, listed by category at [`/about/licenses/`](https://seachangeatlas.org/about/licenses/) (source: [`site/_data/credits.json`](site/_data/credits.json)).
 
 Not affiliated with the California State Coastal Conservancy, NOAA, or any agency or organization mentioned on the site. Original tool description: <https://www.adaptationclearinghouse.org/resources/california-e-sea-the-future-e-tool.html>
