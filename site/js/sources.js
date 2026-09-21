@@ -117,7 +117,7 @@ function render(){
 
     const details = document.createElement("a");
     details.className = "linkbtn";
-    details.href = "/ca-sea-change-atlas/compare/tool/" + tool.id + "/";
+    details.href = "tool/" + tool.id + "/";
     details.textContent = "Details";
     actions.appendChild(details);
 

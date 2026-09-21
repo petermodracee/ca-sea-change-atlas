@@ -57,7 +57,7 @@ Status is per *tool*, not per panel group. A tool can be implemented inside anot
 - **Cards:** name, org, description, a status tag (implemented / external tool only / not implemented), scope and first two process tags, release note, a "Details" link to `/compare/tool/<id>/`, an "Open tool" link (or "Link unverified"), and a compare toggle.
 - **Compare:** up to three tools. The bar shows selections, and its "View comparison" link opens `side-by-side/?tools=<id>,<id>[,<id>]` (see below). There is no inline comparison table any more.
 - `render()` is a full re-render on every state change. That is fine at this data size.
-- The `Details` link and the `tools.json` footer link in `site/compare/index.njk` hardcode the `/ca-sea-change-atlas/` path prefix, so a prefix change needs edits in `site/js/sources.js` and `site/compare/index.njk` as well as `.eleventy.js`.
+- The `Details` link (`site/js/sources.js`) and the `tools.json` footer link (`site/compare/index.njk`) are relative to `/compare/`, so they survive a host or path-prefix change.
 
 ## Tool page (`site/compare/tool.njk`)
 

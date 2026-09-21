@@ -1,4 +1,4 @@
 module.exports = {
-  url: "https://petermodracee.github.io/ca-sea-change-atlas",
+  url: "https://seachangeatlas.org",
   name: "CA Sea Change Atlas",
 };

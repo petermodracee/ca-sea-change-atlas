@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://petermodracee.github.io/ca-sea-change-atlas/sitemap.xml
+Sitemap: https://seachangeatlas.org/sitemap.xml
