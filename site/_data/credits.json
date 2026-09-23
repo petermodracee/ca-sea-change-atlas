@@ -125,6 +125,12 @@
       "intro": "Non-flood layers you can overlay on the flood data, each loaded from the agency that publishes it.",
       "items": [
         {
+          "name": "California OPC State Sea Level Rise Guidance (2024), Appendix F",
+          "url": "https://www.oceansciencetrust.org/in-practice/2024slrguidance",
+          "note": "Median sea level rise projections for 14 tide gauges, hand-transcribed into the repository (site/_data/opcGaugeProjections.json) and used to compute the County Profiles timing table. The numbers are facts, not the guidance's text, and it states no license; cite the guidance.",
+          "licenses": []
+        },
+        {
           "name": "Caltrans traffic volumes (AADT)",
           "url": "https://data.ca.gov/dataset/annual-average-daily-traffic",
           "licenses": [
@@ -168,6 +174,15 @@
           "name": "NOAA C-CAP land cover and Wetland Potential",
           "url": "https://coast.noaa.gov/digitalcoast/data/ccapregional.html",
           "note": "Served through NOAA's Coastal Flood Exposure Mapper services.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA Coastal County Snapshots (section text)",
+          "url": "https://coast.noaa.gov/digitalcoast/tools/snapshots.html",
+          "toolId": "noaa-coastal-county-snapshots",
+          "note": "The explanatory prose of each County Profiles section is NOAA's own, reused with the adaptations listed in docs/COUNTY-PROFILES.md. NOAA's figures are not used.",
           "licenses": [
             "pd-us"
           ]
@@ -251,8 +266,24 @@
     {
       "id": "libraries",
       "title": "Libraries & fonts",
-      "intro": "Loaded from public CDNs at pinned versions with Subresource Integrity hashes, not bundled into this repository (except Eleventy, which only runs at build time).",
+      "intro": "Loaded from public CDNs at pinned versions with Subresource Integrity hashes, not bundled into this repository (except Eleventy, d3-array and d3-scale, which only run at build time).",
       "items": [
+        {
+          "name": "d3-array",
+          "url": "https://github.com/d3/d3-array",
+          "note": "Sums for the County Profiles charts (build time only).",
+          "licenses": [
+            "isc"
+          ]
+        },
+        {
+          "name": "d3-scale",
+          "url": "https://github.com/d3/d3-scale",
+          "note": "Scale maths for the County Profiles share rings (build time only).",
+          "licenses": [
+            "isc"
+          ]
+        },
         {
           "name": "Eleventy",
           "url": "https://www.11ty.dev/",
@@ -316,6 +347,14 @@
           "note": "Page fonts, via Google Fonts.",
           "licenses": [
             "ofl"
+          ]
+        },
+        {
+          "name": "Material Symbols",
+          "url": "https://github.com/marella/material-symbols",
+          "note": "County Profiles' Diverse Economies chart: one small icon per economic sector, pulled from the @material-symbols/svg-400 package at build time.",
+          "licenses": [
+            "apache-2"
           ]
         }
       ]

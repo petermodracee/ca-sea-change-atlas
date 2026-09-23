@@ -1,0 +1,285 @@
+{
+  "_meta": "Single source of truth for the shape of a County Profiles snapshot and for its closed vocabularies (tiers, topics, sections, reason codes, vintage kinds). One snapshot file describes one county. Enforced at build time by scripts/county-profiles/validate.js, which _data/countyProfiles.js runs over every snapshot; any error fails the build. Section headings and prose are NOAA Coastal County Snapshots' own text (a U.S. federal work), with the adaptations listed in docs/COUNTY-PROFILES.md.",
+
+  "snapshotShape": {
+    "fips": "5-digit county FIPS, string. Must match a countySpine entry and the file name.",
+    "slug": "URL slug. Must match the spine.",
+    "county": "Display name. Must match the spine.",
+    "tier": "One of the keys of `tiers` below. Must match the spine.",
+    "fixture": "true on hand-written placeholder snapshots (site/_data/countyProfileFixtures/), absent on pipeline output in data/county-profiles/latest/. The validator requires each in its place.",
+    "snapshot": "ISO date, YYYY-MM-DD. The archive key.",
+    "method": "Positive integer. See `method` below.",
+    "generated": "ISO 8601 UTC timestamp of the build that wrote the file.",
+    "gauge": "null for a county with no reference tide gauge (flood-only tier), else {id, name, altGauge}. `id` and `altGauge` (null or {id, name}) must match the spine. Whether the county straddles two sea level regimes is computed at build from the two gauges' timing tables and is never stored.",
+    "geometry": "null in Phase 1. Provisioned for the inset map: later {\"nfhl\": \"nfhl-2009-12-03\"}, a reference to vintage-keyed geometry shared across snapshots (see docs/COUNTY-PROFILES.md).",
+    "sources": "Map of source key to {label, url, vintage, retrieved, verified}. One entry per dataset actually used: every key must be cited by at least one section, and every section citation must resolve here. `vintage` is one of the `vintageKinds` below, or null only where the source publishes none; `retrieved` is when this build fetched the data; `verified` is when the endpoint last answered. `retrieved` and `verified` are never null.",
+    "topics": "One key per entry of `topics` below, in that order. Each is {available, reason, sections}."
+  },
+
+  "vintageKinds": {
+    "date": "{kind: \"date\", date}: the data describes a single day.",
+    "period": "{kind: \"period\", start, end}: the data spans dates (NFHL: the earliest to the latest panel EFF_DATE in the county).",
+    "year": "{kind: \"year\", year}: the data describes a published year (ACS uses the Census API vintage key, which is the dataset's final year; LODES and ENOW are years)."
+  },
+
+  "availability": {
+    "rule": "Every topic and every section carries `available` (boolean) and `reason`. `reason` is non-null if and only if `available` is false, and must be a key of `reasons`. An unavailable topic has `sections: {}`. An available topic has exactly the sections listed for it below. An available section has a `data` object; an unavailable section has `data: null`.",
+    "zero": "Zero is not unavailable. A count of 0 is `available: true` with the value 0 in `data`, and renders as a finding. Unavailable renders as a reasoned gap.",
+    "suppressed": "Suppressed is a third, value-level state: the publisher withholds a figure (ENOW does this for confidentiality). It is written {\"suppressed\": true} in place of a number, only where a section kind allows it (the ENOW-sourced economy sections), and renders as \"withheld\", distinct from a 0 and from an unavailable section. A total that has a suppressed component is stored as {value, partial: true}, where value is the sum of the components that are present; the validator checks `partial` is true if and only if a component is suppressed. Anything derived from a partial or suppressed value (a top sector, a highest wage) is marked with an asterisk. A withheld chart segment is drawn as a marked placeholder, never a gap in the chart."
+  },
+
+  "method": "A monotonic integer, not a date or a semver: a date is confused with the data vintage beside it, and semver implies compatibility semantics that do not apply. It increments on any pipeline change that could move a number while the source data stays put (switching the intersect from block centroids to areal weighting, changing the rollup geography, fixing an aggregation bug). It does not increment for a new section, a restyle or an added county. Two snapshots carrying different method values are never joined by a trend line.",
+
+  "increments": [2, 4, 6, 8, 10],
+
+  "reasons": {
+    "outside-enow": {
+      "label": "Outside ENOW",
+      "rule": "Outside the economic county definition used by NOAA's Economics: National Ocean Watch (ENOW), so there is no economy data for this county."
+    },
+    "not-shore-adjacent": {
+      "label": "Not shore-adjacent",
+      "rule": "On ENOW's county list but outside its shore-adjacent county definition, so the total-economy figures, which cover shore-adjacent counties, do not include it."
+    },
+    "no-slr-extent": {
+      "label": "No SLR extent",
+      "rule": "No significant sea level rise inundation extent in this county, so there is nothing to intersect."
+    },
+    "no-nfhl-coverage": {
+      "label": "No NFHL coverage",
+      "rule": "No effective FEMA National Flood Hazard Layer coverage for this county."
+    },
+    "source-geography": {
+      "label": "Not in source",
+      "rule": "The source dataset does not extend to this geography."
+    }
+  },
+
+  "tiers": {
+    "full": {
+      "label": "Full",
+      "summary": "All four topics.",
+      "topics": {
+        "flood": { "available": true, "reason": null },
+        "slr": { "available": true, "reason": null },
+        "total-economy": { "available": true, "reason": null },
+        "marine-economy": { "available": true, "reason": null }
+      }
+    },
+    "delta": {
+      "label": "Delta",
+      "summary": "Flood hazard and marine economy. No sea level rise, and no total economy: these counties are on ENOW's list but outside its shore-adjacent definition.",
+      "topics": {
+        "flood": { "available": true, "reason": null },
+        "slr": { "available": false, "reason": "no-slr-extent" },
+        "total-economy": { "available": false, "reason": "not-shore-adjacent" },
+        "marine-economy": { "available": true, "reason": null }
+      }
+    },
+    "flood-only": {
+      "label": "Flood only",
+      "summary": "Flood hazard only.",
+      "topics": {
+        "flood": { "available": true, "reason": null },
+        "slr": { "available": false, "reason": "no-slr-extent" },
+        "total-economy": { "available": false, "reason": "outside-enow" },
+        "marine-economy": { "available": false, "reason": "outside-enow" }
+      }
+    }
+  },
+
+  "sectionKinds": {
+    "rings": "data: {items: [{label, count, total, unit}]}, plus landInsideSqMi and landTotalSqMi (flood People at Risk) or naturalSqMi and floodplainSqMi (flood natural features) for the callout. Each item is a share ring: count of total. The only kind that renders as a ring; it is used by exactly these two sections.",
+    "inside-outside": "data: {items: [{label, inside, outside}]}. Renders as horizontal stacked bars, one per item, split into inside/outside segments, as counts.",
+    "payouts": "data: {items: [{period, amount}], claims}. Horizontal bars of NFIP payouts by period.",
+    "single-share": "data: {count, total}. No visual; the callout carries the figure.",
+    "increment-bars": "data: {increments, measures: [{label, unit, total, counts: [one per increment]}]}. Vertical grouped columns: one group per measure, one column per increment, as counts.",
+    "increment-composition": "data: {increments, classes: [{label, values: [one per increment]}]}. Renders as one horizontal stacked bar per increment, segments in square miles.",
+    "increment-single": "data: {increments, total, counts: [one per increment]}. No visual.",
+    "stats": "data: {establishments, jobs, wages, gdp, denominator}. Four figures; each may be suppressed except `denominator`. No prose of its own.",
+    "sector-measures": "data: {sectors: [{label, establishments, wages, employment, gdp}]}. Renders as four 100%-stacked horizontal bars, one per measure, sharing one sector order and colour set. Any sector value may be suppressed per measure; a withheld segment is a marked placeholder, not a gap.",
+    "sector-wages": "data: {items: [{label, county, coastalState, coastalUS}]}. A dot plot: one row per sector, one dot each for county, coastal California and coastal U.S. average wage. Any value may be suppressed.",
+    "jobs-equation": "data: {employed, selfEmployed, total: {value, partial}, sectors: [{label, selfEmployed}]}. Any count may be suppressed.",
+    "stat-pair": "data: {sfha: {count, total}, slr6: {count, total}}. Two counts, no callout.",
+    "timing": "data: {}. Computed at build from the gauge and the OPC reference file; not stored."
+  },
+
+  "callouts": "One per section, {figure, caption}, shown above the visual. `figure` is a short formatted value (a percentage, a count) built from a number already in the section's data, so it can't drift from the chart. `caption` is a full sentence naming the county that completes the figure's thought — it reframes against a different denominator, aggregates what the visual breaks out, gives the leading edge (the lowest increment), or names the top category — and never restates a value the visual displays elsewhere as its own labelled figure. A section with no visual carries {figure, caption} alone. scripts/county-profiles/section-models.js builds each callout and fails the build if its figure repeats a value the visual displays. The one deliberate exception is SLR People at Risk: its columns show counts, so the caption is allowed to also state the headcount at the lowest increment alongside the figure (a share) the columns do not show; see the comment in section-models.js.",
+
+  "use": "Every section carries use: {ui, pdf, present}, booleans saying which output the section appears in. Phase 1 honours `ui`.",
+
+  "chartStyle": "Every chart is hand-rolled SVG (d3-scale/d3-array for scale and extent maths only), rendered fully at build time — the Chart/Table switch on each figure only toggles between two already-rendered views with `hidden`, and draws nothing itself. Bars and columns are at most 24px thick, with a 4px rounded corner at the data end and a square baseline end; stacked segments have a 2px surface-colour gap between them. Every chart carries a title/desc and a table view of the same values for accessibility and print. A chart with 2 or more series or segment types shows a legend. Ordinal series (the five sea level rise increments; the three OPC scenarios) use one teal ramp, light to dark, never a categorical palette; scenarios use its 1st, 3rd and 5th steps.",
+
+  "topics": [
+    {
+      "id": "flood",
+      "slug": "flood-hazard",
+      "label": "Flood hazard",
+      "basis": "in the FEMA 100-year floodplain",
+      "intro": "To create the beginnings of a vulnerability assessment, this snapshot combines local vulnerability data with maps that depict the 100-year floodplain.",
+      "sections": [
+        {
+          "id": "people-at-risk",
+          "title": "People at Risk",
+          "prose": ["Rising populations in flood prone areas exacerbate flooding risk. Impacts can be greater to the elderly or those with a low income, as these citizens may not have the resources to adequately prepare or recover."],
+          "kind": "rings"
+        },
+        {
+          "id": "critical-facilities",
+          "title": "Flooded Facilities Can't Provide Critical Services",
+          "prose": ["First responders. Hospitals. Shelters. All play a central role in response and recovery. Incorporating vulnerability information into planning efforts save lives (fewer instances where critical services are made unavailable) and is cost effective (fewer damages to facilities)."],
+          "kind": "inside-outside",
+          "caption": "Critical facilities inside and outside the floodplain, by type."
+        },
+        {
+          "id": "homes-at-risk",
+          "title": "Homes at Risk",
+          "prose": ["Flooding is costly for homeowners, no doubt. But the community also shares in the cost as lowered property values negatively affect tax revenues."],
+          "kind": "payouts",
+          "caption": "National Flood Insurance Program payouts by five-year period."
+        },
+        {
+          "id": "jobs-at-risk",
+          "title": "Being Underwater Is Not a Good Business Plan",
+          "prose": [
+            "Flood-related losses of services, revenues, and salaries can hit a community hard.",
+            "This counts jobs, not businesses: a different measure from the business counts NOAA's original snapshots reported."
+          ],
+          "kind": "single-share"
+        },
+        {
+          "id": "natural-features",
+          "title": "A Better Future is a Greener Future",
+          "prose": ["How do past development trends in your county compare to today’s approach? Development in flood-prone areas should be kept to a minimum. Creating more greenspace, which acts as a flooding buffer, lowers flood risk. Adding more impervious surfaces (even outside of the floodplain) can increase runoff and exacerbate flooding."],
+          "kind": "rings",
+          "caption": "Development added, 1996–2016, as a share of land developed by 2016."
+        }
+      ]
+    },
+    {
+      "id": "slr",
+      "slug": "sea-level-rise",
+      "label": "Sea level rise",
+      "basis": "under NOAA sea level rise inundation",
+      "intro": "Visualize sea level rise exposure with this snapshot. Consider incorporating this data into all community planning strategies. In many communities, rising sea levels are already increasing the impacts of high tide flooding and storm surge events.",
+      "sections": [
+        {
+          "id": "people-at-risk",
+          "title": "People at Risk",
+          "prose": ["Rising population numbers exacerbate potential flooding risk; impacts can be even greater when social vulnerability factors (age, income, capabilities) are involved, as these citizens may not be able to adequately prepare and respond."],
+          "kind": "increment-bars",
+          "caption": "Residents exposed at each increment of sea level rise."
+        },
+        {
+          "id": "critical-facilities",
+          "title": "Flooded Facilities Can't Provide Critical Services",
+          "prose": ["Fire and police stations. Hospitals. Shelters. These facilities play a central role in response and recovery. Understanding future exposure can help reduce damages and the conditions that make these services unavailable."],
+          "kind": "increment-bars",
+          "caption": "Facilities exposed at each increment of sea level rise, by type."
+        },
+        {
+          "id": "jobs-at-risk",
+          "title": "Being Underwater Is Not a Good Business Plan",
+          "prose": [
+            "Flood-related losses of services, revenues, and salaries can hit a community hard.",
+            "This counts jobs, not businesses: a different measure from the business counts NOAA's original snapshots reported."
+          ],
+          "kind": "increment-single"
+        },
+        {
+          "id": "natural-landscapes",
+          "title": "Creating a Better Future: Yes, It Can Be Done",
+          "prose": ["Make it a goal: more natural areas (wetlands, forests, parks, dunes, etc.) to absorb floodwaters and protect the community, and less development in flood-prone areas. Consider not only today’s floodplain, but also the floodplain extent projected for the future."],
+          "kind": "increment-composition",
+          "caption": "Land cover inundated at each increment of sea level rise, in square miles."
+        },
+        {
+          "id": "when-to-act",
+          "title": "When Is the Time to Act? Now!",
+          "prose": ["Because a number of factors are involved, sea level rise projections are often expressed as scenarios. For projects involving structures with a long lifespan or where a loss would be catastrophic (power plants, ports, hospitals), the higher sea level rise scenarios should be considered. For projects with a shorter lifespan (bike paths, golf courses, parks), lower sea level rise scenarios may be appropriate."],
+          "kind": "timing",
+          "graph": { "ui": true, "pdf": false, "present": true }
+        }
+      ]
+    },
+    {
+      "id": "total-economy",
+      "slug": "total-economy",
+      "label": "Total economy",
+      "basis": "in the floodplain or under sea level rise inundation",
+      "intro": "Understanding the businesses at risk from a changing climate is important. This data covers all economic activity occurring in coastal shoreline counties: jobs in banks, grocery stores, local government, and everything in between.",
+      "sections": [
+        {
+          "id": "measuring",
+          "title": "If You Can't Measure It, You Can't Protect It",
+          "prose": [],
+          "kind": "stats"
+        },
+        {
+          "id": "diversity",
+          "title": "Diverse Economies are Resilient Economies",
+          "prose": ["An economy comprised of multiple sectors can better handle disruptions, including storms and economic downturns. Understanding how each sector is represented in your coastal county is important, particularly for hazard mitigation planning."],
+          "kind": "sector-measures",
+          "caption": "Establishments, wages, employment and GDP by sector, each as a share of the county total."
+        },
+        {
+          "id": "jobs-at-risk",
+          "title": "Coastal Jobs Are Vulnerable",
+          "prose": [
+            "Many jobs in coastal counties are vulnerable to flooding. This graphic shows the number of jobs threatened by two flood scenarios: current flooding (the 100-year floodplain) and future flooding (six feet of sea level rise).",
+            "This counts jobs, not businesses: a different measure from the business counts NOAA's original snapshots reported."
+          ],
+          "kind": "stat-pair"
+        },
+        {
+          "id": "wages",
+          "title": "Wages",
+          "prose": ["Understanding the economic vulnerability of the workforce helps leaders better understand the long- and short-term impact of coastal storms, economic downturns, etc. In general, the sectors with the lowest average wages are more likely to be affected."],
+          "kind": "sector-wages",
+          "caption": "Average wage per job, by sector."
+        },
+        {
+          "id": "total-jobs",
+          "title": "Total Jobs",
+          "prose": ["Many economic reports don't include the self-employed in their job numbers, yet this group can play an important role in the local economy. Most commercial fishermen, for instance, are self-employed."],
+          "kind": "jobs-equation"
+        }
+      ]
+    },
+    {
+      "id": "marine-economy",
+      "slug": "marine-economy",
+      "label": "Marine economy",
+      "basis": "in the floodplain or under sea level rise inundation",
+      "intro": "Businesses that are dependent on marine resources are particularly vulnerable to coastal hazards. (Note: “Total coastal economy” refers to all economic activity in the shoreline counties and is covered in the total economy section of this page.)",
+      "sections": [
+        {
+          "id": "measuring",
+          "title": "If You Can't Measure It, You Can't Protect It",
+          "prose": [],
+          "kind": "stats"
+        },
+        {
+          "id": "diversity",
+          "title": "Business Diversity",
+          "prose": ["Understanding the types and amounts of businesses in the marine economy will inform community planning and management initiatives. This graphic highlights the six sectors that make up the marine economy."],
+          "kind": "sector-measures",
+          "caption": "Establishments, wages, employment and GDP by sector, each as a share of the county total."
+        },
+        {
+          "id": "wages",
+          "title": "Wages",
+          "prose": ["Understanding wage vulnerability helps leaders better understand the long and short-term impact of coastal storms, economic downturns, etc. Lower wage sectors are usually affected the most."],
+          "kind": "sector-wages",
+          "caption": "Average wage per job, by sector."
+        },
+        {
+          "id": "total-jobs",
+          "title": "Total Jobs",
+          "prose": ["Many economic reports don't include the self-employed in their job numbers, yet this group can play an important role in the local economy. Most commercial fishermen, for instance, are self-employed."],
+          "kind": "jobs-equation"
+        }
+      ]
+    }
+  ]
+}

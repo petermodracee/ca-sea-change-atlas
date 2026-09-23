@@ -1,0 +1,239 @@
+{
+  "_meta": "Hand-authored county spine: the 27 California counties County Profiles covers, inherited from NOAA's own Coastal County Snapshots list. It lives in _data/ rather than data/county-profiles/ because that directory holds pipeline-generated snapshots only. `gauge` is an id into `gauges` (the reference tide gauge, an editorial call; null for the flood-only tier). `altGauge` is the optional second gauge for a county with a second sea level regime. Whether a county straddles is not authored here: it is computed at build from the two gauges' timing tables (scripts/county-profiles/timing.js). Tier rules and reason codes are in data/countyProfileSchema.json. Rationale: docs/COUNTY-PROFILES.md.",
+  "gauges": {
+    "crescent-city": {
+      "name": "Crescent City"
+    },
+    "north-spit": {
+      "name": "North Spit"
+    },
+    "arena-cove": {
+      "name": "Arena Cove"
+    },
+    "point-reyes": {
+      "name": "Point Reyes"
+    },
+    "san-francisco": {
+      "name": "San Francisco"
+    },
+    "alameda": {
+      "name": "Alameda"
+    },
+    "port-chicago": {
+      "name": "Port Chicago"
+    },
+    "monterey": {
+      "name": "Monterey"
+    },
+    "port-san-luis": {
+      "name": "Port San Luis"
+    },
+    "santa-barbara": {
+      "name": "Santa Barbara"
+    },
+    "los-angeles": {
+      "name": "Los Angeles"
+    },
+    "san-diego": {
+      "name": "San Diego"
+    },
+    "santa-monica": {
+      "name": "Santa Monica"
+    }
+  },
+  "counties": [
+    {
+      "fips": "06001",
+      "slug": "alameda",
+      "name": "Alameda",
+      "tier": "full",
+      "gauge": "alameda"
+    },
+    {
+      "fips": "06013",
+      "slug": "contra-costa",
+      "name": "Contra Costa",
+      "tier": "full",
+      "gauge": "port-chicago"
+    },
+    {
+      "fips": "06015",
+      "slug": "del-norte",
+      "name": "Del Norte",
+      "tier": "full",
+      "gauge": "crescent-city"
+    },
+    {
+      "fips": "06023",
+      "slug": "humboldt",
+      "name": "Humboldt",
+      "tier": "full",
+      "gauge": "north-spit"
+    },
+    {
+      "fips": "06037",
+      "slug": "los-angeles",
+      "name": "Los Angeles",
+      "tier": "full",
+      "gauge": "los-angeles",
+      "altGauge": "santa-monica"
+    },
+    {
+      "fips": "06041",
+      "slug": "marin",
+      "name": "Marin",
+      "tier": "full",
+      "gauge": "point-reyes",
+      "altGauge": "san-francisco"
+    },
+    {
+      "fips": "06045",
+      "slug": "mendocino",
+      "name": "Mendocino",
+      "tier": "full",
+      "gauge": "arena-cove"
+    },
+    {
+      "fips": "06053",
+      "slug": "monterey",
+      "name": "Monterey",
+      "tier": "full",
+      "gauge": "monterey"
+    },
+    {
+      "fips": "06055",
+      "slug": "napa",
+      "name": "Napa",
+      "tier": "full",
+      "gauge": "port-chicago"
+    },
+    {
+      "fips": "06059",
+      "slug": "orange",
+      "name": "Orange",
+      "tier": "full",
+      "gauge": "los-angeles"
+    },
+    {
+      "fips": "06073",
+      "slug": "san-diego",
+      "name": "San Diego",
+      "tier": "full",
+      "gauge": "san-diego"
+    },
+    {
+      "fips": "06075",
+      "slug": "san-francisco",
+      "name": "San Francisco",
+      "tier": "full",
+      "gauge": "san-francisco"
+    },
+    {
+      "fips": "06079",
+      "slug": "san-luis-obispo",
+      "name": "San Luis Obispo",
+      "tier": "full",
+      "gauge": "port-san-luis"
+    },
+    {
+      "fips": "06081",
+      "slug": "san-mateo",
+      "name": "San Mateo",
+      "tier": "full",
+      "gauge": "san-francisco",
+      "altGauge": "alameda"
+    },
+    {
+      "fips": "06083",
+      "slug": "santa-barbara",
+      "name": "Santa Barbara",
+      "tier": "full",
+      "gauge": "santa-barbara"
+    },
+    {
+      "fips": "06085",
+      "slug": "santa-clara",
+      "name": "Santa Clara",
+      "tier": "full",
+      "gauge": "alameda"
+    },
+    {
+      "fips": "06087",
+      "slug": "santa-cruz",
+      "name": "Santa Cruz",
+      "tier": "full",
+      "gauge": "monterey"
+    },
+    {
+      "fips": "06095",
+      "slug": "solano",
+      "name": "Solano",
+      "tier": "full",
+      "gauge": "port-chicago"
+    },
+    {
+      "fips": "06097",
+      "slug": "sonoma",
+      "name": "Sonoma",
+      "tier": "full",
+      "gauge": "point-reyes",
+      "altGauge": "san-francisco"
+    },
+    {
+      "fips": "06111",
+      "slug": "ventura",
+      "name": "Ventura",
+      "tier": "full",
+      "gauge": "santa-barbara"
+    },
+    {
+      "fips": "06067",
+      "slug": "sacramento",
+      "name": "Sacramento",
+      "tier": "delta",
+      "gauge": "port-chicago"
+    },
+    {
+      "fips": "06077",
+      "slug": "san-joaquin",
+      "name": "San Joaquin",
+      "tier": "delta",
+      "gauge": "port-chicago"
+    },
+    {
+      "fips": "06113",
+      "slug": "yolo",
+      "name": "Yolo",
+      "tier": "delta",
+      "gauge": "port-chicago"
+    },
+    {
+      "fips": "06033",
+      "slug": "lake",
+      "name": "Lake",
+      "tier": "flood-only",
+      "gauge": null
+    },
+    {
+      "fips": "06069",
+      "slug": "san-benito",
+      "name": "San Benito",
+      "tier": "flood-only",
+      "gauge": null
+    },
+    {
+      "fips": "06101",
+      "slug": "sutter",
+      "name": "Sutter",
+      "tier": "flood-only",
+      "gauge": null
+    },
+    {
+      "fips": "06105",
+      "slug": "trinity",
+      "name": "Trinity",
+      "tier": "flood-only",
+      "gauge": null
+    }
+  ]
+}
