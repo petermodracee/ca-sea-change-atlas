@@ -12,7 +12,7 @@
     "generated": "ISO 8601 UTC timestamp of the build that wrote the file.",
     "gauge": "null for a county with no reference tide gauge (flood-only tier), else {id, name, altGauge}. `id` and `altGauge` (null or {id, name}) must match the spine. Whether the county straddles two sea level regimes is computed at build from the two gauges' timing tables and is never stored.",
     "geometry": "null in Phase 1. Provisioned for the inset map: later {\"nfhl\": \"nfhl-2009-12-03\"}, a reference to vintage-keyed geometry shared across snapshots (see docs/COUNTY-PROFILES.md).",
-    "sources": "Map of source key to {label, url, vintage, retrieved, verified}. One entry per dataset actually used: every key must be cited by at least one section, and every section citation must resolve here. `vintage` is one of the `vintageKinds` below, or null only where the source publishes none; `retrieved` is when this build fetched the data; `verified` is when the endpoint last answered. `retrieved` and `verified` are never null.",
+    "sources": "Map of source key to {label, url, vintage, retrieved, verified}. One entry per dataset actually used: every key must be cited by at least one section, and every section citation must resolve here. An unavailable section cites nothing (`sources: []`), so a source it would have used is not listed until it is. An unavailable section cites nothing (`sources: []`), so a source it would have used is not listed until it is. `vintage` is one of the `vintageKinds` below, or null only where the source publishes none; `retrieved` is when this build fetched the data; `verified` is when the endpoint last answered. `retrieved` and `verified` are never null.",
     "topics": "One key per entry of `topics` below, in that order. Each is {available, reason, sections}."
   },
 
@@ -52,6 +52,10 @@
     "source-geography": {
       "label": "Not in source",
       "rule": "The source dataset does not extend to this geography."
+    },
+    "pending-phase-3": {
+      "label": "Ships in Phase 3",
+      "rule": "A section whose source (NOAA ENOW or C-CAP land cover) is not in the data pipeline yet. It is built in Phase 3, and this reason is removed from the section when it ships. Used on sections only, never as a tier rule; until then the site fills the section from the county's fixture, marked as placeholder."
     }
   },
 

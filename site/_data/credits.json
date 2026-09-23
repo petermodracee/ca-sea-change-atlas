@@ -194,6 +194,38 @@
           "licenses": [
             "pd-us"
           ]
+        },
+        {
+          "name": "U.S. Census Bureau — American Community Survey (5-year)",
+          "url": "https://www.census.gov/programs-surveys/acs/data.html",
+          "note": "County Profiles: population, residents aged 65 and over and residents below the poverty line, by block group, from the bulk summary files.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Census Bureau — 2020 tabulation blocks (TIGER/TIGERweb)",
+          "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/Census2020/Tracts_Blocks/MapServer",
+          "note": "County Profiles: block boundaries, internal points, 2020 populations and land areas, the block-level geography every hazard intersect is made at.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Census Bureau — LEHD LODES",
+          "url": "https://lehd.ces.census.gov/data/lodes/",
+          "note": "County Profiles: jobs by workplace block (LODES8 workplace area characteristics, all jobs).",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "FEMA OpenFEMA — NFIP claims",
+          "url": "https://www.fema.gov/openfema-data-page/nfip-redacted-claims-v3",
+          "note": "County Profiles: National Flood Insurance Program claims and payouts by five-year period.",
+          "licenses": [
+            "pd-us"
+          ]
         }
       ]
     },
@@ -355,6 +387,14 @@
           "note": "County Profiles' Diverse Economies chart: one small icon per economic sector, pulled from the @material-symbols/svg-400 package at build time.",
           "licenses": [
             "apache-2"
+          ]
+        },
+        {
+          "name": "polygon-clipping",
+          "url": "https://github.com/mfogel/polygon-clipping",
+          "note": "Polygon intersection and union for County Profiles land-in-floodplain areas (build time only).",
+          "licenses": [
+            "mit"
           ]
         }
       ]

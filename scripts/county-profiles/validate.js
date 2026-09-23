@@ -284,7 +284,9 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
       if (!isObj(sec.use) || ["ui", "pdf", "present"].some((k) => typeof sec.use[k] !== "boolean")) {
         fail(sw + ".use must be {ui, pdf, present} booleans");
       }
-      if (!Array.isArray(sec.sources) || !sec.sources.length) fail(sw + ".sources must be a non-empty array");
+      if (!Array.isArray(sec.sources)) fail(sw + ".sources must be an array");
+      if ((sec.available || fixture) && !sec.sources.length) fail(sw + ".sources must be a non-empty array");
+      if (!sec.available && !fixture && sec.sources.length) fail(sw + " is unavailable, so it cites no sources (an unused source would need a retrieval stamp it never earned)");
       for (const key of sec.sources) {
         if (!snap.sources[key]) fail(sw + ".sources cites " + key + ", which is not in sources");
         cited.add(key);
