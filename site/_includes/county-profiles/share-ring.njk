@@ -1,0 +1,19 @@
+{#- A share as a ring with the single figure centred. Hand-rolled SVG; geometry from the `ring` filter (d3-scale).
+    The complement is never labelled. `uid` must be unique on the page (it names the <title>/<desc> ids).
+    `label` names the figure for assistive tech; `caption` is the visible label. With showCounts false the
+    counts appear nowhere, not even in <desc>. Colours come from CASCA's custom properties via CSS. -#}
+{% macro shareRing(uid, label, caption, count, total, unit, basis, showCounts) %}
+{%- set r = count | ring(total) %}
+<figure class="share">
+<svg class="share-ring" viewBox="0 0 {{ r.size }} {{ r.size }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d">
+<title id="{{ uid }}-t">{{ label }}: {{ r.text }}</title>
+<desc id="{{ uid }}-d">{% if showCounts %}{{ count | num }} of {{ total | num }} {{ unit }}{% if basis %} {{ basis }}{% endif %}.{% else %}Share of {{ unit }}.{% endif %}</desc>
+<circle class="share-track" cx="{{ r.center }}" cy="{{ r.center }}" r="{{ r.radius }}" fill="none" stroke-width="{{ r.stroke }}"/>
+{%- if r.arc > 0 %}
+<circle class="share-arc" cx="{{ r.center }}" cy="{{ r.center }}" r="{{ r.radius }}" fill="none" stroke-width="{{ r.stroke }}" stroke-dasharray="{{ r.arc | round(2) }} {{ r.circumference | round(2) }}" transform="rotate(-90 {{ r.center }} {{ r.center }})"/>
+{%- endif %}
+<text class="share-figure" x="{{ r.center }}" y="{{ r.center }}" text-anchor="middle" dy=".35em">{{ r.text }}</text>
+</svg>
+<figcaption><span class="share-label">{{ caption }}</span>{% if showCounts %}<span class="share-detail">{{ count | num }} of {{ total | num }}</span>{% endif %}</figcaption>
+</figure>
+{% endmacro %}

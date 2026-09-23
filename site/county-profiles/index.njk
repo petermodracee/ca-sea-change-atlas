@@ -1,0 +1,77 @@
+---
+layout: base.njk
+title: County profiles — CA Sea Change Atlas
+description: Flood, sea level rise and ocean-economy exposure for California's coastal and Delta counties, with the vintage of every figure and the reason behind every gap.
+nav: county-profiles
+---
+{%- set cp = countyProfiles %}
+{%- set floodOnly = cp.floodOnly %}
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<h1>County profiles</h1>
+<p class="lede">What does sea level rise and flooding mean for my jurisdiction? A profile for each of {{ cp.counties | length }} California counties, rebuilding the function of NOAA's discontinued Coastal County Snapshots. Every figure carries its vintage, and every gap says why it is a gap.</p>
+<p class="hero-about-link">This tool is under development. Its pages currently show placeholder figures, not measurements.</p>
+</div>
+</div>
+
+<div class="main">
+<div class="wrap cp">
+
+<section class="cp-topic" id="coverage">
+<h2>Coverage</h2>
+<p class="cp-note">Each county has four topics. A topic is either available or unavailable for a stated reason. The reasons are rules, not shrugs; they are listed under the table.</p>
+<div class="cp-table-wrap">
+<table class="cp-matrix">
+<thead>
+<tr><th scope="col">County</th>{% for t in cp.topics %}<th scope="col">{{ t.label }}</th>{% endfor %}</tr>
+</thead>
+<tbody>
+{%- for c in cp.counties %}
+<tr>
+<th scope="row"><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}">{{ c.name }}</a><span class="cp-matrix-tier">{{ c.tierLabel }}</span></th>
+{%- for t in c.coverage %}
+{%- if t.available %}
+<td class="is-available"><span aria-hidden="true">●</span> Available</td>
+{%- else %}
+<td class="is-unavailable" title="{{ cp.reasonsById[t.reason].rule }}"><span aria-hidden="true">○</span> {{ t.reasonLabel }}</td>
+{%- endif %}
+{%- endfor %}
+</tr>
+{%- endfor %}
+</tbody>
+</table>
+</div>
+<h3>Reasons a topic is unavailable</h3>
+<dl class="cp-reasons">
+{%- for r in cp.reasons %}
+<div><dt>{{ r.label }} <code>{{ r.id }}</code></dt><dd>{{ r.rule }}</dd></div>
+{%- endfor %}
+</dl>
+<p class="cp-note"><strong>Zero is not unavailable.</strong> A count of 0, such as no medical facilities in a county's floodplain, is an answer and is shown as one. Unavailable means there is no data, and the reason is given. A figure the publisher withholds is a third state, shown as "withheld". <a href="{{ '/county-profiles/about/' | url }}">How the figures are computed</a>.</p>
+</section>
+
+<section class="cp-topic" id="why-these-counties">
+<h2>Why these {{ cp.counties | length }} counties</h2>
+<p>The list is inherited from NOAA's own Coastal County Snapshots rather than defined afresh. {{ cp.enowCount }} of the counties are NOAA's Economics: National Ocean Watch (ENOW) list for California: a modified coastal-county definition that drops shore-adjacent counties with no relevant ocean economy and adds inland counties that have one. The rest are kept because working flood data exists for them.</p>
+<p>The atlas therefore covers counties reachable by tide and by Delta flooding, not shoreline counties alone. That is a more accurate picture of California's exposure than a shoreline-only definition, and it follows from CASCA being a coastal resilience atlas rather than a sea-level-rise-only project.</p>
+<h3>Coverage tiers</h3>
+<dl class="cp-tiers">
+{%- for t in cp.tiers %}
+<div>
+<dt>{{ t.label }} <span class="cp-tier-count">{{ t.counties | length }} counties</span></dt>
+<dd>{{ t.summary }} {{ t.names | join(", ") }}.</dd>
+</div>
+{%- endfor %}
+</dl>
+<h3>Why {{ floodOnly.names | join(", ") }} are included</h3>
+<p>These {{ floodOnly.counties | length }} counties are not coastal under any NOAA definition. They appear in NOAA's original because FEMA digital flood data existed for them when the snapshots were built: availability, not geography, put them on the list. They are kept because their flood figures are real and usable, and dropping them would discard working data over a naming argument. Each one states its coverage at the top of its profile, so a reader does not have to infer it from missing sections.</p>
+</section>
+
+</div>
+</div>

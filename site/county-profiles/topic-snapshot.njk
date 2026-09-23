@@ -1,0 +1,24 @@
+---
+layout: base.njk
+pagination:
+  data: countyProfiles.topicPages
+  size: 1
+  alias: entry
+permalink: "county-profiles/county/{{ entry.county.slug }}/{{ entry.county.profile.snapshot }}/{{ entry.topic.slug }}/index.html"
+nav: county-profiles
+bodyClass: cpd-page
+extraScripts:
+  - /js/county-deck.js
+eleventyExcludeFromCollections: true
+eleventyComputed:
+  title: "{{ entry.topic.label }} — {{ entry.county.name }} County profile, snapshot {{ entry.county.profile.snapshot }} — CA Sea Change Atlas"
+  description: "The {{ entry.county.profile.snapshot }} snapshot of {{ entry.county.name }} County's {{ entry.topic.label }} profile."
+  canonical: "{{ site.url }}/county-profiles/county/{{ entry.county.slug }}/{{ entry.topic.slug }}/"
+---
+{%- set county = entry.county %}
+{%- set topic = entry.topic %}
+{%- set sections = entry.sections %}
+{%- set placeholders = entry.placeholders %}
+{%- set sourcesUsed = entry.sourcesUsed %}
+{%- set dated = true %}
+{% include "county-profiles/deck.njk" %}
