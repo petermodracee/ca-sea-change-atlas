@@ -180,18 +180,23 @@ async function fetchUsgs(bbox, fips, opts) {
 
 // --- OpenFEMA NFIP claims (v3; v2 is deprecated and removed 2026-10-15) ---------------------------------
 
+// A claim belongs to the county if either its `countyCode` or the county prefix of its `censusGeoid`
+// (a block-group id) says so. `countyCode` alone misses claims where it is null; in Orange County
+// that is 4 claims from the 1980s, none in a published period, but the guard costs one clause and
+// is right for every county. Filtering by NFIP community number was tried and rejected (see
+// docs/DECISIONS.md): it returned the identical claims here and is a worse key elsewhere.
 async function fetchClaims(fips, opts) {
   const r = await cachedJson("openfema-claims-" + fips + ".json", async () => {
-    const rows = [];
+    const rows = new Map();
     const select = "id,dateOfLoss,yearOfLoss,amountPaidOnBuildingClaim,amountPaidOnContentsClaim,amountPaidOnIncreasedCostOfComplianceClaim,asOfDate";
+    const filter = `countyCode eq '${fips}' or startswith(censusGeoid,'${fips}')`;
     for (let skip = 0; ; skip += 10000) {
-      const url = `${OPENFEMA}?$filter=${encodeURIComponent(`countyCode eq '${fips}'`)}&$select=${select}&$top=10000&$skip=${skip}&$orderby=id`;
-      const j = await getJson(url);
-      const page = j.NfipClaims || [];
-      rows.push(...page);
+      const url = `${OPENFEMA}?$filter=${encodeURIComponent(filter)}&$select=${select}&$top=10000&$skip=${skip}&$orderby=id`;
+      const page = (await getJson(url)).NfipClaims || [];
+      for (const c of page) rows.set(c.id, c);
       if (page.length < 10000) break;
     }
-    return rows;
+    return [...rows.values()];
   }, opts);
   return { value: r.value, fetched: r.fetched };
 }
