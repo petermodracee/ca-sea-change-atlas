@@ -44,6 +44,9 @@
 {%- endif %}
 {%- if dated %}
 <p class="cpd-meta">This is the {{ profile.snapshot }} snapshot. <a href="{{ (base + topic.slug + '/') | url }}">See the current profile</a>.</p>
+{%- if county.correction %}
+<p class="cpd-meta"><strong>Correction notice ({{ county.correction.date }}).</strong> {{ county.correction.note }} See the <a href="{{ (base + county.correction.supersededBy + '/' + topic.slug + '/') | url }}">{{ county.correction.supersededBy }} snapshot</a>. This snapshot is left as published.</p>
+{%- endif %}
 {%- endif %}
 </div>
 <div class="cpd-panel">
@@ -173,7 +176,7 @@
 </table>
 </div>
 </div>
-{%- set footerAttribution %}<a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/latest/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
+{%- set footerAttribution %}<a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
 {% include "footer.njk" %}
 </div>
 </section>

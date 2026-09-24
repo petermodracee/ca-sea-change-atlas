@@ -6,6 +6,7 @@
 const fs = require("fs");
 const path = require("path");
 const opcReference = require("../../site/_data/opcGaugeProjections.json");
+const site = require("../../site/_data/site.js");
 
 // A stale reference to the site's old GitHub Pages home (petermodracee.github.io/ca-sea-change-atlas/),
 // left over from before the seachangeatlas.org move. Every internal link and generated URL (canonical,
@@ -325,4 +326,36 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
   }
 }
 
-module.exports = { validateSnapshot, checkNoStaleHost };
+// Every dated landing page (county-profiles/county/<slug>/<date>/) and dated topic page
+// (.../<date>/<topic>/) must carry <link rel="canonical"> pointing at the current, undated page of the
+// same kind. The archive stays crawlable (a cited figure can be searched for) without competing with
+// the live profile in search ranking. Runs over the built site, so a template change that drops or
+// mistargets the tag fails the build. Returns how many pages it checked.
+function checkArchiveCanonicals(outputDir) {
+  const root = path.join(outputDir, "county-profiles", "county");
+  const bad = [];
+  let checked = 0;
+  if (!fs.existsSync(root)) return 0;
+  for (const slug of fs.readdirSync(root)) {
+    const dir = path.join(root, slug);
+    if (!fs.statSync(dir).isDirectory()) continue;
+    for (const date of fs.readdirSync(dir).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))) {
+      const pages = [[path.join(dir, date, "index.html"), "/county-profiles/county/" + slug + "/"]];
+      for (const topic of fs.readdirSync(path.join(dir, date))) {
+        if (fs.existsSync(path.join(dir, date, topic, "index.html"))) pages.push([path.join(dir, date, topic, "index.html"), "/county-profiles/county/" + slug + "/" + topic + "/"]);
+      }
+      for (const [file, current] of pages) {
+        checked++;
+        const html = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
+        const tags = html.match(/<link rel="canonical" href="[^"]*">/g) || [];
+        const want = '<link rel="canonical" href="' + site.url + current + '">';
+        if (tags.length !== 1 || tags[0] !== want) bad.push(path.relative(outputDir, file) + ": expected " + want + ", found " + (tags.join(" ") || "none"));
+        if (/<meta name="robots"[^>]*noindex/i.test(html)) bad.push(path.relative(outputDir, file) + ": archived pages carry a canonical, not noindex");
+      }
+    }
+  }
+  if (bad.length) throw new Error("Archived County Profiles pages have a wrong or missing canonical:\n  " + bad.join("\n  "));
+  return checked;
+}
+
+module.exports = { validateSnapshot, checkNoStaleHost, checkArchiveCanonicals };

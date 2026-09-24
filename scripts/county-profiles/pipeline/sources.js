@@ -82,6 +82,24 @@ async function fetchBlocks(fips, opts) {
 // can have no panel rows at all, in which case the vintage is null ("no published vintage") rather
 // than invented.
 
+// The cheap live probe the Phase 5 change gate runs first: which DFIRM studies cover the county and
+// the earliest, latest and number of their FIRM panel EFF_DATEs. Three small queries, never cached
+// (a cached answer would defeat the point), and no geometry.
+async function nfhlFingerprint(fips) {
+  const jur = await getJson(NFHL + "/22/query?" + new URLSearchParams({
+    where: `CO_FIPS='${fips.slice(2)}' AND (ST_FIPS='06' OR ST_FIPS='6')`, outFields: "DFIRM_ID", returnDistinctValues: "true", returnGeometry: "false", f: "json",
+  }));
+  const dfirms = [...new Set(jur.features.map((f) => f.attributes.DFIRM_ID))].sort();
+  if (!dfirms.length) return { dfirms, effStart: null, effEnd: null, panelCount: 0 };
+  const stats = await getJson(NFHL + "/3/query?" + new URLSearchParams({
+    where: `DFIRM_ID IN (${dfirms.map((d) => `'${d}'`).join(",")})`, f: "json",
+    outStatistics: JSON.stringify([{ statisticType: "min", onStatisticField: "EFF_DATE", outStatisticFieldName: "mn" }, { statisticType: "max", onStatisticField: "EFF_DATE", outStatisticFieldName: "mx" }, { statisticType: "count", onStatisticField: "EFF_DATE", outStatisticFieldName: "n" }]),
+  }));
+  const a = stats.features[0].attributes;
+  const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+  return { dfirms, effStart: a.n ? iso(a.mn) : null, effEnd: a.n ? iso(a.mx) : null, panelCount: a.n };
+}
+
 async function fetchNfhl(fips, opts) {
   const r = await cachedJson("nfhl-" + fips + ".json", async () => {
     const jur = await getJson(NFHL + "/22/query?" + new URLSearchParams({
@@ -360,6 +378,6 @@ function gpkgToGeoJSON(buf) {
 
 module.exports = {
   SOURCE_ENDPOINTS, FACILITY_LAYERS, SLR_REGIONS,
-  fetchBlocks, fetchNfhl, fetchAcs, fetchLodes, fetchUsgs, fetchClaims, fetchSlr, verifyEndpoint,
+  fetchBlocks, fetchNfhl, nfhlFingerprint, fetchAcs, fetchLodes, fetchUsgs, fetchClaims, fetchSlr, verifyEndpoint,
   fetchEconomy: econ.fetchEconomy, fetchNonemployer: econ.fetchNonemployer, fetchCcap: ccap.fetchCcap,
 };

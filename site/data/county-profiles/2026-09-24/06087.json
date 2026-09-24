@@ -1,0 +1,1182 @@
+{
+  "fips": "06087",
+  "slug": "santa-cruz",
+  "county": "Santa Cruz",
+  "tier": "full",
+  "snapshot": "2026-09-24",
+  "method": 1,
+  "generated": "2026-09-24T11:27:50Z",
+  "gauge": {
+    "id": "monterey",
+    "name": "Monterey",
+    "projections": {
+      "baseline": 2000,
+      "units": "feet",
+      "decades": [
+        2030,
+        2040,
+        2050,
+        2060,
+        2070,
+        2080,
+        2090,
+        2100,
+        2110,
+        2120,
+        2130,
+        2140,
+        2150
+      ],
+      "scenarios": {
+        "intermediate": [
+          0.3,
+          0.5,
+          0.7,
+          1,
+          1.3,
+          1.7,
+          2.3,
+          2.9,
+          3.6,
+          4.2,
+          4.7,
+          5.2,
+          5.7
+        ],
+        "intermediate-high": [
+          0.4,
+          0.6,
+          0.9,
+          1.4,
+          2.1,
+          2.9,
+          3.7,
+          4.6,
+          5.5,
+          6.2,
+          6.8,
+          7.3,
+          7.9
+        ],
+        "high": [
+          0.4,
+          0.7,
+          1.2,
+          1.9,
+          2.8,
+          3.9,
+          5.2,
+          6.4,
+          7.7,
+          8.8,
+          9.7,
+          10.6,
+          11.5
+        ]
+      }
+    }
+  },
+  "geometry": null,
+  "sources": {
+    "nfhl": {
+      "label": "FEMA National Flood Hazard Layer",
+      "url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer",
+      "vintage": {
+        "kind": "period",
+        "start": "2012-05-16",
+        "end": "2017-09-29"
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "acs": {
+      "label": "Census ACS 5-year estimates (2020–2024)",
+      "url": "https://www.census.gov/programs-surveys/acs/data.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "tiger": {
+      "label": "Census 2020 tabulation blocks (TIGERweb)",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/Census2020/Tracts_Blocks/MapServer",
+      "vintage": {
+        "kind": "year",
+        "year": 2020
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "usgs": {
+      "label": "USGS National Structures Dataset",
+      "url": "https://www.usgs.gov/core-science-systems/ngp/tnm-corps/structures",
+      "vintage": {
+        "kind": "date",
+        "date": "2026-03-04"
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "openfema": {
+      "label": "OpenFEMA NFIP claims",
+      "url": "https://www.fema.gov/openfema-data-page/nfip-redacted-claims-v3",
+      "vintage": {
+        "kind": "date",
+        "date": "2026-09-08"
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "slr": {
+      "label": "NOAA Sea Level Rise Viewer inundation extents",
+      "url": "https://coast.noaa.gov/slrdata/",
+      "vintage": null,
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "lodes": {
+      "label": "LEHD LODES8 workplace area characteristics",
+      "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ca/wac/",
+      "vintage": {
+        "kind": "year",
+        "year": 2023
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "ccap": {
+      "label": "NOAA C-CAP regional land cover",
+      "url": "https://coast.noaa.gov/digitalcoast/data/ccapregional.html",
+      "vintage": {
+        "kind": "period",
+        "start": "1996-01-01",
+        "end": "2016-12-31"
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "opc": {
+      "label": "California OPC State Sea Level Rise Guidance, Appendix F",
+      "url": "https://www.oceansciencetrust.org/in-practice/2024slrguidance",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "enow": {
+      "label": "NOAA Economics: National Ocean Watch (ENOW)",
+      "url": "https://coast.noaa.gov/digitalcoast/data/enow.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2021
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "enow-self": {
+      "label": "NOAA ENOW self-employed workers",
+      "url": "https://coast.noaa.gov/digitalcoast/data/enow-nes.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2021
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "coastal-economy": {
+      "label": "NOAA Total Economy (Coastal)",
+      "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2023
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "coastal-economy-marine-base": {
+      "label": "NOAA Total Economy (Coastal), same year as ENOW",
+      "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2021
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "nes": {
+      "label": "Census Nonemployer Statistics",
+      "url": "https://www.census.gov/programs-surveys/nonemployer-statistics.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2023
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    }
+  },
+  "topics": {
+    "flood": {
+      "available": true,
+      "reason": null,
+      "sections": {
+        "people-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "acs",
+            "tiger",
+            "nfhl"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Population",
+                "count": 24654,
+                "total": 264926,
+                "unit": "residents"
+              },
+              {
+                "label": "Aged 65 and over",
+                "count": 3868,
+                "total": 50275,
+                "unit": "residents aged 65 and over"
+              },
+              {
+                "label": "Below the poverty line",
+                "count": 4318,
+                "total": 29478,
+                "unit": "residents below the poverty line"
+              }
+            ],
+            "landInsideSqMi": 18.2,
+            "landTotalSqMi": 445.1
+          }
+        },
+        "critical-facilities": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "usgs",
+            "nfhl"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Schools",
+                "inside": 1,
+                "outside": 88
+              },
+              {
+                "label": "Police stations",
+                "inside": 3,
+                "outside": 3
+              },
+              {
+                "label": "Fire stations",
+                "inside": 4,
+                "outside": 25
+              },
+              {
+                "label": "Medical facilities",
+                "inside": 0,
+                "outside": 3
+              }
+            ]
+          }
+        },
+        "homes-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "openfema"
+          ],
+          "data": {
+            "items": [
+              {
+                "period": "1996–2000",
+                "amount": 4820420
+              },
+              {
+                "period": "2001–2005",
+                "amount": 615400
+              },
+              {
+                "period": "2006–2010",
+                "amount": 259727
+              },
+              {
+                "period": "2011–2015",
+                "amount": 902745
+              },
+              {
+                "period": "2016–2020",
+                "amount": 1380239
+              },
+              {
+                "period": "2021–2025",
+                "amount": 12247562
+              }
+            ],
+            "claims": 945
+          }
+        },
+        "jobs-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "lodes",
+            "tiger",
+            "nfhl"
+          ],
+          "data": {
+            "count": 16756,
+            "total": 95587
+          }
+        },
+        "natural-features": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "ccap",
+            "nfhl"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Inside the floodplain",
+                "count": 0.1,
+                "total": 4.8,
+                "unit": "square miles"
+              },
+              {
+                "label": "Outside the floodplain",
+                "count": 0.9,
+                "total": 51.8,
+                "unit": "square miles"
+              }
+            ],
+            "naturalSqMi": 5.5,
+            "floodplainSqMi": 17.8
+          }
+        }
+      }
+    },
+    "slr": {
+      "available": true,
+      "reason": null,
+      "sections": {
+        "people-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "acs",
+            "tiger",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "measures": [
+              {
+                "label": "Population",
+                "unit": "residents",
+                "total": 264926,
+                "counts": [
+                  421,
+                  711,
+                  998,
+                  1834,
+                  7835
+                ],
+                "countsWithLow": [
+                  472,
+                  1938,
+                  3862,
+                  5786,
+                  8164
+                ]
+              },
+              {
+                "label": "Aged 65 and over",
+                "unit": "residents aged 65 and over",
+                "total": 50275,
+                "counts": [
+                  83,
+                  130,
+                  179,
+                  333,
+                  1068
+                ],
+                "countsWithLow": [
+                  92,
+                  209,
+                  360,
+                  708,
+                  1105
+                ]
+              },
+              {
+                "label": "Below the poverty line",
+                "unit": "residents below the poverty line",
+                "total": 29478,
+                "counts": [
+                  58,
+                  83,
+                  117,
+                  211,
+                  1504
+                ],
+                "countsWithLow": [
+                  66,
+                  323,
+                  705,
+                  1076,
+                  1532
+                ]
+              }
+            ]
+          }
+        },
+        "critical-facilities": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "usgs",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "measures": [
+              {
+                "label": "Schools",
+                "unit": "facilities",
+                "total": 89,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "label": "Police stations",
+                "unit": "facilities",
+                "total": 6,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ]
+              },
+              {
+                "label": "Fire stations",
+                "unit": "facilities",
+                "total": 29,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  1,
+                  2
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  1,
+                  2
+                ]
+              },
+              {
+                "label": "Medical facilities",
+                "unit": "facilities",
+                "total": 3,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        },
+        "jobs-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "lodes",
+            "tiger",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "total": 95587,
+            "counts": [
+              812,
+              1002,
+              1310,
+              2081,
+              4939
+            ],
+            "countsWithLow": [
+              833,
+              1797,
+              2591,
+              3579,
+              5062
+            ]
+          }
+        },
+        "natural-landscapes": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "ccap",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "classes": [
+              {
+                "label": "Wetlands",
+                "values": [
+                  0.2,
+                  1,
+                  1.3,
+                  1.5,
+                  1.6
+                ]
+              },
+              {
+                "label": "Upland",
+                "values": [
+                  0,
+                  0.1,
+                  0.2,
+                  0.2,
+                  0.3
+                ]
+              },
+              {
+                "label": "Other",
+                "values": [
+                  0.4,
+                  1.2,
+                  2.4,
+                  3.4,
+                  4
+                ]
+              }
+            ]
+          }
+        },
+        "when-to-act": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "opc"
+          ],
+          "data": {}
+        }
+      }
+    },
+    "total-economy": {
+      "available": true,
+      "reason": null,
+      "sections": {
+        "measuring": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "coastal-economy"
+          ],
+          "data": {
+            "establishments": 9904,
+            "jobs": 103428,
+            "wages": 6754245120,
+            "gdp": 17355972608,
+            "denominator": 18002892
+          }
+        },
+        "diversity": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "coastal-economy"
+          ],
+          "data": {
+            "sectors": [
+              {
+                "label": "Construction",
+                "establishments": 942,
+                "wages": 400446592,
+                "employment": 5370,
+                "gdp": 780811328
+              },
+              {
+                "label": "Financial activities",
+                "establishments": 683,
+                "wages": 282766688,
+                "employment": 3216,
+                "gdp": 1933600128
+              },
+              {
+                "label": "Education and health services",
+                "establishments": 3298,
+                "wages": 2140087808,
+                "employment": 29191,
+                "gdp": 2121296000
+              },
+              {
+                "label": "Information",
+                "establishments": 111,
+                "wages": 60679208,
+                "employment": 757,
+                "gdp": 195513968
+              },
+              {
+                "label": "Leisure and hospitality",
+                "establishments": 852,
+                "wages": 456916320,
+                "employment": 14796,
+                "gdp": 1062340992
+              },
+              {
+                "label": "Manufacturing",
+                "establishments": 343,
+                "wages": 745448640,
+                "employment": 7822,
+                "gdp": 1923974656
+              },
+              {
+                "label": "Natural resources and mining",
+                "establishments": 272,
+                "wages": 300322240,
+                "employment": 6902,
+                "gdp": 895110976
+              },
+              {
+                "label": "Other services",
+                "establishments": 746,
+                "wages": 203505840,
+                "employment": 4260,
+                "gdp": 657347840
+              },
+              {
+                "label": "Professional and business services",
+                "establishments": 1364,
+                "wages": 849663488,
+                "employment": 9803,
+                "gdp": 1530337792
+              },
+              {
+                "label": "Public administration",
+                "establishments": 59,
+                "wages": 380733792,
+                "employment": 4306,
+                "gdp": 316141824
+              },
+              {
+                "label": "Trade, transportation, and utilities",
+                "establishments": 1221,
+                "wages": 931560064,
+                "employment": 16988,
+                "gdp": 2696971776
+              }
+            ]
+          }
+        },
+        "jobs-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "lodes",
+            "tiger",
+            "nfhl",
+            "slr"
+          ],
+          "data": {
+            "sfha": {
+              "count": 16756,
+              "total": 95587
+            },
+            "slr6": {
+              "count": 2591,
+              "total": 95587
+            }
+          }
+        },
+        "wages": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "coastal-economy"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Construction",
+                "county": 74571,
+                "coastalState": 90408,
+                "coastalUS": 81228
+              },
+              {
+                "label": "Financial activities",
+                "county": 87925,
+                "coastalState": 153898,
+                "coastalUS": 150835
+              },
+              {
+                "label": "Education and health services",
+                "county": 73313,
+                "coastalState": 71683,
+                "coastalUS": 67902
+              },
+              {
+                "label": "Information",
+                "county": 80157,
+                "coastalState": 253512,
+                "coastalUS": 193507
+              },
+              {
+                "label": "Leisure and hospitality",
+                "county": 30881,
+                "coastalState": 42925,
+                "coastalUS": 37140
+              },
+              {
+                "label": "Manufacturing",
+                "county": 95302,
+                "coastalState": 136488,
+                "coastalUS": 98915
+              },
+              {
+                "label": "Natural resources and mining",
+                "county": 43512,
+                "coastalState": 48079,
+                "coastalUS": 76365
+              },
+              {
+                "label": "Other services",
+                "county": 47771,
+                "coastalState": 53772,
+                "coastalUS": 54194
+              },
+              {
+                "label": "Professional and business services",
+                "county": 86674,
+                "coastalState": 129224,
+                "coastalUS": 111600
+              },
+              {
+                "label": "Public administration",
+                "county": 88419,
+                "coastalState": 108423,
+                "coastalUS": 92868
+              },
+              {
+                "label": "Trade, transportation, and utilities",
+                "county": 54836,
+                "coastalState": 72890,
+                "coastalUS": 63631
+              }
+            ]
+          }
+        },
+        "total-jobs": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "coastal-economy",
+            "nes"
+          ],
+          "data": {
+            "employed": 103428,
+            "selfEmployed": 22789,
+            "total": {
+              "value": 126217,
+              "partial": false
+            },
+            "sectors": [
+              {
+                "label": "Construction",
+                "selfEmployed": 1914
+              },
+              {
+                "label": "Financial activities",
+                "selfEmployed": 2879
+              },
+              {
+                "label": "Education and health services",
+                "selfEmployed": 3174
+              },
+              {
+                "label": "Information",
+                "selfEmployed": 395
+              },
+              {
+                "label": "Leisure and hospitality",
+                "selfEmployed": 2461
+              },
+              {
+                "label": "Manufacturing",
+                "selfEmployed": 428
+              },
+              {
+                "label": "Natural resources and mining",
+                "selfEmployed": 208
+              },
+              {
+                "label": "Other services",
+                "selfEmployed": 2019
+              },
+              {
+                "label": "Professional and business services",
+                "selfEmployed": 6427
+              },
+              {
+                "label": "Public administration",
+                "selfEmployed": 0
+              },
+              {
+                "label": "Trade, transportation, and utilities",
+                "selfEmployed": 2883
+              }
+            ]
+          }
+        }
+      }
+    },
+    "marine-economy": {
+      "available": true,
+      "reason": null,
+      "sections": {
+        "measuring": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "enow",
+            "coastal-economy-marine-base"
+          ],
+          "data": {
+            "establishments": 611,
+            "jobs": 8914,
+            "wages": 278958232,
+            "gdp": 562591762,
+            "denominator": 99476
+          }
+        },
+        "diversity": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "enow"
+          ],
+          "data": {
+            "sectors": [
+              {
+                "label": "Living resources",
+                "establishments": 15,
+                "wages": 639129,
+                "employment": 11,
+                "gdp": 1060055
+              },
+              {
+                "label": "Marine construction",
+                "establishments": 3,
+                "wages": 684104,
+                "employment": 15,
+                "gdp": 1204036
+              },
+              {
+                "label": "Marine transportation",
+                "establishments": 20,
+                "wages": 3571502,
+                "employment": 59,
+                "gdp": 4331963
+              },
+              {
+                "label": "Offshore mineral resources",
+                "establishments": {
+                  "suppressed": true
+                },
+                "wages": {
+                  "suppressed": true
+                },
+                "employment": {
+                  "suppressed": true
+                },
+                "gdp": {
+                  "suppressed": true
+                }
+              },
+              {
+                "label": "Ship and boat building",
+                "establishments": {
+                  "suppressed": true
+                },
+                "wages": {
+                  "suppressed": true
+                },
+                "employment": {
+                  "suppressed": true
+                },
+                "gdp": {
+                  "suppressed": true
+                }
+              },
+              {
+                "label": "Tourism and recreation",
+                "establishments": 570,
+                "wages": 266902921,
+                "employment": 8706,
+                "gdp": 539400911
+              }
+            ]
+          }
+        },
+        "wages": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "enow"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Living resources",
+                "county": 58103,
+                "coastalState": 61857,
+                "coastalUS": 56542
+              },
+              {
+                "label": "Marine construction",
+                "county": 45607,
+                "coastalState": 126700,
+                "coastalUS": 91700
+              },
+              {
+                "label": "Marine transportation",
+                "county": 60534,
+                "coastalState": 88563,
+                "coastalUS": 67614
+              },
+              {
+                "label": "Offshore mineral resources",
+                "county": {
+                  "suppressed": true
+                },
+                "coastalState": 99038,
+                "coastalUS": 159405
+              },
+              {
+                "label": "Ship and boat building",
+                "county": {
+                  "suppressed": true
+                },
+                "coastalState": 74698,
+                "coastalUS": 74435
+              },
+              {
+                "label": "Tourism and recreation",
+                "county": 30659,
+                "coastalState": 34207,
+                "coastalUS": 30884
+              }
+            ]
+          }
+        },
+        "total-jobs": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "enow",
+            "enow-self"
+          ],
+          "data": {
+            "employed": 8914,
+            "selfEmployed": 280,
+            "total": {
+              "value": 9194,
+              "partial": false
+            },
+            "sectors": [
+              {
+                "label": "Living resources",
+                "selfEmployed": 96
+              },
+              {
+                "label": "Marine construction",
+                "selfEmployed": 11
+              },
+              {
+                "label": "Marine transportation",
+                "selfEmployed": 44
+              },
+              {
+                "label": "Offshore mineral resources",
+                "selfEmployed": 9
+              },
+              {
+                "label": "Ship and boat building",
+                "selfEmployed": 14
+              },
+              {
+                "label": "Tourism and recreation",
+                "selfEmployed": 106
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

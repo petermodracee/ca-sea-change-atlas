@@ -28,7 +28,13 @@
 <div class="wrap cp">
 
 {%- if dated %}
-<p class="cp-note">This is the dated snapshot of {{ profile.snapshot }}. Its canonical address is the <a href="{{ base | url }}">current profile</a>. <a href="{{ ('/data/county-profiles/latest/' + county.fips + '.json') | url }}">This snapshot's JSON</a>.</p>
+<p class="cp-note">This is the dated snapshot of {{ profile.snapshot }}. Its canonical address is the <a href="{{ base | url }}">current profile</a>. <a href="{{ ('/data/county-profiles/' + profile.snapshot + '/' + county.fips + '.json') | url }}">This snapshot's JSON</a>.</p>
+{%- if county.correction %}
+{%- set fix = county.correction %}
+<div class="cp-fixture" role="note">
+<p><strong>Correction notice ({{ fix.date }}).</strong> {{ fix.note }} The corrected figures are in the <a href="{{ (base + fix.supersededBy + '/') | url }}">{{ fix.supersededBy }} snapshot</a>. This snapshot is left as published.</p>
+</div>
+{%- endif %}
 {%- elif county.isFixture %}
 <div class="cp-fixture" role="note">
 <p><strong>Placeholder figures.</strong> This county's topic pages show invented numbers to exercise the layout — they are not measurements of {{ county.name }} County.</p>
@@ -77,7 +83,7 @@
 {%- endfor %}
 </ul>
 {%- if county.snapshots.length < 2 %}
-<p class="cp-note">Previous and next snapshot links appear here once this county has more than one dated snapshot.</p>
+<p class="cp-note">A new dated snapshot is added only when this county's figures change, so there is one snapshot until a source revises.</p>
 {%- endif %}
 {%- else %}
 <p class="cp-note">No snapshots yet.</p>
