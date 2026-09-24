@@ -147,6 +147,14 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
       if (!Array.isArray(arr) || arr.length !== incs.length || !arr.every(isQty)) fail(w + " must be " + incs.length + " numbers >= 0, one per increment");
       if (!nondecreasing(arr)) fail(w + " must not decrease as the increment rises");
     };
+    // Optional second series: the same counts with NOAA's unconnected low-lying areas added. When
+    // present it must be a valid series that is never below the connected-only one and never above the total.
+    const withLow = (counts, low, total, w) => {
+      if (low === undefined) return;
+      perIncrement(low, w);
+      low.forEach((v, k) => { if (v < counts[k]) fail(w + " is below the connected-only count at " + incs[k] + " ft"); });
+      if (low[low.length - 1] > total) fail(w + " exceeds total");
+    };
     const checkIncs = () => {
       if (JSON.stringify(data.increments) !== JSON.stringify(incs)) fail(where + ".data.increments must be " + JSON.stringify(incs));
     };
@@ -185,6 +193,7 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
           if (!isQty(m.total) || m.total <= 0) fail(mw + ".total must be > 0");
           perIncrement(m.counts, mw + ".counts");
           if (m.counts[m.counts.length - 1] > m.total) fail(mw + ".counts exceed total");
+          withLow(m.counts, m.countsWithLow, m.total, mw + ".countsWithLow");
         });
         break;
       case "increment-composition":
@@ -203,6 +212,7 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
         if (!isQty(data.total) || data.total <= 0) fail(where + ".data.total must be > 0");
         perIncrement(data.counts, where + ".data.counts");
         if (data.counts[data.counts.length - 1] > data.total) fail(where + ".data.counts exceed total");
+        withLow(data.counts, data.countsWithLow, data.total, where + ".data.countsWithLow");
         break;
       case "stats":
         for (const k of ["establishments", "jobs", "wages", "gdp"]) cell(data[k], where + ".data." + k);
@@ -284,7 +294,9 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
       if (!isObj(sec.use) || ["ui", "pdf", "present"].some((k) => typeof sec.use[k] !== "boolean")) {
         fail(sw + ".use must be {ui, pdf, present} booleans");
       }
-      if (!Array.isArray(sec.sources) || !sec.sources.length) fail(sw + ".sources must be a non-empty array");
+      if (!Array.isArray(sec.sources)) fail(sw + ".sources must be an array");
+      if ((sec.available || fixture) && !sec.sources.length) fail(sw + ".sources must be a non-empty array");
+      if (!sec.available && !fixture && sec.sources.length) fail(sw + " is unavailable, so it cites no sources (an unused source would need a retrieval stamp it never earned)");
       for (const key of sec.sources) {
         if (!snap.sources[key]) fail(sw + ".sources cites " + key + ", which is not in sources");
         cited.add(key);

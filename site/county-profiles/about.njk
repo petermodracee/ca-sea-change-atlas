@@ -40,6 +40,12 @@ nav: county-profiles
 <p>Some counties have a second sea level regime: an outer coast and a bay shore. Whether a county <em>straddles</em> is never authored. It is computed at build from the timing tables of the two gauges: a county straddles when any year differs by five or more, or when one gauge reaches an increment by 2150 and the other does not. A straddling county shows both tables.{% for c in countyProfiles.counties %}{% if c.straddle %} {{ c.name }} is currently the only one.{% endif %}{% endfor %}</p>
 </section>
 
+<section class="cp-topic" id="connected-low-lying">
+<h2>Connected and low-lying sea level rise exposure</h2>
+<p>NOAA's sea level rise mapping separates two kinds of area at each increment: ocean-connected inundation, and isolated low-lying areas that are below the projected water level but that its elevation model does not connect to the ocean (<a href="https://coast.noaa.gov/data/digitalcoast/pdf/slr-inundation-methods.pdf" rel="noopener">NOAA Office for Coastal Management, method description for the Sea Level Rise Viewer, January 2017</a>). County Profiles reports the two combined: each bar or column is the total, with the ocean-connected part solid and the additional low-lying part dashed.</p>
+<p>Low-lying areas are included because they can still flood. Drainage the elevation model cannot see may connect them to the water, and coastal groundwater rises with the sea, which can flood areas that have no surface connection to the ocean (<a href="https://doi.org/10.1038/s41558-020-0874-1" rel="noopener">Befus, Barnard and Hoover, 2020, <i>Nature Climate Change</i></a>). The two sources are cited separately because they support different points: NOAA's document defines the two kinds of area and warns that the model does not resolve drains and ditches, so unconnected areas may be mapped incorrectly, but it does not discuss groundwater, which rests on Befus et al. The low-lying counts are therefore less certain than the ocean-connected ones. The same combined series is used for jobs under six feet of sea level rise in the total economy topic.</p>
+</section>
+
 <section class="cp-topic" id="withheld">
 <h2>Withheld values</h2>
 <p>ENOW withholds some figures for confidentiality. A withheld value is shown as "withheld", which is different from zero (the count is 0) and from unavailable (there is no data, with a stated reason). A total that has a withheld component is marked incomplete with an asterisk, and so is anything derived from it.</p>

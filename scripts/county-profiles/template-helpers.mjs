@@ -8,7 +8,7 @@ import { scaleLinear } from "d3-scale";
 import { max, sum } from "d3-array";
 
 const require = createRequire(import.meta.url);
-const { shareText, num } = require("./format.js");
+const { shareText, num, compact } = require("./format.js");
 const { SCENARIOS, series, yearReached } = require("./timing.js");
 
 export { num };
@@ -36,14 +36,6 @@ const BAR_H = 34; // was 20 at ~460-600 wide; proportional at ~1000 wide
 const COL_W = 40; // was 22
 const GAP_PX = 3; // background gap between stacked segments / grouped columns
 const RADIUS = 6; // rounded corner at the data end; the baseline end is square
-
-const compact = (n, usd) => {
-  const p = usd ? "$" : "";
-  if (n >= 1e9) return p + (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
-  if (n >= 1e6) return p + (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
-  if (n >= 1e3) return p + (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k";
-  return p + n;
-};
 
 // A rough per-character width for a horizontal chart's left label column — there's no canvas at
 // build time to measure real text, so this over-estimates slightly rather than risk clipping a
@@ -136,18 +128,31 @@ export function stackedByIncrement(items, increments) {
   const rows = items.map((it, i) => {
     const y0 = top + i * (rowH + rowGap);
     const states = increments.map((ft, k) => {
-      const exposed = it.counts[k];
-      const rest = Math.max(it.total - exposed, 0);
-      const ew = Math.max(+x(exposed).toFixed(1), exposed === 0 ? 0 : 2);
+      // Every row is the combined count when it has a low-lying series: the ocean-connected part
+      // solid, the additional low-lying part dashed after it, then the rest. The tooltip names every
+      // category the bar has, so hovering any segment shows all of them.
+      const conn = it.counts[k];
+      const total = it.countsLow ? it.countsLow[k] : conn;
+      const extra = total - conn;
+      const rest = Math.max(it.total - total, 0);
+      const ew = Math.max(+x(conn).toFixed(1), conn === 0 ? 0 : 2);
+      const xw = extra > 0 ? Math.max(+x(extra).toFixed(1), 2) : 0;
       const rw = Math.max(+x(rest).toFixed(1), 0);
-      const restX = ew + (rw > 0 ? GAP_PX : 0);
+      const xX = ew + (xw > 0 && ew > 0 ? GAP_PX : 0);
+      const restX = xX + xw + (rw > 0 && (ew > 0 || xw > 0) ? GAP_PX : 0);
+      const tip = [it.label + " at " + ft + " ft", it.countsLow ? "Ocean-connected: " + num(conn) : "Exposed: " + num(conn)]
+        .concat(it.countsLow ? ["Additional low-lying: " + num(extra)] : [])
+        .concat(["Not yet exposed: " + num(rest)]).join("\n");
       return {
         ft,
-        exposedPath: exposed > 0 ? rectPath(0, 0, ew, rowH, rw <= 0) : "",
+        exposedPath: conn > 0 ? rectPath(0, 0, ew, rowH, xw <= 0 && rw <= 0) : "",
+        extraPath: xw > 0 ? rectPath(xX, 0, xw, rowH, rw <= 0) : "",
         restPath: rw > 0 ? rectPath(restX, 0, rw, rowH, true) : "",
-        vx: (rw > 0 ? restX + rw : ew) + 10,
-        keyLabel: num(exposed),
-        tip: it.label + " exposed at " + ft + " ft: " + num(exposed) + " of " + num(it.total),
+        vx: (rw > 0 ? restX + rw : xw > 0 ? xX + xw : ew) + 10,
+        keyLabel: num(total),
+        connLabel: num(conn),
+        lowLabel: it.countsLow ? num(total) : null,
+        tip,
       };
     });
     return { label: it.label, total: num(it.total), labelY: y0 + rowH / 2 + 7, midY: y0 + rowH / 2, barY: y0, states };
@@ -277,7 +282,9 @@ export function groupedColumns(items, seriesLabels) {
   const VALUE_LABEL_Y = mt - 20;
   const iw = W - ml - mr, ih = H - mt - mb;
   const nSeries = items[0].values.length;
-  const domainMax = max(items, (it) => max(it.values, (v) => (v.suppressed ? 0 : v.value))) || 1;
+  // With a low-lying series the scale fits the larger (connected plus low-lying) values in every view,
+  // so switching views never rescales the axis under the reader.
+  const domainMax = max(items, (it) => max(it.values, (v) => (v.suppressed ? 0 : Math.max(v.value, v.low || 0)))) || 1;
   const y = scaleLinear().domain([0, domainMax]).nice(4).range([ih, 0]);
   const band = iw / items.length;
   const colW = Math.min(COL_W_PEOPLE, (band * 0.72) / nSeries - GAP_PX);
@@ -290,8 +297,17 @@ export function groupedColumns(items, seriesLabels) {
       const colH = v.suppressed ? 0 : mt + ih - top;
       const isLast = i === nSeries - 1;
       const text = v.suppressed ? "withheld" : v.text;
+      // Optional low-lying series: `value` is the ocean-connected part (the solid column) and `low` the
+      // combined total; the additional low-lying part is a lighter segment stacked on the column, and
+      // `text` is the combined total.
+      const hasLow = v.low !== undefined && !v.suppressed;
+      const lowTop = hasLow ? mt + y(v.low) : 0;
+      const extraH = hasLow ? top - GAP_PX - lowTop : 0;
       return {
         s: i,
+        hasLow,
+        connText: hasLow ? v.connText : "",
+        extraPath: hasLow && extraH > 0.5 ? columnPath(x, lowTop, colW, extraH) : "",
         path: v.suppressed ? "" : columnPath(x, top, colW, colH),
         suppressed: v.suppressed,
         text,
@@ -301,7 +317,7 @@ export function groupedColumns(items, seriesLabels) {
         labelX: x + colW / 2,
         labelY: VALUE_LABEL_Y,
         isLast,
-        tip: (seriesLabels ? seriesLabels[i] + ": " : "") + it.label + " " + text,
+        tip: (seriesLabels ? seriesLabels[i] + ": " : "") + it.label + " " + text + (hasLow ? "\nOcean-connected: " + v.connText + "\nAdditional low-lying: " + num(v.low - v.value) : ""),
       };
     });
     return { label: it.label, labelX: ml + gi * band + band / 2, labelY: H - mb + 40, cols };

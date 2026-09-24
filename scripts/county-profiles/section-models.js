@@ -10,7 +10,8 @@
 // carry no visible per-value text (the diversity 100%-stack, the wages dot plot) can freely use any
 // of their real numbers as a callout figure.
 
-const { pct, num, usd, usdWords } = require("./format.js");
+const { pct, num, usd, usdWords, compact } = require("./format.js");
+const usdCompact = (n) => compact(n, true, 2); // the big stat numbers: two decimals
 const { sectorIconFor } = require("./sector-icons.js");
 
 const isSuppressed = (v) => v !== null && typeof v === "object" && v.suppressed === true;
@@ -33,6 +34,10 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   const anySuppressed = (vals) => vals.some(isSuppressed);
   let visual = null;
   let callout = null; // {figure, caption}
+  // True for an SLR section whose data carries `countsWithLow`: its figures are then the combined
+  // (ocean-connected plus low-lying) counts, drawn with the connected part solid and the additional
+  // low-lying part dashed. The explanation lives on the County Profiles about page, not on the section.
+  let hasLow = false;
   let footnote = null; // overrides the generic "one or more values are withheld" text when set
 
   // Rings: flood People at Risk (independent shares) and flood natural features (development
@@ -78,7 +83,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         return { label: it.period, values: [{ value: it.amount, text: usd(it.amount) }] };
       });
       visual = { type: "bars", format: "usd", items, series: [] };
-      const total = usdWords(sum(data.items.map((i) => i.amount)));
+      const total = usdCompact(sum(data.items.map((i) => i.amount)));
       const since = data.items[0].period.slice(0, 4);
       callout = { figure: total, caption: "paid by the National Flood Insurance Program on " + num(data.claims) + " claims in " + C + " since " + since + "." };
       break;
@@ -91,31 +96,42 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
 
     case "increment-bars": {
       if (def.id === "people-at-risk") {
+        hasLow = data.measures.every((m) => Array.isArray(m.countsWithLow));
+        // With a low-lying series every column is the combined count; the connected part is drawn
+        // solid and the additional low-lying part dashed on top of it.
         visual = {
           type: "columns",
-          items: data.measures.map((m) => ({ label: m.label, values: m.counts.map((c) => ({ value: c, text: num(c), suppressed: false })) })),
+          hasLow,
+          items: data.measures.map((m) => ({
+            label: m.label,
+            values: m.counts.map((c, k) => ({ value: c, text: num(hasLow ? m.countsWithLow[k] : c), suppressed: false, ...(hasLow ? { low: m.countsWithLow[k], connText: num(c) } : {}) })),
+          })),
         };
         // Only the highest increment's column is labelled by default (matching the reference
         // layout), so only that value counts as visibly shown for the repeat guard.
-        data.measures.forEach((m) => show(num(m.counts[m.counts.length - 1])));
-        const headCount = data.measures[0].counts[0];
+        const head = (m) => (hasLow ? m.countsWithLow : m.counts);
+        data.measures.forEach((m) => show(num(head(m)[m.counts.length - 1])));
+        const headCount = head(data.measures[0])[0];
         const headTotal = data.measures[0].total;
         callout = {
           figure: pct(headCount, headTotal),
-          caption: "(" + num(headCount) + " people) of " + C + "’s total population lives in areas exposed to just " + increments[0] + " ft of sea level rise. As is already the case in many parts of the country, these areas are the first to experience impacts.",
+          caption: "(" + num(headCount) + " people) of " + C + "’s total population lives in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ". As is already the case in many parts of the country, these areas are the first to experience impacts.",
         };
       } else {
         // NOAA pattern: each facility type is a stacked bar (exposed at the selected increment,
         // then the rest of that type as a muted "not exposed" segment), so the type's real total
         // stays visible — counts vary wildly by type (hundreds of schools, dozens of medical
         // facilities), which absolute stacked bars on a shared axis show honestly.
+        hasLow = data.measures.every((m) => Array.isArray(m.countsWithLow));
         visual = {
           type: "facilities-stack",
-          items: data.measures.map((m) => ({ label: m.label, total: m.total, counts: m.counts })),
+          hasLow,
+          items: data.measures.map((m) => ({ label: m.label, total: m.total, counts: m.counts, ...(hasLow ? { countsLow: m.countsWithLow } : {}) })),
         };
-        data.measures.forEach((m) => show(num(m.counts[m.counts.length - 1])));
-        const p = pct(sum(data.measures.map((m) => m.counts[0])), sum(data.measures.map((m) => m.total)));
-        callout = { figure: p, caption: "of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise. These areas are the first to experience impacts." };
+        const head = (m) => (hasLow ? m.countsWithLow : m.counts);
+        data.measures.forEach((m) => show(num(head(m)[m.counts.length - 1])));
+        const p = pct(sum(data.measures.map((m) => head(m)[0])), sum(data.measures.map((m) => m.total)));
+        callout = { figure: p, caption: "of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ". These areas are the first to experience impacts." };
       }
       break;
     }
@@ -144,7 +160,8 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
     }
 
     case "increment-single": {
-      callout = { figure: pct(data.counts[0], data.total), caption: "of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise." };
+      hasLow = Array.isArray(data.countsWithLow);
+      callout = { figure: pct((hasLow ? data.countsWithLow : data.counts)[0], data.total), caption: "of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + "." };
       break;
     }
 
@@ -157,8 +174,8 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       const items = [
         { label: "Establishments", v: data.establishments, fmt: num },
         { label: "Jobs", v: data.jobs, fmt: num },
-        { label: "Wages", v: data.wages, fmt: usdWords },
-        { label: "GDP", v: data.gdp, fmt: usdWords },
+        { label: "Wages", v: data.wages, fmt: usdCompact },
+        { label: "GDP", v: data.gdp, fmt: usdCompact },
       ].map((s) => {
         const text = cellText(s.v, s.fmt);
         show(text);

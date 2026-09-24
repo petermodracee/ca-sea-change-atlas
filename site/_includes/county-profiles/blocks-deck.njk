@@ -196,7 +196,11 @@
 {%- if c.suppressed %}
 <text class="cpd-withheld" x="{{ c.labelX }}" y="{{ g.axisY - 10 }}" text-anchor="middle">withheld</text>
 {%- else %}
+{#- With a low-lying series the column is the combined count: the ocean-connected part solid, the
+    additional low-lying part a lighter dashed segment stacked on it. The label above is the combined
+    total; the tooltip and the data table give both parts. -#}
 <path class="cpd-col cpd-ramp-{{ c.s }}{% if c.isLast %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.tip }}" d="{{ c.path }}"/>
+{%- if c.extraPath %}<path class="cpd-col-extra{% if c.isLast %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.tip }}" d="{{ c.extraPath }}"/>{% endif %}
 <text class="cpd-vlabel" data-cpd-collabel="{{ increments[c.s] if increments else '' }}" x="{{ c.labelX }}" y="{{ c.labelY }}" text-anchor="middle"{% if not c.isLast %} hidden{% endif %}>{{ c.text }}</text>
 {%- endif %}
 {%- endfor %}
@@ -207,11 +211,11 @@
 </div>
 {%- if increments %}{{ incrementSlider(uid, increments, increments[increments.length - 1], 'data-cpd-col-incs', g.mt / g.width, (g.height - g.axisY) / g.width) }}{% endif %}
 </div>
-<ul class="cpd-legend" aria-hidden="true">{% for name in legend %}<li><span class="cpd-swatch cpd-ramp-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}</ul>
+<ul class="cpd-legend" aria-hidden="true">{% for name in legend %}<li><span class="cpd-swatch cpd-ramp-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}{% if g.groups[0].cols[0].hasLow %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}</ul>
 <h4 class="sr-only">{{ title }} — data table</h4>
 <table class="sr-only">
 <thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
-<tbody>{% for grp in g.groups %}<tr><th scope="row">{{ grp.label }}</th>{% for c in grp.cols %}<td>{% if c.suppressed %}withheld{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+<tbody>{% for grp in g.groups %}{% if grp.cols[0].hasLow %}<tr><th scope="row">{{ grp.label }}, ocean-connected</th>{% for c in grp.cols %}<td>{{ c.connText }}</td>{% endfor %}</tr><tr><th scope="row">{{ grp.label }}, including low-lying areas</th>{% for c in grp.cols %}<td>{{ c.text }}</td>{% endfor %}</tr>{% else %}<tr><th scope="row">{{ grp.label }}</th>{% for c in grp.cols %}<td>{% if c.suppressed %}withheld{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>{% endif %}{% endfor %}</tbody>
 </table>
 {% endmacro %}
 
@@ -228,7 +232,7 @@
 <div class="cpd-chart-row">
 <div class="cpd-chart" data-cpd-tips><svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <title id="{{ uid }}-t">{{ title }}</title>
-<desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }} ({{ row.total }} total): {% for st in row.states %}{{ st.ft }} ft {{ st.keyLabel }} exposed{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+<desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }} ({{ row.total }} total): {% for st in row.states %}{{ st.ft }} ft {{ st.connLabel }} exposed{% if st.lowLabel %} ({{ st.lowLabel }} with low-lying areas){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
 <g transform="translate({{ g.plotX }},0)">
 {%- for t in g.ticks %}
 <line class="cp-grid" x1="{{ t.x }}" x2="{{ t.x }}" y1="0" y2="{{ g.axisY }}"/>
@@ -237,8 +241,9 @@
 {%- for row in g.rows %}
 {%- for st in row.states %}
 <g data-cpd-fac-state="{{ st.ft }}"{% if not loop.first %} hidden{% endif %}>
-{%- if st.exposedPath %}<path class="cp-bar cp-bar-s0" data-tip="{{ row.label }} exposed at {{ st.ft }} ft: {{ st.keyLabel }} of {{ row.total }}" transform="translate(0,{{ row.barY }})" d="{{ st.exposedPath }}"/>{% endif %}
-{%- if st.restPath %}<path class="cp-bar cp-bar-not-exposed" transform="translate(0,{{ row.barY }})" d="{{ st.restPath }}"/>{% endif %}
+{%- if st.exposedPath %}<path class="cp-bar cp-bar-s0" data-tip="{{ st.tip }}" transform="translate(0,{{ row.barY }})" d="{{ st.exposedPath }}"/>{% endif %}
+{%- if st.extraPath %}<path class="cp-bar cp-bar-extra" data-tip="{{ st.tip }}" transform="translate(0,{{ row.barY }})" d="{{ st.extraPath }}"/>{% endif %}
+{%- if st.restPath %}<path class="cp-bar cp-bar-not-exposed" data-tip="{{ st.tip }}" transform="translate(0,{{ row.barY }})" d="{{ st.restPath }}"/>{% endif %}
 <text class="cp-bar-value" x="{{ st.vx }}" y="{{ row.midY }}">{{ st.keyLabel }}</text>
 </g>
 {%- endfor %}
@@ -251,11 +256,11 @@
 </div>
 {{ incrementSlider(uid, increments, increments[0], 'data-cpd-fac-incs', 0, (g.height - g.axisY) / g.width) }}
 </div>
-<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch cp-bar-s0"></span>Exposed at the selected increment</li><li><span class="cpd-swatch cp-bar-not-exposed"></span>Not yet exposed</li></ul>
+<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch cp-bar-s0"></span>Exposed at the selected increment</li>{% if g.rows[0].states[0].lowLabel %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}<li><span class="cpd-swatch cp-bar-not-exposed"></span>Not yet exposed</li></ul>
 <h4 class="sr-only">{{ title }} — data table</h4>
 <table class="sr-only">
 <thead><tr><th scope="col"></th><th scope="col">Total</th>{% for ft in increments %}<th scope="col">{{ ft }} ft exposed</th>{% endfor %}</tr></thead>
-<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.keyLabel }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.connLabel }}</td>{% endfor %}</tr>{% if row.states[0].lowLabel %}<tr><th scope="row">{{ row.label }}, including low-lying areas</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.lowLabel }}</td>{% endfor %}</tr>{% endif %}{% endfor %}</tbody>
 </table>
 {% endmacro %}
 

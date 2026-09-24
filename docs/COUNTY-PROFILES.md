@@ -6,9 +6,9 @@ This file tracks the tool as it's built. The full design — county spine and co
 
 ## Status
 
-Phase 1 (data model and county spine) is built. There are no network calls and no spatial computation yet. Exposure figures come from hand-written fixtures with invented numbers; the one real dataset is the sea-level-rise timing table, which is computed from the committed OPC reference file.
+Phase 1 (data model and county spine) and Phase 2 (the intersect pipeline, Orange County only) are built. Orange County (06059) has a real snapshot, computed by `scripts/county-profiles/pipeline/` (see [Data pipeline](#data-pipeline)); the other 26 counties still render from hand-written fixtures with invented numbers. The sea-level-rise timing table is real for every county: it is computed from the committed OPC reference file.
 
-A county's pages read a real snapshot from `site/data/county-profiles/latest/` when one exists and fall back to a fixture in `site/_data/countyProfileFixtures/` otherwise. `latest/` does not exist yet. A county with neither still gets a landing page, showing its tier's coverage and no topic pages. A fixture page names which of its sections are placeholder; that list is derived, not written.
+A county's pages read a real snapshot from `site/data/county-profiles/latest/` when one exists and fall back to a fixture in `site/_data/countyProfileFixtures/` otherwise. The fallback works per section, not only per county: a real snapshot marks a section whose source is not in the pipeline yet (ENOW, C-CAP) unavailable with the `pending-phase-3` reason, and the pages fill that one slot from the county's fixture, labelled as placeholder in the section's own footnote, until Phase 3 ships it. A county with neither snapshot nor fixture still gets a landing page, showing its tier's coverage and no topic pages. A fixture page names which of its sections are placeholder; that list is derived, not written.
 
 The site deploys at the root of `https://seachangeatlas.org` (see [`ARCHITECTURE.md`](ARCHITECTURE.md)); County Profiles builds every internal link with the `url` filter and every absolute URL (canonicals, citations, the JSON download link) from `site.url`, and `scripts/county-profiles/validate.js`'s `checkNoStaleHost` fails the build if the old GitHub Pages host or path prefix leaks into the output.
 
@@ -29,7 +29,7 @@ Nested under `/county-profiles/`, consistent with how `/map/` and `/compare/` ar
 
 A topic the county has no data for at all — unavailable per its tier, or simply not built yet — gets no page at all; its tab in the deck's top bar is disabled (not removed), and the landing page states its reason in place. An unknown county, an unknown date or a topic with no page 404s, since nothing generates a route for it. Dated pages render now, for the current (only) snapshot; older ones accumulate in Phase 5.
 
-Snapshot JSON is served by the site-wide `data/**/*.json` passthrough, so a real snapshot in `site/data/county-profiles/latest/` is at `/data/county-profiles/latest/<fips>.json`. Phase 1 also passthrough-copies the fixtures to that same path, so a fixture county's "Download this snapshot (JSON)" link resolves too; remove that passthrough once Phase 2 writes real files there. Each topic deck has one stable anchor per section (`#s-people-at-risk`) and a closing `#s-about` slide. A shareable sea-level-rise increment view is `?slr=<feet>`, default 2.
+Snapshot JSON is at `/data/county-profiles/latest/<fips>.json`. `.eleventy.js` copies `site/data/county-profiles/latest/` as a directory (a glob passthrough would flatten the files into `/data/`), and copies a fixture to that same path only for a county with no real file, so a fixture county's "Download this snapshot (JSON)" link resolves too and a real file is never overwritten by its fixture. The download is the real snapshot file, in which a Phase-3-pending section is `unavailable`; the placeholder fill happens only in the rendered pages. Each topic deck has one stable anchor per section (`#s-people-at-risk`) and a closing `#s-about` slide. A shareable sea-level-rise increment view is `?slr=<feet>`, default 2.
 
 Archived dated snapshot pages must not dilute search ranking for the current one once older ones exist — see the SEO note below.
 
@@ -45,7 +45,7 @@ Archived dated snapshot pages must not dilute search ranking for the current one
 - `site/_data/countyProfiles.js`: loads the spine, schema, reference table and snapshots, validates them, runs the build assertions and derives what the templates use: the county list, tier groups, coverage matrix, per-topic section models, the "sources used on this page" table and the topic-deck pagination data (`topicPages`). Templates restate none of those.
 - `site/data/countyProfileSchema.json`: the schema (below).
 - `site/data/county-profiles/`: snapshot JSON (`latest/`; `<date>/` later), pipeline output only. Committed for the archive's git-history backstop and never hand-edited.
-- `scripts/county-profiles/`: non-Eleventy tooling. `validate.js` (the snapshot validator, plus `checkNoStaleHost`, run in an `eleventy.after` hook over the whole built site; the Phase 2 pipeline should call `validateSnapshot` before writing a file), `section-models.js` (turns a section's data into its visual and its `{figure, caption}` callout, and enforces the callout rule), `timing.js` (the timing method), `format.js` (number, vintage and citation-date formatting) and `template-helpers.mjs` (chart geometry behind the `ring`, `barChart`, `stackedBars`, `stacked100Bars`, `groupedColumns`, `dotPlot` and `slrCurves` filters). Later: fetchers, the intersect pipeline, the `EFF_DATE` gate, the PDF renderer.
+- `scripts/county-profiles/`: non-Eleventy tooling. `validate.js` (the snapshot validator, plus `checkNoStaleHost`, run in an `eleventy.after` hook over the whole built site; the Phase 2 pipeline should call `validateSnapshot` before writing a file), `section-models.js` (turns a section's data into its visual and its `{figure, caption}` callout, and enforces the callout rule), `timing.js` (the timing method), `format.js` (number, vintage and citation-date formatting) and `template-helpers.mjs` (chart geometry behind the `ring`, `barChart`, `stackedBars`, `stacked100Bars`, `groupedColumns`, `dotPlot` and `slrCurves` filters). `pipeline/` is the Phase 2 data pipeline (`run.js` the entry point; `sources.js` one fetcher per source; `intersect.js` the block-level intersect; `snapshot.js` assembles and `validate.js` checks the output; `geo.js` point-in-polygon and clipping; `http.js` retrying fetches and the download cache). Later: the `EFF_DATE` change-detection gate, the ENOW and C-CAP fetchers, the PDF renderer.
 
 Any validator error, failed assertion, stale-host reference or repeated callout figure fails the build.
 
@@ -54,7 +54,7 @@ Any validator error, failed assertion, stale-host reference or repeated callout 
 `site/data/countyProfileSchema.json` is the source of truth for the snapshot shape (`snapshotShape`), the availability rules, the tiers, the topics and their sections (including NOAA's prose), the section kinds and the reason codes. One snapshot file describes one county. This section explains the choices; read the schema for the fields.
 
 - **Vintage has three kinds, and it is what the data describes, not when it was fetched.** `{kind: "date", date}`, `{kind: "period", start, end}` and `{kind: "year", year}`, or null only where a source publishes none (the page then says "no published vintage"). NFHL is a period, the earliest to the latest panel `EFF_DATE`. ACS, LODES and ENOW are years; ACS uses the Census API vintage key, which is the dataset's final year. `retrieved` (when the build fetched it) and `verified` (when the endpoint last answered) are never null and appear only in the Data and method table, never inline — every figure on these pages is built, not live, so "live from source" is not said anywhere. Inline source notes show the dataset name and the vintage in a distinct colour ("FEMA National Flood Hazard Layer (2009–2018)"); the Data and method table shows the full form.
-- **`method` is a monotonic integer.** It increments when a pipeline change could move a number while the source data stays put (switching the intersect from block centroids to areal weighting, changing the rollup geography, fixing an aggregation bug). It does not increment for a new section, a restyle or an added county. Snapshots with different `method` values are never joined by a trend line. It is shown on every county page.
+- **`method` is a monotonic integer.** It increments when a pipeline change could move a number while the source data stays put (changing how a block's people are apportioned to a hazard, changing the rollup geography, fixing an aggregation bug). It does not increment for a new section, a restyle or an added county. Snapshots with different `method` values are never joined by a trend line. It is shown on every county page.
 - **`geometry` is null in Phase 1.** It is provisioned so the inset map can later hold `{"nfhl": "nfhl-2009-12-03"}`, a reference to geometry versioned by source vintage and shared across snapshots, without a schema migration.
 - **Availability is explicit.** Every topic and section has `available` and `reason`; `reason` is non-null if and only if `available` is false. An unavailable topic has no sections; an available topic has exactly its schema sections, and an unavailable section renders its reason in position.
 - **Three value states, never conflated.** *Zero* is `available: true` with the value 0, and renders solid as a finding. *Suppressed* is a value the publisher withholds (ENOW does this for confidentiality): `{"suppressed": true}` in place of a number, allowed only in the two ENOW-sourced economy topics, rendered as "withheld" (dotted, muted). A total with a suppressed component is stored as `{value, partial: true}`, the validator checks `partial` is true if and only if a component is suppressed, and anything derived from a withheld value carries an asterisk and a footnote. *Unavailable* is a whole section or topic with a reason, rendered as a dashed block.
@@ -64,7 +64,7 @@ Any validator error, failed assertion, stale-host reference or repeated callout 
 
 ### Reason codes
 
-A closed set of five, each stating a rule (the wording is in the schema's `reasons`):
+A closed set of six, each stating a rule (the wording is in the schema's `reasons`):
 
 | Code | Meaning |
 |---|---|
@@ -73,8 +73,9 @@ A closed set of five, each stating a rule (the wording is in the schema's `reaso
 | `no-slr-extent` | No significant sea level rise inundation extent in this county |
 | `no-nfhl-coverage` | No effective NFHL coverage for this county |
 | `source-geography` | The source dataset does not extend to this geography |
+| `pending-phase-3` | The section's source (ENOW, C-CAP) is not in the pipeline yet; it ships in Phase 3 |
 
-`no-nfhl-coverage` is not yet used by any tier or fixture.
+`no-nfhl-coverage` is not yet used by any tier or fixture. `pending-phase-3` is a section-level reason only, never a tier rule, and each section that ships removes it: when Phase 3 is done the code has no remaining use and is deleted. An unavailable section in a real snapshot cites no sources (`sources: []`), because a source entry needs a `retrieved` stamp the pipeline never earned for data it did not fetch.
 
 ## Sections
 
@@ -186,9 +187,68 @@ Each topic deck ends with a recommended citation in APA 7, naming the topic: `Ca
 
 ## Data sources and licensing
 
-Phase 1 fetches nothing, so none of the sources below are used yet except the OPC reference table; the fixtures' source entries only label where real figures will come from. All are public domain except Esri Business Analyst business-location data, which is licensed and excluded outright (replaced by LEHD LODES workplace-area-characteristics job counts — a different measure, reported as such). Full source list, cadence and the reasoning behind each substitution belong here once Phase 2 fetches real data; see the spec for the complete table.
+All sources are public domain except Esri Business Analyst business-location data, which is licensed and excluded outright (replaced by LEHD LODES workplace-area-characteristics job counts, a different measure, reported as such). Every source has an entry in `site/_data/credits.json`. Nothing raw is committed: the pipeline keeps its downloads in `scripts/county-profiles/.cache/` (gitignored) and commits only the derived snapshot. This is the first CASCA tool that stores data in the repo; see [`DECISIONS.md`](DECISIONS.md#county-profiles-store-derived-data-in-the-repo).
 
-This is the first CASCA tool that stores data in the repo; see [`DECISIONS.md`](DECISIONS.md#county-profiles-store-derived-data-in-the-repo).
+## Data pipeline
+
+Built in Phase 2 for Orange County only. One command fetches every source, runs the intersect, validates the result against the schema and writes `site/data/county-profiles/latest/<fips>.json`:
+
+```bash
+node scripts/county-profiles/pipeline/run.js 06059
+```
+
+Flag: `--refresh` re-downloads instead of using the cache. A full run takes under ten minutes on Orange County, of which the intersect is about 3.5 minutes (all eleven areal masks together take about 30 seconds; the rest is the block-point comparison). It also writes `.cache/report-<fips>.json` with the diagnostics and sensitivity figures the reconciliation in [`DECISIONS.md`](DECISIONS.md#phase-2-reconciliation-orange-county-against-noaas-published-snapshot) cites.
+
+### What is real, and what is not yet
+
+| Topic / section | Phase 2 |
+|---|---|
+| Flood hazard: people, facilities, homes, jobs | Real |
+| Flood hazard: *A Better Future is a Greener Future* | `pending-phase-3` (needs C-CAP) |
+| Sea level rise: people, facilities, jobs | Real (the same inputs, intersected with NOAA's inundation extents instead of the SFHA) |
+| Sea level rise: *Creating a Better Future* | `pending-phase-3` (needs C-CAP) |
+| Sea level rise: *When Is the Time to Act?* | Real since Phase 1 (computed from the OPC file); unchanged |
+| Total economy: *Coastal Jobs Are Vulnerable* | Real (LODES + NFHL + NOAA SLR; no ENOW) |
+| Total economy: every other section; all of marine economy | `pending-phase-3` (needs ENOW) |
+
+The Phase 4 work on the scenario/timing layer is separate: it annotates these increment counts with when each is reached, and does not change them.
+
+### Sources
+
+| Source | What it is | Endpoint (enumerated, not assumed) | Vintage stamp |
+|---|---|---|---|
+| FEMA NFHL | Effective Special Flood Hazard Area (layer 28, `SFHA_TF = 'T'`, `DFIRM_ID = '<fips>C'`); FIRM panels (layer 3) for `EFF_DATE` | `hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer` | `period`: min to max panel `EFF_DATE` |
+| Census 2020 blocks (TIGERweb) | Block boundary, internal point, 2020 population, land area | `tigerweb.geo.census.gov/.../Census2020/Tracts_Blocks/MapServer/2` | `year` 2020 |
+| Census ACS 5-year | Population, aged 65+ (B01001), below poverty (C17002), by block group | `www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData/` bulk files, streamed | `year` 2024 |
+| LEHD LODES8 WAC | Jobs by workplace block (`C000`, all jobs) | `lehd.ces.census.gov/data/lodes/LODES8/ca/wac/`, newest year found by probing | `year` (2023) |
+| USGS Structures | Schools (layer 23), police (18), fire/EMS (16), hospitals/medical (14) | `carto.nationalmap.gov/arcgis/rest/services/structures/MapServer` | `date`: latest `LOADDATE` among the county's facilities |
+| OpenFEMA NFIP claims | Claims and payouts for the county | `www.fema.gov/api/open/v3/NfipClaims` (v2 is deprecated and removed 2026-10-15) | `date`: the dataset's `asOfDate` |
+| NOAA SLR inundation | Ocean-connected inundation polygons, 2/4/6/8/10 ft above MHHW | `chs.coast.noaa.gov/htdata/Inundation/SLR/BulkDownload/Sea_Level_Rise_Vectors/CA/CA_South_slr_data_dist.zip`, one GeoPackage read with Node's built-in SQLite | `null`: NOAA publishes none |
+
+Three deviations from the sources first proposed, each forced by what the source does now: the Census API answers every request with "Missing Key", so ACS comes from the keyless bulk summary files with the same estimates; B17001, the usual poverty table, is not published below tract, so poverty uses C17002 (ratio of income to poverty, classes under 0.50 and 0.50 to 0.99, the same "below poverty level" definition, published by block group); and NOAA's vector inundation data is a regional GeoPackage rather than a queryable service (the ArcGIS layer returns one coast-wide dissolved polygon, unusable for a county intersect). `retrieved` is the date each download was fetched (a cached run keeps the original); `verified` is the date the endpoint last answered, checked at the end of every run.
+
+### The intersect (`method` 1)
+
+Every hazard test is made at block level (15-digit GEOID) and only then rolled up to the county, so a floodplain crossing a census tract is not smeared across the tract's dry land. `method` 1 apportions each block's people and jobs by **areal share**: the fraction of the block's own polygon inside the hazard mask, so a block that straddles an irregular boundary is not counted as wholly in or wholly out. The same rule applies to every mask: the SFHA and, for sea level rise, NOAA's ocean-connected inundation and connected-plus-low-lying at 2/4/6/8/10 ft (eleven masks). The block-point figures (TIGER's `INTPTLON`/`INTPTLAT` internal point tested against the polygons) are computed alongside and kept in the run's diagnostics report, not published; see [`DECISIONS.md`](DECISIONS.md#areal-apportionment-is-the-published-method-for-every-hazard-mask) for why and for the checks (disjoint, nested, unclamped, no clipping failures) and the run time.
+
+- **Jobs** are published per block, so a block's LODES jobs are weighted by its areal share.
+- **Population** is published per block *group*, ACS's finest geography. Each block group's estimate is apportioned to its blocks in proportion to their 2020 decennial population (housing units, then land area, where a group's blocks hold nobody), so a block group that straddles a floodplain is divided by where people live; then each block is weighted by areal share, as above. The county denominator is the sum of the same apportioned values, so a ratio's two halves always come from one distribution (it equals the published county estimate to the person).
+- **Facilities** are points, tested directly by point-in-polygon for every hazard (a school is inside a floodplain or it is not), and kept only where they fall inside a county block (the USGS query is by bounding box, which spills into neighbouring counties).
+- **NFIP** is county-level (a claim is the county's if its `countyCode` or the county prefix of its `censusGeoid` says so): claims by `yearOfLoss` in the six most recent complete five-year periods (1996–2025 as of the 2026-06 data), amounts summed as building plus contents plus increased cost of compliance, and the count is every claim in those periods (paid or not), matching NOAA's own count.
+- **Land inside the floodplain** is each block's land area (`AREALAND`) times the share of the block polygon the SFHA covers, summed. FEMA's flood-zone polygons do not overlap (their areas sum to the area of their union), so the share is a sum of per-feature intersections, each first clipped to the block's bounding box.
+- **SLR** uses NOAA's ocean-connected inundation (`_slr_` tables) at 2, 4, 6, 8 and 10 ft above MHHW, and separately connected plus NOAA's unconnected low-lying areas (`_low_` tables). Both series are written to the snapshot (`counts` and `countsWithLow`; see [Sea level rise: combined exposure](#sea-level-rise-combined-exposure)). The pipeline asserts the extents nest (nothing inundated at 2 ft is dry at 4 ft), which the validator's non-decreasing rule also enforces, and the validator requires `countsWithLow` never to fall below `counts`.
+
+Zero, unavailable and pending stay distinct: a facility type with none in the floodplain is `inside: 0`, not a gap. A number that would be a null (a Census null code) is counted and reported in the diagnostics, never written.
+
+### Sea level rise: combined exposure
+
+NOAA maps ocean-connected inundation and hydrologically unconnected low-lying areas separately, and both are exposure. Each SLR increment section (People at Risk, Flooded Facilities, Jobs at Risk) therefore carries two series, `counts` (connected) and `countsWithLow` (connected plus low-lying), and **always shows the combined figure**. There is no toggle and no URL parameter for it (one was tried and removed; see [`DECISIONS.md`](DECISIONS.md#slr-sections-always-show-the-combined-exposure-with-the-low-lying-part-marked)).
+
+How it is drawn: in People at Risk each column is the combined count, the ocean-connected part solid in its ramp colour and the additional low-lying part a lighter dashed-edged segment stacked on it; in Flooded Facilities each bar is the exposed part, then the additional low-lying part (dashed), then the unexposed remainder. The end-of-bar label is the combined total, the legend has an item "Affected in low-lying areas", the callout states one number, and the data table lists both parts. The chart axis fits the combined values. The sections carry no inline explanation; the reasoning and both citations (NOAA's method description for the definitions, Befus et al. 2020 for the groundwater mechanism) are on the County Profiles about page (`/county-profiles/about/`) under "Connected and low-lying sea level rise exposure" (`#connected-low-lying`). Every segment of a Flooded Facilities bar carries the same tooltip, one category per line (ocean-connected, additional low-lying, not yet exposed). Jobs at Risk has no chart, so it is a single callout. A section whose data has no `countsWithLow` (any fixture) draws connected-only figures, as before. Total economy's "Jobs under 6 ft of sea level rise" stat pair uses the same combined series, with no caveat of its own.
+
+### The resolver
+
+`site/_data/countyProfiles.js` reads `latest/<fips>.json` when it exists, else the fixture. For a real snapshot, each section with reason `pending-phase-3` is filled from the county's fixture and marked `placeholder`, so a county moves from fixture to real one source at a time with no template change. A placeholder section carries a "Placeholder figures, not measurements of X County…" footnote (the deck's existing `model.footnote` slot); a placeholder section is never used as a county's landing-page headline; and `placeholders` in the topic pagination data lists them. The page-wide "Placeholder figures" tag and the landing-page banner remain fixture-only, since the county's flood and sea level rise pages are largely real. If a county has no fixture, a pending section simply renders as an unavailable block with its reason.
 
 ## SEO note for the snapshot archive
 
@@ -197,7 +257,7 @@ The dated route already carries `rel="canonical"` pointing at the current profil
 ## Implementation phasing
 
 1. **Data model and county spine** (built) — schema, availability model with reason codes, vintage kinds, method version, the 27-county spine, NOAA's section lists, the timing table. Index and county pages against fixtures.
-2. **The intersect pipeline, one county (Orange)** — the correctness phase: real NFHL/ACS/LODES/USGS/OpenFEMA data, block-level intersects rolled up for display, `EFF_DATE` vintage. Gate: figures reconcile against NOAA's published values or the divergence is explained.
+2. **The intersect pipeline, one county (Orange)** (built) — the correctness phase: real NFHL/ACS/LODES/USGS/OpenFEMA data, block-level intersects rolled up for display, `EFF_DATE` vintage, plus NOAA's SLR inundation intersected with the same inputs. Gate: figures reconcile against NOAA's published values or the divergence is explained; the reconciliation is in [`DECISIONS.md`](DECISIONS.md#phase-2-reconciliation-orange-county-against-noaas-published-snapshot).
 3. **All counties, all topics** — scale to 27 counties, add ENOW and C-CAP, exercise every availability state including the delta and flood-only tiers.
 4. **Sea-level-rise scenario layer** — precomputed exposure at each increment annotated with the timing, client-side scenario emphasis with URL encoding.
 5. **Automation and the archive** — the single Actions workflow, quarterly schedule plus dispatch, `EFF_DATE` short-circuit, snapshot-on-change, committed JSON, older dated snapshots.

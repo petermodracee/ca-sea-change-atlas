@@ -2,3 +2,6 @@
 node_modules/
 *.log
 _site/
+
+# County Profiles pipeline: raw source downloads (large, never committed)
+scripts/county-profiles/.cache/

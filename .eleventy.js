@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 module.exports = async function (eleventyConfig) {
   eleventyConfig.setTemplateFormats(["njk"]);
 
@@ -17,11 +19,18 @@ module.exports = async function (eleventyConfig) {
 
   eleventyConfig.addPassthroughCopy({ "site/css": "css" });
   eleventyConfig.addPassthroughCopy({ "site/js": "js" });
-  eleventyConfig.addPassthroughCopy({ "site/data/**/*.json": "data" });
-  // Phase 1 only: serve the placeholder fixtures at the same path Phase 2's real snapshots will
-  // use, so "Download this snapshot (JSON)" resolves now. Remove once site/data/county-profiles/
-  // has real pipeline output — a real file there would need to win over a fixture of the same name.
-  eleventyConfig.addPassthroughCopy({ "site/_data/countyProfileFixtures": "data/county-profiles/latest" });
+  eleventyConfig.addPassthroughCopy({ "site/data/*.json": "data" });
+  // Serve each placeholder fixture at the path a real snapshot uses, so "Download this snapshot
+  // (JSON)" resolves for a county with no real snapshot yet. A county that has a real file in
+  // site/data/county-profiles/latest/ (copied whole, below) is left out, so the
+  // real file is never overwritten by its fixture.
+  const latestDir = "site/data/county-profiles/latest";
+  // A glob passthrough flattens its output, so the snapshot directory is copied as a directory.
+  if (fs.existsSync(latestDir)) eleventyConfig.addPassthroughCopy({ [latestDir]: "data/county-profiles/latest" });
+  const realSnapshots = new Set(fs.existsSync(latestDir) ? fs.readdirSync(latestDir) : []);
+  for (const file of fs.readdirSync("site/_data/countyProfileFixtures")) {
+    if (!realSnapshots.has(file)) eleventyConfig.addPassthroughCopy({ ["site/_data/countyProfileFixtures/" + file]: "data/county-profiles/latest/" + file });
+  }
   eleventyConfig.addPassthroughCopy({ "site/img": "img" });
   eleventyConfig.addPassthroughCopy("LICENSE");
   eleventyConfig.addPassthroughCopy("robots.txt");

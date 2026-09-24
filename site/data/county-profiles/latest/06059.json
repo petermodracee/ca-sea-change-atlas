@@ -1,0 +1,623 @@
+{
+  "fips": "06059",
+  "slug": "orange",
+  "county": "Orange",
+  "tier": "full",
+  "snapshot": "2026-09-24",
+  "method": 1,
+  "generated": "2026-09-24T08:25:23Z",
+  "gauge": {
+    "id": "los-angeles",
+    "name": "Los Angeles",
+    "altGauge": null
+  },
+  "geometry": null,
+  "sources": {
+    "nfhl": {
+      "label": "FEMA National Flood Hazard Layer",
+      "url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer",
+      "vintage": {
+        "kind": "period",
+        "start": "2009-12-03",
+        "end": "2019-03-21"
+      },
+      "retrieved": "2026-09-23",
+      "verified": "2026-09-24"
+    },
+    "acs": {
+      "label": "Census ACS 5-year estimates (2020–2024)",
+      "url": "https://www.census.gov/programs-surveys/acs/data.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
+      },
+      "retrieved": "2026-09-23",
+      "verified": "2026-09-24"
+    },
+    "tiger": {
+      "label": "Census 2020 tabulation blocks (TIGERweb)",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/Census2020/Tracts_Blocks/MapServer",
+      "vintage": {
+        "kind": "year",
+        "year": 2020
+      },
+      "retrieved": "2026-09-23",
+      "verified": "2026-09-24"
+    },
+    "usgs": {
+      "label": "USGS National Structures Dataset",
+      "url": "https://www.usgs.gov/core-science-systems/ngp/tnm-corps/structures",
+      "vintage": {
+        "kind": "date",
+        "date": "2026-04-17"
+      },
+      "retrieved": "2026-09-23",
+      "verified": "2026-09-24"
+    },
+    "openfema": {
+      "label": "OpenFEMA NFIP claims",
+      "url": "https://www.fema.gov/openfema-data-page/nfip-redacted-claims-v3",
+      "vintage": {
+        "kind": "date",
+        "date": "2026-09-08"
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "slr": {
+      "label": "NOAA Sea Level Rise Viewer inundation extents",
+      "url": "https://coast.noaa.gov/slrdata/",
+      "vintage": null,
+      "retrieved": "2026-09-23",
+      "verified": "2026-09-24"
+    },
+    "lodes": {
+      "label": "LEHD LODES8 workplace area characteristics",
+      "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ca/wac/",
+      "vintage": {
+        "kind": "year",
+        "year": 2023
+      },
+      "retrieved": "2026-09-23",
+      "verified": "2026-09-24"
+    },
+    "opc": {
+      "label": "California OPC State Sea Level Rise Guidance, Appendix F",
+      "url": "https://www.oceansciencetrust.org/in-practice/2024slrguidance",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
+      },
+      "retrieved": "2026-09-20",
+      "verified": "2026-09-20"
+    }
+  },
+  "topics": {
+    "flood": {
+      "available": true,
+      "reason": null,
+      "sections": {
+        "people-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "acs",
+            "tiger",
+            "nfhl"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Population",
+                "count": 123002,
+                "total": 3165820,
+                "unit": "residents"
+              },
+              {
+                "label": "Aged 65 and over",
+                "count": 21106,
+                "total": 514824,
+                "unit": "residents aged 65 and over"
+              },
+              {
+                "label": "Below the poverty line",
+                "count": 12621,
+                "total": 296883,
+                "unit": "residents below the poverty line"
+              }
+            ],
+            "landInsideSqMi": 35.1,
+            "landTotalSqMi": 792.8
+          }
+        },
+        "critical-facilities": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "usgs",
+            "nfhl"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Schools",
+                "inside": 29,
+                "outside": 735
+              },
+              {
+                "label": "Police stations",
+                "inside": 1,
+                "outside": 39
+              },
+              {
+                "label": "Fire stations",
+                "inside": 4,
+                "outside": 138
+              },
+              {
+                "label": "Medical facilities",
+                "inside": 1,
+                "outside": 34
+              }
+            ]
+          }
+        },
+        "homes-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "openfema"
+          ],
+          "data": {
+            "items": [
+              {
+                "period": "1996–2000",
+                "amount": 5603806
+              },
+              {
+                "period": "2001–2005",
+                "amount": 2100377
+              },
+              {
+                "period": "2006–2010",
+                "amount": 3209890
+              },
+              {
+                "period": "2011–2015",
+                "amount": 444114
+              },
+              {
+                "period": "2016–2020",
+                "amount": 1300846
+              },
+              {
+                "period": "2021–2025",
+                "amount": 1643673
+              }
+            ],
+            "claims": 1831
+          }
+        },
+        "jobs-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "lodes",
+            "tiger",
+            "nfhl"
+          ],
+          "data": {
+            "count": 58116,
+            "total": 1713003
+          }
+        },
+        "natural-features": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        }
+      }
+    },
+    "slr": {
+      "available": true,
+      "reason": null,
+      "sections": {
+        "people-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "acs",
+            "tiger",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "measures": [
+              {
+                "label": "Population",
+                "unit": "residents",
+                "total": 3165820,
+                "counts": [
+                  4499,
+                  37340,
+                  78837,
+                  106754,
+                  122865
+                ],
+                "countsWithLow": [
+                  32672,
+                  63422,
+                  88941,
+                  110992,
+                  129267
+                ]
+              },
+              {
+                "label": "Aged 65 and over",
+                "unit": "residents aged 65 and over",
+                "total": 514824,
+                "counts": [
+                  1585,
+                  11019,
+                  20060,
+                  31174,
+                  34596
+                ],
+                "countsWithLow": [
+                  9097,
+                  19205,
+                  26635,
+                  32126,
+                  36049
+                ]
+              },
+              {
+                "label": "Below the poverty line",
+                "unit": "residents below the poverty line",
+                "total": 296883,
+                "counts": [
+                  201,
+                  2359,
+                  5460,
+                  7935,
+                  9159
+                ],
+                "countsWithLow": [
+                  1968,
+                  4383,
+                  6475,
+                  8113,
+                  9386
+                ]
+              }
+            ]
+          }
+        },
+        "critical-facilities": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "usgs",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "measures": [
+              {
+                "label": "Schools",
+                "unit": "facilities",
+                "total": 764,
+                "counts": [
+                  0,
+                  4,
+                  15,
+                  19,
+                  23
+                ],
+                "countsWithLow": [
+                  3,
+                  8,
+                  15,
+                  19,
+                  24
+                ]
+              },
+              {
+                "label": "Police stations",
+                "unit": "facilities",
+                "total": 40,
+                "counts": [
+                  1,
+                  2,
+                  3,
+                  3,
+                  3
+                ],
+                "countsWithLow": [
+                  1,
+                  2,
+                  3,
+                  3,
+                  3
+                ]
+              },
+              {
+                "label": "Fire stations",
+                "unit": "facilities",
+                "total": 142,
+                "counts": [
+                  0,
+                  4,
+                  5,
+                  7,
+                  8
+                ],
+                "countsWithLow": [
+                  1,
+                  4,
+                  5,
+                  7,
+                  8
+                ]
+              },
+              {
+                "label": "Medical facilities",
+                "unit": "facilities",
+                "total": 35,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        },
+        "jobs-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "lodes",
+            "tiger",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "total": 1713003,
+            "counts": [
+              2493,
+              10734,
+              18913,
+              29910,
+              36355
+            ],
+            "countsWithLow": [
+              6489,
+              14695,
+              23844,
+              31538,
+              38263
+            ]
+          }
+        },
+        "natural-landscapes": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        },
+        "when-to-act": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "opc"
+          ],
+          "data": {}
+        }
+      }
+    },
+    "total-economy": {
+      "available": true,
+      "reason": null,
+      "sections": {
+        "measuring": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        },
+        "diversity": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        },
+        "jobs-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "lodes",
+            "tiger",
+            "nfhl",
+            "slr"
+          ],
+          "data": {
+            "sfha": {
+              "count": 58116,
+              "total": 1713003
+            },
+            "slr6": {
+              "count": 23844,
+              "total": 1713003
+            }
+          }
+        },
+        "wages": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        },
+        "total-jobs": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        }
+      }
+    },
+    "marine-economy": {
+      "available": true,
+      "reason": null,
+      "sections": {
+        "measuring": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        },
+        "diversity": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        },
+        "wages": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        },
+        "total-jobs": {
+          "available": false,
+          "reason": "pending-phase-3",
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [],
+          "data": null
+        }
+      }
+    }
+  }
+}
