@@ -33,9 +33,9 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   const anySuppressed = (vals) => vals.some(isSuppressed);
   let visual = null;
   let callout = null; // {figure, caption}
-  // SLR sections with a connected-plus-low-lying series carry one callout per view (conn, withlow,
-  // both); `callout` stays the connected-only one, which the landing page uses as its headline.
-  let callouts = null;
+  // True for an SLR section whose data carries `countsWithLow`: its figures are then the combined
+  // (ocean-connected plus low-lying) counts, drawn with the connected part solid and the additional
+  // low-lying part dashed, and the template adds a short gloss saying so.
   let hasLow = false;
   let footnote = null; // overrides the generic "one or more values are withheld" text when set
 
@@ -96,33 +96,26 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
     case "increment-bars": {
       if (def.id === "people-at-risk") {
         hasLow = data.measures.every((m) => Array.isArray(m.countsWithLow));
+        // With a low-lying series every column is the combined count; the connected part is drawn
+        // solid and the additional low-lying part dashed on top of it.
         visual = {
           type: "columns",
           hasLow,
           items: data.measures.map((m) => ({
             label: m.label,
-            values: m.counts.map((c, k) => ({ value: c, text: num(c), suppressed: false, ...(hasLow ? { low: m.countsWithLow[k], lowText: num(m.countsWithLow[k]) } : {}) })),
+            values: m.counts.map((c, k) => ({ value: c, text: num(hasLow ? m.countsWithLow[k] : c), suppressed: false, ...(hasLow ? { low: m.countsWithLow[k], connText: num(c) } : {}) })),
           })),
         };
         // Only the highest increment's column is labelled by default (matching the reference
-        // layout), so only that value counts as visibly shown for the repeat guard. With a low-lying
-        // series the label also shows the connected-plus-low-lying value in the other two views.
-        data.measures.forEach((m) => { show(num(m.counts[m.counts.length - 1])); if (hasLow) show(num(m.countsWithLow[m.countsWithLow.length - 1])); });
-        const headCount = data.measures[0].counts[0];
+        // layout), so only that value counts as visibly shown for the repeat guard.
+        const head = (m) => (hasLow ? m.countsWithLow : m.counts);
+        data.measures.forEach((m) => show(num(head(m)[m.counts.length - 1])));
+        const headCount = head(data.measures[0])[0];
         const headTotal = data.measures[0].total;
-        const impacts = " As is already the case in many parts of the country, these areas are the first to experience impacts.";
         callout = {
           figure: pct(headCount, headTotal),
-          caption: "(" + num(headCount) + " people) of " + C + "’s total population lives in areas exposed to just " + increments[0] + " ft of sea level rise." + impacts,
+          caption: "(" + num(headCount) + " people) of " + C + "’s total population lives in areas exposed to just " + increments[0] + " ft of sea level rise" + (hasLow ? ", including isolated low-lying areas" : "") + ". As is already the case in many parts of the country, these areas are the first to experience impacts.",
         };
-        if (hasLow) {
-          const lowCount = data.measures[0].countsWithLow[0];
-          callouts = {
-            conn: callout,
-            withlow: { figure: pct(lowCount, headTotal), caption: "(" + num(lowCount) + " people) of " + C + "’s total population lives in areas exposed to just " + increments[0] + " ft of sea level rise, counting isolated low-lying areas as well as those the ocean reaches directly." + impacts },
-            both: { figure: callout.figure, caption: "(" + num(headCount) + " people) of " + C + "’s total population lives in areas the ocean reaches directly at just " + increments[0] + " ft of sea level rise; counting isolated low-lying areas too, it is " + pct(lowCount, headTotal) + " (" + num(lowCount) + " people)." + impacts },
-          };
-        }
       } else {
         // NOAA pattern: each facility type is a stacked bar (exposed at the selected increment,
         // then the rest of that type as a muted "not exposed" segment), so the type's real total
@@ -134,19 +127,10 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
           hasLow,
           items: data.measures.map((m) => ({ label: m.label, total: m.total, counts: m.counts, ...(hasLow ? { countsLow: m.countsWithLow } : {}) })),
         };
-        data.measures.forEach((m) => { show(num(m.counts[m.counts.length - 1])); if (hasLow) show(num(m.countsWithLow[m.countsWithLow.length - 1])); });
-        const totalAll = sum(data.measures.map((m) => m.total));
-        const p = pct(sum(data.measures.map((m) => m.counts[0])), totalAll);
-        const first = " These areas are the first to experience impacts.";
-        callout = { figure: p, caption: "of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise." + first };
-        if (hasLow) {
-          const pl = pct(sum(data.measures.map((m) => m.countsWithLow[0])), totalAll);
-          callouts = {
-            conn: callout,
-            withlow: { figure: pl, caption: "of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise, counting isolated low-lying areas as well as those the ocean reaches directly." + first },
-            both: { figure: p, caption: "of " + C + "’s critical facilities are in areas the ocean reaches directly at just " + increments[0] + " ft of sea level rise; counting isolated low-lying areas too, it is " + pl + "." + first },
-          };
-        }
+        const head = (m) => (hasLow ? m.countsWithLow : m.counts);
+        data.measures.forEach((m) => show(num(head(m)[m.counts.length - 1])));
+        const p = pct(sum(data.measures.map((m) => head(m)[0])), sum(data.measures.map((m) => m.total)));
+        callout = { figure: p, caption: "of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise" + (hasLow ? ", including isolated low-lying areas" : "") + ". These areas are the first to experience impacts." };
       }
       break;
     }
@@ -175,16 +159,8 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
     }
 
     case "increment-single": {
-      callout = { figure: pct(data.counts[0], data.total), caption: "of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise." };
       hasLow = Array.isArray(data.countsWithLow);
-      if (hasLow) {
-        const pl = pct(data.countsWithLow[0], data.total);
-        callouts = {
-          conn: callout,
-          withlow: { figure: pl, caption: "of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise, counting isolated low-lying areas as well as those the ocean reaches directly." },
-          both: { figure: callout.figure, caption: "of " + C + "’s jobs are in areas the ocean reaches directly at just " + increments[0] + " ft of sea level rise; counting isolated low-lying areas too, it is " + pl + " (" + num(data.countsWithLow[0]) + " jobs)." },
-        };
-      }
+      callout = { figure: pct((hasLow ? data.countsWithLow : data.counts)[0], data.total), caption: "of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise" + (hasLow ? ", including isolated low-lying areas" : "") + "." };
       break;
     }
 
@@ -320,6 +296,8 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         return { label: s.label, text: num(s.count) };
       });
       visual = { type: "stat-pair", items };
+      // The six-foot figure is the combined count (as in the sea level rise topic), so say so once.
+      if (topicId === "total-economy") footnote = "The six-foot figure includes isolated low-lying areas, which can still flood through groundwater rise or drainage.";
       break;
     }
 
@@ -333,7 +311,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   }
 
   const partial = Boolean((visual && visual.partial) || (callout && callout.partial));
-  return { visual, callout, callouts, hasLow, partial, footnote };
+  return { visual, callout, hasLow, partial, footnote };
 }
 
 module.exports = { buildSectionModel };

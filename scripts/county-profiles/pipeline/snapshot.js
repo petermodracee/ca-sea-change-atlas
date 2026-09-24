@@ -80,7 +80,9 @@ function buildSnapshot({ entry, schema, spine, results, meta, snapshotDate, gene
     diversity: pendingSection(),
     "jobs-at-risk": section(["lodes", "tiger", "nfhl", "slr"], {
       sfha: { count: round(r.jobs.sfha), total: round(r.jobs.total) },
-      slr6: { count: round(r.jobs.slr[at6]), total: round(r.jobs.total) },
+      // The combined (ocean-connected plus low-lying) count, the same series the sea level rise
+      // sections draw, so the two topics cannot disagree.
+      slr6: { count: round(r.jobs.slrWithLow[at6]), total: round(r.jobs.total) },
     }),
     wages: pendingSection(),
     "total-jobs": pendingSection(),

@@ -97,14 +97,14 @@
     "inside-outside": "data: {items: [{label, inside, outside}]}. Renders as horizontal stacked bars, one per item, split into inside/outside segments, as counts.",
     "payouts": "data: {items: [{period, amount}], claims}. Horizontal bars of NFIP payouts by period.",
     "single-share": "data: {count, total}. No visual; the callout carries the figure.",
-    "increment-bars": "data: {increments, measures: [{label, unit, total, counts: [one per increment], countsWithLow?: [one per increment]}]}. Vertical grouped columns: one group per measure, one column per increment, as counts. `counts` is ocean-connected inundation; the optional `countsWithLow` adds NOAA's unconnected low-lying areas (never below `counts`), and when present the deck offers a Connected only / Including low-lying / Both toggle.",
+    "increment-bars": "data: {increments, measures: [{label, unit, total, counts: [one per increment], countsWithLow?: [one per increment]}]}. Vertical grouped columns: one group per measure, one column per increment, as counts. `counts` is ocean-connected inundation; the optional `countsWithLow` adds NOAA's unconnected low-lying areas (never below `counts`), and when present the deck draws the combined count with the connected part solid and the additional low-lying part dashed.",
     "increment-composition": "data: {increments, classes: [{label, values: [one per increment]}]}. Renders as one horizontal stacked bar per increment, segments in square miles.",
     "increment-single": "data: {increments, total, counts: [one per increment], countsWithLow?: [one per increment]}. No visual; `countsWithLow` as for increment-bars.",
     "stats": "data: {establishments, jobs, wages, gdp, denominator}. Four figures; each may be suppressed except `denominator`. No prose of its own.",
     "sector-measures": "data: {sectors: [{label, establishments, wages, employment, gdp}]}. Renders as four 100%-stacked horizontal bars, one per measure, sharing one sector order and colour set. Any sector value may be suppressed per measure; a withheld segment is a marked placeholder, not a gap.",
     "sector-wages": "data: {items: [{label, county, coastalState, coastalUS}]}. A dot plot: one row per sector, one dot each for county, coastal California and coastal U.S. average wage. Any value may be suppressed.",
     "jobs-equation": "data: {employed, selfEmployed, total: {value, partial}, sectors: [{label, selfEmployed}]}. Any count may be suppressed.",
-    "stat-pair": "data: {sfha: {count, total}, slr6: {count, total}}. Two counts, no callout.",
+    "stat-pair": "data: {sfha: {count, total}, slr6: {count, total}}. Two counts, no callout. `slr6` is the combined (ocean-connected plus low-lying) count at 6 ft, the same series the sea level rise topic draws.",
     "timing": "data: {}. Computed at build from the gauge and the OPC reference file; not stored."
   },
 

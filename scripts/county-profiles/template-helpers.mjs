@@ -136,41 +136,31 @@ export function stackedByIncrement(items, increments) {
   const rows = items.map((it, i) => {
     const y0 = top + i * (rowH + rowGap);
     const states = increments.map((ft, k) => {
-      // One drawing per view. `modes` is null when the row has no low-lying series (one drawing, no
-      // toggle); otherwise "conn" (connected only), "withlow" (connected plus low-lying as one bar)
-      // and "both" (connected, then the additional low-lying segment, then the rest).
-      const draw = (exposed, extra, modes, tip, label) => {
-        const rest = Math.max(it.total - exposed - extra, 0);
-        const ew = Math.max(+x(exposed).toFixed(1), exposed === 0 ? 0 : 2);
-        const xw = extra > 0 ? Math.max(+x(extra).toFixed(1), 2) : 0;
-        const rw = Math.max(+x(rest).toFixed(1), 0);
-        const xX = ew + (xw > 0 && ew > 0 ? GAP_PX : 0);
-        const restX = xX + xw + (rw > 0 && (ew > 0 || xw > 0) ? GAP_PX : 0);
-        return {
-          modes,
-          exposedPath: exposed > 0 ? rectPath(0, 0, ew, rowH, xw <= 0 && rw <= 0) : "",
-          extraPath: xw > 0 ? rectPath(xX, 0, xw, rowH, rw <= 0) : "",
-          restPath: rw > 0 ? rectPath(restX, 0, rw, rowH, true) : "",
-          vx: (rw > 0 ? restX + rw : xw > 0 ? xX + xw : ew) + 10,
-          keyLabel: label,
-          tip,
-        };
-      };
-      const exposed = it.counts[k];
-      const low = it.countsLow ? it.countsLow[k] : undefined;
-      const base = it.label + " exposed at " + ft + " ft: ";
-      const variants = low === undefined
-        ? [draw(exposed, 0, null, base + num(exposed) + " of " + num(it.total), num(exposed))]
-        : [
-            draw(exposed, 0, "conn", base + num(exposed) + " of " + num(it.total) + " (ocean-connected)", num(exposed)),
-            draw(low, 0, "withlow", base + num(low) + " of " + num(it.total) + " (including low-lying areas)", num(low)),
-            draw(exposed, low - exposed, "both", base + num(exposed) + " ocean-connected + " + num(low - exposed) + " more low-lying = " + num(low) + " of " + num(it.total), num(low)),
-          ];
+      // Every row is the combined count when it has a low-lying series: the ocean-connected part
+      // solid, the additional low-lying part dashed after it, then the rest. The tooltip names every
+      // category the bar has, so hovering any segment shows all of them.
+      const conn = it.counts[k];
+      const total = it.countsLow ? it.countsLow[k] : conn;
+      const extra = total - conn;
+      const rest = Math.max(it.total - total, 0);
+      const ew = Math.max(+x(conn).toFixed(1), conn === 0 ? 0 : 2);
+      const xw = extra > 0 ? Math.max(+x(extra).toFixed(1), 2) : 0;
+      const rw = Math.max(+x(rest).toFixed(1), 0);
+      const xX = ew + (xw > 0 && ew > 0 ? GAP_PX : 0);
+      const restX = xX + xw + (rw > 0 && (ew > 0 || xw > 0) ? GAP_PX : 0);
+      const tip = [it.label + " at " + ft + " ft", it.countsLow ? "Ocean-connected: " + num(conn) : "Exposed: " + num(conn)]
+        .concat(it.countsLow ? ["Additional low-lying: " + num(extra)] : [])
+        .concat(["Not yet exposed: " + num(rest)]).join("\n");
       return {
         ft,
-        variants,
-        keyLabel: num(exposed),
-        keyLabelLow: low === undefined ? null : num(low),
+        exposedPath: conn > 0 ? rectPath(0, 0, ew, rowH, xw <= 0 && rw <= 0) : "",
+        extraPath: xw > 0 ? rectPath(xX, 0, xw, rowH, rw <= 0) : "",
+        restPath: rw > 0 ? rectPath(restX, 0, rw, rowH, true) : "",
+        vx: (rw > 0 ? restX + rw : xw > 0 ? xX + xw : ew) + 10,
+        keyLabel: num(total),
+        connLabel: num(conn),
+        lowLabel: it.countsLow ? num(total) : null,
+        tip,
       };
     });
     return { label: it.label, total: num(it.total), labelY: y0 + rowH / 2 + 7, midY: y0 + rowH / 2, barY: y0, states };
@@ -315,19 +305,17 @@ export function groupedColumns(items, seriesLabels) {
       const colH = v.suppressed ? 0 : mt + ih - top;
       const isLast = i === nSeries - 1;
       const text = v.suppressed ? "withheld" : v.text;
-      // Optional connected-plus-low-lying series: a full-height column for the "including low-lying"
-      // view and a lighter segment stacked on the connected column for the "both" view.
+      // Optional low-lying series: `value` is the ocean-connected part (the solid column) and `low` the
+      // combined total; the additional low-lying part is a lighter segment stacked on the column, and
+      // `text` is the combined total.
       const hasLow = v.low !== undefined && !v.suppressed;
       const lowTop = hasLow ? mt + y(v.low) : 0;
-      const lowH = hasLow ? mt + ih - lowTop : 0;
       const extraH = hasLow ? top - GAP_PX - lowTop : 0;
       return {
         s: i,
         hasLow,
-        pathLow: hasLow ? columnPath(x, lowTop, colW, lowH) : "",
+        connText: hasLow ? v.connText : "",
         extraPath: hasLow && extraH > 0.5 ? columnPath(x, lowTop, colW, extraH) : "",
-        lowText: hasLow ? v.lowText : "",
-        lowTip: hasLow ? (seriesLabels ? seriesLabels[i] + ": " : "") + it.label + " " + text + " connected, " + v.lowText + " including low-lying areas" : "",
         path: v.suppressed ? "" : columnPath(x, top, colW, colH),
         suppressed: v.suppressed,
         text,
@@ -337,7 +325,7 @@ export function groupedColumns(items, seriesLabels) {
         labelX: x + colW / 2,
         labelY: VALUE_LABEL_Y,
         isLast,
-        tip: (seriesLabels ? seriesLabels[i] + ": " : "") + it.label + " " + text,
+        tip: (seriesLabels ? seriesLabels[i] + ": " : "") + it.label + " " + text + (hasLow ? "\nOcean-connected: " + v.connText + "\nAdditional low-lying: " + num(v.low - v.value) : ""),
       };
     });
     return { label: it.label, labelX: ml + gi * band + band / 2, labelY: H - mb + 40, cols };

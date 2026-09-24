@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-24T07:42:00Z",
+  "generated": "2026-09-24T08:25:23Z",
   "gauge": {
     "id": "los-angeles",
     "name": "Los Angeles",
@@ -540,7 +540,7 @@
               "total": 1713003
             },
             "slr6": {
-              "count": 18913,
+              "count": 23844,
               "total": 1713003
             }
           }
