@@ -34,20 +34,6 @@ function timingTable(reference, gaugeId, increments) {
   }));
 }
 
-// Two gauges straddle when any cell differs by 5 or more years, or one gauge reaches an increment
-// by 2150 and the other does not. Returns null when they agree, else what differs.
-function compareGauges(reference, gaugeA, gaugeB, increments) {
-  const a = timingTable(reference, gaugeA, increments);
-  const b = timingTable(reference, gaugeB, increments);
-  let maxDiff = 0, unreached = 0;
-  a.forEach((row, i) => row.cells.forEach((cell, j) => {
-    const other = b[i].cells[j];
-    if ((cell.year === null) !== (other.year === null)) unreached++;
-    else if (cell.year !== null) maxDiff = Math.max(maxDiff, Math.abs(cell.year - other.year));
-  }));
-  return maxDiff >= 5 || unreached > 0 ? { maxDiff, unreached } : null;
-}
-
 // The horizons the page states, and the range of heights NOAA's inundation layers can show. NOAA's
 // layers run from 1 ft to 10 ft above MHHW, so a projection under 1 ft has no layer to point at and
 // one over 10 ft is past the top of the map. Such a figure is still stated, and flagged.
@@ -76,4 +62,4 @@ function projectionsFor(reference, gaugeId) {
   };
 }
 
-module.exports = { SCENARIOS, SCENARIO_LABELS, BEYOND, HORIZONS, MAP_MIN_FT, MAP_MAX_FT, envelope, projectionsFor, series, yearReached, timingTable, compareGauges };
+module.exports = { SCENARIOS, SCENARIO_LABELS, BEYOND, HORIZONS, MAP_MIN_FT, MAP_MAX_FT, envelope, projectionsFor, series, yearReached, timingTable };

@@ -37,7 +37,7 @@ nav: county-profiles
 <div><dt>{{ g.name }}</dt><dd>{{ g.counties | join(", ") }}</dd></div>
 {%- endfor %}
 </dl>
-<p>Some counties have a second sea level regime: an outer coast and a bay shore. Whether a county <em>straddles</em> is never authored. It is computed at build from the timing tables of the two gauges: a county straddles when any year differs by five or more, or when one gauge reaches an increment by 2150 and the other does not. A straddling county shows both tables.{% for c in countyProfiles.counties %}{% if c.straddle %} {{ c.name }} is currently the only one.{% endif %}{% endfor %}</p>
+<p>Each county has exactly one gauge. Some counties, San Mateo among them, span two shoreline regimes, an outer coast and a bay shore. An earlier version gave those counties a second gauge and computed a "straddle" note from the difference between the two; that was dropped in favor of one authoritative gauge per county, so every county reads a single set of projections. San Mateo's gauge is Alameda, an editorial call: its South Bay shore runs 0.3 to 0.4 ft below San Francisco by 2100, so San Francisco would have overstated it.</p>
 </section>
 
 <section class="cp-topic" id="horizons">
@@ -51,7 +51,7 @@ nav: county-profiles
 <p>The three recommended scenarios at every gauge a county uses, in feet above 2000, as published in Appendix F of the 2024 guidance. Values marked † or ‡ fall outside the range the map shows. Under each, the same projections are turned around: for each map increment, the year each scenario reaches it (linear interpolation between decades, as in the timing table; "after 2150" if it never does).</p>
 {%- for g in countyProfiles.gaugeTables %}
 <details class="cp-gauge-table">
-<summary>{{ g.name }} <span class="cp-muted">(Table {{ g.table }}{% if g.counties.length %}; {{ g.counties | join(", ") }}{% endif %}{% if g.altFor.length %}; second gauge for {{ g.altFor | join(", ") }}{% endif %})</span></summary>
+<summary>{{ g.name }} <span class="cp-muted">(Table {{ g.table }}{% if g.counties.length %}; {{ g.counties | join(", ") }}{% endif %})</span></summary>
 <div class="cp-table-wrap"><table class="cp-appendix-f">
 <thead><tr><th scope="col">Scenario</th>{% for d in g.decades %}<th scope="col">{{ d }}</th>{% endfor %}</tr></thead>
 <tbody>

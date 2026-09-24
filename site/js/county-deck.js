@@ -1,5 +1,5 @@
 // County Profiles topic deck: the dot nav, keyboard paging, snap toggle, Chart/Table switches, the
-// sea-level-rise increment pickers, and the citation Copy button. Every chart and every increment
+// sea-level-rise increment picker, and the citation Copy button. Every chart and every increment
 // state is already in the markup at build time; nothing here computes or draws anything — it only
 // shows or hides what is already there.
 (function () {
@@ -132,6 +132,47 @@
     input.addEventListener("input", function () { apply(input.value, true); });
     return apply;
   }
+
+  // ---- sea level rise increment picker: toggles a precomputed overlay group + readout, hides the
+  // selected increment's own muted threshold line/label (its bold twin draws in the same place),
+  // and syncs the URL's ?slr= parameter. Default is the lowest increment (2 ft) unless the URL says
+  // otherwise.
+  document.querySelectorAll("[data-cpd-incs]").forEach(function (box) {
+    var root = box.closest(".cpd-pane");
+    var stateGroups = root.querySelectorAll("[data-cpd-state]");
+    var mutedGroups = root.querySelectorAll("[data-cpd-muted]");
+    var readouts = root.querySelectorAll("[data-cpd-readout]");
+    function select(ft, updateUrl) {
+      stateGroups.forEach(function (g) {
+        var match = g.getAttribute("data-cpd-state") === ft;
+        if (match) g.removeAttribute("hidden"); else g.setAttribute("hidden", "");
+      });
+      mutedGroups.forEach(function (g) {
+        var match = g.getAttribute("data-cpd-muted") === ft;
+        if (match) g.setAttribute("hidden", ""); else g.removeAttribute("hidden");
+      });
+      readouts.forEach(function (p) {
+        var match = p.getAttribute("data-cpd-readout") === ft;
+        if (match) p.removeAttribute("hidden"); else p.setAttribute("hidden", "");
+      });
+      if (updateUrl) {
+        try {
+          var u = new URL(window.location.href);
+          u.searchParams.set("slr", ft);
+          history.replaceState(null, "", u.toString());
+        } catch (e) { /* the picker still works without a shareable URL */ }
+      }
+    }
+    var apply = wireSlider(box, select);
+    if (!apply) return;
+    var wanted = null;
+    try { wanted = new URL(window.location.href).searchParams.get("slr"); } catch (e) { /* ignore */ }
+    var input = box.querySelector("input.cpd-slider");
+    if (wanted && ["2", "4", "6", "8", "10"].indexOf(wanted) !== -1) {
+      input.value = wanted;
+    }
+    apply(input.value, false);
+  });
 
   // ---- SLR grouped-columns increment picker: every column for every increment is already drawn;
   // this only marks which increment's columns take their full ramp colour (the rest are muted) and

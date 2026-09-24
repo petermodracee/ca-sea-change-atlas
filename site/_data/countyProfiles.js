@@ -5,7 +5,7 @@ const spine = require("./countySpine.json");
 const reference = require("./opcGaugeProjections.json");
 const { validateSnapshot } = require("../../scripts/county-profiles/validate.js");
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
-const { timingTable, compareGauges, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
+const { timingTable, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
 
 // Everything the County Profiles pages need, derived from the spine, the schema, the OPC reference
@@ -27,7 +27,7 @@ const sfTable = timingTable(reference, "san-francisco", [2, 4, 6, 8, 10]).map((r
 if (JSON.stringify(sfTable) !== JSON.stringify(EXPECTED_SF)) {
   throw new Error("timing method: the San Francisco table is " + JSON.stringify(sfTable) + ", expected " + JSON.stringify(EXPECTED_SF));
 }
-for (const g of new Set(spine.counties.flatMap((c) => [c.gauge, c.altGauge]).filter(Boolean))) {
+for (const g of new Set(spine.counties.map((c) => c.gauge).filter(Boolean))) {
   if (!reference.gauges[g]) throw new Error("spine names gauge " + g + ", which is not in opcGaugeProjections.json");
   if (!spine.gauges[g]) throw new Error("spine names gauge " + g + " but has no entry for it in gauges");
 }
@@ -96,21 +96,6 @@ function placeholderTitlesOf(sections, wholeFixture) {
   return sections.filter((s) => s.sec.available && wholeFixture && s.def.kind !== "timing").map((s) => s.def.title);
 }
 
-function straddleOf(c) {
-  if (!c.altGauge) return null;
-  const diff = compareGauges(reference, c.gauge, c.altGauge, increments);
-  if (!diff) return null;
-  const a = spine.gauges[c.gauge].name, b = spine.gauges[c.altGauge].name;
-  const bits = [];
-  if (diff.maxDiff >= 5) bits.push("the years an increment is reached differ by up to " + diff.maxDiff + " years");
-  if (diff.unreached) bits.push(diff.unreached + " of " + increments.length * 3 + " increment-and-scenario pairs are reached at one gauge by 2150 and not at the other");
-  return {
-    altGauge: c.altGauge,
-    altName: b,
-    text: c.name + " County straddles two sea level regimes. Its assigned gauge is " + a + "; at the " + b + " gauge " + bits.join(", and ") + ". Both timing tables are shown.",
-  };
-}
-
 const counties = spine.counties
   .map((c) => {
     const real = latest[c.fips] || null;
@@ -128,11 +113,9 @@ const counties = spine.counties
       };
     });
     const hasSlr = coverage.find((t) => t.id === "slr").available && c.gauge;
-    const straddle = straddleOf(c);
     const timing = hasSlr
       ? [
           { gauge: c.gauge, name: spine.gauges[c.gauge].name, rows: timingTable(reference, c.gauge, increments) },
-          ...(straddle ? [{ gauge: c.altGauge, name: spine.gauges[c.altGauge].name, alt: true, rows: timingTable(reference, c.altGauge, increments) }] : []),
         ]
       : null;
 
@@ -155,7 +138,6 @@ const counties = spine.counties
         sectionGaps: (topicSections[t.id] || []).filter((x) => !x.sec.available).map((x) => ({ title: x.def.title, reason: x.sec.reason, reasonLabel: schema.reasons[x.sec.reason].label })),
       })),
       gaugeName: c.gauge ? spine.gauges[c.gauge].name : null,
-      straddle,
       timing,
       profile,
       isFixture: Boolean(profile && profile.fixture),
@@ -167,11 +149,6 @@ const counties = spine.counties
   })
   .sort((a, b) => a.name.localeCompare(b.name));
 
-// The straddle rule is computed, never authored; San Mateo is the one county expected to trip it.
-const straddling = counties.filter((c) => c.straddle).map((c) => c.slug);
-if (JSON.stringify(straddling) !== JSON.stringify(["san-mateo"])) {
-  throw new Error("straddle rule: expected only san-mateo to straddle, got " + JSON.stringify(straddling));
-}
 
 const tiers = Object.entries(schema.tiers).map(([id, t]) => {
   const members = counties.filter((c) => c.tier === id);
@@ -232,7 +209,6 @@ module.exports = {
     name: g.name,
     table: reference.gauges[id].table,
     counties: counties.filter((c) => c.gauge === id).map((c) => c.name),
-    altFor: counties.filter((c) => c.altGauge === id).map((c) => c.name),
     decades: reference.decades,
     byIncrement: timingTable(reference, id, increments),
     rows: SCENARIOS.map((sc) => ({

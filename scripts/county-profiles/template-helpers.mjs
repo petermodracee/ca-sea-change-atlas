@@ -9,7 +9,7 @@ import { max, sum } from "d3-array";
 
 const require = createRequire(import.meta.url);
 const { shareText, num, compact } = require("./format.js");
-const { SCENARIOS, SCENARIO_LABELS: LABELS, series, envelope, MAP_MIN_FT, MAP_MAX_FT } = require("./timing.js");
+const { SCENARIOS, SCENARIO_LABELS: LABELS, series, yearReached, envelope, MAP_MIN_FT, MAP_MAX_FT } = require("./timing.js");
 
 export { num };
 export { apaDate } from "./format.js";
@@ -402,20 +402,21 @@ export function dotPlot(items, seriesLabels) {
   };
 }
 
-// ---- sea level rise scenario curves, with the 2050 and 2100 horizons marked ----------------------
+// ---- sea level rise scenario curves, with all five increment states precomputed ----------------
 
 export const SCENARIO_LABELS = LABELS;
 // Index into the 5-step ramp for each scenario: steps 1, 3 and 5 (0-indexed 0, 2, 4).
 const SCENARIO_RAMP_STEP = { intermediate: 0, "intermediate-high": 2, high: 4 };
-const HORIZON_YEARS = [2050, 2100];
 
-// One curve chart for a gauge: the three recommended scenarios, a vertical line at each horizon year
-// and, on each line, a dot and a label per scenario with its projected rise. Everything is drawn at
-// build; there is no interaction. The three labels at a horizon can sit within a few pixels of each
-// other near the baseline, so they are stacked above their dots with a minimum gap and joined to
-// their dots by a leader line.
-export function slrCurves(reference, gaugeId) {
-  const W = 1000, H = 320, m = { l: 70, r: 36, t: 34, b: 50 };
+// One curve chart for a gauge, plus a precomputed overlay (threshold line, crossing dots, drop
+// lines, readout text) for every increment in `increments`. The increment picker only shows or
+// hides one overlay group; nothing is computed in the browser.
+export function slrCurves(reference, gaugeId, increments) {
+  // Scenarios are named in a legend below the chart, not at the curves' ends, so r only needs room
+  // for half the last x-axis label ("2150") — the plot itself takes the width the end labels used
+  // to. H is shorter than the generic column/line-chart ratio: at 1000 wide this chart doesn't need
+  // as much vertical room as its aspect ratio implied, and it was flagged as too tall twice.
+  const W = 1000, H = 320, m = { l: 70, r: 36, t: 24, b: 50 };
   const iw = W - m.l - m.r, ih = H - m.t - m.b;
   const all = SCENARIOS.map((s) => series(reference, gaugeId, s));
   const yMax = Math.max(12, Math.ceil(max(all, (a) => max(a.feet)) / 2) * 2);
@@ -430,28 +431,74 @@ export function slrCurves(reference, gaugeId) {
     d: "M" + all[i].years.map((yr, k) => pt(yr, all[i].feet[k])).join(" L"),
   }));
 
-  const GAP = 24, LIFT = 16;
-  const horizons = HORIZON_YEARS.map((year) => {
-    const dots = SCENARIOS.map((s, i) => {
-      const feet = all[i].feet[all[i].years.indexOf(year)];
-      const flag = envelope(feet);
-      return { scenario: s, label: SCENARIO_LABELS[s], ramp: SCENARIO_RAMP_STEP[s], feet, flag, text: feet.toFixed(1) + " ft" + (flag === "below" ? " †" : flag === "above" ? " ‡" : ""), cx: +x(year).toFixed(1), cy: +y(feet).toFixed(1) };
+  const states = increments.map((ft) => {
+    const crossings = SCENARIOS.map((s) => {
+      const yr = yearReached(reference, gaugeId, s, ft);
+      return { scenario: s, ramp: SCENARIO_RAMP_STEP[s], label: SCENARIO_LABELS[s], year: yr, x: yr === null ? null : +x(yr).toFixed(1), text: yr === null ? "after 2150" : String(yr), beyond: yr === null };
     });
-    // Lowest dot first: each label sits LIFT above its dot, and no label closer than GAP to the one below.
-    let prev = Infinity;
-    [...dots].sort((a, b) => b.cy - a.cy).forEach((d) => {
-      d.ly = +Math.min(d.cy - LIFT, prev - GAP).toFixed(1);
-      prev = d.ly;
-    });
-    return { year, x: +x(year).toFixed(1), dots, flags: { below: dots.some((d) => d.flag === "below"), above: dots.some((d) => d.flag === "above") } };
+    return {
+      ft,
+      y: +y(ft).toFixed(1),
+      crossings,
+      readoutLabel: ft + " ft is reached in:",
+    };
   });
 
   return {
     width: W, height: H, left: m.l, right: m.l + iw, top: m.t, bottom: m.t + ih,
     xTicks: x.ticks(6).map((t) => ({ x: +x(t).toFixed(1), label: String(t) })),
-    yTicks: y.ticks(6).map((t) => ({ y: +y(t).toFixed(1), ty: +(y(t) + 7).toFixed(1), label: String(t) })),
+    // A tick that lands exactly on one of the five increments is left unlabelled here (the
+    // gridline still draws): the muted/bold threshold overlay already labels that exact height with
+    // "N ft", so a second axis label right next to it read as a collision, not a second data point.
+    // 0 and the axis max are suppressed too: with every increment tick already blanked out (the
+    // threshold overlay labels them), these two ends were the only labels left standing, and both are
+    // self-evident from the chart's frame (0 at the baseline, the topmost gridline), so they read as
+    // clutter rather than data.
+    yTicks: y.ticks(6).map((t) => ({ y: +y(t).toFixed(1), ty: +(y(t) + 7).toFixed(1), label: (increments.includes(t) || t === 0 || t === yMax) ? null : String(t) })),
     curves,
-    horizons,
-    flags: { below: horizons.some((h) => h.flags.below), above: horizons.some((h) => h.flags.above), min: MAP_MIN_FT, max: MAP_MAX_FT },
+    states,
+  };
+}
+
+// ---- projected rise in 2050 and 2100, by scenario (the timing slide's third view) ---------------
+
+// Two groups (the horizons) of three columns (the recommended scenarios, ramp steps 1, 3, 5), in feet
+// above 2000 straight from Appendix F. A value under the map's lowest level or over its highest gets
+// a † or ‡; the footnote flags say which are needed. Every column's value is labelled above it.
+export function horizonColumns(reference, gaugeId) {
+  const g = reference.gauges[gaugeId];
+  if (!g) throw new Error("no OPC gauge " + gaugeId);
+  const W = 1000, H = 300, ml = 90, mr = 16, mt = 46, mb = 76;
+  const iw = W - ml - mr, ih = H - mt - mb;
+  const years = [2050, 2100];
+  const vals = years.map((yr) => SCENARIOS.map((s) => g[s][reference.decades.indexOf(yr)]));
+  const y = scaleLinear().domain([0, max(vals, (r) => max(r))]).nice(4).range([ih, 0]);
+  const band = iw / years.length;
+  const colW = Math.min(COL_W_PEOPLE, (band * 0.72) / SCENARIOS.length - GAP_PX);
+  const groupW = colW * SCENARIOS.length + GAP_PX * (SCENARIOS.length - 1);
+  const flags = { below: false, above: false, min: MAP_MIN_FT, max: MAP_MAX_FT };
+  const groups = years.map((yr, gi) => {
+    const x0 = ml + gi * band + (band - groupW) / 2;
+    const cols = SCENARIOS.map((s, i) => {
+      const feet = vals[gi][i];
+      const flag = envelope(feet);
+      if (flag !== "within") flags[flag] = true;
+      const x = x0 + i * (colW + GAP_PX), top = mt + y(feet);
+      const text = feet.toFixed(1) + (flag === "below" ? "†" : flag === "above" ? "‡" : "");
+      return {
+        s: i === 0 ? 0 : i === 1 ? 2 : 4,
+        path: columnPath(x, top, colW, mt + ih - top),
+        text,
+        labelX: x + colW / 2,
+        labelY: top - 10,
+        tip: SCENARIO_LABELS[s] + ", " + yr + ": " + text.replace(/[†‡]$/, "") + " ft above 2000",
+      };
+    });
+    return { label: String(yr), labelX: ml + gi * band + band / 2, labelY: H - mb + 40, cols };
+  });
+  return {
+    width: W, height: H, ml, mr, mt, mb, axisY: mt + ih, groups, flags,
+    ticks: y.ticks(4).map((t) => ({ y: +(mt + y(t)).toFixed(1), label: String(t) })),
+    legend: SCENARIOS.map((s, i) => ({ label: SCENARIO_LABELS[s], ramp: i === 0 ? 0 : i === 1 ? 2 : 4 })),
   };
 }

@@ -105,7 +105,7 @@
 {%- elif v.type == "columns" %}{{ columns(uid, v.items, countyProfiles.incrementLabels, def.caption or def.title, countyProfiles.increments if def.id == "people-at-risk" else none) }}
 {%- elif v.type == "facilities-stack" %}{{ facilitiesStack(uid, v.items, def.caption or def.title, countyProfiles.increments) }}
 {%- elif v.type == "dots" %}{{ dots(uid, v.items, v.series, def.caption or def.title) }}
-{%- elif v.type == "timing" %}{{ curves(uid, county, opcGaugeProjections) }}
+{%- elif v.type == "timing" %}{{ curves(uid, county, opcGaugeProjections, countyProfiles.increments) }}
 {%- elif v.type == "stats" %}
 {#- A withheld stat isn't drawn at all — it's named in the footnote instead of taking a slot here. -#}
 <dl class="cp-stats">{% for it in v.items %}{% if not it.suppressed %}<div><dt>{{ it.label }}</dt><dd>{{ it.text }}</dd></div>{% endif %}{% endfor %}</dl>

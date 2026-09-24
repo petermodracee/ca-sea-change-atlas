@@ -282,11 +282,10 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, nes, n
 }
 
 // The reference tide gauge and the OPC 2024 Appendix F projections behind it (the three recommended
-// scenarios, all thirteen decades, feet above 2000). A county's second gauge carries its own.
+// scenarios, all thirteen decades, feet above 2000). One gauge per county.
 function gaugeBlock(entry, spine) {
   if (!entry.gauge) return null;
-  const one = (id) => ({ id, name: spine.gauges[id].name, projections: projectionsFor(reference, id) });
-  return { ...one(entry.gauge), altGauge: entry.altGauge ? one(entry.altGauge) : null };
+  return { id: entry.gauge, name: spine.gauges[entry.gauge].name, projections: projectionsFor(reference, entry.gauge) };
 }
 
 module.exports = { buildSnapshot, gaugeBlock, METHOD };

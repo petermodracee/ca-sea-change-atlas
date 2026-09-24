@@ -961,7 +961,7 @@ body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
 .cpd-chart-title{margin:0;font-size:16px;font-weight:600;color:var(--ink);text-align:center;}
 .cpd-fighead .cpd-chart-title{text-align:left;}
 .cpd-fighead-centered{position:relative;justify-content:flex-end;}
-.cpd-fighead-centered .cpd-chart-title{position:absolute;left:50%;transform:translateX(-50%);text-align:center;}
+.cpd-fighead-centered .cpd-chart-title{flex:1 1 220px;order:-1;text-align:center;}
 .cpd-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:0 0 10px;padding:0;list-style:none;font-size:15px;color:var(--ink-soft);}
 .cpd-legend li{display:inline-flex;align-items:center;gap:6px;}
 .cpd-legend i{width:13px;height:13px;border-radius:2px;display:inline-block;}
@@ -1053,8 +1053,6 @@ svg [hidden]{display:none;}
 .cpd-col-extra:not(.cpd-col-active){opacity:.5;}
 .cpd-legend .cpd-swatch-extra{background:transparent;border:1.5px dashed var(--ramp-2);box-sizing:border-box;}
 .cpd-tview{max-height:48vh;overflow:auto;}
-/* A straddling county has two timing tables; side by side they no longer make the table pane the tall one. */
-.cpd-tview:has(> table + table){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px;align-items:start;}
 .cpd-tview td{font-size:17px;}
 
 /* about slide */
@@ -1171,10 +1169,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 /* Only the selected increment draws bold and full-strength; the other four are ordinary, muted
    gridlines with plain tick labels, so pressing a different increment button visibly moves which
    line is emphasized instead of leaving the chart looking unchanged. */
-.cpd-hline{stroke:var(--ink);stroke-width:2;stroke-dasharray:7 6;opacity:.75;}
-.cpd-hyear{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:21px;font-weight:700;fill:var(--ink);}
-.cpd-hlabel{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:19px;font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--paper-2);stroke-width:5px;stroke-linejoin:round;}
-.cpd-leader{stroke-width:1.5;}
+.cpd-chart-subtitle{margin:0 0 6px;font-size:14px;color:var(--ink-soft);}
 .cpd-horizon-note{font-size:13px;color:var(--ink-soft);margin:2px 0 0;}
 .cpd-thresh{stroke:var(--ink);stroke-width:3;}
 .cpd-thresh-muted{stroke:var(--line);stroke-width:1.5;stroke-dasharray:5 5;}
