@@ -37,7 +37,40 @@ nav: county-profiles
 <div><dt>{{ g.name }}</dt><dd>{{ g.counties | join(", ") }}</dd></div>
 {%- endfor %}
 </dl>
-<p>Some counties have a second sea level regime: an outer coast and a bay shore. Whether a county <em>straddles</em> is never authored. It is computed at build from the timing tables of the two gauges: a county straddles when any year differs by five or more, or when one gauge reaches an increment by 2150 and the other does not. A straddling county shows both tables.{% for c in countyProfiles.counties %}{% if c.straddle %} {{ c.name }} is currently the only one.{% endif %}{% endfor %}</p>
+<p>Each county has exactly one gauge. Some counties, San Mateo among them, span two shoreline regimes, an outer coast and a bay shore. An earlier version gave those counties a second gauge and computed a "straddle" note from the difference between the two; that was dropped in favor of one authoritative gauge per county, so every county reads a single set of projections. San Mateo's gauge is Alameda, an editorial call: its South Bay shore runs 0.3 to 0.4 ft below San Francisco by 2100, so San Francisco would have overstated it.</p>
+</section>
+
+<section class="cp-topic" id="horizons">
+<h2>Projected rise at 2050 and 2100</h2>
+<p>The tables below give the rise projected at each tide gauge in every decade, and 2050 and 2100 are the two horizons that appear in most California adaptation documents and Local Coastal Program updates. The values are in feet above 2000. The values are Appendix F's own: already in feet, with local vertical land motion included, so nothing is converted or rounded. Low and Intermediate-Low are not shown, because the state does not recommend planning against them. A profile's snapshot file carries all thirteen decades for its gauge.</p>
+<p>NOAA's inundation layers cover {{ countyProfiles.mapMinFt }} to {{ countyProfiles.mapMaxFt }} ft above MHHW. A projection outside that range is still stated, and marked: † for a figure under {{ countyProfiles.mapMinFt }} ft (near-term rise the map cannot show) and ‡ for one over {{ countyProfiles.mapMaxFt }} ft (past the top of the map). In practice the usable range is roughly 2050 to 2120; earlier, most scenarios are under the lowest layer, and later the High scenario climbs past the highest.</p>
+</section>
+
+<section class="cp-topic" id="appendix-f">
+<h2>Appendix F, by gauge</h2>
+<p>The three recommended scenarios at every gauge a county uses, in feet above 2000, as published in Appendix F of the 2024 guidance. Values marked † or ‡ fall outside the range the map shows. Under each, the same projections are turned around: for each map increment, the year each scenario reaches it (linear interpolation between decades, as in the timing table; "after 2150" if it never does).</p>
+{%- for g in countyProfiles.gaugeTables %}
+<details class="cp-gauge-table">
+<summary>{{ g.name }} <span class="cp-muted">(Table {{ g.table }}{% if g.counties.length %}; {{ g.counties | join(", ") }}{% endif %})</span></summary>
+<div class="cp-table-wrap"><table class="cp-appendix-f">
+<thead><tr><th scope="col">Scenario</th>{% for d in g.decades %}<th scope="col">{{ d }}</th>{% endfor %}</tr></thead>
+<tbody>
+{%- for row in g.rows %}
+<tr><th scope="row">{{ row.label }}</th>{% for c in row.cells %}<td{% if c.flag != "within" %} class="cpd-out-{{ c.flag }}"{% endif %}>{{ c.text }}{% if c.flag == "below" %}<sup>†</sup>{% elif c.flag == "above" %}<sup>‡</sup>{% endif %}</td>{% endfor %}</tr>
+{%- endfor %}
+</tbody>
+</table></div>
+<p class="cp-muted">The same projections by height: the year each increment is reached at this gauge.</p>
+<div class="cp-table-wrap"><table class="cp-appendix-f">
+<thead><tr><th scope="col">Sea level rise</th>{% for row in g.rows %}<th scope="col">{{ row.label }}</th>{% endfor %}</tr></thead>
+<tbody>
+{%- for r in g.byIncrement %}
+<tr><th scope="row">{{ r.feet }} ft</th>{% for c in r.cells %}<td>{% if c.year == null %}after 2150{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>
+{%- endfor %}
+</tbody>
+</table></div>
+</details>
+{%- endfor %}
 </section>
 
 <section class="cp-topic" id="connected-low-lying">
@@ -77,6 +110,7 @@ nav: county-profiles
 <p>Each profile shows its methodology version ("Version <em>N</em>") on its About this data slide. The version is a monotonic integer, not a date: it increments only when a pipeline change could move a figure while the underlying source data stays the same (switching the intersect method, changing the rollup geography, fixing an aggregation bug), never for a new section, a restyle or an added county. Two snapshots carrying different versions are never joined by a trend line.</p>
 <dl class="cp-reasons">
 <div><dt>Version 1</dt><dd>The version in development. Orange County was first computed from real data in Phase 2 (block-level areal apportionment of people and jobs to the flood and sea level rise extents); Phase 3 extended the same method to all 27 counties (FEMA flood zones found through the political-jurisdiction layer, sea level rise polygons read from every NOAA regional file a county touches, each county measured on a projection centred on it). The version stays 1 until the tool is published; from then on any change that could move a figure increments it.</dd></div>
+<div><dt>Phase 4 (still version 1)</dt><dd>Sea level rise sections are framed against the OPC scenarios: the projected rise at 2050 and 2100 for each recommended scenario, the full Appendix F table on this page, and every snapshot carrying its gauge's thirteen decades. No exposure figure, and no crossing year, moved; the version stays 1.</dd></div>
 </dl>
 </section>
 

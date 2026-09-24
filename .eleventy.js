@@ -8,7 +8,7 @@ module.exports = async function (eleventyConfig) {
 
   // County Profiles chart maths (d3-scale/d3-array are ESM-only, hence the dynamic import).
   const helpers = await import("./scripts/county-profiles/template-helpers.mjs");
-  for (const name of ["ring", "num", "apaDate", "barChart", "stackedBars", "stackedByIncrement", "stacked100Bars", "groupedColumns", "dotPlot", "slrCurves"]) eleventyConfig.addFilter(name, helpers[name]);
+  for (const name of ["ring", "num", "apaDate", "barChart", "stackedBars", "stackedByIncrement", "stacked100Bars", "groupedColumns", "dotPlot", "slrCurves", "horizonColumns"]) eleventyConfig.addFilter(name, helpers[name]);
   eleventyConfig.addWatchTarget("site/data/county-profiles/");
   eleventyConfig.addWatchTarget("site/data/countyProfileSchema.json");
 

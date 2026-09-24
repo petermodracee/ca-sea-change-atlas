@@ -1,5 +1,5 @@
 {
-  "_meta": "Hand-authored county spine: the 27 California counties County Profiles covers, inherited from NOAA's own Coastal County Snapshots list. It lives in _data/ rather than data/county-profiles/ because that directory holds pipeline-generated snapshots only. `gauge` is an id into `gauges` (the reference tide gauge, an editorial call; null for the flood-only tier). `altGauge` is the optional second gauge for a county with a second sea level regime. Whether a county straddles is not authored here: it is computed at build from the two gauges' timing tables (scripts/county-profiles/timing.js). Tier rules and reason codes are in data/countyProfileSchema.json. Rationale: docs/COUNTY-PROFILES.md.",
+  "_meta": "Hand-authored county spine: the 27 California counties County Profiles covers, inherited from NOAA's own Coastal County Snapshots list. It lives in _data/ rather than data/county-profiles/ because that directory holds pipeline-generated snapshots only. `gauge` is an id into `gauges` (the reference tide gauge, an editorial call; null for the flood-only tier).js). Tier rules and reason codes are in data/countyProfileSchema.json. Rationale: docs/COUNTY-PROFILES.md.",
   "gauges": {
     "crescent-city": {
       "name": "Crescent City"
@@ -36,9 +36,6 @@
     },
     "san-diego": {
       "name": "San Diego"
-    },
-    "santa-monica": {
-      "name": "Santa Monica"
     }
   },
   "counties": [
@@ -75,16 +72,14 @@
       "slug": "los-angeles",
       "name": "Los Angeles",
       "tier": "full",
-      "gauge": "los-angeles",
-      "altGauge": "santa-monica"
+      "gauge": "los-angeles"
     },
     {
       "fips": "06041",
       "slug": "marin",
       "name": "Marin",
       "tier": "full",
-      "gauge": "point-reyes",
-      "altGauge": "san-francisco"
+      "gauge": "point-reyes"
     },
     {
       "fips": "06045",
@@ -140,8 +135,7 @@
       "slug": "san-mateo",
       "name": "San Mateo",
       "tier": "full",
-      "gauge": "san-francisco",
-      "altGauge": "alameda"
+      "gauge": "alameda"
     },
     {
       "fips": "06083",
@@ -176,8 +170,7 @@
       "slug": "sonoma",
       "name": "Sonoma",
       "tier": "full",
-      "gauge": "point-reyes",
-      "altGauge": "san-francisco"
+      "gauge": "point-reyes"
     },
     {
       "fips": "06111",

@@ -9,7 +9,7 @@ import { max, sum } from "d3-array";
 
 const require = createRequire(import.meta.url);
 const { shareText, num, compact } = require("./format.js");
-const { SCENARIOS, series, yearReached } = require("./timing.js");
+const { SCENARIOS, SCENARIO_LABELS: LABELS, series, yearReached, envelope, MAP_MIN_FT, MAP_MAX_FT } = require("./timing.js");
 
 export { num };
 export { apaDate } from "./format.js";
@@ -404,7 +404,7 @@ export function dotPlot(items, seriesLabels) {
 
 // ---- sea level rise scenario curves, with all five increment states precomputed ----------------
 
-export const SCENARIO_LABELS = { intermediate: "Intermediate", "intermediate-high": "Intermediate-High", high: "High" };
+export const SCENARIO_LABELS = LABELS;
 // Index into the 5-step ramp for each scenario: steps 1, 3 and 5 (0-indexed 0, 2, 4).
 const SCENARIO_RAMP_STEP = { intermediate: 0, "intermediate-high": 2, high: 4 };
 
@@ -457,5 +457,48 @@ export function slrCurves(reference, gaugeId, increments) {
     yTicks: y.ticks(6).map((t) => ({ y: +y(t).toFixed(1), ty: +(y(t) + 7).toFixed(1), label: (increments.includes(t) || t === 0 || t === yMax) ? null : String(t) })),
     curves,
     states,
+  };
+}
+
+// ---- projected rise in 2050 and 2100, by scenario (the timing slide's third view) ---------------
+
+// Two groups (the horizons) of three columns (the recommended scenarios, ramp steps 1, 3, 5), in feet
+// above 2000 straight from Appendix F. A value under the map's lowest level or over its highest gets
+// a † or ‡; the footnote flags say which are needed. Every column's value is labelled above it.
+export function horizonColumns(reference, gaugeId) {
+  const g = reference.gauges[gaugeId];
+  if (!g) throw new Error("no OPC gauge " + gaugeId);
+  const W = 1000, H = 300, ml = 90, mr = 16, mt = 46, mb = 76;
+  const iw = W - ml - mr, ih = H - mt - mb;
+  const years = [2050, 2100];
+  const vals = years.map((yr) => SCENARIOS.map((s) => g[s][reference.decades.indexOf(yr)]));
+  const y = scaleLinear().domain([0, max(vals, (r) => max(r))]).nice(4).range([ih, 0]);
+  const band = iw / years.length;
+  const colW = Math.min(COL_W_PEOPLE, (band * 0.72) / SCENARIOS.length - GAP_PX);
+  const groupW = colW * SCENARIOS.length + GAP_PX * (SCENARIOS.length - 1);
+  const flags = { below: false, above: false, min: MAP_MIN_FT, max: MAP_MAX_FT };
+  const groups = years.map((yr, gi) => {
+    const x0 = ml + gi * band + (band - groupW) / 2;
+    const cols = SCENARIOS.map((s, i) => {
+      const feet = vals[gi][i];
+      const flag = envelope(feet);
+      if (flag !== "within") flags[flag] = true;
+      const x = x0 + i * (colW + GAP_PX), top = mt + y(feet);
+      const text = feet.toFixed(1) + (flag === "below" ? "†" : flag === "above" ? "‡" : "");
+      return {
+        s: i === 0 ? 0 : i === 1 ? 2 : 4,
+        path: columnPath(x, top, colW, mt + ih - top),
+        text,
+        labelX: x + colW / 2,
+        labelY: top - 10,
+        tip: SCENARIO_LABELS[s] + ", " + yr + ": " + text.replace(/[†‡]$/, "") + " ft above 2000",
+      };
+    });
+    return { label: String(yr), labelX: ml + gi * band + band / 2, labelY: H - mb + 40, cols };
+  });
+  return {
+    width: W, height: H, ml, mr, mt, mb, axisY: mt + ih, groups, flags,
+    ticks: y.ticks(4).map((t) => ({ y: +(mt + y(t)).toFixed(1), label: String(t) })),
+    legend: SCENARIOS.map((s, i) => ({ label: SCENARIO_LABELS[s], ramp: i === 0 ? 0 : i === 1 ? 2 : 4 })),
   };
 }

@@ -961,7 +961,7 @@ body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
 .cpd-chart-title{margin:0;font-size:16px;font-weight:600;color:var(--ink);text-align:center;}
 .cpd-fighead .cpd-chart-title{text-align:left;}
 .cpd-fighead-centered{position:relative;justify-content:flex-end;}
-.cpd-fighead-centered .cpd-chart-title{position:absolute;left:50%;transform:translateX(-50%);text-align:center;}
+.cpd-fighead-centered .cpd-chart-title{flex:1 1 220px;order:-1;text-align:center;}
 .cpd-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:0 0 10px;padding:0;list-style:none;font-size:15px;color:var(--ink-soft);}
 .cpd-legend li{display:inline-flex;align-items:center;gap:6px;}
 .cpd-legend i{width:13px;height:13px;border-radius:2px;display:inline-block;}
@@ -1051,6 +1051,7 @@ svg [hidden]{display:none;}
    connected mark, so it reads as secondary without the reader subtracting one series from another. */
 .cpd-col-extra,.cp-bar-extra{fill:var(--ramp-0);fill-opacity:.3;stroke:var(--ramp-2);stroke-width:1.5;stroke-dasharray:5 3;}
 .cpd-col-extra:not(.cpd-col-active){opacity:.5;}
+.cpd-legend .cp-bar-extra{background:transparent;border:1.5px dashed var(--ramp-2);box-sizing:border-box;}
 .cpd-legend .cpd-swatch-extra{background:transparent;border:1.5px dashed var(--ramp-2);box-sizing:border-box;}
 .cpd-tview{max-height:48vh;overflow:auto;}
 .cpd-tview td{font-size:17px;}
@@ -1157,11 +1158,20 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpd-readout-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 20px;margin:0;width:100%;}
 .cpd-readout-stats dt{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin:0 0 3px;}
 .cpd-readout-stats dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:20px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
+.cp-gauge-table{border-bottom:1px solid var(--line);padding:8px 0;}
+.cp-gauge-table summary{cursor:pointer;font-weight:600;font-size:14.5px;}
+.cp-gauge-table .cp-muted{font-weight:400;color:var(--ink-soft);}
+.cp-table-wrap{overflow-x:auto;margin-top:8px;}
+.cp-appendix-f{border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;}
+.cp-appendix-f th,.cp-appendix-f td{padding:4px 10px 4px 0;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;}
+.cp-appendix-f td.cpd-out-below,.cp-appendix-f td.cpd-out-above{color:var(--ink-soft);}
 .cpd-readout-stats dd.cpd-beyond-stat{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;font-weight:400;color:var(--ink-soft);}
 .cpd-curve{fill:none;stroke-width:4;stroke-linejoin:round;stroke-linecap:round;}
 /* Only the selected increment draws bold and full-strength; the other four are ordinary, muted
    gridlines with plain tick labels, so pressing a different increment button visibly moves which
    line is emphasized instead of leaving the chart looking unchanged. */
+.cpd-chart-subtitle{margin:0 0 6px;font-size:14px;color:var(--ink-soft);}
+.cpd-horizon-note{font-size:13px;color:var(--ink-soft);margin:2px 0 0;}
 .cpd-thresh{stroke:var(--ink);stroke-width:3;}
 .cpd-thresh-muted{stroke:var(--line);stroke-width:1.5;stroke-dasharray:5 5;}
 .cpd-drop{stroke-width:1.5;}

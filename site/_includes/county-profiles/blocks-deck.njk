@@ -303,10 +303,11 @@
     and the source line below never moves when the switch is pressed. -#}
 {% macro curves(uid, county, reference, increments) %}
 {%- set g = reference | slrCurves(county.gauge, increments) %}
-<div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Year each increment is reached, by scenario</p>
+<div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Year each increment is reached at the {{ county.gaugeName }} gauge, by scenario</p>
 <div class="cpd-view" role="group" aria-label="Show as" data-cpd-timing-view>
 <button type="button" aria-pressed="true" data-show="chart">Chart</button>
 <button type="button" aria-pressed="false" data-show="table">Table</button>
+<button type="button" aria-pressed="false" data-show="horizons">2050 / 2100</button>
 </div></div>
 <div class="cpd-timing-stage">
 <div data-cpd-pane="chart" class="cpd-pane">
@@ -354,10 +355,33 @@
 </div>
 {%- endfor %}
 </div>
+<div data-cpd-pane="horizons" class="cpd-pane cpd-pane-hidden">
+{%- set hz = reference | horizonColumns(county.gauge) %}
+<p class="cpd-chart-subtitle">Projected rise at the {{ county.gaugeName }} gauge in 2050 and 2100, in feet above 2000</p>
+<div class="cpd-chart" data-cpd-tips><svg class="cpd-col-chart" viewBox="0 0 {{ hz.width }} {{ hz.height }}" role="img" aria-labelledby="{{ uid }}-ht" aria-describedby="{{ uid }}-hd" preserveAspectRatio="xMidYMid meet">
+<title id="{{ uid }}-ht">Projected sea level rise at the {{ county.gaugeName }} tide gauge in 2050 and 2100, by scenario</title>
+<desc id="{{ uid }}-hd">Feet above 2000. {% for grp in hz.groups %}{{ grp.label }}: {% for c in grp.cols %}{{ hz.legend[loop.index0].label }} {{ c.text }} ft{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+{%- for t in hz.ticks %}
+<line class="cpd-grid" x1="{{ hz.ml }}" x2="{{ hz.width - hz.mr }}" y1="{{ t.y }}" y2="{{ t.y }}"/>
+<text class="cpd-axis" x="{{ hz.ml - 14 }}" y="{{ t.y + 7 }}" text-anchor="end">{{ t.label }}</text>
+{%- endfor %}
+{%- for grp in hz.groups %}
+{%- for c in grp.cols %}
+<path class="cpd-col cpd-ramp-{{ c.s }} cpd-col-active" data-tip="{{ c.tip }}" d="{{ c.path }}"/>
+<text class="cpd-vlabel" x="{{ c.labelX }}" y="{{ c.labelY }}" text-anchor="middle">{{ c.text }}</text>
+{%- endfor %}
+<text class="cpd-glabel" x="{{ grp.labelX }}" y="{{ grp.labelY }}" text-anchor="middle">{{ grp.label }}</text>
+{%- endfor %}
+<line x1="{{ hz.ml }}" x2="{{ hz.width - hz.mr }}" y1="{{ hz.axisY }}" y2="{{ hz.axisY }}" style="stroke:var(--ink-soft);stroke-width:1.5"/>
+</svg></div>
+<ul class="cpd-legend" aria-hidden="true">{% for l in hz.legend %}<li><span class="cpd-swatch cpd-ramp-{{ l.ramp }}"></span>{{ l.label }}</li>{% endfor %}</ul>
+{%- if hz.flags.below %}<p class="cpd-horizon-note">† Under {{ hz.flags.min }} ft, the lowest level the map shows.</p>{% endif %}
+{%- if hz.flags.above %}<p class="cpd-horizon-note">‡ Over {{ hz.flags.max }} ft, the highest level the map shows.</p>{% endif %}
+</div>
 <div data-cpd-pane="table" class="cpd-pane cpd-pane-hidden cpd-tview">
 {%- for t in county.timing %}
 <table class="cp-timing-table">
-<caption style="text-align:left;font-size:13px;color:var(--ink-soft);padding-bottom:6px">Based on projections for the {{ t.name }} tide gauge{% if t.alt %}, this county’s second gauge{% endif %}.</caption>
+<caption style="text-align:left;font-size:13px;color:var(--ink-soft);padding-bottom:6px">Based on projections for the {{ t.name }} tide gauge.</caption>
 <thead><tr><th scope="col">Sea level rise</th><th scope="col">Intermediate</th><th scope="col">Intermediate-High</th><th scope="col">High</th></tr></thead>
 <tbody>
 {%- for row in t.rows %}
