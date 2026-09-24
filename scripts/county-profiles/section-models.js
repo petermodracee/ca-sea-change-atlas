@@ -83,7 +83,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         return { label: it.period, values: [{ value: it.amount, text: usd(it.amount) }] };
       });
       visual = { type: "bars", format: "usd", items, series: [] };
-      const total = usdWords(sum(data.items.map((i) => i.amount)));
+      const total = usdCompact(sum(data.items.map((i) => i.amount)));
       const since = data.items[0].period.slice(0, 4);
       callout = { figure: total, caption: "paid by the National Flood Insurance Program on " + num(data.claims) + " claims in " + C + " since " + since + "." };
       break;
