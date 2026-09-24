@@ -173,6 +173,28 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
 
     case "increment-single": {
       hasLow = Array.isArray(data.countsWithLow);
+      // All five increments at once, as horizontal bars: the ocean-connected jobs solid and, when the
+      // snapshot carries it, the additional jobs in low-lying areas dashed on the end, so a bar's total
+      // is the same combined figure the callout gives for the lowest increment. The end-of-bar label
+      // is the total job count; like the other SLR sections' leading figure it is a deliberate repeat
+      // of the callout's count for row 0, so it is not registered with show().
+      const connected = data.counts;
+      const combined = hasLow ? data.countsWithLow : data.counts;
+      visual = {
+        type: "stacked",
+        format: "num",
+        legend: hasLow ? ["Ocean-connected", "Additional, in low-lying areas"] : ["Ocean-connected"],
+        segClasses: hasLow ? ["cp-bar-natural-1", "cp-bar-extra"] : ["cp-bar-natural-1"],
+        rows: increments.map((ft, k) => ({
+          label: ft + " ft",
+          keyLabel: num(combined[k]),
+          keyTip: pct(combined[k], data.total) + " of " + num(data.total) + " jobs in " + C,
+          segments: hasLow
+            ? [{ label: "Ocean-connected", value: connected[k] }, { label: "Low-lying", value: combined[k] - connected[k] }]
+            : [{ label: "Ocean-connected", value: connected[k] }],
+        })),
+        opts: { unit: "jobs", axisTitle: "Jobs in exposed areas", keyTitle: "Total jobs" },
+      };
       callout = { figure: pc((hasLow ? data.countsWithLow : data.counts)[0], data.total), caption: "(" + num((hasLow ? data.countsWithLow : data.counts)[0]) + " jobs) of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + "." };
       break;
     }

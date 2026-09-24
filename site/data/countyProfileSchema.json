@@ -95,7 +95,7 @@
     "single-share": "data: {count, total}. No visual; the callout carries the figure.",
     "increment-bars": "data: {increments, measures: [{label, unit, total, counts: [one per increment], countsWithLow?: [one per increment]}]}. Vertical grouped columns: one group per measure, one column per increment, as counts. `counts` is ocean-connected inundation; the optional `countsWithLow` adds NOAA's unconnected low-lying areas (never below `counts`), and when present the deck draws the combined count with the connected part solid and the additional low-lying part dashed.",
     "increment-composition": "data: {increments, classes: [{label, values: [one per increment]}]}. Renders as one horizontal stacked bar per increment, segments in square miles.",
-    "increment-single": "data: {increments, total, counts: [one per increment], countsWithLow?: [one per increment]}. No visual; `countsWithLow` as for increment-bars.",
+    "increment-single": "data: {increments, total, counts: [one per increment], countsWithLow?: [one per increment]}. Drawn as one horizontal bar per increment (ocean-connected solid, additional low-lying jobs dashed) beside a headline callout for the lowest increment; `countsWithLow` as for increment-bars.",
     "stats": "data: {establishments, jobs, wages, gdp, denominator}. Four figures; each may be suppressed except `denominator`. No prose of its own.",
     "sector-measures": "data: {sectors: [{label, establishments, wages, employment, gdp}]}. Renders as four 100%-stacked horizontal bars, one per measure, sharing one sector order and colour set. Any sector value may be suppressed per measure; a withheld segment is a marked placeholder, not a gap.",
     "sector-wages": "data: {items: [{label, county, coastalState, coastalUS}], noJobs?: [label]}. A dot plot: one row per sector, one dot each for county, coastal California and coastal U.S. average wage. Any value may be suppressed. A sector the county has no jobs in has no average to draw (a real zero, not a withheld value): it is left out of `items` and named in `noJobs`; the slide says nothing about it, and the about page explains it once.",
@@ -184,7 +184,8 @@
             "Flood-related losses of services, revenues, and salaries can hit a community hard.",
             "This counts jobs, not businesses: a different measure from the business counts NOAA's original snapshots reported."
           ],
-          "kind": "increment-single"
+          "kind": "increment-single",
+          "caption": "Jobs in areas exposed at each increment of sea level rise."
         },
         {
           "id": "natural-landscapes",

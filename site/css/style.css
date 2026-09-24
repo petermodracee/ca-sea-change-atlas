@@ -1051,6 +1051,7 @@ svg [hidden]{display:none;}
    connected mark, so it reads as secondary without the reader subtracting one series from another. */
 .cpd-col-extra,.cp-bar-extra{fill:var(--ramp-0);fill-opacity:.3;stroke:var(--ramp-2);stroke-width:1.5;stroke-dasharray:5 3;}
 .cpd-col-extra:not(.cpd-col-active){opacity:.5;}
+.cpd-legend .cp-bar-extra{background:transparent;border:1.5px dashed var(--ramp-2);box-sizing:border-box;}
 .cpd-legend .cpd-swatch-extra{background:transparent;border:1.5px dashed var(--ramp-2);box-sizing:border-box;}
 .cpd-tview{max-height:48vh;overflow:auto;}
 .cpd-tview td{font-size:17px;}
