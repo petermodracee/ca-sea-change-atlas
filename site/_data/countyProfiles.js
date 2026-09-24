@@ -234,6 +234,7 @@ module.exports = {
     counties: counties.filter((c) => c.gauge === id).map((c) => c.name),
     altFor: counties.filter((c) => c.altGauge === id).map((c) => c.name),
     decades: reference.decades,
+    byIncrement: timingTable(reference, id, increments),
     rows: SCENARIOS.map((sc) => ({
       scenario: sc,
       label: SCENARIO_LABELS[sc],

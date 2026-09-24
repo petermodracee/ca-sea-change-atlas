@@ -48,7 +48,7 @@ nav: county-profiles
 
 <section class="cp-topic" id="appendix-f">
 <h2>Appendix F, by gauge</h2>
-<p>The three recommended scenarios at every gauge a county uses, in feet above 2000, as published in Appendix F of the 2024 guidance. Values marked † or ‡ fall outside the range the map shows.</p>
+<p>The three recommended scenarios at every gauge a county uses, in feet above 2000, as published in Appendix F of the 2024 guidance. Values marked † or ‡ fall outside the range the map shows. Under each, the same projections are turned around: for each map increment, the year each scenario reaches it (linear interpolation between decades, as in the timing table; "after 2150" if it never does).</p>
 {%- for g in countyProfiles.gaugeTables %}
 <details class="cp-gauge-table">
 <summary>{{ g.name }} <span class="cp-muted">(Table {{ g.table }}{% if g.counties.length %}; {{ g.counties | join(", ") }}{% endif %}{% if g.altFor.length %}; second gauge for {{ g.altFor | join(", ") }}{% endif %})</span></summary>
@@ -57,6 +57,15 @@ nav: county-profiles
 <tbody>
 {%- for row in g.rows %}
 <tr><th scope="row">{{ row.label }}</th>{% for c in row.cells %}<td{% if c.flag != "within" %} class="cpd-out-{{ c.flag }}"{% endif %}>{{ c.text }}{% if c.flag == "below" %}<sup>†</sup>{% elif c.flag == "above" %}<sup>‡</sup>{% endif %}</td>{% endfor %}</tr>
+{%- endfor %}
+</tbody>
+</table></div>
+<p class="cp-muted">The same projections by height: the year each increment is reached at this gauge.</p>
+<div class="cp-table-wrap"><table class="cp-appendix-f">
+<thead><tr><th scope="col">Sea level rise</th>{% for row in g.rows %}<th scope="col">{{ row.label }}</th>{% endfor %}</tr></thead>
+<tbody>
+{%- for r in g.byIncrement %}
+<tr><th scope="row">{{ r.feet }} ft</th>{% for c in r.cells %}<td>{% if c.year == null %}after 2150{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>
 {%- endfor %}
 </tbody>
 </table></div>

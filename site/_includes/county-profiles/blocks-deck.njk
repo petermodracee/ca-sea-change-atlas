@@ -292,17 +292,14 @@
 </table>
 {% endmacro %}
 
-{#- Sea level rise scenario curves for the county's gauge, with an increment picker (2/4/6/8/10 ft) —
-    the one chart NOAA itself offers as both a chart and a table, so it keeps the Chart/Table switch.
-    Every increment but the selected one shows as a plain, muted gridline with a plain label; the
-    selected increment's own muted twin is hidden and its threshold line, label, crossing dots and
-    drop lines draw bold and full-strength instead, so moving the slider visibly moves the emphasis.
-    Scenarios are named in a legend below the chart, like every other chart's series, rather than
-    at the curves' ends. Both panes sit in the same
+{#- Sea level rise scenario curves for the county's gauge, with a vertical line at 2050 and at 2100 and
+    each scenario's projected rise marked on both — the one chart NOAA itself offers as both a chart
+    and a table, so it keeps the Chart/Table switch. Nothing on the chart is interactive. Scenarios
+    are named in a legend below the chart, like every other chart's series. Both panes sit in the same
     grid cell (`.cpd-timing-stage`) so the taller one sets the height regardless of which is shown,
     and the source line below never moves when the switch is pressed. -#}
-{% macro curves(uid, county, reference, increments) %}
-{%- set g = reference | slrCurves(county.gauge, increments) %}
+{% macro curves(uid, county, reference) %}
+{%- set g = reference | slrCurves(county.gauge) %}
 <div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Year each increment is reached at the {{ county.gaugeName }} gauge, by scenario</p>
 <div class="cpd-view" role="group" aria-label="Show as" data-cpd-timing-view>
 <button type="button" aria-pressed="true" data-show="chart">Chart</button>
@@ -310,10 +307,9 @@
 </div></div>
 <div class="cpd-timing-stage">
 <div data-cpd-pane="chart" class="cpd-pane">
-<div class="cpd-chart-row">
 <div class="cpd-chart"><svg viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <title id="{{ uid }}-t">Projected sea level rise at the {{ county.gaugeName }} tide gauge, 2000 to 2150, by scenario</title>
-<desc id="{{ uid }}-d">Feet of sea level rise above 2000, for the Intermediate, Intermediate-High and High scenarios. The year each increment is reached is in the table.</desc>
+<desc id="{{ uid }}-d">Feet of sea level rise above 2000 for the Intermediate, Intermediate-High and High scenarios, with the value of each marked in 2050 and in 2100:{% for h in g.horizons %} {{ h.year }}: {% for d in h.dots %}{{ d.label }} {{ d.text }}{% if not loop.last %}, {% endif %}{% endfor %}.{% endfor %}</desc>
 {%- for t in g.yTicks %}
 <line class="cpd-grid" x1="{{ g.left }}" x2="{{ g.right }}" y1="{{ t.y }}" y2="{{ t.y }}"/>
 {%- if t.label %}<text class="cpd-axis" x="{{ g.left - 14 }}" y="{{ t.ty }}" text-anchor="end">{{ t.label }}</text>{% endif %}
@@ -321,38 +317,25 @@
 {%- for t in g.xTicks %}
 <text class="cpd-axis" x="{{ t.x }}" y="{{ g.height - 14 }}" text-anchor="middle">{{ t.label }}</text>
 {%- endfor %}
+{%- for h in g.horizons %}
+<line class="cpd-hline" x1="{{ h.x }}" x2="{{ h.x }}" y1="{{ g.top }}" y2="{{ g.bottom }}"/>
+<text class="cpd-hyear" x="{{ h.x }}" y="{{ g.top - 10 }}" text-anchor="middle">{{ h.year }}</text>
+{%- endfor %}
 {%- for c in g.curves %}
 <path class="cpd-curve" style="stroke:var(--ramp-{{ c.ramp }})" d="{{ c.d }}"/>
 {%- endfor %}
-{%- for st in g.states %}
-<g data-cpd-muted="{{ st.ft }}"{% if loop.first %} hidden{% endif %}>
-<line class="cpd-thresh-muted" x1="{{ g.left }}" x2="{{ g.right }}" y1="{{ st.y }}" y2="{{ st.y }}"/>
-<text class="cpd-xlab-muted" x="{{ g.left + 10 }}" y="{{ st.y - 10 }}">{{ st.ft }} ft</text>
-</g>
+{%- for h in g.horizons %}
+{%- for d in h.dots %}
+<line class="cpd-leader" style="stroke:var(--ramp-{{ d.ramp }})" x1="{{ d.cx }}" y1="{{ d.cy }}" x2="{{ d.cx - 12 }}" y2="{{ d.ly }}"/>
+<circle cx="{{ d.cx }}" cy="{{ d.cy }}" r="7" style="fill:var(--ramp-{{ d.ramp }});stroke:var(--paper-2);stroke-width:3"><title>{{ d.label }}, {{ h.year }}: {{ d.text }} above 2000</title></circle>
+<text class="cpd-hlabel" x="{{ d.cx - 18 }}" y="{{ d.ly }}" text-anchor="end" dominant-baseline="middle">{{ d.label }} {{ d.text }}</text>
 {%- endfor %}
-{%- for st in g.states %}
-<g data-cpd-state="{{ st.ft }}"{% if not loop.first %} hidden{% endif %}>
-<line class="cpd-thresh" x1="{{ g.left }}" x2="{{ g.right }}" y1="{{ st.y }}" y2="{{ st.y }}"/>
-<text class="cpd-xlab" x="{{ g.left + 10 }}" y="{{ st.y - 13 }}">{{ st.ft }} ft</text>
-{%- for cr in st.crossings %}
-{%- if cr.x != null %}
-<line class="cpd-drop" style="stroke:var(--ramp-{{ cr.ramp }})" x1="{{ cr.x }}" x2="{{ cr.x }}" y1="{{ st.y }}" y2="{{ g.bottom }}"/>
-<circle cx="{{ cr.x }}" cy="{{ st.y }}" r="8" style="fill:var(--ramp-{{ cr.ramp }});stroke:var(--paper-2);stroke-width:3"><title>{{ cr.label }} reaches {{ st.ft }} ft in {{ cr.text }}</title></circle>
-{%- endif %}
-{%- endfor %}
-</g>
 {%- endfor %}
 </svg>
 </div>
-{{ incrementSlider(uid, increments, increments[0], 'data-cpd-incs', g.top / g.width, (g.height - g.bottom) / g.width) }}
-</div>
 <ul class="cpd-legend" aria-hidden="true">{% for c in g.curves | reverse %}<li><span class="cpd-swatch cpd-ramp-{{ c.ramp }}"></span>{{ c.label }}</li>{% endfor %}</ul>
-{%- for st in g.states %}
-<div class="cpd-readout" data-cpd-readout="{{ st.ft }}"{% if not loop.first %} hidden{% endif %} aria-live="polite">
-<p class="cpd-readout-label">{{ st.readoutLabel }}</p>
-<dl class="cpd-readout-stats">{% for cr in st.crossings %}<div><dt>{{ cr.label }}</dt><dd{% if cr.beyond %} class="cpd-beyond-stat"{% endif %}>{{ cr.text }}</dd></div>{% endfor %}</dl>
-</div>
-{%- endfor %}
+{%- if g.flags.below %}<p class="cpd-horizon-note">† Under {{ g.flags.min }} ft, the lowest level the map shows.</p>{% endif %}
+{%- if g.flags.above %}<p class="cpd-horizon-note">‡ Over {{ g.flags.max }} ft, the highest level the map shows.</p>{% endif %}
 </div>
 <div data-cpd-pane="table" class="cpd-pane cpd-pane-hidden cpd-tview">
 {%- for t in county.timing %}
