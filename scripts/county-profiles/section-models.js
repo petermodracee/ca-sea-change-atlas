@@ -10,7 +10,8 @@
 // carry no visible per-value text (the diversity 100%-stack, the wages dot plot) can freely use any
 // of their real numbers as a callout figure.
 
-const { pct, num, usd, usdWords } = require("./format.js");
+const { pct, num, usd, usdWords, compact } = require("./format.js");
+const usdCompact = (n) => compact(n, true);
 const { sectorIconFor } = require("./sector-icons.js");
 
 const isSuppressed = (v) => v !== null && typeof v === "object" && v.suppressed === true;
@@ -173,8 +174,8 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       const items = [
         { label: "Establishments", v: data.establishments, fmt: num },
         { label: "Jobs", v: data.jobs, fmt: num },
-        { label: "Wages", v: data.wages, fmt: usdWords },
-        { label: "GDP", v: data.gdp, fmt: usdWords },
+        { label: "Wages", v: data.wages, fmt: usdCompact },
+        { label: "GDP", v: data.gdp, fmt: usdCompact },
       ].map((s) => {
         const text = cellText(s.v, s.fmt);
         show(text);

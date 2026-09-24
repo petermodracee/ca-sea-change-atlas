@@ -8,7 +8,7 @@ import { scaleLinear } from "d3-scale";
 import { max, sum } from "d3-array";
 
 const require = createRequire(import.meta.url);
-const { shareText, num } = require("./format.js");
+const { shareText, num, compact } = require("./format.js");
 const { SCENARIOS, series, yearReached } = require("./timing.js");
 
 export { num };
@@ -36,14 +36,6 @@ const BAR_H = 34; // was 20 at ~460-600 wide; proportional at ~1000 wide
 const COL_W = 40; // was 22
 const GAP_PX = 3; // background gap between stacked segments / grouped columns
 const RADIUS = 6; // rounded corner at the data end; the baseline end is square
-
-const compact = (n, usd) => {
-  const p = usd ? "$" : "";
-  if (n >= 1e9) return p + (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
-  if (n >= 1e6) return p + (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
-  if (n >= 1e3) return p + (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k";
-  return p + n;
-};
 
 // A rough per-character width for a horizontal chart's left label column — there's no canvas at
 // build time to measure real text, so this over-estimates slightly rather than risk clipping a
