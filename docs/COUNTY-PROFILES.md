@@ -6,7 +6,7 @@ This file tracks the tool as it's built. The full design — county spine and co
 
 ## Status
 
-Phases 1 to 4 are built: the data model and county spine, the block-level intersect pipeline, and all 27 counties with every topic the county's tier allows. Every county has a real snapshot computed by `scripts/county-profiles/pipeline/` (see [Data pipeline](#data-pipeline)); no fixture ships. The sea-level-rise timing table is real for every county: it is computed from the committed OPC reference file. Sea level rise sections are framed against the OPC scenarios (Phase 4): see [Sea level rise timing](#sea-level-rise-timing).
+Phases 1 to 5 are built: the data model and county spine, the block-level intersect pipeline, all 27 counties with every topic the county's tier allows, and the automation and archive (see [Automation and the archive](#automation-and-the-archive)). Every county has a real snapshot computed by `scripts/county-profiles/pipeline/` (see [Data pipeline](#data-pipeline)); no fixture ships. The sea-level-rise timing table is real for every county: it is computed from the committed OPC reference file. Sea level rise sections are framed against the OPC scenarios (Phase 4): see [Sea level rise timing](#sea-level-rise-timing).
 
 A county's pages read its snapshot from `site/data/county-profiles/latest/`. A section the pipeline could not compute is `unavailable` in the snapshot itself, with a reason from the closed set below, and renders as a dashed block stating it in position; the county landing page lists such sections too. A county with no snapshot at all (none today) still gets a landing page, showing its tier's coverage and no topic pages. The fixture mechanism (`site/_data/countyProfileFixtures/`, `"fixture": true`) remains for prototyping a new county, but no fixture ships, so the "Placeholder figures" tag and banner never appear.
 
@@ -27,7 +27,7 @@ Nested under `/county-profiles/`, consistent with how `/map/` and `/compare/` ar
 | `/county-profiles/county/<id>/<topic>.pdf` | Per-topic PDF, current snapshot only (planned) |
 | `/county-profiles/county/<id>/profile.pdf` | Full-county PDF (planned) |
 
-A topic the county has no data for at all — unavailable per its tier, or simply not built yet — gets no page at all; its tab in the deck's top bar is disabled (not removed), and the landing page states its reason in place. An unknown county, an unknown date or a topic with no page 404s, since nothing generates a route for it. Dated pages render now, for the current (only) snapshot; older ones accumulate in Phase 5.
+A topic the county has no data for at all — unavailable per its tier, or simply not built yet — gets no page at all; its tab in the deck's top bar is disabled (not removed), and the landing page states its reason in place. An unknown county, an unknown date or a topic with no page 404s, since nothing generates a route for it. Every dated snapshot has its own landing and topic pages, rendered from the archived JSON (see [Automation and the archive](#automation-and-the-archive)); today there is one.
 
 Snapshot JSON is at `/data/county-profiles/latest/<fips>.json`. `.eleventy.js` copies `site/data/county-profiles/latest/` as a directory (a glob passthrough would flatten the files into `/data/`), and copies a fixture to that same path only for a county with no real file (none today), so a real file is never overwritten by a fixture. Each topic deck has one stable anchor per section (`#s-people-at-risk`) and a closing `#s-about` slide. A shareable sea-level-rise increment view is `?slr=<feet>`, default 2.
 
@@ -44,8 +44,8 @@ Archived dated snapshot pages must not dilute search ranking for the current one
 - `site/_data/countyProfileFixtures/`: where placeholder snapshots (`"fixture": true`) go, used only where `latest/` has none. Empty since Phase 3.
 - `site/_data/countyProfiles.js`: loads the spine, schema, reference table and snapshots, validates them, runs the build assertions and derives what the templates use: the county list, tier groups, coverage matrix, per-topic section models, the "sources used on this page" table and the topic-deck pagination data (`topicPages`). Templates restate none of those.
 - `site/data/countyProfileSchema.json`: the schema (below).
-- `site/data/county-profiles/`: snapshot JSON (`latest/`; `<date>/` later), pipeline output only. Committed for the archive's git-history backstop and never hand-edited.
-- `scripts/county-profiles/`: non-Eleventy tooling. `validate.js` (the snapshot validator, plus `checkNoStaleHost`, run in an `eleventy.after` hook over the whole built site; the Phase 2 pipeline should call `validateSnapshot` before writing a file), `section-models.js` (turns a section's data into its visual and its `{figure, caption}` callout, and enforces the callout rule), `timing.js` (the timing method), `format.js` (number, vintage and citation-date formatting) and `template-helpers.mjs` (chart geometry behind the `ring`, `barChart`, `stackedBars`, `stacked100Bars`, `groupedColumns`, `dotPlot` and `slrCurves` filters). `pipeline/` is the Phase 2 data pipeline (`run.js` the entry point; `sources.js` one fetcher per source; `intersect.js` the block-level intersect; `snapshot.js` assembles and `validate.js` checks the output; `geo.js` point-in-polygon and clipping; `http.js` retrying fetches and the download cache). `econ.js` is the ENOW, Total Economy and nonemployer fetchers and `ccap.js` the land-cover raster read. `state-report.js` (run it after any pipeline run) lists every availability state across the published snapshots, fails if a gap lacks a closed-set reason or a topic disagrees with its tier, and forces each section-level reason onto a real snapshot to prove the validator accepts it. Later: the `EFF_DATE` change-detection gate, the PDF renderer.
+- `site/data/county-profiles/`: snapshot JSON (`latest/` and one `<date>/` directory per minted snapshot) and `gate.json`, pipeline output only. Committed for the archive's git-history backstop and never hand-edited.
+- `scripts/county-profiles/`: non-Eleventy tooling. `validate.js` (the snapshot validator, plus `checkNoStaleHost`, run in an `eleventy.after` hook over the whole built site; the Phase 2 pipeline should call `validateSnapshot` before writing a file), `section-models.js` (turns a section's data into its visual and its `{figure, caption}` callout, and enforces the callout rule), `timing.js` (the timing method), `format.js` (number, vintage and citation-date formatting) and `template-helpers.mjs` (chart geometry behind the `ring`, `barChart`, `stackedBars`, `stacked100Bars`, `groupedColumns`, `dotPlot` and `slrCurves` filters). `pipeline/` is the Phase 2 data pipeline (`run.js` the entry point; `sources.js` one fetcher per source; `intersect.js` the block-level intersect; `snapshot.js` assembles and `validate.js` checks the output; `geo.js` point-in-polygon and clipping; `http.js` retrying fetches and the download cache). `econ.js` is the ENOW, Total Economy and nonemployer fetchers and `ccap.js` the land-cover raster read. `state-report.js` (run it after any pipeline run) lists every availability state across the published snapshots, fails if a gap lacks a closed-set reason or a topic disagrees with its tier, and forces each section-level reason onto a real snapshot to prove the validator accepts it. `pipeline/gate.js` is the `EFF_DATE` change gate, `pipeline/archive.js` the snapshot-on-change logic and `check-archive.js` the archive guard (Phase 5). Later: the PDF renderer.
 
 Any validator error, failed assertion, stale-host reference or repeated callout figure fails the build.
 
@@ -270,7 +270,44 @@ How it is drawn: in People at Risk each column is the combined count, the ocean-
 
 ## SEO note for the snapshot archive
 
-The dated route already carries `rel="canonical"` pointing at the current profile (via the `canonical` front-matter key in `base.njk`), and is left out of the sitemap. A canonical keeps the archived page crawlable, which matters when someone searches for a cited figure. When older snapshots start to accumulate in Phase 5, they use the same template and need nothing further.
+Every dated landing page (`county/<slug>/<date>/`) and dated topic page (`county/<slug>/<date>/<topic>/`) carries `<link rel="canonical">` pointing at the current, undated page of the same kind, and is left out of the sitemap. Archived pages are not `noindex`: a canonical keeps them crawlable, so someone who cites a figure can be found by a reader who later searches for it, without the archive competing with the live profile for ranking. The build enforces it: `checkArchiveCanonicals` (`scripts/county-profiles/validate.js`, run in `eleventy.after`) fails the build if any dated page lacks exactly one canonical to its current equivalent, or carries a `noindex`.
+
+## Automation and the archive
+
+### The workflow
+
+`.github/workflows/county-profiles.yml` does the whole job in one run: the gate, the pipeline, the checks, the Eleventy build, the commit of the JSON, and the deploy to Pages. It is one workflow on purpose. A push made with the default `GITHUB_TOKEN` does not trigger other workflows' `push` events, so a data-commit workflow feeding the push-triggered `deploy.yml` would commit new data and silently never deploy it. Here the `deploy` job `needs` the build job and runs in the same run, whether or not anything was committed. `deploy.yml` still handles pushes to `main` by hand.
+
+Triggers: a quarterly `schedule:` (09:17 UTC on the 5th of January, April, July and October) and `workflow_dispatch` with two inputs, `counties` (FIPS list or `all`) and `force` (recompute even if the gate finds nothing). It runs on `main`.
+
+Order: gate, recompute the flagged counties, `check-archive.js`, `state-report.js`, Eleventy build, commit and push the data, upload the artifact, deploy. The build runs before the commit, so a snapshot that breaks the site is never pushed. The run's summary lists what the gate decided per county.
+
+### The `EFF_DATE` gate
+
+`pipeline/gate.js` asks FEMA's NFHL, per county, for the study ids and the earliest, latest and number of FIRM panel `EFF_DATE`s (three small queries, no geometry) and diffs that against `site/data/county-profiles/gate.json`, the fingerprint the last build of each county saw. A county is recomputed only if it changed, so a run also reports which counties had a source revision. A county is also recomputed if it has no recorded build or snapshot, on `--force`, or if its last computation is older than `MAX_AGE_DAYS` (200): NFHL is not the only source. ACS, LODES, OpenFEMA claims and the ENOW series move on their own schedules and nothing else would ever pick them up, so the age cap is a backstop that forces a full recompute about twice a year. `gate.json` also records a `checked` date per county. `node scripts/county-profiles/pipeline/gate.js all --baseline` seeds it from the current snapshots, and refuses a county whose live effective dates disagree with its snapshot's vintage.
+
+### Snapshot on change
+
+`pipeline/archive.js` decides what a recompute writes. The content of a snapshot is everything except `snapshot`, `generated` and each source's `retrieved` / `verified` (when a build ran, not what it found). For a recomputed county:
+
+- content differs from `latest/` (or there is no `latest/` file): a new dated snapshot is minted, `site/data/county-profiles/<today>/<fips>.json`, and `latest/` is rewritten to match;
+- content is identical: `latest/` is rewritten with the new stamps and keeps its previous `snapshot` date; no dated file is added.
+
+So four quarterly runs with nothing moving mint nothing. `method` is part of the content, so a method change mints a snapshot for every county it moves. A dated directory holds only the counties that changed that day. The Earlier snapshots list on a county's landing page is that county's dated files, newest first.
+
+### Published snapshots are never edited
+
+A dated snapshot is a citable record. The pipeline refuses to overwrite an existing `<date>/<fips>.json`; a same-day fix waits for a later date. `scripts/county-profiles/check-archive.js` (run by the workflow before it commits; pass `--base origin/<branch>` on a PR) fails if a file under a dated directory is modified, deleted or renamed against git, if a dated file's `snapshot` disagrees with its directory, or if `latest/` names a snapshot with no dated copy or whose content differs from it. The build asserts the last point too.
+
+A bug found in a published figure is fixed in the pipeline (which bumps `method` if it could move a number), the next run mints a new snapshot, and a **correction notice** is added to `site/_data/countyProfileCorrections.json`: `{fips, snapshot, supersededBy, date, note}`. The old snapshot's dated landing and topic pages then show the notice and link to the new snapshot; its JSON and figures are untouched. The build fails if a correction names a snapshot that is not in the archive.
+
+### Known risk: scheduled workflows lapse
+
+GitHub automatically disables scheduled workflows in a repository after 60 days without repository activity. For a solo, seasonal project a quarterly schedule can therefore stop firing without any error. This is accepted rather than engineered around: every county page carries a visible "Data as of" stamp (the snapshot date), so a lapse shows up as stale dates rather than a silent failure. If the stamps look old, check the Actions tab, re-enable the workflow and run it with `workflow_dispatch`.
+
+### Operating notes
+
+A full recompute of all 27 counties takes many hours on a hosted runner (Los Angeles is the slowest); the job timeout is 350 minutes, under the six-hour limit, and the pipeline needs the 12 GB heap the workflow sets. The pipeline's raw `.cache/` is not cached between runs. The commit step pushes to `main` with the built-in `GITHUB_TOKEN`, so `main` must allow that (a rule requiring a PR would refuse the push).
 
 ## Implementation phasing
 
@@ -278,7 +315,7 @@ The dated route already carries `rel="canonical"` pointing at the current profil
 2. **The intersect pipeline, one county (Orange)** (built) — the correctness phase: real NFHL/ACS/LODES/USGS/OpenFEMA data, block-level intersects rolled up for display, `EFF_DATE` vintage, plus NOAA's SLR inundation intersected with the same inputs. Gate: figures reconcile against NOAA's published values or the divergence is explained; the reconciliation is in [`DECISIONS.md`](DECISIONS.md#phase-2-reconciliation-orange-county-against-noaas-published-snapshot).
 3. **All counties, all topics** (built) — 27 counties, ENOW and C-CAP added, every availability state exercised including the delta and flood-only tiers. The second reconciliation (a second county against NOAA's published figures) is in [`DECISIONS.md`](DECISIONS.md#phase-3-reconciliation-second-county-and-the-new-sections).
 4. **Sea-level-rise scenario layer** (built) — the gauge assignments (one per county), a 2050 / 2100 chart view for the three recommended scenarios with out-of-range flags, the full Appendix F table by decade and by increment on the about page, and the projections stored in each snapshot. The timing table, curves and `?slr=` picker landed in Phase 1. Mapping-confidence layers are deferred past this phase.
-5. **Automation and the archive** — the single Actions workflow, quarterly schedule plus dispatch, `EFF_DATE` short-circuit, snapshot-on-change, committed JSON, older dated snapshots.
+5. **Automation and the archive** (built) — the single Actions workflow, quarterly schedule plus dispatch, `EFF_DATE` short-circuit, snapshot-on-change, committed JSON, older dated snapshots, canonical tags on the archive, correction notices. See [Automation and the archive](#automation-and-the-archive).
 6. **PDF and print** — Playwright generation for snapshots, per-topic scoping, prominent data-as-of, accessibility note.
 7. **Inset map** — last; simplified hazard geometry keyed by source vintage (the `geometry` field above).
 

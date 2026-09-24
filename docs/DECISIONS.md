@@ -110,6 +110,15 @@ A county with 0 medical facilities in its floodplain has an answer; a county wit
 ### Fixtures live outside `latest/`
 Phase 1's placeholder snapshots are in `site/_data/countyProfileFixtures/`, not `site/data/county-profiles/latest/`. Phase 5's snapshot-on-change diffs a new build against `latest/`, and that directory's git history is the archive's backstop, so it must hold pipeline output only: a hand-written file there would be diffed as if it were a real snapshot and could be archived as one. Templates read `latest/` when a snapshot exists and fall back to a fixture only otherwise; the validator requires `"fixture": true` on a fixture and forbids it on a real snapshot.
 
+### One workflow for refresh, commit, build and deploy
+The quarterly refresh is a single workflow (`county-profiles.yml`) with the deploy inside it, not a data workflow that commits to `main` and lets `deploy.yml` deploy on the push. A push made with the default `GITHUB_TOKEN` does not trigger other workflows, so that split would commit data and never deploy it. The alternatives (a personal access token, or `workflow_run`) add a secret or a second moving part for no gain.
+
+### Snapshot on change, with an age cap on the gate
+A dated snapshot is minted only when a county's content differs from `latest/`; `snapshot`, `generated` and the per-source `retrieved` / `verified` stamps are excluded from the comparison, so a run that finds the same numbers changes stamps in `latest/` and mints nothing. The `EFF_DATE` gate covers NFHL only; ACS, LODES, OpenFEMA and ENOW have no cheap revision probe, so a county is also recomputed when its last computation is over 200 days old. Snapshot-on-change keeps that recompute from minting anything when nothing moved.
+
+### Correction notices are separate data, not edits
+A published dated snapshot is never edited, so a correction is a new snapshot plus a notice in `site/_data/countyProfileCorrections.json` that the old snapshot's dated pages render. The old JSON and figures stay byte-identical, which `check-archive.js` enforces against git.
+
 ### Marine jobs at risk is removed
 NOAA's marine economy snapshot counted marine businesses in the floodplain and under 6 ft of sea level rise. That needs business locations, which are licensed data and excluded, and the open replacement does not reach it: LEHD LODES job counts are published by 2-digit NAICS industry, while ENOW's marine sectors are defined at up to 6 digits, so no open source isolates marine jobs by location. The section is removed rather than approximated, and the reason is stated on `/county-profiles/about/`. The total-economy jobs at risk section stays, because LODES covers all industries.
 
