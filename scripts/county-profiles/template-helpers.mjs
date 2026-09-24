@@ -9,7 +9,7 @@ import { max, sum } from "d3-array";
 
 const require = createRequire(import.meta.url);
 const { shareText, num, compact } = require("./format.js");
-const { SCENARIOS, series, yearReached } = require("./timing.js");
+const { SCENARIOS, SCENARIO_LABELS: LABELS, series, yearReached } = require("./timing.js");
 
 export { num };
 export { apaDate } from "./format.js";
@@ -404,7 +404,7 @@ export function dotPlot(items, seriesLabels) {
 
 // ---- sea level rise scenario curves, with all five increment states precomputed ----------------
 
-export const SCENARIO_LABELS = { intermediate: "Intermediate", "intermediate-high": "Intermediate-High", high: "High" };
+export const SCENARIO_LABELS = LABELS;
 // Index into the 5-step ramp for each scenario: steps 1, 3 and 5 (0-indexed 0, 2, 4).
 const SCENARIO_RAMP_STEP = { intermediate: 0, "intermediate-high": 2, high: 4 };
 

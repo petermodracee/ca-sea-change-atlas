@@ -5,7 +5,7 @@ const spine = require("./countySpine.json");
 const reference = require("./opcGaugeProjections.json");
 const { validateSnapshot } = require("../../scripts/county-profiles/validate.js");
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
-const { timingTable, compareGauges } = require("../../scripts/county-profiles/timing.js");
+const { timingTable, compareGauges, horizonRows, horizonFlags, envelope, SCENARIOS, SCENARIO_LABELS, HORIZONS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
 
 // Everything the County Profiles pages need, derived from the spine, the schema, the OPC reference
@@ -107,6 +107,7 @@ function straddleOf(c) {
   return {
     altGauge: c.altGauge,
     altName: b,
+    short: c.name + " straddles two sea level regimes; " + b + " is its second gauge (timing in the Table view).",
     text: c.name + " County straddles two sea level regimes. Its assigned gauge is " + a + "; at the " + b + " gauge " + bits.join(", and ") + ". Both timing tables are shown.",
   };
 }
@@ -131,8 +132,8 @@ const counties = spine.counties
     const straddle = straddleOf(c);
     const timing = hasSlr
       ? [
-          { gauge: c.gauge, name: spine.gauges[c.gauge].name, rows: timingTable(reference, c.gauge, increments) },
-          ...(straddle ? [{ gauge: c.altGauge, name: spine.gauges[c.altGauge].name, alt: true, rows: timingTable(reference, c.altGauge, increments) }] : []),
+          { gauge: c.gauge, name: spine.gauges[c.gauge].name, rows: timingTable(reference, c.gauge, increments), horizons: horizonRows(reference, c.gauge), flags: horizonFlags(reference, c.gauge) },
+          ...(straddle ? [{ gauge: c.altGauge, name: spine.gauges[c.altGauge].name, alt: true, rows: timingTable(reference, c.altGauge, increments), horizons: horizonRows(reference, c.altGauge), flags: horizonFlags(reference, c.altGauge) }] : []),
         ]
       : null;
 
@@ -223,6 +224,24 @@ module.exports = {
   floodOnly: tiers.find((t) => t.id === "flood-only"),
   topics: schema.topics,
   increments,
+  horizonYears: HORIZONS,
+  mapMinFt: MAP_MIN_FT,
+  mapMaxFt: MAP_MAX_FT,
+  // Appendix F for every gauge the spine uses, three recommended scenarios, every decade, each cell
+  // flagged when it sits outside the heights the map shows. For /county-profiles/about/.
+  gaugeTables: Object.entries(spine.gauges).map(([id, g]) => ({
+    id,
+    name: g.name,
+    table: reference.gauges[id].table,
+    counties: counties.filter((c) => c.gauge === id).map((c) => c.name),
+    altFor: counties.filter((c) => c.altGauge === id).map((c) => c.name),
+    decades: reference.decades,
+    rows: SCENARIOS.map((sc) => ({
+      scenario: sc,
+      label: SCENARIO_LABELS[sc],
+      cells: reference.decades.map((d, i) => { const feet = reference.gauges[id][sc][i]; return { year: d, feet, text: feet.toFixed(1), flag: envelope(feet) }; }),
+    })),
+  })),
   incrementLabels: increments.map((f) => f + " ft"),
   reasons: Object.entries(schema.reasons).map(([id, r]) => ({ id, ...r })),
   // Counties in NOAA's ENOW list are exactly those with a marine-economy topic (full and delta tiers).

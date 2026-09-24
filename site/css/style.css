@@ -1053,6 +1053,8 @@ svg [hidden]{display:none;}
 .cpd-col-extra:not(.cpd-col-active){opacity:.5;}
 .cpd-legend .cpd-swatch-extra{background:transparent;border:1.5px dashed var(--ramp-2);box-sizing:border-box;}
 .cpd-tview{max-height:48vh;overflow:auto;}
+/* A straddling county has two timing tables; side by side they no longer make the table pane the tall one. */
+.cpd-tview:has(> table + table){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px;align-items:start;}
 .cpd-tview td{font-size:17px;}
 
 /* about slide */
@@ -1157,6 +1159,23 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpd-readout-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 20px;margin:0;width:100%;}
 .cpd-readout-stats dt{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin:0 0 3px;}
 .cpd-readout-stats dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:20px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
+.cp-gauge-table{border-bottom:1px solid var(--line);padding:8px 0;}
+.cp-gauge-table summary{cursor:pointer;font-weight:600;font-size:14.5px;}
+.cp-gauge-table .cp-muted{font-weight:400;color:var(--ink-soft);}
+.cp-table-wrap{overflow-x:auto;margin-top:8px;}
+.cp-appendix-f{border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;}
+.cp-appendix-f th,.cp-appendix-f td{padding:4px 10px 4px 0;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;}
+.cp-appendix-f td.cpd-out-below,.cp-appendix-f td.cpd-out-above{color:var(--ink-soft);}
+.cpd-horizons{margin-top:10px;}
+.cp-horizon-table{width:100%;table-layout:fixed;border-collapse:collapse;margin:0 0 6px;font-size:15px;}
+.cp-horizon-table caption{caption-side:top;text-align:left;font-size:13px;color:var(--ink-soft);padding-bottom:4px;}
+.cp-horizon-table th,.cp-horizon-table td{padding:2px 8px 2px 0;text-align:left;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;}
+.cp-horizon-table thead th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:500;}
+.cp-horizon-table td{font-weight:600;}
+.cp-horizon-table td.cpd-out-below,.cp-horizon-table td.cpd-out-above{font-weight:400;color:var(--ink-soft);}
+.cp-horizon-table .cpd-gauge-col{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:500;border-bottom:0;padding-bottom:0;}
+.cp-horizon-table sup{margin-left:2px;}
+.cpd-horizon-note{font-size:13px;color:var(--ink-soft);margin:2px 0 0;}
 .cpd-readout-stats dd.cpd-beyond-stat{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;font-weight:400;color:var(--ink-soft);}
 .cpd-curve{fill:none;stroke-width:4;stroke-linejoin:round;stroke-linecap:round;}
 /* Only the selected increment draws bold and full-strength; the other four are ordinary, muted

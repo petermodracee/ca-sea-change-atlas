@@ -5,6 +5,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const opcReference = require("../../site/_data/opcGaugeProjections.json");
 
 // A stale reference to the site's old GitHub Pages home (petermodracee.github.io/ca-sea-change-atlas/),
 // left over from before the seachangeatlas.org move. Every internal link and generated URL (canonical,

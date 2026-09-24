@@ -5,6 +5,7 @@
 
 const SCENARIOS = ["intermediate", "intermediate-high", "high"];
 const BEYOND = ">2150";
+const SCENARIO_LABELS = { intermediate: "Intermediate", "intermediate-high": "Intermediate-High", high: "High" };
 
 function series(reference, gaugeId, scenario) {
   const g = reference.gauges[gaugeId];
@@ -47,4 +48,55 @@ function compareGauges(reference, gaugeA, gaugeB, increments) {
   return maxDiff >= 5 || unreached > 0 ? { maxDiff, unreached } : null;
 }
 
-module.exports = { SCENARIOS, BEYOND, series, yearReached, timingTable, compareGauges };
+// The horizons the page states, and the range of heights NOAA's inundation layers can show. NOAA's
+// layers run from 1 ft to 10 ft above MHHW, so a projection under 1 ft has no layer to point at and
+// one over 10 ft is past the top of the map. Such a figure is still stated, and flagged.
+const HORIZONS = [2050, 2100];
+const MAP_MIN_FT = 1;
+const MAP_MAX_FT = 10;
+
+function envelope(feet) {
+  return feet < MAP_MIN_FT ? "below" : feet > MAP_MAX_FT ? "above" : "within";
+}
+
+const ENVELOPE_NOTE = {
+  below: "under " + MAP_MIN_FT + " ft, the lowest level the map shows",
+  above: "over " + MAP_MAX_FT + " ft, the highest level the map shows",
+};
+
+// One row per scenario: the projected rise (ft above 2000) at each horizon, with its envelope flag.
+function horizonRows(reference, gaugeId) {
+  return SCENARIOS.map((s) => {
+    const g = reference.gauges[gaugeId];
+    if (!g) throw new Error("no OPC gauge " + gaugeId);
+    return {
+      scenario: s,
+      label: SCENARIO_LABELS[s],
+      cells: HORIZONS.map((year) => {
+        const feet = g[s][reference.decades.indexOf(year)];
+        const flag = envelope(feet);
+        return { year, feet, text: feet.toFixed(1), flag, note: flag === "within" ? null : ENVELOPE_NOTE[flag] };
+      }),
+    };
+  });
+}
+
+// Which envelope flags occur among a gauge's horizon cells, to decide which footnotes to print.
+function horizonFlags(reference, gaugeId) {
+  const cells = horizonRows(reference, gaugeId).flatMap((r) => r.cells);
+  return { below: cells.some((c) => c.flag === "below"), above: cells.some((c) => c.flag === "above"), min: MAP_MIN_FT, max: MAP_MAX_FT };
+}
+
+// The Appendix F values the snapshot carries for a gauge: the three recommended scenarios, every decade.
+function projectionsFor(reference, gaugeId) {
+  const g = reference.gauges[gaugeId];
+  if (!g) throw new Error("no OPC gauge " + gaugeId);
+  return {
+    baseline: reference.baseline,
+    units: reference.units,
+    decades: reference.decades.slice(),
+    scenarios: Object.fromEntries(SCENARIOS.map((s) => [s, g[s].slice()])),
+  };
+}
+
+module.exports = { SCENARIOS, SCENARIO_LABELS, BEYOND, HORIZONS, MAP_MIN_FT, MAP_MAX_FT, envelope, horizonRows, horizonFlags, projectionsFor, series, yearReached, timingTable, compareGauges };

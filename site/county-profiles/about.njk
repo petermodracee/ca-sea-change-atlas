@@ -40,6 +40,30 @@ nav: county-profiles
 <p>Some counties have a second sea level regime: an outer coast and a bay shore. Whether a county <em>straddles</em> is never authored. It is computed at build from the timing tables of the two gauges: a county straddles when any year differs by five or more, or when one gauge reaches an increment by 2150 and the other does not. A straddling county shows both tables.{% for c in countyProfiles.counties %}{% if c.straddle %} {{ c.name }} is currently the only one.{% endif %}{% endfor %}</p>
 </section>
 
+<section class="cp-topic" id="horizons">
+<h2>Projected rise at 2050 and 2100</h2>
+<p>Each sea level rise topic states the rise projected at its county's tide gauge in 2050 and 2100, for the three scenarios above, in feet above 2000. These are the two horizons that appear in most California adaptation documents and Local Coastal Program updates. The values are Appendix F's own: already in feet, with local vertical land motion included, so nothing is converted or rounded. Low and Intermediate-Low are not shown, because the state does not recommend planning against them. A profile's snapshot file carries all thirteen decades for its gauge.</p>
+<p>NOAA's inundation layers cover {{ countyProfiles.mapMinFt }} to {{ countyProfiles.mapMaxFt }} ft above MHHW. A projection outside that range is still stated, and marked: † for a figure under {{ countyProfiles.mapMinFt }} ft (near-term rise the map cannot show) and ‡ for one over {{ countyProfiles.mapMaxFt }} ft (past the top of the map). In practice the usable range is roughly 2050 to 2120; earlier, most scenarios are under the lowest layer, and later the High scenario climbs past the highest.</p>
+</section>
+
+<section class="cp-topic" id="appendix-f">
+<h2>Appendix F, by gauge</h2>
+<p>The three recommended scenarios at every gauge a county uses, in feet above 2000, as published in Appendix F of the 2024 guidance. Values marked † or ‡ fall outside the range the map shows.</p>
+{%- for g in countyProfiles.gaugeTables %}
+<details class="cp-gauge-table">
+<summary>{{ g.name }} <span class="cp-muted">(Table {{ g.table }}{% if g.counties.length %}; {{ g.counties | join(", ") }}{% endif %}{% if g.altFor.length %}; second gauge for {{ g.altFor | join(", ") }}{% endif %})</span></summary>
+<div class="cp-table-wrap"><table class="cp-appendix-f">
+<thead><tr><th scope="col">Scenario</th>{% for d in g.decades %}<th scope="col">{{ d }}</th>{% endfor %}</tr></thead>
+<tbody>
+{%- for row in g.rows %}
+<tr><th scope="row">{{ row.label }}</th>{% for c in row.cells %}<td{% if c.flag != "within" %} class="cpd-out-{{ c.flag }}"{% endif %}>{{ c.text }}{% if c.flag == "below" %}<sup>†</sup>{% elif c.flag == "above" %}<sup>‡</sup>{% endif %}</td>{% endfor %}</tr>
+{%- endfor %}
+</tbody>
+</table></div>
+</details>
+{%- endfor %}
+</section>
+
 <section class="cp-topic" id="connected-low-lying">
 <h2>Connected and low-lying sea level rise exposure</h2>
 <p>NOAA's sea level rise mapping separates two kinds of area at each increment: ocean-connected inundation, and isolated low-lying areas that are below the projected water level but that its elevation model does not connect to the ocean (<a href="https://coast.noaa.gov/data/digitalcoast/pdf/slr-inundation-methods.pdf" rel="noopener">NOAA Office for Coastal Management, method description for the Sea Level Rise Viewer, January 2017</a>). County Profiles reports the two combined: each bar or column is the total, with the ocean-connected part solid and the additional low-lying part dashed.</p>
@@ -77,6 +101,7 @@ nav: county-profiles
 <p>Each profile shows its methodology version ("Version <em>N</em>") on its About this data slide. The version is a monotonic integer, not a date: it increments only when a pipeline change could move a figure while the underlying source data stays the same (switching the intersect method, changing the rollup geography, fixing an aggregation bug), never for a new section, a restyle or an added county. Two snapshots carrying different versions are never joined by a trend line.</p>
 <dl class="cp-reasons">
 <div><dt>Version 1</dt><dd>The version in development. Orange County was first computed from real data in Phase 2 (block-level areal apportionment of people and jobs to the flood and sea level rise extents); Phase 3 extended the same method to all 27 counties (FEMA flood zones found through the political-jurisdiction layer, sea level rise polygons read from every NOAA regional file a county touches, each county measured on a projection centred on it). The version stays 1 until the tool is published; from then on any change that could move a figure increments it.</dd></div>
+<div><dt>Phase 4 (still version 1)</dt><dd>Sea level rise sections are framed against the OPC scenarios: the projected rise at 2050 and 2100 for each recommended scenario, the full Appendix F table on this page, and every snapshot carrying its gauge's thirteen decades. No exposure figure, and no crossing year, moved; the version stays 1.</dd></div>
 </dl>
 </section>
 

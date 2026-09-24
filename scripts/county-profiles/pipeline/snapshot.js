@@ -13,6 +13,9 @@
 // writes "SUP"), and an unavailable section carries a reason. A total that has a withheld component
 // is {value, partial: true}.
 
+const { projectionsFor } = require("../timing");
+const reference = require("../../../site/_data/opcGaugeProjections.json");
+
 const USE = { ui: true, pdf: true, present: true };
 const METHOD = 1; // Still in development: stays 1 until the tool is fully published (see docs/COUNTY-PROFILES.md).
 
@@ -271,11 +274,19 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, nes, n
     snapshot: snapshotDate,
     method: METHOD,
     generated,
-    gauge: entry.gauge ? { id: entry.gauge, name: spine.gauges[entry.gauge].name, altGauge: entry.altGauge ? { id: entry.altGauge, name: spine.gauges[entry.altGauge].name } : null } : null,
+    gauge: gaugeBlock(entry, spine),
     geometry: null,
     sources: pruneSources(sources, topics),
     topics,
   };
 }
 
-module.exports = { buildSnapshot, METHOD };
+// The reference tide gauge and the OPC 2024 Appendix F projections behind it (the three recommended
+// scenarios, all thirteen decades, feet above 2000). A county's second gauge carries its own.
+function gaugeBlock(entry, spine) {
+  if (!entry.gauge) return null;
+  const one = (id) => ({ id, name: spine.gauges[id].name, projections: projectionsFor(reference, id) });
+  return { ...one(entry.gauge), altGauge: entry.altGauge ? one(entry.altGauge) : null };
+}
+
+module.exports = { buildSnapshot, gaugeBlock, METHOD };
