@@ -11,7 +11,7 @@
 // of their real numbers as a callout figure.
 
 const { pct, num, usd, usdWords, compact } = require("./format.js");
-const usdCompact = (n) => compact(n, true);
+const usdCompact = (n) => compact(n, true, 2); // the big stat numbers: two decimals
 const { sectorIconFor } = require("./sector-icons.js");
 
 const isSuppressed = (v) => v !== null && typeof v === "object" && v.suppressed === true;

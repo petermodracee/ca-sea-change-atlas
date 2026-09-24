@@ -51,11 +51,13 @@ function vintageText(v, mode) {
 // The compact form the bar charts use for axis ticks and values ("$5.6M", "$444.1k", "$112.5B"): one
 // decimal, a trailing ".0" dropped. Also used for the small stat tiles, so a tile and a chart show a
 // value the same way; running prose keeps the spelled-out usdWords.
-const compact = (n, dollars) => {
+// `decimals` is 1 for chart labels and 2 for the big stat numbers ("$1.05B"); trailing zeros are dropped.
+const compact = (n, dollars, decimals = 1) => {
   const p = dollars ? "$" : "";
-  if (n >= 1e9) return p + (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
-  if (n >= 1e6) return p + (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
-  if (n >= 1e3) return p + (n / 1e3).toFixed(1).replace(/\.0$/, "") + "k";
+  const fmt = (v, unit) => p + String(Number(v.toFixed(decimals))) + unit; // Number() drops trailing zeros
+  if (n >= 1e9) return fmt(n / 1e9, "B");
+  if (n >= 1e6) return fmt(n / 1e6, "M");
+  if (n >= 1e3) return fmt(n / 1e3, "k");
   return p + n;
 };
 module.exports = { shareText, pct, num, usd, usdWords, compact, apaDate, vintageText };
