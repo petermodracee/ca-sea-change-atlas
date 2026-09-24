@@ -303,7 +303,7 @@
     and the source line below never moves when the switch is pressed. -#}
 {% macro curves(uid, county, reference, increments) %}
 {%- set g = reference | slrCurves(county.gauge, increments) %}
-<div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Year each increment is reached, by scenario</p>
+<div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Year each increment is reached at the {{ county.gaugeName }} gauge, by scenario</p>
 <div class="cpd-view" role="group" aria-label="Show as" data-cpd-timing-view>
 <button type="button" aria-pressed="true" data-show="chart">Chart</button>
 <button type="button" aria-pressed="false" data-show="table">Table</button>
@@ -366,25 +366,6 @@
 </tbody>
 </table>
 {%- endfor %}
-</div>
-<div class="cpd-horizons">
-<table class="cp-horizon-table">
-<caption>{% if county.timing.length > 1 %}Feet above 2000. {{ county.straddle.short }}{% else %}Projected rise at the {{ county.timing[0].name }} gauge, in feet above 2000{% endif %}</caption>
-<thead>
-<tr><td></td>{% for t in county.timing %}<th scope="colgroup" colspan="{{ t.horizons[0].cells | length }}" class="cpd-gauge-col">{{ t.name }}{% if t.alt %} (second gauge){% endif %}</th>{% endfor %}</tr>
-<tr><th scope="col">Scenario</th>{% for t in county.timing %}{% for c in t.horizons[0].cells %}<th scope="col">{{ c.year }}</th>{% endfor %}{% endfor %}</tr>
-</thead>
-<tbody>
-{%- for row in county.timing[0].horizons %}
-{%- set ri = loop.index0 %}
-<tr><th scope="row">{{ row.label }}</th>{% for t in county.timing %}{% for c in t.horizons[ri].cells %}<td{% if c.flag != "within" %} class="cpd-out-{{ c.flag }}"{% endif %}>{{ c.text }} ft{% if c.flag == "below" %}<sup title="{{ c.note }}">†</sup><span class="sr-only"> ({{ c.note }})</span>{% elif c.flag == "above" %}<sup title="{{ c.note }}">‡</sup><span class="sr-only"> ({{ c.note }})</span>{% endif %}</td>{% endfor %}{% endfor %}</tr>
-{%- endfor %}
-</tbody>
-</table>
-{%- set anyBelow = county.timing[0].flags.below or (county.timing[1] and county.timing[1].flags.below) %}
-{%- set anyAbove = county.timing[0].flags.above or (county.timing[1] and county.timing[1].flags.above) %}
-{%- if anyBelow %}<p class="cpd-horizon-note">† Under {{ county.timing[0].flags.min }} ft, the lowest level the map shows: no exposure figure on this page corresponds to it.</p>{% endif %}
-{%- if anyAbove %}<p class="cpd-horizon-note">‡ Over {{ county.timing[0].flags.max }} ft, the highest level the map shows.</p>{% endif %}
 </div>
 </div>
 {% endmacro %}

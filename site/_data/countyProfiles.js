@@ -5,7 +5,7 @@ const spine = require("./countySpine.json");
 const reference = require("./opcGaugeProjections.json");
 const { validateSnapshot } = require("../../scripts/county-profiles/validate.js");
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
-const { timingTable, compareGauges, horizonRows, horizonFlags, envelope, SCENARIOS, SCENARIO_LABELS, HORIZONS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
+const { timingTable, compareGauges, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
 
 // Everything the County Profiles pages need, derived from the spine, the schema, the OPC reference
@@ -107,7 +107,6 @@ function straddleOf(c) {
   return {
     altGauge: c.altGauge,
     altName: b,
-    short: c.name + " straddles two sea level regimes; " + b + " is its second gauge (timing in the Table view).",
     text: c.name + " County straddles two sea level regimes. Its assigned gauge is " + a + "; at the " + b + " gauge " + bits.join(", and ") + ". Both timing tables are shown.",
   };
 }
@@ -132,8 +131,8 @@ const counties = spine.counties
     const straddle = straddleOf(c);
     const timing = hasSlr
       ? [
-          { gauge: c.gauge, name: spine.gauges[c.gauge].name, rows: timingTable(reference, c.gauge, increments), horizons: horizonRows(reference, c.gauge), flags: horizonFlags(reference, c.gauge) },
-          ...(straddle ? [{ gauge: c.altGauge, name: spine.gauges[c.altGauge].name, alt: true, rows: timingTable(reference, c.altGauge, increments), horizons: horizonRows(reference, c.altGauge), flags: horizonFlags(reference, c.altGauge) }] : []),
+          { gauge: c.gauge, name: spine.gauges[c.gauge].name, rows: timingTable(reference, c.gauge, increments) },
+          ...(straddle ? [{ gauge: c.altGauge, name: spine.gauges[c.altGauge].name, alt: true, rows: timingTable(reference, c.altGauge, increments) }] : []),
         ]
       : null;
 
@@ -224,7 +223,6 @@ module.exports = {
   floodOnly: tiers.find((t) => t.id === "flood-only"),
   topics: schema.topics,
   increments,
-  horizonYears: HORIZONS,
   mapMinFt: MAP_MIN_FT,
   mapMaxFt: MAP_MAX_FT,
   // Appendix F for every gauge the spine uses, three recommended scenarios, every decade, each cell

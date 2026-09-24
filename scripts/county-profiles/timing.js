@@ -64,29 +64,6 @@ const ENVELOPE_NOTE = {
   above: "over " + MAP_MAX_FT + " ft, the highest level the map shows",
 };
 
-// One row per scenario: the projected rise (ft above 2000) at each horizon, with its envelope flag.
-function horizonRows(reference, gaugeId) {
-  return SCENARIOS.map((s) => {
-    const g = reference.gauges[gaugeId];
-    if (!g) throw new Error("no OPC gauge " + gaugeId);
-    return {
-      scenario: s,
-      label: SCENARIO_LABELS[s],
-      cells: HORIZONS.map((year) => {
-        const feet = g[s][reference.decades.indexOf(year)];
-        const flag = envelope(feet);
-        return { year, feet, text: feet.toFixed(1), flag, note: flag === "within" ? null : ENVELOPE_NOTE[flag] };
-      }),
-    };
-  });
-}
-
-// Which envelope flags occur among a gauge's horizon cells, to decide which footnotes to print.
-function horizonFlags(reference, gaugeId) {
-  const cells = horizonRows(reference, gaugeId).flatMap((r) => r.cells);
-  return { below: cells.some((c) => c.flag === "below"), above: cells.some((c) => c.flag === "above"), min: MAP_MIN_FT, max: MAP_MAX_FT };
-}
-
 // The Appendix F values the snapshot carries for a gauge: the three recommended scenarios, every decade.
 function projectionsFor(reference, gaugeId) {
   const g = reference.gauges[gaugeId];
@@ -99,4 +76,4 @@ function projectionsFor(reference, gaugeId) {
   };
 }
 
-module.exports = { SCENARIOS, SCENARIO_LABELS, BEYOND, HORIZONS, MAP_MIN_FT, MAP_MAX_FT, envelope, horizonRows, horizonFlags, projectionsFor, series, yearReached, timingTable, compareGauges };
+module.exports = { SCENARIOS, SCENARIO_LABELS, BEYOND, HORIZONS, MAP_MIN_FT, MAP_MAX_FT, envelope, projectionsFor, series, yearReached, timingTable, compareGauges };
