@@ -14,6 +14,12 @@ const { pct, num, usd, usdWords, compact } = require("./format.js");
 const usdCompact = (n) => compact(n, true, 2); // the big stat numbers: two decimals
 const { sectorIconFor } = require("./sector-icons.js");
 
+// A callout share is built with pc() so that, if it happens to equal a number the chart labels,
+// the callout can be restated at two decimals instead of failing the build over a coincidence.
+const ratios = new Map();
+const pc = (a, b) => { const f = pct(a, b); ratios.set(f, [a, b]); return f; };
+const pct2 = (a, b) => ((a / b) * 100).toFixed(2) + "%";
+
 const isSuppressed = (v) => v !== null && typeof v === "object" && v.suppressed === true;
 const sum = (xs) => xs.reduce((a, b) => a + b, 0);
 const PARTIAL_MARK = "*";
@@ -52,9 +58,9 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
     case "rings":
       visual = { type: "rings", items: ringItems(data.items) };
       if (topicId === "flood" && def.id === "people-at-risk") {
-        callout = { figure: pct(data.landInsideSqMi, data.landTotalSqMi), caption: "of " + C + "’s land area is inside the FEMA 100-year floodplain." };
+        callout = { figure: pc(data.landInsideSqMi, data.landTotalSqMi), caption: "of " + C + "’s land area is inside the FEMA 100-year floodplain." };
       } else if (topicId === "flood" && def.id === "natural-features") {
-        callout = { figure: pct(data.naturalSqMi, data.floodplainSqMi), caption: "(" + num(data.naturalSqMi) + " square miles) of the land in " + C + "’s floodplain is still natural: wetland, forest or open space." };
+        callout = { figure: pc(data.naturalSqMi, data.floodplainSqMi), caption: "(" + num(data.naturalSqMi) + " square miles) of the land in " + C + "’s floodplain is still natural: wetland, forest or open space." };
       }
       break;
 
@@ -73,7 +79,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       rows.forEach((r) => { show(r.keyLabel); r.segments.forEach((s) => show(num(s.value))); });
       const insideTotal = sum(data.items.map((i) => i.inside));
       const outsideTotal = sum(data.items.map((i) => i.outside));
-      callout = { figure: pct(insideTotal, insideTotal + outsideTotal), caption: "of " + C + "’s critical facilities, across all types, are in the floodplain." };
+      callout = { figure: pc(insideTotal, insideTotal + outsideTotal), caption: "of " + C + "’s critical facilities, across all types, are in the floodplain." };
       break;
     }
 
@@ -90,7 +96,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
     }
 
     case "single-share": {
-      callout = { figure: pct(data.count, data.total), caption: "(" + num(data.count) + " jobs) of all jobs in " + C + " are in the floodplain." };
+      callout = { figure: pc(data.count, data.total), caption: "(" + num(data.count) + " jobs) of all jobs in " + C + " are in the floodplain." };
       break;
     }
 
@@ -114,7 +120,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         const headCount = head(data.measures[0])[0];
         const headTotal = data.measures[0].total;
         callout = {
-          figure: pct(headCount, headTotal),
+          figure: pc(headCount, headTotal),
           caption: "(" + num(headCount) + " people) of " + C + "’s total population lives in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ". As is already the case in many parts of the country, these areas are the first to experience impacts.",
         };
       } else {
@@ -130,7 +136,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         };
         const head = (m) => (hasLow ? m.countsWithLow : m.counts);
         data.measures.forEach((m) => show(num(head(m)[m.counts.length - 1])));
-        const p = pct(sum(data.measures.map((m) => head(m)[0])), sum(data.measures.map((m) => m.total)));
+        const p = pc(sum(data.measures.map((m) => head(m)[0])), sum(data.measures.map((m) => m.total)));
         callout = { figure: p, caption: "of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ". These areas are the first to experience impacts." };
       }
       break;
@@ -161,7 +167,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
 
     case "increment-single": {
       hasLow = Array.isArray(data.countsWithLow);
-      callout = { figure: pct((hasLow ? data.countsWithLow : data.counts)[0], data.total), caption: "of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + "." };
+      callout = { figure: pc((hasLow ? data.countsWithLow : data.counts)[0], data.total), caption: "of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + "." };
       break;
     }
 
@@ -183,7 +189,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       });
       visual = { type: "stats", items, partial: anySuppressed([data.establishments, data.jobs, data.wages, data.gdp]) };
       if (!isSuppressed(data.jobs)) {
-        const p = pct(data.jobs, data.denominator);
+        const p = pc(data.jobs, data.denominator);
         callout = topicId === "marine-economy"
           ? { figure: p, caption: "of total employment in " + C + " is in the marine economy." }
           : { figure: p, caption: "of all employment in California is in " + C + "." };
@@ -218,7 +224,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       const withheld = withheldSectors.length > 0;
       const whose = topicId === "marine-economy" ? "marine economy workforce" : "workforce";
       callout = {
-        figure: pct(top.employment, totalEmployment),
+        figure: pc(top.employment, totalEmployment),
         caption: "of " + C + "’s " + whose + " works in " + top.label + ", its largest sector by employment" + (withheld ? PARTIAL_MARK : "") + ".",
         partial: withheld,
       };
@@ -251,6 +257,15 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         caption: top.label + " pays the most on average in " + C + "’s economy" + (countyWithheld ? PARTIAL_MARK : "") + " — that many times the lowest-paying sector's wage.",
         partial: countyWithheld,
       };
+      // Two different reasons a sector can be missing from the dots, kept apart: a withheld value
+      // (the publisher will not say) and a sector with no jobs here (nothing to average).
+      const notes = [];
+      if (partial) notes.push("* One or more average wages are withheld by the publisher for confidentiality.");
+      if (data.noJobs && data.noJobs.length) {
+        const list = data.noJobs.length === 1 ? data.noJobs[0] : data.noJobs.slice(0, -1).join(", ") + " and " + data.noJobs[data.noJobs.length - 1];
+        notes.push(list + (data.noJobs.length === 1 ? " has" : " have") + " no jobs in " + C + " (a count of zero, not a withheld figure), so there is no average wage to show.");
+      }
+      if (notes.length) footnote = notes.join(" ");
       break;
     }
 
@@ -305,7 +320,16 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   }
 
   // The callout rule: the figure may not also be text the chart draws as its own visible label.
-  if (callout && shown.includes(callout.figure)) {
+  // A zero finding ("0%", "0") is exempt: when a county has no facilities in its floodplain, every
+  // bar and the callout all truthfully say 0, and forcing the callout to another figure would hide
+  // the finding rather than avoid a repeat. The rule guards against a callout that merely restates a
+  // chart's labelled number; a zero is the answer, stated wherever it applies.
+  const isZeroFigure = callout && /^0(\.0+)?%?$/.test(callout.figure);
+  if (callout && !isZeroFigure && shown.includes(callout.figure) && ratios.has(callout.figure)) {
+    const [a, b] = ratios.get(callout.figure);
+    if (!shown.includes(pct2(a, b))) callout = { ...callout, figure: pct2(a, b) };
+  }
+  if (callout && !isZeroFigure && shown.includes(callout.figure)) {
     throw new Error("callout for " + topicId + "/" + def.id + " (" + county + ") repeats a figure its chart already shows: " + callout.figure);
   }
 

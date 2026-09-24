@@ -231,6 +231,11 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
           if (!isStr(it.label)) fail(where + ".data.items[" + i + "].label is required");
           for (const k of ["county", "coastalState", "coastalUS"]) cell(it[k], where + ".data.items[" + i + "]." + k);
         });
+        // A sector with no jobs has no average wage: a real zero, kept out of the dot plot and named here.
+        if (data.noJobs !== undefined) {
+          if (!Array.isArray(data.noJobs) || !data.noJobs.length || !data.noJobs.every(isStr)) fail(where + ".data.noJobs must be a non-empty array of sector labels when present");
+          if (data.noJobs.some((l) => data.items.some((it) => it.label === l))) fail(where + ".data.noJobs names a sector that is also in items");
+        }
         break;
       case "jobs-equation": {
         cell(data.employed, where + ".data.employed");
