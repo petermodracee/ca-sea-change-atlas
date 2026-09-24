@@ -100,7 +100,7 @@
 {%- if def.id == "natural-features" %}<p class="cpd-chart-title"><ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Development added, 1996–2016</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Already developed in 1996</li></ul></p>
 {%- elif def.id == "people-at-risk" %}<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Population inside floodplain</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Population outside floodplain</li></ul>{% endif %}
 {%- elif v.type == "bars" %}{{ bars(uid, v.items, v.format, v.series, def.title) }}
-{%- elif v.type == "stacked" %}{{ stackedBars(uid, v.rows, v.format, v.legend, def.caption or def.title, v.segClasses) }}
+{%- elif v.type == "stacked" %}{{ stackedBars(uid, v.rows, v.format, v.legend, def.caption or def.title, v.segClasses, v.opts) }}
 {%- elif v.type == "stacked100" %}{{ stacked100Bars(uid, v.measures, v.legend, def.caption or def.title, v.headline) }}
 {%- elif v.type == "columns" %}{{ columns(uid, v.items, countyProfiles.incrementLabels, def.caption or def.title, countyProfiles.increments if def.id == "people-at-risk" else none) }}
 {%- elif v.type == "facilities-stack" %}{{ facilitiesStack(uid, v.items, def.caption or def.title, countyProfiles.increments) }}

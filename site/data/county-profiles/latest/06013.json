@@ -4,7 +4,7 @@
   "county": "Contra Costa",
   "tier": "full",
   "snapshot": "2026-09-24",
-  "method": 2,
+  "method": 1,
   "generated": "2026-09-24T11:07:03Z",
   "gauge": {
     "id": "port-chicago",

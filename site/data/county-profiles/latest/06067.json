@@ -4,8 +4,8 @@
   "county": "Sacramento",
   "tier": "delta",
   "snapshot": "2026-09-24",
-  "method": 2,
-  "generated": "2026-09-24T11:00:01Z",
+  "method": 1,
+  "generated": "2026-09-24T20:44:24Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -64,6 +64,13 @@
       "retrieved": "2026-09-24",
       "verified": "2026-09-24"
     },
+    "slr": {
+      "label": "NOAA Sea Level Rise Viewer inundation extents",
+      "url": "https://coast.noaa.gov/slrdata/",
+      "vintage": null,
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
     "lodes": {
       "label": "LEHD LODES8 workplace area characteristics",
       "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ca/wac/",
@@ -81,6 +88,16 @@
         "kind": "period",
         "start": "1996-01-01",
         "end": "2016-12-31"
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "opc": {
+      "label": "California OPC State Sea Level Rise Guidance, Appendix F",
+      "url": "https://www.oceansciencetrust.org/in-practice/2024slrguidance",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
       },
       "retrieved": "2026-09-24",
       "verified": "2026-09-24"
@@ -289,9 +306,297 @@
       }
     },
     "slr": {
-      "available": false,
-      "reason": "no-slr-extent",
-      "sections": {}
+      "available": true,
+      "reason": null,
+      "sections": {
+        "people-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "acs",
+            "tiger",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "measures": [
+              {
+                "label": "Population",
+                "unit": "residents",
+                "total": 1594006,
+                "counts": [
+                  452,
+                  2428,
+                  3056,
+                  3780,
+                  4252
+                ],
+                "countsWithLow": [
+                  13955,
+                  25626,
+                  33673,
+                  47734,
+                  82149
+                ]
+              },
+              {
+                "label": "Aged 65 and over",
+                "unit": "residents aged 65 and over",
+                "total": 243370,
+                "counts": [
+                  88,
+                  540,
+                  614,
+                  750,
+                  833
+                ],
+                "countsWithLow": [
+                  2996,
+                  5818,
+                  7525,
+                  9722,
+                  14535
+                ]
+              },
+              {
+                "label": "Below the poverty line",
+                "unit": "residents below the poverty line",
+                "total": 196831,
+                "counts": [
+                  64,
+                  402,
+                  455,
+                  558,
+                  603
+                ],
+                "countsWithLow": [
+                  1733,
+                  2888,
+                  3538,
+                  5080,
+                  8770
+                ]
+              }
+            ]
+          }
+        },
+        "critical-facilities": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "usgs",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "measures": [
+              {
+                "label": "Schools",
+                "unit": "facilities",
+                "total": 409,
+                "counts": [
+                  0,
+                  1,
+                  1,
+                  2,
+                  2
+                ],
+                "countsWithLow": [
+                  4,
+                  5,
+                  10,
+                  12,
+                  15
+                ]
+              },
+              {
+                "label": "Police stations",
+                "unit": "facilities",
+                "total": 15,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "label": "Fire stations",
+                "unit": "facilities",
+                "total": 90,
+                "counts": [
+                  0,
+                  2,
+                  2,
+                  3,
+                  3
+                ],
+                "countsWithLow": [
+                  2,
+                  4,
+                  7,
+                  7,
+                  8
+                ]
+              },
+              {
+                "label": "Medical facilities",
+                "unit": "facilities",
+                "total": 13,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        },
+        "jobs-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "lodes",
+            "tiger",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "total": 724651,
+            "counts": [
+              171,
+              466,
+              684,
+              948,
+              1218
+            ],
+            "countsWithLow": [
+              3475,
+              6205,
+              8646,
+              14487,
+              28395
+            ]
+          }
+        },
+        "natural-landscapes": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "ccap",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "classes": [
+              {
+                "label": "Wetlands",
+                "values": [
+                  6.6,
+                  8.4,
+                  10,
+                  11,
+                  11.7
+                ]
+              },
+              {
+                "label": "Upland",
+                "values": [
+                  1.1,
+                  2.1,
+                  4.1,
+                  6.4,
+                  8.1
+                ]
+              },
+              {
+                "label": "Other",
+                "values": [
+                  111.2,
+                  120.7,
+                  129.1,
+                  138.4,
+                  154
+                ]
+              }
+            ]
+          }
+        },
+        "when-to-act": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "opc"
+          ],
+          "data": {}
+        }
+      }
     },
     "total-economy": {
       "available": false,

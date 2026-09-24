@@ -14,7 +14,7 @@
 // is {value, partial: true}.
 
 const USE = { ui: true, pdf: true, present: true };
-const METHOD = 2; // 1: Phase 2 (Orange County). 2: Phase 3 (all counties): see docs/COUNTY-PROFILES.md, methodology changelog.
+const METHOD = 1; // Still in development: stays 1 until the tool is fully published (see docs/COUNTY-PROFILES.md).
 
 const round = (n) => Math.round(n);
 const round1 = (n) => Math.round(n * 10) / 10;
@@ -180,7 +180,7 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, nes, n
         measures: facKeys.map((k) => ({ label: facilityLabels[k], unit: "facilities", total: r.facilities[k].total, counts: r.facilities[k].slr, countsWithLow: r.facilities[k].slrWithLow })),
       }),
       "jobs-at-risk": !slrHasExtent ? noSlr() : section(["lodes", "tiger", "slr"], { increments: inc, total: round(r.jobs.total), counts: r.jobs.slr.map(round), countsWithLow: r.jobs.slrWithLow.map(round) }),
-      "natural-landscapes": !slrHasExtent ? noSlr() : !ccapUsable ? noteGap("slr/natural-landscapes", "source-geography") : section(["ccap", "slr"], {
+      "natural-landscapes": !slrHasExtent || (ccap && ccap.value.slr[inc.length - 1].land <= 0) ? noSlr() : !ccapUsable ? noteGap("slr/natural-landscapes", "source-geography") : section(["ccap", "slr"], {
         increments: inc,
         classes: [
           { label: "Wetlands", values: ccap.value.slr.map((c) => round1(c.wetland)) },

@@ -204,7 +204,7 @@ Flags: `--refresh` re-downloads instead of using the cache; `--reuse-intersect` 
 | Tier | Flood hazard | Sea level rise | Total economy | Marine economy |
 |---|---|---|---|---|
 | Full (20) | All five sections | All five sections | All five sections | All four sections |
-| Delta (3) | All five sections | `no-slr-extent` | `not-shore-adjacent` | All four sections |
+| Delta (3) | All five sections | All four available sections plus the timing table (from NOAA's Delta inundation file) | `not-shore-adjacent` | All four sections |
 | Flood only (4) | All five sections | `no-slr-extent` | `outside-enow` | `outside-enow` |
 
 Within an available topic a section can still be unavailable, with its own reason (see [Reason codes](#reason-codes)). Which ones actually occur is in each snapshot file, and the pipeline prints them (`gaps`) when it writes one. Marine jobs at risk is not a section for any county.
@@ -234,13 +234,13 @@ The ENOW, Total Economy and self-employed series come from NOAA's Quick Report A
 
 - **Marine economy.** Sectors are Living resources, Marine construction, Marine transportation, Offshore mineral resources, Ship and boat building and Tourism and recreation. The headline row is ENOW's "Ocean Economy" total, which is not the sum of the sectors when one is withheld (ENOW's own note), so it is used as published. The marine share of jobs divides ocean jobs by the county's all-industry jobs in the same year (2021), from the shoreline series, or the watershed series for a delta county.
 - **Total economy.** Eleven sectors from the all-industry series. "Share of all employment in California" divides by all of California in the same year. The average wage is wages divided by jobs. Total jobs are employed (QCEW jobs) plus self-employed (Nonemployer Statistics, county total), and each sector's self-employed is the sum of its 2-digit NAICS codes (Financial activities is 52 and 53, Trade, transportation and utilities is 22, 42, 44-45 and 48-49, and so on; public administration has no nonemployers and is a true zero). A sector with a withheld code is withheld.
-- **Withheld, zero, no jobs.** A withheld value is `{"suppressed": true}`. A total that has a withheld component is `{value, partial: true}`. A sector with zero jobs in the county has no average wage: it is left out of the wages dot plot and named in `noJobs`, with a footnote that says it is a zero and not withheld.
+- **Withheld, zero, no jobs.** A withheld value is `{"suppressed": true}`. A total that has a withheld component is `{value, partial: true}`. A sector with zero jobs in the county has no average wage: it is left out of the wages dot plot and named in `noJobs`. The slide says nothing about it; `/county-profiles/about/#sectors-not-shown` explains it once for every county.
 
 ### Land cover
 
 `ccap.js` reads the county's window from both epochs, scan-fills the block polygons, the SFHA and each SLR extent onto the 30 m grid in the raster's own equal-area projection (EPSG:5070, so a pixel is exactly 900 m2), and counts each pixel once, by its 2016 class. Land is any class except background and open water. Developed is C-CAP classes 2 to 5, wetland 13 to 18 plus the aquatic beds (22, 23), upland 8 to 12 plus tundra, and other is the remaining land. *A Better Future is a Greener Future* is development added 1996 to 2016 (developed in 2016, not in 1996) as a share of land developed by 2016, inside and outside the floodplain; the callout is the natural share (wetland plus upland) of the land in the floodplain. *Creating a Better Future* is land inundated at each increment, combined (ocean-connected plus low-lying), by wetland, upland and other. Pixels C-CAP left as background inside a county's land blocks are counted; if they are most of the county the natural sections are `source-geography`.
 
-### The intersect (`method` 2)
+### The intersect (`method` 1)
 
 Every hazard test is made at block level (15-digit GEOID) and only then rolled up to the county, so a floodplain crossing a census tract is not smeared across the tract's dry land. `method` 1 apportions each block's people and jobs by **areal share**: the fraction of the block's own polygon inside the hazard mask, so a block that straddles an irregular boundary is not counted as wholly in or wholly out. The same rule applies to every mask: the SFHA and, for sea level rise, NOAA's ocean-connected inundation and connected-plus-low-lying at 2/4/6/8/10 ft (eleven masks). The block-point figures (TIGER's `INTPTLON`/`INTPTLAT` internal point tested against the polygons) are computed alongside and kept in the run's diagnostics report, not published; see [`DECISIONS.md`](DECISIONS.md#areal-apportionment-is-the-published-method-for-every-hazard-mask) for why and for the checks (disjoint, nested, unclamped, no clipping failures) and the run time.
 

@@ -4,7 +4,7 @@
   "county": "Lake",
   "tier": "flood-only",
   "snapshot": "2026-09-24",
-  "method": 2,
+  "method": 1,
   "generated": "2026-09-24T11:04:47Z",
   "gauge": null,
   "geometry": null,

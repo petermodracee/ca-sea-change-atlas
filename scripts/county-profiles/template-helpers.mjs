@@ -120,7 +120,7 @@ export function barChart(items, format) {
 // type's total); site/js/county-deck.js shows one state's segments/label per row at a time, exactly
 // like the timing chart's threshold overlays.
 export function stackedByIncrement(items, increments) {
-  const plotW = 820, rowGap = 24, top = 8, axisH = 40, labelGap = 20, mr = 90;
+  const plotW = 820, rowGap = 24, top = 8, axisH = 70, labelGap = 20, mr = 90;
   const plotX = labelColumnWidth(items.map((it) => it.label)) + labelGap;
   const domainMax = Math.max(max(items, (it) => it.total) || 1, 1);
   const x = scaleLinear().domain([0, domainMax]).range([0, plotW]);
@@ -159,7 +159,7 @@ export function stackedByIncrement(items, increments) {
   });
   const height = top + items.length * (rowH + rowGap) - rowGap + axisH;
   return {
-    width: plotX + plotW + mr, height, plotX, plotW, barH: rowH, axisY: height - axisH,
+    width: plotX + plotW + mr, height, plotX, plotW, barH: rowH, axisY: height - axisH, axisTitle: "Number of facilities of each type",
     rows,
     ticks: x.ticks(4).map((t) => ({ x: +x(t).toFixed(1), label: compact(t, false) })),
   };
@@ -172,11 +172,14 @@ export function stackedByIncrement(items, increments) {
 // labels sit in a left column; `keyLabel` (computed by the caller, since only it knows which share
 // matters — e.g. "share inside the floodplain", "natural share") is the one value drawn at the end
 // of the bar, NOAA-style. Every segment's exact value is in its own tooltip and the data table.
-export function stackedBars(rows, format) {
+// `opts`: {unit} appended to every segment's text ("3.6 sq mi"), {axisTitle} drawn under the ticks and
+// {keyTitle} above the end-of-bar labels, so a bar's percentage and its scale are both named on the chart.
+export function stackedBars(rows, format, opts = {}) {
   // mr leaves room for the end-of-bar key-label text: without .nice() the fullest bar's segment
   // now reaches (almost) exactly to plotW, so the label needs real space past the plot area, not
   // just a few px of breathing room.
-  const plotW = 820, rowGap = 24, top = 8, axisH = 40, labelGap = 20, mr = 96;
+  const plotW = 820, rowGap = 24, axisH = 40 + (opts.axisTitle ? 30 : 0), labelGap = 20, mr = 96;
+  const top = 8 + (opts.keyTitle ? 26 : 0);
   const plotX = labelColumnWidth(rows.map((r) => r.label)) + labelGap;
   const totals = rows.map((r) => sum(r.segments, (s) => (s.suppressed ? 0 : s.value)));
   const domainMax = Math.max(max(totals) || 1, 1);
@@ -191,15 +194,16 @@ export function stackedBars(rows, format) {
     const segs = r.segments.map((s, k) => {
       const w = s.suppressed ? 0 : Math.max(+x(s.value).toFixed(1), 0);
       const isLast = k === r.segments.length - 1 || r.segments.slice(k + 1).every((s2) => s2.suppressed || s2.value === 0);
-      const seg = { label: s.label, x: cx, w, suppressed: s.suppressed, text: s.suppressed ? "withheld" : num(s.value), path: rectPath(cx, 0, w, BAR_H, isLast) };
+      const seg = { label: s.label, x: cx, w, suppressed: s.suppressed, text: s.suppressed ? "withheld" : num(s.value) + (opts.unit ? " " + opts.unit : ""), path: rectPath(cx, 0, w, BAR_H, isLast) };
       cx += w + (k < r.segments.length - 1 && w > 0 ? GAP_PX : 0);
       return seg;
     });
-    return { label: r.label, labelY: y0 + BAR_H / 2 + 7, barY, midY: y0 + BAR_H / 2, keyLabel: r.keyLabel, segments: segs };
+    return { label: r.label, labelY: y0 + BAR_H / 2 + 7, barY, midY: y0 + BAR_H / 2, keyLabel: r.keyLabel, keyTip: r.keyTip || "", segments: segs };
   });
   const height = top + rows.length * (rowH + rowGap) - rowGap + axisH;
   return {
     width: plotX + plotW + mr, height, plotX, plotW, barH: BAR_H, axisY: height - axisH,
+    axisTitle: opts.axisTitle || "", keyTitle: opts.keyTitle || "", keyX: plotW + 10,
     rows: built,
     ticks: x.ticks(4).map((t) => ({ x: +x(t).toFixed(1), label: compact(t, format === "usd") })),
   };

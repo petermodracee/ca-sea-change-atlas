@@ -791,6 +791,7 @@ legend{
 /* The end-of-bar value sits at the bar's own vertical centre (see barChart()/stackedBars()' midY),
    not baseline-minus-a-few-px, which used to read slightly low against the bar. */
 .cp-bar-value{fill:var(--ink);font-weight:600;dominant-baseline:middle;}
+.cp-axis-title{font-size:20px;fill:var(--ink-soft);font-family:'IBM Plex Sans',system-ui,sans-serif;}
 .cp-withheld{font-style:italic;text-decoration:underline dotted;dominant-baseline:middle;}
 .cp-legend{list-style:none;display:flex;flex-wrap:wrap;gap:4px 16px;padding:0;margin:0 0 8px;font-size:12.5px;color:var(--ink-soft);}
 .cp-swatch{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px;}

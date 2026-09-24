@@ -4,8 +4,8 @@
   "county": "Yolo",
   "tier": "delta",
   "snapshot": "2026-09-24",
-  "method": 2,
-  "generated": "2026-09-24T11:03:11Z",
+  "method": 1,
+  "generated": "2026-09-24T20:46:32Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -64,6 +64,13 @@
       "retrieved": "2026-09-24",
       "verified": "2026-09-24"
     },
+    "slr": {
+      "label": "NOAA Sea Level Rise Viewer inundation extents",
+      "url": "https://coast.noaa.gov/slrdata/",
+      "vintage": null,
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
     "lodes": {
       "label": "LEHD LODES8 workplace area characteristics",
       "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ca/wac/",
@@ -81,6 +88,16 @@
         "kind": "period",
         "start": "1996-01-01",
         "end": "2016-12-31"
+      },
+      "retrieved": "2026-09-24",
+      "verified": "2026-09-24"
+    },
+    "opc": {
+      "label": "California OPC State Sea Level Rise Guidance, Appendix F",
+      "url": "https://www.oceansciencetrust.org/in-practice/2024slrguidance",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
       },
       "retrieved": "2026-09-24",
       "verified": "2026-09-24"
@@ -289,9 +306,297 @@
       }
     },
     "slr": {
-      "available": false,
-      "reason": "no-slr-extent",
-      "sections": {}
+      "available": true,
+      "reason": null,
+      "sections": {
+        "people-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "acs",
+            "tiger",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "measures": [
+              {
+                "label": "Population",
+                "unit": "residents",
+                "total": 220564,
+                "counts": [
+                  24,
+                  30,
+                  37,
+                  48,
+                  81
+                ],
+                "countsWithLow": [
+                  1543,
+                  1873,
+                  5550,
+                  13801,
+                  22803
+                ]
+              },
+              {
+                "label": "Aged 65 and over",
+                "unit": "residents aged 65 and over",
+                "total": 29712,
+                "counts": [
+                  2,
+                  3,
+                  4,
+                  5,
+                  8
+                ],
+                "countsWithLow": [
+                  202,
+                  239,
+                  630,
+                  1579,
+                  2460
+                ]
+              },
+              {
+                "label": "Below the poverty line",
+                "unit": "residents below the poverty line",
+                "total": 35478,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  1,
+                  3
+                ],
+                "countsWithLow": [
+                  19,
+                  26,
+                  265,
+                  894,
+                  1616
+                ]
+              }
+            ]
+          }
+        },
+        "critical-facilities": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "usgs",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "measures": [
+              {
+                "label": "Schools",
+                "unit": "facilities",
+                "total": 69,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  3,
+                  5
+                ]
+              },
+              {
+                "label": "Police stations",
+                "unit": "facilities",
+                "total": 6,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "label": "Fire stations",
+                "unit": "facilities",
+                "total": 29,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  2,
+                  3
+                ]
+              },
+              {
+                "label": "Medical facilities",
+                "unit": "facilities",
+                "total": 2,
+                "counts": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+                "countsWithLow": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        },
+        "jobs-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "lodes",
+            "tiger",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "total": 106424,
+            "counts": [
+              270,
+              511,
+              588,
+              698,
+              1281
+            ],
+            "countsWithLow": [
+              937,
+              1397,
+              1970,
+              3885,
+              8530
+            ]
+          }
+        },
+        "natural-landscapes": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "ccap",
+            "slr"
+          ],
+          "data": {
+            "increments": [
+              2,
+              4,
+              6,
+              8,
+              10
+            ],
+            "classes": [
+              {
+                "label": "Wetlands",
+                "values": [
+                  3.4,
+                  6.6,
+                  9.6,
+                  12.7,
+                  15.2
+                ]
+              },
+              {
+                "label": "Upland",
+                "values": [
+                  0.3,
+                  0.6,
+                  0.9,
+                  1.3,
+                  2
+                ]
+              },
+              {
+                "label": "Other",
+                "values": [
+                  40.8,
+                  49.1,
+                  59.2,
+                  72.8,
+                  103.1
+                ]
+              }
+            ]
+          }
+        },
+        "when-to-act": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "opc"
+          ],
+          "data": {}
+        }
+      }
     },
     "total-economy": {
       "available": false,

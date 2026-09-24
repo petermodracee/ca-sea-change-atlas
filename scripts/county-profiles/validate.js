@@ -203,9 +203,9 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
           if (!isStr(c.label)) fail(where + ".data.classes[" + i + "].label is required");
           perIncrement(c.values, where + ".data.classes[" + i + "].values");
         });
-        incs.forEach((_, k) => {
-          if (data.classes.reduce((s, c) => s + c.values[k], 0) <= 0) fail(where + ".data.classes sum to nothing at increment " + incs[k]);
-        });
+        // A low increment can inundate no land at all (a real zero, shown as such); the highest must
+        // inundate some, or the section is `no-slr-extent`, not a chart of nothing.
+        if (data.classes.reduce((s, c) => s + c.values[incs.length - 1], 0) <= 0) fail(where + ".data.classes sum to nothing at the highest increment; use the no-slr-extent reason instead");
         break;
       case "increment-single":
         checkIncs();

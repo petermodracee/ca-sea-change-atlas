@@ -4,7 +4,7 @@
   "county": "Monterey",
   "tier": "full",
   "snapshot": "2026-09-24",
-  "method": 2,
+  "method": 1,
   "generated": "2026-09-24T11:18:23Z",
   "gauge": {
     "id": "monterey",
