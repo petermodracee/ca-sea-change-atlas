@@ -140,9 +140,12 @@ export function stackedByIncrement(items, increments) {
       const rw = Math.max(+x(rest).toFixed(1), 0);
       const xX = ew + (xw > 0 && ew > 0 ? GAP_PX : 0);
       const restX = xX + xw + (rw > 0 && (ew > 0 || xw > 0) ? GAP_PX : 0);
-      const tip = [it.label + " at " + ft + " ft", it.countsLow ? "Ocean-connected: " + num(conn) : "Exposed: " + num(conn)]
-        .concat(it.countsLow ? ["Additional low-lying: " + num(extra)] : [])
-        .concat(["Not yet exposed: " + num(rest)]).join("\n");
+      // Each segment's tooltip names only that segment's own value, like every other chart's
+      // per-mark tooltip; the combined total is the bar's visible end label.
+      const at = it.label + " at " + ft + " ft: ";
+      const exposedTip = at + (it.countsLow ? "ocean-connected " : "exposed ") + num(conn);
+      const extraTip = at + "additional low-lying " + num(extra);
+      const restTip = at + "not yet exposed " + num(rest);
       return {
         ft,
         exposedPath: conn > 0 ? rectPath(0, 0, ew, rowH, xw <= 0 && rw <= 0) : "",
@@ -152,7 +155,7 @@ export function stackedByIncrement(items, increments) {
         keyLabel: num(total),
         connLabel: num(conn),
         lowLabel: it.countsLow ? num(total) : null,
-        tip,
+        exposedTip, extraTip, restTip,
       };
     });
     return { label: it.label, total: num(it.total), labelY: y0 + rowH / 2 + 7, midY: y0 + rowH / 2, barY: y0, states };
@@ -321,7 +324,9 @@ export function groupedColumns(items, seriesLabels) {
         labelX: x + colW / 2,
         labelY: VALUE_LABEL_Y,
         isLast,
-        tip: (seriesLabels ? seriesLabels[i] + ": " : "") + it.label + " " + text + (hasLow ? "\nOcean-connected: " + v.connText + "\nAdditional low-lying: " + num(v.low - v.value) : ""),
+        // One value per mark: the solid part and the dashed low-lying part each name only themselves.
+        tip: (seriesLabels ? seriesLabels[i] + ": " : "") + it.label + " " + (hasLow ? "ocean-connected " + v.connText : text),
+        extraTip: hasLow ? (seriesLabels ? seriesLabels[i] + ": " : "") + it.label + " additional low-lying " + num(v.low - v.value) : "",
       };
     });
     return { label: it.label, labelX: ml + gi * band + band / 2, labelY: H - mb + 40, cols };

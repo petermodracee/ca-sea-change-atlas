@@ -198,7 +198,7 @@
     additional low-lying part a lighter dashed segment stacked on it. The label above is the combined
     total; the tooltip and the data table give both parts. -#}
 <path class="cpd-col cpd-ramp-{{ c.s }}{% if c.s == 0 %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.tip }}" d="{{ c.path }}"/>
-{%- if c.extraPath %}<path class="cpd-col-extra{% if c.s == 0 %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.tip }}" d="{{ c.extraPath }}"/>{% endif %}
+{%- if c.extraPath %}<path class="cpd-col-extra{% if c.s == 0 %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.extraTip }}" d="{{ c.extraPath }}"/>{% endif %}
 <text class="cpd-vlabel" data-cpd-collabel="{{ increments[c.s] if increments else '' }}" x="{{ c.labelX }}" y="{{ c.labelY }}" text-anchor="middle"{% if c.s != 0 %} hidden{% endif %}>{{ c.text }}</text>
 {%- endif %}
 {%- endfor %}
@@ -238,9 +238,9 @@
 {%- for row in g.rows %}
 {%- for st in row.states %}
 <g data-cpd-fac-state="{{ st.ft }}"{% if not loop.first %} hidden{% endif %}>
-{%- if st.exposedPath %}<path class="cp-bar cp-bar-s0" data-tip="{{ st.tip }}" transform="translate(0,{{ row.barY }})" d="{{ st.exposedPath }}"/>{% endif %}
-{%- if st.extraPath %}<path class="cp-bar cp-bar-extra" data-tip="{{ st.tip }}" transform="translate(0,{{ row.barY }})" d="{{ st.extraPath }}"/>{% endif %}
-{%- if st.restPath %}<path class="cp-bar cp-bar-not-exposed" data-tip="{{ st.tip }}" transform="translate(0,{{ row.barY }})" d="{{ st.restPath }}"/>{% endif %}
+{%- if st.exposedPath %}<path class="cp-bar cp-bar-s0" data-tip="{{ st.exposedTip }}" transform="translate(0,{{ row.barY }})" d="{{ st.exposedPath }}"/>{% endif %}
+{%- if st.extraPath %}<path class="cp-bar cp-bar-extra" data-tip="{{ st.extraTip }}" transform="translate(0,{{ row.barY }})" d="{{ st.extraPath }}"/>{% endif %}
+{%- if st.restPath %}<path class="cp-bar cp-bar-not-exposed" data-tip="{{ st.restTip }}" transform="translate(0,{{ row.barY }})" d="{{ st.restPath }}"/>{% endif %}
 <text class="cp-bar-value" x="{{ st.vx }}" y="{{ row.midY }}">{{ st.keyLabel }}</text>
 </g>
 {%- endfor %}
