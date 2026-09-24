@@ -43,7 +43,7 @@
     },
     "no-slr-extent": {
       "label": "No SLR extent",
-      "rule": "No significant sea level rise inundation extent in this county, so there is nothing to intersect."
+      "rule": "No significant sea level rise inundation extent in this county, so there is nothing to intersect. The flood-only tier's rule; also the section-level reason if NOAA's data has no polygon in a county that should have some."
     },
     "no-nfhl-coverage": {
       "label": "No NFHL coverage",
@@ -52,10 +52,6 @@
     "source-geography": {
       "label": "Not in source",
       "rule": "The source dataset does not extend to this geography."
-    },
-    "pending-phase-3": {
-      "label": "Ships in Phase 3",
-      "rule": "A section whose source (NOAA ENOW or C-CAP land cover) is not in the data pipeline yet. It is built in Phase 3, and this reason is removed from the section when it ships. Used on sections only, never as a tier rule; until then the site fills the section from the county's fixture, marked as placeholder."
     }
   },
 
@@ -72,10 +68,10 @@
     },
     "delta": {
       "label": "Delta",
-      "summary": "Flood hazard and marine economy. No sea level rise, and no total economy: these counties are on ENOW's list but outside its shore-adjacent definition.",
+      "summary": "Flood hazard, sea level rise and marine economy. No total economy: these counties are on ENOW's list but outside its shore-adjacent definition. Their sea level rise comes from NOAA's Delta inundation file.",
       "topics": {
         "flood": { "available": true, "reason": null },
-        "slr": { "available": false, "reason": "no-slr-extent" },
+        "slr": { "available": true, "reason": null },
         "total-economy": { "available": false, "reason": "not-shore-adjacent" },
         "marine-economy": { "available": true, "reason": null }
       }
@@ -102,7 +98,7 @@
     "increment-single": "data: {increments, total, counts: [one per increment], countsWithLow?: [one per increment]}. No visual; `countsWithLow` as for increment-bars.",
     "stats": "data: {establishments, jobs, wages, gdp, denominator}. Four figures; each may be suppressed except `denominator`. No prose of its own.",
     "sector-measures": "data: {sectors: [{label, establishments, wages, employment, gdp}]}. Renders as four 100%-stacked horizontal bars, one per measure, sharing one sector order and colour set. Any sector value may be suppressed per measure; a withheld segment is a marked placeholder, not a gap.",
-    "sector-wages": "data: {items: [{label, county, coastalState, coastalUS}]}. A dot plot: one row per sector, one dot each for county, coastal California and coastal U.S. average wage. Any value may be suppressed.",
+    "sector-wages": "data: {items: [{label, county, coastalState, coastalUS}], noJobs?: [label]}. A dot plot: one row per sector, one dot each for county, coastal California and coastal U.S. average wage. Any value may be suppressed. A sector the county has no jobs in has no average to draw (a real zero, not a withheld value): it is left out of `items` and named in `noJobs`; the slide says nothing about it, and the about page explains it once.",
     "jobs-equation": "data: {employed, selfEmployed, total: {value, partial}, sectors: [{label, selfEmployed}]}. Any count may be suppressed.",
     "stat-pair": "data: {sfha: {count, total}, slr6: {count, total}}. Two counts, no callout. `slr6` is the combined (ocean-connected plus low-lying) count at 6 ft, the same series the sea level rise topic draws.",
     "timing": "data: {}. Computed at build from the gauge and the OPC reference file; not stored."

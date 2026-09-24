@@ -48,8 +48,7 @@
 {% macro bars(uid, items, format, series, title) %}
 {%- set g = items | barChart(format) %}
 <p class="cpd-chart-title">{{ title }}</p>
-<div class="cpd-chart" data-cpd-tips><svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
-<title id="{{ uid }}-t">{{ title }}</title>
+<div class="cpd-chart" data-cpd-tips><svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}: {% for b in row.bars %}{% if series.length %}{{ series[b.s] }} {% endif %}{{ b.tip }}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
 <g transform="translate({{ g.plotX }},0)">
 {%- for t in g.ticks %}
@@ -88,16 +87,16 @@
     critical facilities, "natural share" for land cover) — NOAA's end-of-bar convention; every
     segment's exact value is in its own tooltip (sparse enough for the native <title>) and the data
     table. -#}
-{% macro stackedBars(uid, rows, format, legend, title, segClasses) %}
-{%- set g = rows | stackedBars(format) %}
+{% macro stackedBars(uid, rows, format, legend, title, segClasses, opts) %}
+{%- set g = rows | stackedBars(format, opts or {}) %}
 <p class="cpd-chart-title">{{ title }}</p>
 <div class="cpd-chart" data-cpd-tips>
-    <svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
-        <title id="{{ uid }}-t">{{ title }}</title>
+    <svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 
         <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}: {% for seg in row.segments %}{{ legend[loop.index0] }} {{ seg.text }}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
 
         <g transform="translate({{ g.plotX }},0)">
+            {%- if g.keyTitle %}<text class="cp-axis-title" x="{{ g.keyX }}" y="14">{{ g.keyTitle }}</text>{% endif %}
             {%- for t in g.ticks %}
                 <line class="cp-grid" x1="{{ t.x }}" x2="{{ t.x }}" y1="0" y2="{{ g.axisY }}"/>
                 <text class="cp-tick" x="{{ t.x }}" y="{{ g.axisY + 26 }}" text-anchor="middle">{{ t.label }}</text>
@@ -107,11 +106,12 @@
                     {%- if seg.suppressed %}
                         <text class="cp-withheld" x="{{ seg.x + 2 }}" y="{{ row.midY }}">withheld</text>
                     {%- else %}
-                        <path class="cp-bar {{ segClasses[loop.index0] if segClasses else ('cp-bar-s' + loop.index0) }}" data-tip="{{ row.label }} — {{ legend[loop.index0] }}: {{ seg.text }}" transform="translate(0,{{ row.barY }})" d="{{ seg.path }}"/>
+                        <path class="cp-bar {{ segClasses[loop.index0] if segClasses else ('cp-bar-s' + loop.index0) }}" data-tip="{{ row.label }} — {{ legend[loop.index0] }}: {{ seg.text }}{% if row.keyTip %}&#10;{{ row.keyTip }}{% endif %}" transform="translate(0,{{ row.barY }})" d="{{ seg.path }}"/>
                     {%- endif %}
                 {%- endfor %}
                 <text class="cp-bar-value" x="{{ (row.segments | last).x + (row.segments | last).w + 10 }}" y="{{ row.midY }}">{{ row.keyLabel }}</text>
             {%- endfor %}
+            {%- if g.axisTitle %}<text class="cp-axis-title" x="{{ g.plotW / 2 }}" y="{{ g.height - 6 }}" text-anchor="middle">{{ g.axisTitle }}</text>{% endif %}
         </g>
         {%- for row in g.rows %}
             <text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}</text>
@@ -147,8 +147,7 @@
 <p class="cpd-chart-title">{{ title }}</p>
 
 <div class="cpd-chart" data-cpd-tips>
-    <svg class="cp-bars cp-bars-100" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
-    <title id="{{ uid }}-t">{{ title }}</title>
+    <svg class="cp-bars cp-bars-100" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
     <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}, by sector: {% for seg in row.segments %}{{ legend[loop.index0] }} {% if seg.suppressed %}withheld{% else %}{{ seg.pctText }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
     {%- for row in g.rows %}
         <text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}</text>
@@ -184,8 +183,7 @@
 {%- set g = items | groupedColumns(legend) %}
 <p class="cpd-chart-title">{{ title }}</p>
 <div class="cpd-chart-row">
-<div class="cpd-chart" data-cpd-tips><svg class="cpd-col-chart" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
-<title id="{{ uid }}-t">{{ title }}</title>
+<div class="cpd-chart" data-cpd-tips><svg class="cpd-col-chart" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <desc id="{{ uid }}-d">{% for grp in g.groups %}{{ grp.label }}: {% for c in grp.cols %}{{ legend[loop.index0] }} {% if c.suppressed %}withheld{% else %}{{ c.text }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
 {%- for t in g.ticks %}
 <line class="cpd-grid" x1="{{ g.ml }}" x2="{{ g.width - g.mr }}" y1="{{ t.y }}" y2="{{ t.y }}"/>
@@ -199,9 +197,9 @@
 {#- With a low-lying series the column is the combined count: the ocean-connected part solid, the
     additional low-lying part a lighter dashed segment stacked on it. The label above is the combined
     total; the tooltip and the data table give both parts. -#}
-<path class="cpd-col cpd-ramp-{{ c.s }}{% if c.isLast %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.tip }}" d="{{ c.path }}"/>
-{%- if c.extraPath %}<path class="cpd-col-extra{% if c.isLast %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.tip }}" d="{{ c.extraPath }}"/>{% endif %}
-<text class="cpd-vlabel" data-cpd-collabel="{{ increments[c.s] if increments else '' }}" x="{{ c.labelX }}" y="{{ c.labelY }}" text-anchor="middle"{% if not c.isLast %} hidden{% endif %}>{{ c.text }}</text>
+<path class="cpd-col cpd-ramp-{{ c.s }}{% if c.s == 0 %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.tip }}" d="{{ c.path }}"/>
+{%- if c.extraPath %}<path class="cpd-col-extra{% if c.s == 0 %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.extraTip }}" d="{{ c.extraPath }}"/>{% endif %}
+<text class="cpd-vlabel" data-cpd-collabel="{{ increments[c.s] if increments else '' }}" x="{{ c.labelX }}" y="{{ c.labelY }}" text-anchor="middle"{% if c.s != 0 %} hidden{% endif %}>{{ c.text }}</text>
 {%- endif %}
 {%- endfor %}
 <text class="cpd-glabel" x="{{ grp.labelX }}" y="{{ grp.labelY }}" text-anchor="middle">{{ grp.label }}</text>
@@ -209,7 +207,7 @@
 <line x1="{{ g.ml }}" x2="{{ g.width - g.mr }}" y1="{{ g.axisY }}" y2="{{ g.axisY }}" style="stroke:var(--ink-soft);stroke-width:1.5"/>
 </svg>
 </div>
-{%- if increments %}{{ incrementSlider(uid, increments, increments[increments.length - 1], 'data-cpd-col-incs', g.mt / g.width, (g.height - g.axisY) / g.width) }}{% endif %}
+{%- if increments %}{{ incrementSlider(uid, increments, increments[0], 'data-cpd-col-incs', g.mt / g.width, (g.height - g.axisY) / g.width) }}{% endif %}
 </div>
 <ul class="cpd-legend" aria-hidden="true">{% for name in legend %}<li><span class="cpd-swatch cpd-ramp-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}{% if g.groups[0].cols[0].hasLow %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}</ul>
 <h4 class="sr-only">{{ title }} — data table</h4>
@@ -230,8 +228,7 @@
 {%- set g = items | stackedByIncrement(increments) %}
 <p class="cpd-chart-title">{{ title }}</p>
 <div class="cpd-chart-row">
-<div class="cpd-chart" data-cpd-tips><svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
-<title id="{{ uid }}-t">{{ title }}</title>
+<div class="cpd-chart" data-cpd-tips><svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }} ({{ row.total }} total): {% for st in row.states %}{{ st.ft }} ft {{ st.connLabel }} exposed{% if st.lowLabel %} ({{ st.lowLabel }} with low-lying areas){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
 <g transform="translate({{ g.plotX }},0)">
 {%- for t in g.ticks %}
@@ -241,13 +238,14 @@
 {%- for row in g.rows %}
 {%- for st in row.states %}
 <g data-cpd-fac-state="{{ st.ft }}"{% if not loop.first %} hidden{% endif %}>
-{%- if st.exposedPath %}<path class="cp-bar cp-bar-s0" data-tip="{{ st.tip }}" transform="translate(0,{{ row.barY }})" d="{{ st.exposedPath }}"/>{% endif %}
-{%- if st.extraPath %}<path class="cp-bar cp-bar-extra" data-tip="{{ st.tip }}" transform="translate(0,{{ row.barY }})" d="{{ st.extraPath }}"/>{% endif %}
-{%- if st.restPath %}<path class="cp-bar cp-bar-not-exposed" data-tip="{{ st.tip }}" transform="translate(0,{{ row.barY }})" d="{{ st.restPath }}"/>{% endif %}
+{%- if st.exposedPath %}<path class="cp-bar cp-bar-s0" data-tip="{{ st.exposedTip }}" transform="translate(0,{{ row.barY }})" d="{{ st.exposedPath }}"/>{% endif %}
+{%- if st.extraPath %}<path class="cp-bar cp-bar-extra" data-tip="{{ st.extraTip }}" transform="translate(0,{{ row.barY }})" d="{{ st.extraPath }}"/>{% endif %}
+{%- if st.restPath %}<path class="cp-bar cp-bar-not-exposed" data-tip="{{ st.restTip }}" transform="translate(0,{{ row.barY }})" d="{{ st.restPath }}"/>{% endif %}
 <text class="cp-bar-value" x="{{ st.vx }}" y="{{ row.midY }}">{{ st.keyLabel }}</text>
 </g>
 {%- endfor %}
 {%- endfor %}
+<text class="cp-axis-title" x="{{ g.plotW / 2 }}" y="{{ g.height - 6 }}" text-anchor="middle">{{ g.axisTitle }}</text>
 </g>
 {%- for row in g.rows %}
 <text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}</text>
@@ -272,8 +270,7 @@
 {% macro dots(uid, items, series, title) %}
 {%- set g = items | dotPlot(series) %}
 <p class="cpd-chart-title">{{ title }}</p>
-<div class="cpd-chart cpd-chart-dotplot" data-cpd-tips><svg viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
-<title id="{{ uid }}-t">{{ title }}</title>
+<div class="cpd-chart cpd-chart-dotplot" data-cpd-tips><svg viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}: {% for d in row.dots %}{{ series[loop.index0] }} {% if d.suppressed %}withheld{% else %}{{ d.text }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
 {%- for t in g.ticks %}
 <line class="cpd-grid" x1="{{ t.x }}" x2="{{ t.x }}" y1="0" y2="{{ g.axisY }}"/>
@@ -314,7 +311,7 @@
 <div class="cpd-timing-stage">
 <div data-cpd-pane="chart" class="cpd-pane">
 <div class="cpd-chart-row">
-<div class="cpd-chart"><svg viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
+<div class="cpd-chart"><svg viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <title id="{{ uid }}-t">Projected sea level rise at the {{ county.gaugeName }} tide gauge, 2000 to 2150, by scenario</title>
 <desc id="{{ uid }}-d">Feet of sea level rise above 2000, for the Intermediate, Intermediate-High and High scenarios. The year each increment is reached is in the table.</desc>
 {%- for t in g.yTicks %}

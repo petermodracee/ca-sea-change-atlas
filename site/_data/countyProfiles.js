@@ -47,28 +47,10 @@ function load(dir, fixture) {
 const latest = load(path.join(__dirname, "..", "data", "county-profiles", "latest"), false);
 const fixtures = load(path.join(__dirname, "countyProfileFixtures"), true);
 
-// A real snapshot marks a section it cannot compute yet (its source, ENOW or C-CAP, is not in the
-// pipeline) unavailable with the `pending-phase-3` reason. The pages keep showing that slot from
-// the county's fixture until the pipeline ships it, so a county flips from fixture to real one
-// section's source at a time with no template change. Each filled section carries `placeholder:
-// true` and is labelled as placeholder on the page (see buildTopicSections). The snapshot file itself
-// is untouched: the JSON download still says "unavailable, ships in Phase 3".
-const PENDING = "pending-phase-3";
-function withPlaceholders(real, fixture) {
-  if (!fixture) return real;
-  const profile = JSON.parse(JSON.stringify(real));
-  for (const topic of schema.topics) {
-    const sections = profile.topics[topic.id].sections;
-    for (const def of topic.sections) {
-      const sec = sections[def.id];
-      const stand = fixture.topics[topic.id].sections[def.id];
-      if (!sec || sec.available || sec.reason !== PENDING || !stand || !stand.available) continue;
-      sections[def.id] = { ...JSON.parse(JSON.stringify(stand)), placeholder: true };
-      for (const key of stand.sources) if (!profile.sources[key]) profile.sources[key] = fixture.sources[key];
-    }
-  }
-  return profile;
-}
+// A county with no snapshot in latest/ falls back to a hand-written fixture if one exists (none ships
+// since Phase 3: all 27 counties have a real snapshot). A section the pipeline could not compute is
+// unavailable in the snapshot itself, with a reason from the schema's closed set, and renders as a
+// dashed block stating it in position.
 
 // --- per-county derivations ------------------------------------------------------------------------
 
@@ -96,10 +78,6 @@ function buildTopicSections(profile, topicDef) {
       const sec = topic.sections[def.id];
       if (!sec.use.ui) return null;
       const model = sec.available ? buildSectionModel({ county: profile.county, topicId: topicDef.id, def, data: sec.data, increments }) : null;
-      if (model && sec.placeholder) {
-        const note = "Placeholder figures, not measurements of " + profile.county + " County: this section's data source is not in the pipeline yet and ships in Phase 3.";
-        model.footnote = model.footnote ? note + " " + model.footnote : note;
-      }
       return { def, sec, model };
     })
     .filter(Boolean);
@@ -108,15 +86,14 @@ function buildTopicSections(profile, topicDef) {
 // The headline figure for a topic (its first available section with a callout), used on the
 // county landing page.
 function headlineOf(sections) {
-  const first = sections.find((s) => s.sec.available && !s.sec.placeholder && s.model && s.model.callout);
+  const first = sections.find((s) => s.sec.available && s.model && s.model.callout);
   return first ? first.model.callout : null;
 }
 
 // Which section titles in a topic are invented fixture data: every available section of a fixture
-// (except the timing table, which is real, computed from the OPC file) and any section a real
-// snapshot has filled from a fixture.
+// (except the timing table, which is real, computed from the OPC file).
 function placeholderTitlesOf(sections, wholeFixture) {
-  return sections.filter((s) => s.sec.available && (s.sec.placeholder || (wholeFixture && s.def.kind !== "timing"))).map((s) => s.def.title);
+  return sections.filter((s) => s.sec.available && wholeFixture && s.def.kind !== "timing").map((s) => s.def.title);
 }
 
 function straddleOf(c) {
@@ -137,7 +114,7 @@ function straddleOf(c) {
 const counties = spine.counties
   .map((c) => {
     const real = latest[c.fips] || null;
-    const profile = real ? withPlaceholders(real, fixtures[c.fips] || null) : fixtures[c.fips] || null;
+    const profile = real || fixtures[c.fips] || null;
     const coverage = schema.topics.map((t) => {
       // A snapshot's topic states are validated to equal its tier's rule, so either source gives the same answer.
       const state = profile ? profile.topics[t.id] : schema.tiers[c.tier].topics[t.id];
@@ -172,6 +149,10 @@ const counties = spine.counties
         ...t,
         headline: topicSections[t.id] ? headlineOf(topicSections[t.id]) : null,
         hasPage: Boolean(topicSections[t.id]),
+        // Sections of an available topic that have no data: each states its reason where it sits on
+        // the topic's own page, and is listed on the landing page too, so a gap inside a topic is
+        // as visible as a whole unavailable topic.
+        sectionGaps: (topicSections[t.id] || []).filter((x) => !x.sec.available).map((x) => ({ title: x.def.title, reason: x.sec.reason, reasonLabel: schema.reasons[x.sec.reason].label })),
       })),
       gaugeName: c.gauge ? spine.gauges[c.gauge].name : null,
       straddle,

@@ -50,7 +50,13 @@ function apportionAcs(blocks, acsBg) {
   return { perBlock: out, diag };
 }
 
-function compute({ fips, blocks, nfhl, acs, lodes, usgs, slr, claims, facilityDefs, increments, periods }) {
+function compute({ fips, blocks, nfhl, acs, lodes, usgs, slr, claims, facilityDefs, increments, periods, center }) {
+  // A flood-only or delta county has no sea level rise run: every SLR mask is then empty.
+  const slrIn = slr;
+  slr = {
+    increments: Object.fromEntries(increments.map((ft) => [ft, (slrIn && slrIn.increments[ft]) || []])),
+    low: Object.fromEntries(increments.map((ft) => [ft, (slrIn && slrIn.low[ft]) || []])),
+  };
   const diag = {};
   const timings = {};
   const clock = (name, t0) => { timings[name] = +((Date.now() - t0) / 1000).toFixed(1); };
@@ -83,11 +89,14 @@ function compute({ fips, blocks, nfhl, acs, lodes, usgs, slr, claims, facilityDe
 
   // --- areal fractions for every mask ---
   t = Date.now();
-  const masker = new ArealMasker(blocks, projector([-117.78, 33.68]));
+  const masker = new ArealMasker(blocks, projector(center));
   const frac = {};
   const fdiag = {};
   const run = (name, geoms) => {
     const t0 = Date.now();
+    // An empty mask (no polygon in the county: every county has an SFHA, but a flood-only or delta
+    // county has no SLR run at all) covers nothing; skip the pass over every block.
+    if (!geoms.length) { frac[name] = new Float64Array(N); fdiag[name] = { seconds: 0, blocksTouched: 0, empty: true }; return; }
     const r = masker.fractions(geoms, { sample: 300 });
     if (r.failures) throw new Error("areal fractions for " + name + ": " + r.failures + " intersections failed; refusing to publish a figure that silently treats them as uncovered");
     frac[name] = r.frac;

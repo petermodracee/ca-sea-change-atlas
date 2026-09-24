@@ -25,16 +25,16 @@ class ArealMasker {
   tile(geoms, extent, tileDeg) {
     const tiles = new Map();
     const nx = Math.ceil((extent[2] - extent[0]) / tileDeg), ny = Math.ceil((extent[3] - extent[1]) / tileDeg);
-    const emit = (box, rings) => {
+    const emit = (box, rings, tag) => {
       const ix = Math.min(nx - 1, Math.max(0, Math.floor((box[0] + 1e-9 - extent[0]) / tileDeg)));
       const iy = Math.min(ny - 1, Math.max(0, Math.floor((box[1] + 1e-9 - extent[1]) / tileDeg)));
       const key = ix + "," + iy;
       if (!tiles.has(key)) tiles.set(key, []);
       let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
       for (const [x, y] of rings[0]) { if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
-      tiles.get(key).push({ rings, bbox: [minx, miny, maxx, maxy] });
+      tiles.get(key).push({ rings, bbox: [minx, miny, maxx, maxy], tag });
     };
-    const split = (box, rings) => {
+    const split = (box, rings, tag) => {
       const outer = clipRingToBox(rings[0], box);
       if (!outer.length) return;
       const clipped = [outer];
@@ -42,19 +42,19 @@ class ArealMasker {
       // Boxes are whole numbers of tiles, so split on integer tile counts (float widths can round a
       // child up to its parent's size and recurse forever).
       const cx = Math.round((box[2] - box[0]) / tileDeg), cy = Math.round((box[3] - box[1]) / tileDeg);
-      if (cx <= 1 && cy <= 1) { emit(box, clipped); return; }
+      if (cx <= 1 && cy <= 1) { emit(box, clipped, tag); return; }
       const mx = cx > 1 ? box[0] + Math.floor(cx / 2) * tileDeg : null;
       const my = cy > 1 ? box[1] + Math.floor(cy / 2) * tileDeg : null;
       const xs = mx === null ? [[box[0], box[2]]] : [[box[0], mx], [mx, box[2]]];
       const ys = my === null ? [[box[1], box[3]]] : [[box[1], my], [my, box[3]]];
-      for (const [x0, x1] of xs) for (const [y0, y1] of ys) split([x0, y0, x1, y1], clipped);
+      for (const [x0, x1] of xs) for (const [y0, y1] of ys) split([x0, y0, x1, y1], clipped, tag);
     };
     const ext = [extent[0], extent[1], extent[0] + nx * tileDeg, extent[1] + ny * tileDeg];
     for (const g of geoms) for (const poly of toMulti(g)) {
       let minx = Infinity, miny = Infinity, maxx = -Infinity, maxy = -Infinity;
       for (const [x, y] of poly[0]) { if (x < minx) minx = x; if (x > maxx) maxx = x; if (y < miny) miny = y; if (y > maxy) maxy = y; }
       if (maxx < ext[0] || minx > ext[2] || maxy < ext[1] || miny > ext[3]) continue;
-      split(ext, poly);
+      split(ext, poly, g.region);
     }
     return { tiles, nx, ny, tileDeg, extent };
   }
@@ -82,6 +82,7 @@ class ArealMasker {
       const iy0 = Math.max(0, Math.floor((bb[1] - grid.extent[1]) / grid.tileDeg)), iy1 = Math.min(grid.ny - 1, Math.floor((bb[3] - grid.extent[1]) / grid.tileDeg));
       const box = [bb[0] - 1e-6, bb[1] - 1e-6, bb[2] + 1e-6, bb[3] + 1e-6];
       const cand = [];
+      const tags = new Set();
       for (let x = ix0; x <= ix1; x++) for (let y = iy0; y <= iy1; y++) {
         for (const p of grid.tiles.get(x + "," + y) || []) {
           if (p.bbox[0] > bb[2] || p.bbox[2] < bb[0] || p.bbox[1] > bb[3] || p.bbox[3] < bb[1]) continue;
@@ -90,11 +91,15 @@ class ArealMasker {
           const poly = [outer];
           for (let h = 1; h < p.rings.length; h++) { const r = clipRingToBox(p.rings[h], box); if (r.length) poly.push(r); }
           cand.push(poly);
+          tags.add(p.tag);
         }
       }
       if (!cand.length) continue;
       try {
-        const covered = multiArea(polygonClipping.intersection(this.multi[i], cand), this.proj);
+        // Fragments from different source regions can overlap where the regions meet, so they are
+        // unioned first; fragments from one source never overlap and are intersected directly.
+        const parts = tags.size > 1 ? polygonClipping.union(...cand.map((c) => [c])) : cand;
+        const covered = multiArea(polygonClipping.intersection(this.multi[i], parts), this.proj);
         // Overlap check on a sample of blocks that meet 2+ fragments: the area of each fragment
         // taken alone, summed, must equal the area of them taken together, or the mask overlaps itself.
         if (sample && cand.length > 1 && overlap.sampled < sample && seen++ % 11 === 0) {

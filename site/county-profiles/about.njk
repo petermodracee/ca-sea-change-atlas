@@ -47,8 +47,24 @@ nav: county-profiles
 </section>
 
 <section class="cp-topic" id="withheld">
-<h2>Withheld values</h2>
-<p>ENOW withholds some figures for confidentiality. A withheld value is shown as "withheld", which is different from zero (the count is 0) and from unavailable (there is no data, with a stated reason). A total that has a withheld component is marked incomplete with an asterisk, and so is anything derived from it.</p>
+<h2>Withheld values, zeros and gaps</h2>
+<p>Three different things can stand where a number would be, and the pages never blur them. <strong>Zero</strong> is an answer: a county with no medical facilities in its floodplain shows 0, and a marine sector with no jobs in a county shows none. <strong>Withheld</strong> is a figure the publisher will not release: ENOW hides values it cannot show without identifying an employer (it writes them as "SUP"), and they appear as "withheld". A total that has a withheld component is marked incomplete with an asterisk, and so is anything derived from it. <strong>Unavailable</strong> is a section or topic with no data at all, and it states its reason where the section would be.</p>
+</section>
+
+<section class="cp-topic" id="sectors-not-shown">
+<h2>Sectors that do not appear for some counties</h2>
+<p>The wages chart shows an average wage per job, so a sector with no jobs in a county has nothing to average and is left out of that county's chart without comment. This is a zero, not a withheld value: the data says the county has no jobs in that sector (for example, some inland counties have no tourism and recreation jobs in ENOW's shore-based definition, and several have no ship and boat building). A withheld value is different and is marked as withheld on the chart. The county's counts elsewhere on the page, such as the Business Diversity chart, still show the zero.</p>
+</section>
+
+<section class="cp-topic" id="economy-years">
+<h2>Economy data years</h2>
+<p>Marine economy figures come from NOAA's Economics: National Ocean Watch (ENOW), whose county-level series ends in 2021: the original dataset is paused, and its successor, Open ENOW, reports states and the nation but not counties. The total economy comes from NOAA's Total Economy (Coastal) series (2023) with self-employed workers from the Census Bureau's Nonemployer Statistics (2023). The marine share of a county's jobs divides 2021 marine jobs by the same county's 2021 total jobs, so the two years match. Each figure's source and year is on its own About this data slide.</p>
+<p>The delta counties (Sacramento, San Joaquin and Yolo) are on ENOW's list but are not in the shore-adjacent total economy series, so they have a marine economy and no total economy. Their sea level rise comes from NOAA's Delta inundation file. Lake, San Benito, Sutter and Trinity are in neither ENOW nor NOAA's sea level rise data, and have flood hazard only.</p>
+</section>
+
+<section class="cp-topic" id="land-cover">
+<h2>Land cover</h2>
+<p>The natural-features sections use NOAA's C-CAP regional land cover at 30 metres, the 1996 and 2016 epochs (the newest the regional product offers). Each pixel counts once, by its 2016 class. Wetland is the palustrine and estuarine wetland and aquatic-bed classes; upland is grassland, forest, scrub and shrub; other is developed, cultivated, pasture, bare and shore land. Open water is not counted as land. Development added is developed in 2016 and not in 1996. Inside and outside the floodplain, and inside each sea level rise extent, are pixel counts against the same hazard polygons as every other section.</p>
 </section>
 
 <section class="cp-topic" id="marine-jobs">
@@ -58,9 +74,9 @@ nav: county-profiles
 
 <section class="cp-topic" id="methodology-changelog">
 <h2>Methodology changelog</h2>
-<p>Each profile shows its methodology version ("Version <em>N</em>") on its About this data slide. The version is a monotonic integer, not a date: it increments only when a pipeline change could move a figure while the underlying source data stays the same (switching the intersect method, changing the rollup geography, fixing an aggregation bug), never for a new section, a restyle or an added county. Two snapshots carrying different versions are never joined by a trend line. This page will list what changed at each version once a version 2 exists.</p>
+<p>Each profile shows its methodology version ("Version <em>N</em>") on its About this data slide. The version is a monotonic integer, not a date: it increments only when a pipeline change could move a figure while the underlying source data stays the same (switching the intersect method, changing the rollup geography, fixing an aggregation bug), never for a new section, a restyle or an added county. Two snapshots carrying different versions are never joined by a trend line.</p>
 <dl class="cp-reasons">
-<div><dt>Version 1</dt><dd>Initial data model and county spine (Phase 1). All figures are invented fixtures; nothing has been computed from real source data yet.</dd></div>
+<div><dt>Version 1</dt><dd>The version in development. Orange County was first computed from real data in Phase 2 (block-level areal apportionment of people and jobs to the flood and sea level rise extents); Phase 3 extended the same method to all 27 counties (FEMA flood zones found through the political-jurisdiction layer, sea level rise polygons read from every NOAA regional file a county touches, each county measured on a projection centred on it). The version stays 1 until the tool is published; from then on any change that could move a figure increments it.</dd></div>
 </dl>
 </section>
 

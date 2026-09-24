@@ -13,6 +13,7 @@
     "@material-symbols/svg-400": "^0.47.5",
     "d3-array": "^3.2.4",
     "d3-scale": "^4.0.2",
+    "geotiff": "^3.0.5",
     "polygon-clipping": "^0.15.7"
   }
 }
