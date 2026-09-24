@@ -35,7 +35,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   let callout = null; // {figure, caption}
   // True for an SLR section whose data carries `countsWithLow`: its figures are then the combined
   // (ocean-connected plus low-lying) counts, drawn with the connected part solid and the additional
-  // low-lying part dashed, and the template adds a short gloss saying so.
+  // low-lying part dashed. The explanation lives on the County Profiles about page, not on the section.
   let hasLow = false;
   let footnote = null; // overrides the generic "one or more values are withheld" text when set
 
@@ -114,7 +114,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         const headTotal = data.measures[0].total;
         callout = {
           figure: pct(headCount, headTotal),
-          caption: "(" + num(headCount) + " people) of " + C + "’s total population lives in areas exposed to just " + increments[0] + " ft of sea level rise" + (hasLow ? ", including isolated low-lying areas" : "") + ". As is already the case in many parts of the country, these areas are the first to experience impacts.",
+          caption: "(" + num(headCount) + " people) of " + C + "’s total population lives in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ". As is already the case in many parts of the country, these areas are the first to experience impacts.",
         };
       } else {
         // NOAA pattern: each facility type is a stacked bar (exposed at the selected increment,
@@ -130,7 +130,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         const head = (m) => (hasLow ? m.countsWithLow : m.counts);
         data.measures.forEach((m) => show(num(head(m)[m.counts.length - 1])));
         const p = pct(sum(data.measures.map((m) => head(m)[0])), sum(data.measures.map((m) => m.total)));
-        callout = { figure: p, caption: "of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise" + (hasLow ? ", including isolated low-lying areas" : "") + ". These areas are the first to experience impacts." };
+        callout = { figure: p, caption: "of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ". These areas are the first to experience impacts." };
       }
       break;
     }
@@ -160,7 +160,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
 
     case "increment-single": {
       hasLow = Array.isArray(data.countsWithLow);
-      callout = { figure: pct((hasLow ? data.countsWithLow : data.counts)[0], data.total), caption: "of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise" + (hasLow ? ", including isolated low-lying areas" : "") + "." };
+      callout = { figure: pct((hasLow ? data.countsWithLow : data.counts)[0], data.total), caption: "of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + "." };
       break;
     }
 
@@ -296,8 +296,6 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         return { label: s.label, text: num(s.count) };
       });
       visual = { type: "stat-pair", items };
-      // The six-foot figure is the combined count (as in the sea level rise topic), so say so once.
-      if (topicId === "total-economy") footnote = "The six-foot figure includes isolated low-lying areas, which can still flood through groundwater rise or drainage.";
       break;
     }
 
@@ -311,7 +309,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   }
 
   const partial = Boolean((visual && visual.partial) || (callout && callout.partial));
-  return { visual, callout, hasLow, partial, footnote };
+  return { visual, callout, partial, footnote };
 }
 
 module.exports = { buildSectionModel };

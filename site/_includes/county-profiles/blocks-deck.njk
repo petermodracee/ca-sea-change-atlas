@@ -32,12 +32,6 @@
     the thumb, which (per its own implicit ARIA role) announces on change without a separate live
     region. `plotTop`/`plotBottom` are where the chart's plot area starts and ends, as fractions of its
     viewBox width, so style.css can span the track over exactly that area. -#}
-{#- The one-line gloss under an SLR section whose figures include NOAA's unconnected low-lying areas.
-    The full sourcing lives in docs/DECISIONS.md until a sitewide methodology page exists. -#}
-{% macro lowGloss() %}
-<p class="cpd-footnote">Includes isolated low-lying areas, which can still flood through groundwater rise or drainage, though NOAA maps them separately from ocean-connected inundation (<a href="https://coast.noaa.gov/data/digitalcoast/pdf/slr-inundation-methods.pdf" rel="noopener">NOAA</a>; <a href="https://doi.org/10.1038/s41558-020-0874-1" rel="noopener">Befus et al. 2020</a>).</p>
-{% endmacro %}
-
 {% macro incrementSlider(uid, increments, defaultFt, dataAttr, plotTop, plotBottom) %}
 <div class="cpd-slider-wrap" {{ dataAttr | safe }} style="--cpd-plot-top:{{ plotTop }};--cpd-plot-bottom:{{ plotBottom }}">
 <span id="{{ uid }}-incs-label" class="cpd-slider-label">Sea level rise</span>
@@ -217,7 +211,7 @@
 </div>
 {%- if increments %}{{ incrementSlider(uid, increments, increments[increments.length - 1], 'data-cpd-col-incs', g.mt / g.width, (g.height - g.axisY) / g.width) }}{% endif %}
 </div>
-<ul class="cpd-legend" aria-hidden="true">{% for name in legend %}<li><span class="cpd-swatch cpd-ramp-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}{% if g.groups[0].cols[0].hasLow %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Additional area affected by groundwater rise and isolated low-lying flooding</li>{% endif %}</ul>
+<ul class="cpd-legend" aria-hidden="true">{% for name in legend %}<li><span class="cpd-swatch cpd-ramp-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}{% if g.groups[0].cols[0].hasLow %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}</ul>
 <h4 class="sr-only">{{ title }} — data table</h4>
 <table class="sr-only">
 <thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
@@ -262,7 +256,7 @@
 </div>
 {{ incrementSlider(uid, increments, increments[0], 'data-cpd-fac-incs', 0, (g.height - g.axisY) / g.width) }}
 </div>
-<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch cp-bar-s0"></span>Exposed at the selected increment</li>{% if g.rows[0].states[0].lowLabel %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Additional area affected by groundwater rise and isolated low-lying flooding</li>{% endif %}<li><span class="cpd-swatch cp-bar-not-exposed"></span>Not yet exposed</li></ul>
+<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch cp-bar-s0"></span>Exposed at the selected increment</li>{% if g.rows[0].states[0].lowLabel %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}<li><span class="cpd-swatch cp-bar-not-exposed"></span>Not yet exposed</li></ul>
 <h4 class="sr-only">{{ title }} — data table</h4>
 <table class="sr-only">
 <thead><tr><th scope="col"></th><th scope="col">Total</th>{% for ft in increments %}<th scope="col">{{ ft }} ft exposed</th>{% endfor %}</tr></thead>

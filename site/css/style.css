@@ -1019,7 +1019,7 @@ svg [hidden]{display:none;}
 .cpd-tooltip[hidden]{display:none;}
 [data-tip]{cursor:pointer;}
 
-.cpd-sources{border-top:1px solid var(--line);padding-top:12px;margin-top:2px;display:flex;align-items:baseline;gap:10px 20px;flex-wrap:wrap;font-size:15px;line-height:1.3;color:var(--ink-soft);width:100%;}
+.cpd-sources{border-top:1px solid var(--line);padding-top:12px;margin-top:2px;display:flex;align-items:baseline;gap:10px 20px;flex-wrap:wrap;font-size:14px;line-height:1.3;color:var(--ink-soft);width:100%;}
 .cpd-sources b{font-size:13px;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;font-weight:600;}
 .cpd-vintage{color:var(--ink-soft);}
 

@@ -1,7 +1,7 @@
 {#- The body of a topic deck: one page per (county, topic), shared by the current route
     (topic.njk) and the dated route (topic-snapshot.njk). Expects `county`, `topic`, `sections`,
     `placeholders` and `dated` (boolean) from the pagination context. -#}
-{% from "county-profiles/blocks-deck.njk" import gap, sources, lowGloss, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves %}
+{% from "county-profiles/blocks-deck.njk" import gap, sources, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves %}
 {% from "county-profiles/share-ring.njk" import shareRing %}
 {%- set profile = county.profile %}
 {%- set reasons = countyProfiles.reasonsById %}
@@ -131,7 +131,6 @@
 {%- elif model.partial %}
 <p class="cpd-footnote">{% if withheldLabels.length %}* {{ withheldLabels | join(" and ") }} {{ "is" if withheldLabels.length == 1 else "are" }} withheld by the publisher for confidentiality.{% else %}* One or more values are withheld by the publisher for confidentiality, so this figure may be incomplete.{% endif %}</p>
 {%- endif %}
-{%- if model.hasLow %}{{ lowGloss() }}{% endif %}
 {%- endif %}
 </div>
 {{ sources(sec.sources, county.sources) }}
