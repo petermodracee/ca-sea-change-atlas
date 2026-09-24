@@ -173,7 +173,7 @@
         {
           "name": "NOAA C-CAP land cover and Wetland Potential",
           "url": "https://coast.noaa.gov/digitalcoast/data/ccapregional.html",
-          "note": "Served through NOAA's Coastal Flood Exposure Mapper services.",
+          "note": "The map: served through NOAA's Coastal Flood Exposure Mapper services. County Profiles: the 1996 and 2016 regional 30 m land cover rasters, read by window and intersected with the hazard extents (build time only).",
           "licenses": [
             "pd-us"
           ]
@@ -183,6 +183,22 @@
           "url": "https://coast.noaa.gov/digitalcoast/tools/snapshots.html",
           "toolId": "noaa-coastal-county-snapshots",
           "note": "The explanatory prose of each County Profiles section is NOAA's own, reused with the adaptations listed in docs/COUNTY-PROFILES.md. NOAA's figures are not used.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA Economics: National Ocean Watch (ENOW)",
+          "url": "https://coast.noaa.gov/digitalcoast/data/enow.html",
+          "note": "County Profiles: marine economy (ocean economy establishments, employment, wages and GDP by sector, and self-employed workers), county series through 2021, read through NOAA's Quick Report data API.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA Total Economy (Coastal)",
+          "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
+          "note": "County Profiles: total economy (all-industry establishments, employment, wages and GDP by sector, from BLS QCEW and BEA), read through NOAA's Quick Report data API.",
           "licenses": [
             "pd-us"
           ]
@@ -215,6 +231,14 @@
           "name": "U.S. Census Bureau — LEHD LODES",
           "url": "https://lehd.ces.census.gov/data/lodes/",
           "note": "County Profiles: jobs by workplace block (LODES8 workplace area characteristics, all jobs).",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Census Bureau — Nonemployer Statistics",
+          "url": "https://www.census.gov/programs-surveys/nonemployer-statistics.html",
+          "note": "County Profiles: self-employed workers by sector for the total economy (nonemployer establishments by 2-digit NAICS, county file).",
           "licenses": [
             "pd-us"
           ]
@@ -330,6 +354,14 @@
           "note": "ArcGIS REST client for the NOAA and FEMA layers.",
           "licenses": [
             "apache-2"
+          ]
+        },
+        {
+          "name": "geotiff",
+          "url": "https://github.com/geotiffjs/geotiff.js",
+          "note": "Reads windows of the C-CAP land cover GeoTIFFs for County Profiles (build time only).",
+          "licenses": [
+            "mit"
           ]
         },
         {

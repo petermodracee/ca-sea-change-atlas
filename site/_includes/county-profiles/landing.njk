@@ -47,6 +47,13 @@
 <p class="cp-landing-caption">{{ t.headline.caption }}</p>
 {%- endif %}
 <a class="landing-card-cta" href="{{ (base + (profile.snapshot + '/' if dated else '') + t.slug + '/') | url }}">Open {{ t.label | lower }}</a>
+{%- if t.sectionGaps.length %}
+<ul class="cp-section-gaps">
+{%- for g in t.sectionGaps %}
+<li><strong>{{ g.title }}</strong>: unavailable. {{ g.reasonLabel }} <code>{{ g.reason }}</code></li>
+{%- endfor %}
+</ul>
+{%- endif %}
 {%- elif t.available %}
 <p class="cp-note">No data snapshot yet. This topic is available for {{ county.name }} County; its figures have not been built.</p>
 {%- else %}

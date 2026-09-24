@@ -94,10 +94,10 @@
 {%- if v %}
 {%- if v.type == "rings" %}
 {%- set basis = "" if def.id == "natural-features" else topic.basis %}
-{%- if def.id == "natural-features" %}<p class="cpd-chart-title">Share of land that is natural (wetland, forest, open space)</p>
+{%- if def.id == "natural-features" %}<p class="cpd-chart-title">Development added, 1996–2016, as a share of land developed by 2016</p>
 {%- elif def.id == "people-at-risk" %}<p class="cpd-chart-title">Share of population at risk</p>{% endif %}
 <div class="share-row">{% for it in v.items %}{{ shareRing(uid ~ "-" ~ loop.index, it.label, it.label, it.count, it.total, it.unit, basis, it.showCounts) }}{% endfor %}</div>
-{%- if def.id == "natural-features" %}<p class="cpd-chart-title"><ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Natural greenspace</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Developed land</li></ul></p>
+{%- if def.id == "natural-features" %}<p class="cpd-chart-title"><ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Development added, 1996–2016</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Already developed in 1996</li></ul></p>
 {%- elif def.id == "people-at-risk" %}<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Population inside floodplain</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Population outside floodplain</li></ul>{% endif %}
 {%- elif v.type == "bars" %}{{ bars(uid, v.items, v.format, v.series, def.title) }}
 {%- elif v.type == "stacked" %}{{ stackedBars(uid, v.rows, v.format, v.legend, def.caption or def.title, v.segClasses) }}
