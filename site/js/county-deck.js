@@ -214,6 +214,36 @@
     apply(input.value, false);
   });
 
+  // ---- SLR view toggle (Connected only / Including low-lying areas / Both): every mark for every
+  // view is already drawn and tagged data-cpd-show; this only sets the chosen view on each section
+  // (data-cpd-mode, which the stylesheet turns into what is drawn), keeps every toggle on the page in
+  // step, and mirrors the choice in the URL's ?low= so a shared link reproduces the view. -----------
+  var lowToggles = document.querySelectorAll("[data-cpd-low-toggle]");
+  if (lowToggles.length) {
+    var LOW_MODES = ["conn", "withlow", "both"];
+    var setLowMode = function (mode, updateUrl) {
+      document.querySelectorAll("[data-cpd-moded]").forEach(function (el) { el.setAttribute("data-cpd-mode", mode); });
+      lowToggles.forEach(function (t) {
+        t.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-mode") === mode)); });
+      });
+      if (updateUrl) {
+        try {
+          var u = new URL(window.location.href);
+          u.searchParams.set("low", mode);
+          history.replaceState(null, "", u.toString());
+        } catch (e) { /* the toggle still works without a shareable URL */ }
+      }
+    };
+    lowToggles.forEach(function (t) {
+      t.querySelectorAll("button").forEach(function (b) {
+        b.addEventListener("click", function () { setLowMode(b.getAttribute("data-mode"), true); });
+      });
+    });
+    var wantedLow = null;
+    try { wantedLow = new URL(window.location.href).searchParams.get("low"); } catch (e) { /* ignore */ }
+    if (wantedLow && LOW_MODES.indexOf(wantedLow) !== -1) setLowMode(wantedLow, false);
+  }
+
   // ---- copy citation ---------------------------------------------------------------------------
   var copy = document.getElementById("cpd-copy");
   if (copy) {

@@ -1044,6 +1044,18 @@ svg [hidden]{display:none;}
 .cpd-view button{font:inherit;font-size:14px;color:var(--ink-soft);background:transparent;border:0;border-radius:3px;padding:5px 14px;min-height:30px;cursor:pointer;}
 .cpd-view button[aria-pressed="true"]{background:var(--paper-2);color:var(--ink);font-weight:600;box-shadow:inset 0 0 0 1px var(--line);}
 .cpd-view button:hover{color:var(--ink);}
+/* SLR connected / low-lying view. Every mark in a section that carries both series is tagged
+   data-cpd-show="conn", "withlow" or "both" (a space-separated list of the views it belongs to), and the
+   section's data-cpd-mode says which view is chosen; a mark not tagged for that view is not drawn. */
+[data-cpd-moded][data-cpd-mode="conn"] [data-cpd-show]:not([data-cpd-show~="conn"]),
+[data-cpd-moded][data-cpd-mode="withlow"] [data-cpd-show]:not([data-cpd-show~="withlow"]),
+[data-cpd-moded][data-cpd-mode="both"] [data-cpd-show]:not([data-cpd-show~="both"]){display:none;}
+.cpd-low-toggle{align-self:center;flex-wrap:wrap;justify-content:center;margin:0 0 14px;}
+/* The additional low-lying exposure is drawn as a lighter, dashed-edged companion to the solid
+   connected mark, so it reads as secondary without the reader subtracting one series from another. */
+.cpd-col-extra,.cp-bar-extra{fill:var(--ramp-0);fill-opacity:.3;stroke:var(--ramp-2);stroke-width:1.5;stroke-dasharray:5 3;}
+.cpd-col-extra:not(.cpd-col-active){opacity:.5;}
+.cpd-legend .cpd-swatch-extra{background:transparent;border:1.5px dashed var(--ramp-2);box-sizing:border-box;}
 .cpd-tview{max-height:48vh;overflow:auto;}
 .cpd-tview td{font-size:17px;}
 
@@ -1207,6 +1219,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 @media print{
   body.cpd-page{height:auto;overflow:visible;display:block;}
   .cpd-dots,.cpd-view,.cpd-tooltip{display:none;}
+  .cpd-low-toggle{display:none;}
   .cpd-topbar{position:static;height:auto;}
   .cpd-topics,.cpd-bar-right{display:none;}
   .cpd-brand,.cpd-crumb small a{text-decoration:none;}

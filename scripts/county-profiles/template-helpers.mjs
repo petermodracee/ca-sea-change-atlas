@@ -136,18 +136,41 @@ export function stackedByIncrement(items, increments) {
   const rows = items.map((it, i) => {
     const y0 = top + i * (rowH + rowGap);
     const states = increments.map((ft, k) => {
+      // One drawing per view. `modes` is null when the row has no low-lying series (one drawing, no
+      // toggle); otherwise "conn" (connected only), "withlow" (connected plus low-lying as one bar)
+      // and "both" (connected, then the additional low-lying segment, then the rest).
+      const draw = (exposed, extra, modes, tip, label) => {
+        const rest = Math.max(it.total - exposed - extra, 0);
+        const ew = Math.max(+x(exposed).toFixed(1), exposed === 0 ? 0 : 2);
+        const xw = extra > 0 ? Math.max(+x(extra).toFixed(1), 2) : 0;
+        const rw = Math.max(+x(rest).toFixed(1), 0);
+        const xX = ew + (xw > 0 && ew > 0 ? GAP_PX : 0);
+        const restX = xX + xw + (rw > 0 && (ew > 0 || xw > 0) ? GAP_PX : 0);
+        return {
+          modes,
+          exposedPath: exposed > 0 ? rectPath(0, 0, ew, rowH, xw <= 0 && rw <= 0) : "",
+          extraPath: xw > 0 ? rectPath(xX, 0, xw, rowH, rw <= 0) : "",
+          restPath: rw > 0 ? rectPath(restX, 0, rw, rowH, true) : "",
+          vx: (rw > 0 ? restX + rw : xw > 0 ? xX + xw : ew) + 10,
+          keyLabel: label,
+          tip,
+        };
+      };
       const exposed = it.counts[k];
-      const rest = Math.max(it.total - exposed, 0);
-      const ew = Math.max(+x(exposed).toFixed(1), exposed === 0 ? 0 : 2);
-      const rw = Math.max(+x(rest).toFixed(1), 0);
-      const restX = ew + (rw > 0 ? GAP_PX : 0);
+      const low = it.countsLow ? it.countsLow[k] : undefined;
+      const base = it.label + " exposed at " + ft + " ft: ";
+      const variants = low === undefined
+        ? [draw(exposed, 0, null, base + num(exposed) + " of " + num(it.total), num(exposed))]
+        : [
+            draw(exposed, 0, "conn", base + num(exposed) + " of " + num(it.total) + " (ocean-connected)", num(exposed)),
+            draw(low, 0, "withlow", base + num(low) + " of " + num(it.total) + " (including low-lying areas)", num(low)),
+            draw(exposed, low - exposed, "both", base + num(exposed) + " ocean-connected + " + num(low - exposed) + " more low-lying = " + num(low) + " of " + num(it.total), num(low)),
+          ];
       return {
         ft,
-        exposedPath: exposed > 0 ? rectPath(0, 0, ew, rowH, rw <= 0) : "",
-        restPath: rw > 0 ? rectPath(restX, 0, rw, rowH, true) : "",
-        vx: (rw > 0 ? restX + rw : ew) + 10,
+        variants,
         keyLabel: num(exposed),
-        tip: it.label + " exposed at " + ft + " ft: " + num(exposed) + " of " + num(it.total),
+        keyLabelLow: low === undefined ? null : num(low),
       };
     });
     return { label: it.label, total: num(it.total), labelY: y0 + rowH / 2 + 7, midY: y0 + rowH / 2, barY: y0, states };
@@ -277,7 +300,9 @@ export function groupedColumns(items, seriesLabels) {
   const VALUE_LABEL_Y = mt - 20;
   const iw = W - ml - mr, ih = H - mt - mb;
   const nSeries = items[0].values.length;
-  const domainMax = max(items, (it) => max(it.values, (v) => (v.suppressed ? 0 : v.value))) || 1;
+  // With a low-lying series the scale fits the larger (connected plus low-lying) values in every view,
+  // so switching views never rescales the axis under the reader.
+  const domainMax = max(items, (it) => max(it.values, (v) => (v.suppressed ? 0 : Math.max(v.value, v.low || 0)))) || 1;
   const y = scaleLinear().domain([0, domainMax]).nice(4).range([ih, 0]);
   const band = iw / items.length;
   const colW = Math.min(COL_W_PEOPLE, (band * 0.72) / nSeries - GAP_PX);
@@ -290,8 +315,19 @@ export function groupedColumns(items, seriesLabels) {
       const colH = v.suppressed ? 0 : mt + ih - top;
       const isLast = i === nSeries - 1;
       const text = v.suppressed ? "withheld" : v.text;
+      // Optional connected-plus-low-lying series: a full-height column for the "including low-lying"
+      // view and a lighter segment stacked on the connected column for the "both" view.
+      const hasLow = v.low !== undefined && !v.suppressed;
+      const lowTop = hasLow ? mt + y(v.low) : 0;
+      const lowH = hasLow ? mt + ih - lowTop : 0;
+      const extraH = hasLow ? top - GAP_PX - lowTop : 0;
       return {
         s: i,
+        hasLow,
+        pathLow: hasLow ? columnPath(x, lowTop, colW, lowH) : "",
+        extraPath: hasLow && extraH > 0.5 ? columnPath(x, lowTop, colW, extraH) : "",
+        lowText: hasLow ? v.lowText : "",
+        lowTip: hasLow ? (seriesLabels ? seriesLabels[i] + ": " : "") + it.label + " " + text + " connected, " + v.lowText + " including low-lying areas" : "",
         path: v.suppressed ? "" : columnPath(x, top, colW, colH),
         suppressed: v.suppressed,
         text,

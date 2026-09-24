@@ -18,7 +18,7 @@ function section(sources, data) {
 function buildSnapshot({ entry, schema, spine, results, meta, snapshotDate, generated, opcSource }) {
   const inc = schema.increments;
   const r = results;
-  const people = (m) => ({ total: round(r.people[m].total), sfha: round(r.people[m].sfha), slr: r.people[m].slr.map(round) });
+  const people = (m) => ({ total: round(r.people[m].total), sfha: round(r.people[m].sfha), slr: r.people[m].slr.map(round), slrLow: r.people[m].slrWithLow.map(round) });
 
   const pop = people("pop"), old = people("over65"), poor = people("poverty");
   const facilityLabels = { schools: "Schools", police: "Police stations", fire: "Fire stations", medical: "Medical facilities" };
@@ -60,16 +60,16 @@ function buildSnapshot({ entry, schema, spine, results, meta, snapshotDate, gene
     "people-at-risk": section(["acs", "tiger", "slr"], {
       increments: inc,
       measures: [
-        { label: "Population", unit: "residents", total: pop.total, counts: pop.slr },
-        { label: "Aged 65 and over", unit: "residents aged 65 and over", total: old.total, counts: old.slr },
-        { label: "Below the poverty line", unit: "residents below the poverty line", total: poor.total, counts: poor.slr },
+        { label: "Population", unit: "residents", total: pop.total, counts: pop.slr, countsWithLow: pop.slrLow },
+        { label: "Aged 65 and over", unit: "residents aged 65 and over", total: old.total, counts: old.slr, countsWithLow: old.slrLow },
+        { label: "Below the poverty line", unit: "residents below the poverty line", total: poor.total, counts: poor.slr, countsWithLow: poor.slrLow },
       ],
     }),
     "critical-facilities": section(["usgs", "slr"], {
       increments: inc,
-      measures: facKeys.map((k) => ({ label: facilityLabels[k], unit: "facilities", total: r.facilities[k].total, counts: r.facilities[k].slr })),
+      measures: facKeys.map((k) => ({ label: facilityLabels[k], unit: "facilities", total: r.facilities[k].total, counts: r.facilities[k].slr, countsWithLow: r.facilities[k].slrWithLow })),
     }),
-    "jobs-at-risk": section(["lodes", "tiger", "slr"], { increments: inc, total: round(r.jobs.total), counts: r.jobs.slr.map(round) }),
+    "jobs-at-risk": section(["lodes", "tiger", "slr"], { increments: inc, total: round(r.jobs.total), counts: r.jobs.slr.map(round), countsWithLow: r.jobs.slrWithLow.map(round) }),
     "natural-landscapes": pendingSection(),
     "when-to-act": section(["opc"], {}),
   };

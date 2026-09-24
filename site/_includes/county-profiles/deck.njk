@@ -1,7 +1,7 @@
 {#- The body of a topic deck: one page per (county, topic), shared by the current route
     (topic.njk) and the dated route (topic-snapshot.njk). Expects `county`, `topic`, `sections`,
     `placeholders` and `dated` (boolean) from the pagination context. -#}
-{% from "county-profiles/blocks-deck.njk" import gap, sources, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves %}
+{% from "county-profiles/blocks-deck.njk" import gap, sources, lowToggle, lowNote, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves %}
 {% from "county-profiles/share-ring.njk" import shareRing %}
 {%- set profile = county.profile %}
 {%- set reasons = countyProfiles.reasonsById %}
@@ -71,11 +71,16 @@
 {%- if sec.available and def.kind != "timing" %}<p><button class="cpd-btn" type="button" disabled title="Deferred to a later phase">View on the map</button></p>{% endif %}
 </div>
 <div class="cpd-panel">
-<div class="cpd-panel-body">
+<div class="cpd-panel-body"{% if model and model.hasLow %} data-cpd-moded data-cpd-mode="both"{% endif %}>
 {%- if not sec.available %}
 {{ gap(sec.reason, reasons, def.title) }}
 {%- else %}
-{%- if model.callout %}
+{%- if model.hasLow %}{{ lowToggle() }}{% endif %}
+{%- if model.callouts %}
+{%- for mode, co in model.callouts %}
+<div class="cpd-bign" data-cpd-show="{{ mode }}"><span class="cpd-fig">{{ co.figure }}</span><p class="cpd-cap">{{ co.caption }}</p></div>
+{%- endfor %}
+{%- elif model.callout %}
 <div class="cpd-bign"><span class="cpd-fig">{{ model.callout.figure }}</span><p class="cpd-cap">{{ model.callout.caption }}</p></div>
 {%- endif %}
 {%- set v = model.visual %}
@@ -131,6 +136,7 @@
 {%- elif model.partial %}
 <p class="cpd-footnote">{% if withheldLabels.length %}* {{ withheldLabels | join(" and ") }} {{ "is" if withheldLabels.length == 1 else "are" }} withheld by the publisher for confidentiality.{% else %}* One or more values are withheld by the publisher for confidentiality, so this figure may be incomplete.{% endif %}</p>
 {%- endif %}
+{%- if model.hasLow %}{{ lowNote() }}{% endif %}
 {%- endif %}
 </div>
 {{ sources(sec.sources, county.sources) }}

@@ -2,11 +2,9 @@
 // County Profiles pipeline: fetch every source for one county, run the block-level intersect, and
 // write site/data/county-profiles/latest/<fips>.json after validating it.
 //
-//   node scripts/county-profiles/pipeline/run.js 06059 [--refresh] [--no-areal]
+//   node scripts/county-profiles/pipeline/run.js 06059 [--refresh]
 //
 // --refresh   ignore the download cache and re-fetch every source
-// --no-areal  skip the areal-weighting sensitivity check (about four minutes of polygon clipping);
-//             the published figures never depend on it
 //
 // Raw downloads live in scripts/county-profiles/.cache/ (gitignored). A full diagnostics report,
 // including the sensitivity figures and everything the reconciliation in docs/DECISIONS.md cites,
@@ -36,7 +34,7 @@ async function main() {
   const fips = process.argv[2];
   const opts = { refresh: process.argv.includes("--refresh") };
   const entry = spine.counties.find((c) => c.fips === fips);
-  if (!entry) throw new Error("usage: run.js <county fips in countySpine.json> [--refresh] [--no-areal]");
+  if (!entry) throw new Error("usage: run.js <county fips in countySpine.json> [--refresh]");
   const increments = schema.increments;
 
   const log = (m) => console.error("[" + fips + "] " + m);
@@ -61,12 +59,15 @@ async function main() {
 
   const asOf = claims.value.map((c) => c.asOfDate).filter(Boolean).sort().pop();
   const periods = nfipPeriods(new Date(asOf).getUTCFullYear());
-  log("intersecting (a few minutes)");
+  log("intersecting");
+  const tCompute = Date.now();
   const results = compute({
     fips, blocks: blocks.value, nfhl: nfhl.value, acs: acs.value, lodes: lodes.value, usgs: usgs.value, slr: slr.value, claims: claims.value,
-    facilityDefs: S.FACILITY_LAYERS, increments, periods, areal: !process.argv.includes("--no-areal"),
+    facilityDefs: S.FACILITY_LAYERS, increments, periods,
   });
 
+  const computeSeconds = +((Date.now() - tCompute) / 1000).toFixed(1);
+  log("intersect took " + computeSeconds + "s " + JSON.stringify(results.timings));
   const loads = Object.values(results.facilities).flatMap((f) => f.loaded).sort();
   const meta = {
     verified,
