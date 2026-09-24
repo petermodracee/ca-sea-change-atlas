@@ -1,0 +1,81 @@
+{#- The county landing page body: a normal document (not a deck), shared by the current route
+    (county.njk) and the dated route (county-snapshot.njk). Expects `county` and `dated`. -#}
+{% from "county-profiles/blocks.njk" import gap %}
+{%- set profile = county.profile %}
+{%- set reasons = countyProfiles.reasonsById %}
+{%- set base = "/county-profiles/county/" + county.slug + "/" %}
+
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<p class="hero-nav"><a href="{{ '/county-profiles/' | url }}">All county profiles</a>{% if dated %} · <a href="{{ base | url }}">Current profile</a>{% endif %}</p>
+<h1>{{ county.name }} County</h1>
+<p class="lede"><span class="cp-tier-badge">{{ county.tierLabel }} coverage</span> {% for t in countyProfiles.tiers %}{% if t.id == county.tier %}{{ t.summary }}{% endif %}{% endfor %}</p>
+{%- if profile %}
+<p class="cp-asof"><span class="cp-asof-label">Data as of</span> <time datetime="{{ profile.snapshot }}">{{ profile.snapshot }}</time><span class="cp-asof-meta">Methodology version {{ profile.method }} · generated {{ profile.generated }}</span></p>
+{%- else %}
+<p class="cp-asof"><span class="cp-asof-label">No data snapshot yet</span><span class="cp-asof-meta">Coverage below follows the {{ county.tierLabel | lower }} tier rules.</span></p>
+{%- endif %}
+</div>
+</div>
+
+<div class="main">
+<div class="wrap cp">
+
+{%- if dated %}
+<p class="cp-note">This is the dated snapshot of {{ profile.snapshot }}. Its canonical address is the <a href="{{ base | url }}">current profile</a>. <a href="{{ ('/data/county-profiles/latest/' + county.fips + '.json') | url }}">This snapshot's JSON</a>.</p>
+{%- elif county.isFixture %}
+<div class="cp-fixture" role="note">
+<p><strong>Placeholder figures.</strong> This county's topic pages show invented numbers to exercise the layout — they are not measurements of {{ county.name }} County.</p>
+</div>
+{%- endif %}
+
+<section class="cp-topic" id="topics">
+<h2>Topics</h2>
+<div class="cp-landing-topics">
+{%- for t in county.coverage %}
+<div class="cp-landing-topic">
+<h3>{{ t.label }}</h3>
+{%- if t.hasPage %}
+{%- if t.headline %}
+<p class="cp-landing-figure">{{ t.headline.figure }}</p>
+<p class="cp-landing-caption">{{ t.headline.caption }}</p>
+{%- endif %}
+<a class="landing-card-cta" href="{{ (base + (profile.snapshot + '/' if dated else '') + t.slug + '/') | url }}">Open {{ t.label | lower }}</a>
+{%- elif t.available %}
+<p class="cp-note">No data snapshot yet. This topic is available for {{ county.name }} County; its figures have not been built.</p>
+{%- else %}
+{{ gap(t.reason, reasons, t.label) }}
+{%- endif %}
+</div>
+{%- endfor %}
+</div>
+</section>
+
+{%- if county.gauge %}
+<p class="cp-gauge">Reference tide gauge: <strong>{{ county.gaugeName }}</strong>.{% if county.straddle %} {{ county.straddle.text }}{% endif %}</p>
+{%- endif %}
+
+<section class="cp-topic" id="earlier-snapshots">
+<h2>Earlier snapshots</h2>
+{%- if county.snapshots.length %}
+<ul class="cp-snapshot-list">
+{%- for s in county.snapshots %}
+<li><a href="{{ (base + s.date + '/') | url }}">{{ s.date }}</a>{% if s.isCurrent %} — current{% endif %}{% if dated and s.date == profile.snapshot %} — you are here{% endif %}</li>
+{%- endfor %}
+</ul>
+{%- if county.snapshots.length < 2 %}
+<p class="cp-note">Previous and next snapshot links appear here once this county has more than one dated snapshot.</p>
+{%- endif %}
+{%- else %}
+<p class="cp-note">No snapshots yet.</p>
+{%- endif %}
+</section>
+
+</div>
+</div>

@@ -1,0 +1,181 @@
+{#- The body of a topic deck: one page per (county, topic), shared by the current route
+    (topic.njk) and the dated route (topic-snapshot.njk). Expects `county`, `topic`, `sections`,
+    `placeholders` and `dated` (boolean) from the pagination context. -#}
+{% from "county-profiles/blocks-deck.njk" import gap, sources, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves %}
+{% from "county-profiles/share-ring.njk" import shareRing %}
+{%- set profile = county.profile %}
+{%- set reasons = countyProfiles.reasonsById %}
+{%- set base = "/county-profiles/county/" + county.slug + "/" %}
+{%- set datedBase = base + profile.snapshot + "/" %}
+{%- set permalink = site.url + datedBase + topic.slug + "/" %}
+{%- set landingPermalink = site.url + datedBase %}
+
+<header class="cpd-topbar">
+<a class="cpd-brand" href="{{ '/index.html' | url }}"><img src="{{ '/img/casca-logo.svg' | url }}" alt="" width="30" height="30"><span class="cpd-brand-name">{{ site.name }}</span></a>
+<div class="cpd-divider" aria-hidden="true"></div>
+<div class="cpd-crumb"><small><a href="{{ '/county-profiles/' | url }}">County Profiles</a></small><strong>{{ county.name }} County</strong></div>
+<nav class="cpd-topics" aria-label="Topics for {{ county.name }} County">
+{%- for t in county.coverage %}
+{%- if t.hasPage %}
+<a href="{{ (base + (profile.snapshot + '/' if dated else '') + t.slug + '/') | url }}"{% if t.id == topic.id %} aria-current="page"{% endif %}>{{ t.label }}</a>
+{%- else %}
+<a href="#" aria-disabled="true" title="{{ t.reasonLabel if not t.available else 'No data snapshot yet' }}">{{ t.label }}</a>
+{%- endif %}
+{%- endfor %}
+</nav>
+<div class="cpd-bar-right">
+{%- if dated %}<span class="cpd-tag">Snapshot {{ profile.snapshot }}</span>{% elif county.isFixture %}<span class="cpd-tag">Placeholder figures</span>{% endif %}
+<span class="cpd-asof">Data as of <b>{{ profile.snapshot }}</b></span>
+<button class="cpd-btn" type="button" onclick="window.print()">Print</button>
+</div>
+</header>
+
+<nav class="cpd-dots" aria-label="Sections" data-cpd-dots></nav>
+
+<main class="cpd-deck" data-cpd-deck tabindex="0">
+
+<section class="cpd-slide" id="s-title" data-label="{{ topic.label }}">
+<div class="cpd-left">
+<p class="cpd-eyebrow">{{ topic.label }} · {{ county.name }} County, CA</p>
+<h1>{{ topic.label }}</h1>
+<p class="cpd-prose">{{ topic.intro }}</p>
+{%- if topic.id == "slr" and county.gaugeName %}
+<p class="cpd-meta">Projections for the {{ county.gaugeName }} tide gauge, assigned to {{ county.name }} County · Exposure at {{ countyProfiles.increments | join(", ") }} ft above MHHW</p>
+{%- endif %}
+{%- if dated %}
+<p class="cpd-meta">This is the {{ profile.snapshot }} snapshot. <a href="{{ (base + topic.slug + '/') | url }}">See the current profile</a>.</p>
+{%- endif %}
+</div>
+<div class="cpd-panel">
+<div class="cpd-panel-body">
+<p class="cpd-eyebrow">In this profile</p>
+<ol class="cpd-contents">
+{%- for s in sections %}
+<li><a href="#s-{{ s.def.id }}">{{ s.def.title }} <span>{{ "0" if loop.index < 10 }}{{ loop.index }}</span></a></li>
+{%- endfor %}
+<li><a href="#s-about">About this data <span>{{ "0" if (sections.length + 1) < 10 }}{{ sections.length + 1 }}</span></a></li>
+</ol>
+</div>
+</div>
+</section>
+
+{%- for s in sections %}
+{%- set def = s.def %}
+{%- set sec = s.sec %}
+{%- set model = s.model %}
+{%- set uid = county.fips + "-" + topic.id + "-" + def.id %}
+<section class="cpd-slide" id="s-{{ def.id }}" data-label="{{ def.title }}">
+<div class="cpd-left">
+<h2>{{ def.title }}</h2>
+{%- if def.prose.length %}<p class="cpd-prose">{{ def.prose[0] }}</p>{% endif %}
+{%- if sec.available and def.kind != "timing" %}<p><button class="cpd-btn" type="button" disabled title="Deferred to a later phase">View on the map</button></p>{% endif %}
+</div>
+<div class="cpd-panel">
+<div class="cpd-panel-body">
+{%- if not sec.available %}
+{{ gap(sec.reason, reasons, def.title) }}
+{%- else %}
+{%- if model.callout %}
+<div class="cpd-bign"><span class="cpd-fig">{{ model.callout.figure }}</span><p class="cpd-cap">{{ model.callout.caption }}</p></div>
+{%- endif %}
+{%- set v = model.visual %}
+{#- A stat-pair slide has no big number of its own — its two stats ARE the slide's content, so they
+    take .cpd-fig sizing instead, and the explanatory prose moves below as a footnote rather than
+    sitting above the numbers as a note. -#}
+{%- if not (v and v.type == "stat-pair") %}
+{%- for p in def.prose %}{% if not loop.first %}<p class="cpd-note">{{ p }}</p>{% endif %}{% endfor %}
+{%- endif %}
+{#- Named per stat, not a generic disclaimer: the footnote says which value(s) are withheld. A
+    section can instead set its own model.footnote (e.g. Diverse Economies' denominator rule),
+    which always wins over this generic computation. -#}
+{%- set withheldLabels = [] %}
+{%- if v and v.type == "stats" %}{% for it in v.items %}{% if it.suppressed %}{% set _ = withheldLabels.push(it.label) %}{% endif %}{% endfor %}{% endif %}
+{%- if v and v.type == "equation" %}{% for p in v.parts %}{% if p.suppressed %}{% set _ = withheldLabels.push(p.label) %}{% endif %}{% endfor %}{% endif %}
+{%- if v %}
+{%- if v.type == "rings" %}
+{%- set basis = "" if def.id == "natural-features" else topic.basis %}
+{%- if def.id == "natural-features" %}<p class="cpd-chart-title">Share of land that is natural (wetland, forest, open space)</p>
+{%- elif def.id == "people-at-risk" %}<p class="cpd-chart-title">Share of population at risk</p>{% endif %}
+<div class="share-row">{% for it in v.items %}{{ shareRing(uid ~ "-" ~ loop.index, it.label, it.label, it.count, it.total, it.unit, basis, it.showCounts) }}{% endfor %}</div>
+{%- if def.id == "natural-features" %}<p class="cpd-chart-title"><ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Natural greenspace</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Developed land</li></ul></p>
+{%- elif def.id == "people-at-risk" %}<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Population inside floodplain</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Population outside floodplain</li></ul>{% endif %}
+{%- elif v.type == "bars" %}{{ bars(uid, v.items, v.format, v.series, def.title) }}
+{%- elif v.type == "stacked" %}{{ stackedBars(uid, v.rows, v.format, v.legend, def.caption or def.title, v.segClasses) }}
+{%- elif v.type == "stacked100" %}{{ stacked100Bars(uid, v.measures, v.legend, def.caption or def.title, v.headline) }}
+{%- elif v.type == "columns" %}{{ columns(uid, v.items, countyProfiles.incrementLabels, def.caption or def.title, countyProfiles.increments if def.id == "people-at-risk" else none) }}
+{%- elif v.type == "facilities-stack" %}{{ facilitiesStack(uid, v.items, def.caption or def.title, countyProfiles.increments) }}
+{%- elif v.type == "dots" %}{{ dots(uid, v.items, v.series, def.caption or def.title) }}
+{%- elif v.type == "timing" %}{{ curves(uid, county, opcGaugeProjections, countyProfiles.increments) }}
+{%- elif v.type == "stats" %}
+{#- A withheld stat isn't drawn at all — it's named in the footnote instead of taking a slot here. -#}
+<dl class="cp-stats">{% for it in v.items %}{% if not it.suppressed %}<div><dt>{{ it.label }}</dt><dd>{{ it.text }}</dd></div>{% endif %}{% endfor %}</dl>
+{%- elif v.type == "equation" %}
+<div class="cp-equation">
+{%- for p in v.parts %}
+<div class="cp-eq-part"><span class="cp-eq-label">{{ p.label }}</span><span class="cp-eq-value{% if p.suppressed %} is-withheld{% endif %}">{% if p.suppressed %}Withheld*{% else %}{{ p.text }}{% endif %}</span></div>
+<span class="cp-eq-op" aria-hidden="true">{% if loop.first %}+{% else %}={% endif %}</span>
+{%- endfor %}
+<div class="cp-eq-part cp-eq-total"><span class="cp-eq-label">Total{% if v.total.partial %}, incomplete{% endif %}</span><span class="cp-eq-value">{{ v.total.text }}{% if v.total.partial %}*{% endif %}</span></div>
+</div>
+{%- elif v.type == "stat-pair" %}
+<div class="cpd-bign-group">{% for it in v.items %}<div class="cpd-bign-item"><p class="cpd-cap">{{ it.label }}</p><span class="cpd-fig">{{ it.text }}</span></div>{% endfor %}</div>
+{%- elif v.type == "plain-stat" %}
+<p class="cpd-note">{{ v.text }}</p>
+{%- endif %}
+{%- endif %}
+{%- if v and v.type == "stat-pair" %}
+{%- for p in def.prose %}{% if not loop.first %}<p class="cpd-footnote">{{ p }}</p>{% endif %}{% endfor %}
+{%- endif %}
+{%- if model.footnote %}
+<p class="cpd-footnote">{{ model.footnote }}</p>
+{%- elif model.partial %}
+<p class="cpd-footnote">{% if withheldLabels.length %}* {{ withheldLabels | join(" and ") }} {{ "is" if withheldLabels.length == 1 else "are" }} withheld by the publisher for confidentiality.{% else %}* One or more values are withheld by the publisher for confidentiality, so this figure may be incomplete.{% endif %}</p>
+{%- endif %}
+{%- endif %}
+</div>
+{{ sources(sec.sources, county.sources) }}
+</div>
+</section>
+{%- endfor %}
+
+<section class="cpd-slide" id="s-about" data-label="About this data">
+<div class="cpd-left">
+<p class="cpd-eyebrow">About this data</p>
+<h2>Data, methods and citation</h2>
+<p class="cpd-prose">Every figure on this page comes from one dated snapshot. A source's vintage is the period it describes, which can be years before the snapshot date.</p>
+<dl class="cpd-facts">
+<dt>Snapshot</dt><dd>{{ profile.snapshot }} · <a href="{{ (base | url) }}#earlier-snapshots">all snapshots</a></dd>
+<dt>Methodology</dt><dd>Version {{ profile.method }} · <a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">what changed</a></dd>
+{%- if topic.id == "slr" and county.gaugeName %}
+<dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix F)</dd>
+<dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
+{%- endif %}
+</dl>
+{%- if topic.id == "marine-economy" %}
+<p class="cpd-note">This topic omits jobs at risk: no open source isolates marine jobs by location. <a href="{{ '/county-profiles/about/' | url }}#marine-jobs">Why, on the methodology page</a>.</p>
+{%- endif %}
+</div>
+<div class="cpd-panel">
+<div class="cpd-panel-body">
+<div class="cpd-citebox">
+<p class="cpd-eyebrow">Recommended citation</p>
+<p class="cpd-cite" id="cpd-cite">California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile: {{ topic.label }}</em>. <a href="{{ permalink }}">{{ permalink }}</a></p>
+<button class="cpd-btn" type="button" id="cpd-copy">Copy citation</button>
+</div>
+<div class="cpd-tview" style="max-height:none">
+{#- Three columns only: the slides themselves already say what each source is used for. -#}
+<table class="cpd-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Vintage</th><th scope="col">Retrieved</th></tr></thead>
+<tbody>
+{%- for s in sourcesUsed %}
+<tr><th scope="row"><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a></th><td class="cpd-vintage-cell">{{ s.vintage }}</td><td class="cpd-num">{{ s.retrieved }}</td></tr>
+{%- endfor %}
+</tbody>
+</table>
+</div>
+</div>
+{%- set footerAttribution %}<a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/latest/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
+{% include "footer.njk" %}
+</div>
+</section>
+
+</main>

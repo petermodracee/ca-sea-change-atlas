@@ -1,0 +1,21 @@
+{#- Blocks shared by the county landing page (site/county-profiles/county.njk). The topic decks have
+    their own chart macros in blocks-deck.njk. -#}
+
+{#- An unavailable topic: a reasoned gap, visibly unlike a zero. `reasons` is countyProfiles.reasonsById. -#}
+{% macro gap(reasonId, reasons, what) %}
+<div class="cp-gap" role="note">
+<p class="cp-gap-tag">Unavailable</p>
+<p class="cp-gap-rule"><strong>{{ reasons[reasonId].label }}.</strong> {{ reasons[reasonId].rule }}</p>
+<p class="cp-gap-code">{{ what }} · reason code <code>{{ reasonId }}</code></p>
+</div>
+{% endmacro %}
+
+{#- The one-line sources note under a section: dataset name, then its vintage in a distinct colour. -#}
+{% macro sourceLine(keys, sources) %}
+<p class="cp-sources"><span class="cp-sources-head">Sources</span>
+{%- for key in keys %}
+{%- set s = sources[key] %}
+<span class="cp-source"><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a> <span class="cp-vintage">({{ s.inline }})</span></span>
+{%- endfor %}
+</p>
+{% endmacro %}

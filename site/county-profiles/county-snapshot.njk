@@ -1,0 +1,16 @@
+---
+layout: base.njk
+pagination:
+  data: countyProfiles.landingSnapshotPages
+  size: 1
+  alias: county
+permalink: "county-profiles/county/{{ county.slug }}/{{ county.profile.snapshot }}/index.html"
+nav: county-profiles
+eleventyExcludeFromCollections: true
+eleventyComputed:
+  title: "{{ county.name }} County profile, snapshot {{ county.profile.snapshot }} — CA Sea Change Atlas"
+  description: "The {{ county.profile.snapshot }} snapshot of the {{ county.name }} County profile."
+  canonical: "{{ site.url }}/county-profiles/county/{{ county.slug }}/"
+---
+{%- set dated = true %}
+{% include "county-profiles/landing.njk" %}

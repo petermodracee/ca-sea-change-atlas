@@ -1,0 +1,62 @@
+---
+layout: base.njk
+permalink: "county-profiles/about/index.html"
+title: About County Profiles — CA Sea Change Atlas
+description: How the County Profiles figures are computed, which tide gauge each county uses, and what is deliberately left out.
+nav: county-profiles
+---
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<p class="hero-nav"><a href="{{ '/county-profiles/' | url }}">All county profiles</a></p>
+<h1>About County Profiles</h1>
+<p class="lede">How the figures are computed, and what is left out on purpose.</p>
+</div>
+</div>
+
+<div class="main">
+<div class="wrap cp about-body">
+
+<section class="cp-topic" id="timing">
+<h2>When is the time to act?</h2>
+<p>The timing table gives, for each county, the year a sea level rise increment (2, 4, 6, 8 or 10 feet, the increments NOAA maps) is reached under each of the three scenarios California's guidance recommends evaluating: Intermediate, Intermediate-high and High.</p>
+<p>The years come from Appendix F of the 2024 California Sea Level Rise Guidance, which projects sea level rise in feet above 2000 for {{ opcGaugeProjections.gauges | length }} of the state's tide gauges in each decade from 2030 to 2150, with local vertical land motion included. Between decades the table interpolates linearly, starting from zero in 2000, and rounds to the year. An increment not reached by 2150 is shown as "after 2150". It uses the median projection, so it says when an increment is reached in the middle of the range, not when it could be reached.</p>
+<p>The method was checked against NOAA's own table for San Francisco County, which stops at 2100: every year NOAA shows matches, except one that is a year off. The build also asserts the San Francisco table, so a change to the method that moves it fails the build.</p>
+</section>
+
+<section class="cp-topic" id="gauges">
+<h2>Which tide gauge each county uses</h2>
+<p>Sea level rise is not uniform along California's coast, so there is no statewide conversion. Each county takes one reference gauge, an editorial call following the guidance's own regional grouping where it and proximity agree.</p>
+<dl class="cp-reasons">
+{%- for g in countyProfiles.gaugeGroups %}
+<div><dt>{{ g.name }}</dt><dd>{{ g.counties | join(", ") }}</dd></div>
+{%- endfor %}
+</dl>
+<p>Some counties have a second sea level regime: an outer coast and a bay shore. Whether a county <em>straddles</em> is never authored. It is computed at build from the timing tables of the two gauges: a county straddles when any year differs by five or more, or when one gauge reaches an increment by 2150 and the other does not. A straddling county shows both tables.{% for c in countyProfiles.counties %}{% if c.straddle %} {{ c.name }} is currently the only one.{% endif %}{% endfor %}</p>
+</section>
+
+<section class="cp-topic" id="withheld">
+<h2>Withheld values</h2>
+<p>ENOW withholds some figures for confidentiality. A withheld value is shown as "withheld", which is different from zero (the count is 0) and from unavailable (there is no data, with a stated reason). A total that has a withheld component is marked incomplete with an asterisk, and so is anything derived from it.</p>
+</section>
+
+<section class="cp-topic" id="marine-jobs">
+<h2>Marine jobs at risk are not published</h2>
+<p>NOAA's original marine economy snapshot reported how many marine businesses were in the floodplain. County Profiles does not report marine jobs at risk, and there is no substitute. Business locations, which made the original figure possible, are licensed data and cannot be reused, and the open replacement, LEHD LODES job counts, is published by 2-digit industry code, while ENOW's marine sectors are defined at up to 6 digits. No open source isolates marine jobs by location.</p>
+</section>
+
+<section class="cp-topic" id="methodology-changelog">
+<h2>Methodology changelog</h2>
+<p>Each profile shows its methodology version ("Version <em>N</em>") on its About this data slide. The version is a monotonic integer, not a date: it increments only when a pipeline change could move a figure while the underlying source data stays the same (switching the intersect method, changing the rollup geography, fixing an aggregation bug), never for a new section, a restyle or an added county. Two snapshots carrying different versions are never joined by a trend line. This page will list what changed at each version once a version 2 exists.</p>
+<dl class="cp-reasons">
+<div><dt>Version 1</dt><dd>Initial data model and county spine (Phase 1). All figures are invented fixtures; nothing has been computed from real source data yet.</dd></div>
+</dl>
+</section>
+
+</div>
+</div>

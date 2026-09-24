@@ -9,6 +9,9 @@
     "serve": "eleventy --serve"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^3.0.0"
+    "@11ty/eleventy": "^3.0.0",
+    "@material-symbols/svg-400": "^0.47.5",
+    "d3-array": "^3.2.4",
+    "d3-scale": "^4.0.2"
   }
 }

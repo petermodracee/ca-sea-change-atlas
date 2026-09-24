@@ -1,0 +1,369 @@
+{#- Chart macros for the topic deck (site/county-profiles/topic.njk). Every chart is drawn fully at
+    build time. Only the sea-level-rise timing chart has a Chart/Table switch (matching NOAA, which
+    is the one place it offers both); every other chart stands alone, with its data table present in
+    the markup but reachable only via a visually-hidden ("sr-only") heading and table, for screen-
+    reader parity without a visible toggle nothing else on the page has. -#}
+
+{#- An unavailable section within an available topic: a reasoned gap. -#}
+{% macro gap(reasonId, reasons, what) %}
+<div class="cpd-gap" role="note">
+<p class="cpd-gap-tag">Unavailable</p>
+<p><strong>{{ reasons[reasonId].label }}.</strong> {{ reasons[reasonId].rule }}</p>
+<p style="font-size:13px">{{ what }} · reason code <code>{{ reasonId }}</code></p>
+</div>
+{% endmacro %}
+
+{#- The sources line at the foot of a panel. -#}
+{% macro sources(keys, sources) %}
+<div class="cpd-sources"><b>Sources</b>
+{%- for key in keys %}
+{%- set s = sources[key] %}
+<span><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a> <span class="cpd-vintage">({{ s.inline }})</span></span>
+{%- endfor %}
+</div>
+{% endmacro %}
+
+{#- A NOAA-style vertical slider at the five sea-level-rise increments (2/4/6/8/10 ft only — `step`
+    matches their even spacing, so no in-between value is reachable), shared by the timing chart, SLR
+    People at Risk and Flooded Facilities. `dataAttr` is the raw attribute (e.g. `data-cpd-incs`) the
+    macro's caller uses in site/js/county-deck.js to find and scope this picker — kept as three
+    distinct attributes rather than one, since each picker's JS scopes to a different ancestor. The
+    track fills from the bottom up to the thumb, and the current value shows in an <output> beside
+    the thumb, which (per its own implicit ARIA role) announces on change without a separate live
+    region. `plotTop`/`plotBottom` are where the chart's plot area starts and ends, as fractions of its
+    viewBox width, so style.css can span the track over exactly that area. -#}
+{% macro incrementSlider(uid, increments, defaultFt, dataAttr, plotTop, plotBottom) %}
+<div class="cpd-slider-wrap" {{ dataAttr | safe }} style="--cpd-plot-top:{{ plotTop }};--cpd-plot-bottom:{{ plotBottom }}">
+<span id="{{ uid }}-incs-label" class="cpd-slider-label">Sea level rise</span>
+<div class="cpd-slider-track-wrap">
+<input type="range" class="cpd-slider" min="{{ increments[0] }}" max="{{ increments[increments.length - 1] }}" step="{{ increments[1] - increments[0] }}" value="{{ defaultFt }}" aria-labelledby="{{ uid }}-incs-label" aria-valuetext="{{ defaultFt }} ft">
+<output class="cpd-slider-value">{{ defaultFt }} ft</output>
+</div>
+</div>
+{% endmacro %}
+
+{#- Horizontal bars: flood Homes at Risk (NFIP payouts by period). Row labels sit in a left column;
+    the end-of-bar label is an abbreviated value (NOAA's own convention) and the native per-mark
+    <title> (sparse enough not to need a styled tooltip) carries the exact figure. -#}
+{% macro bars(uid, items, format, series, title) %}
+{%- set g = items | barChart(format) %}
+<p class="cpd-chart-title">{{ title }}</p>
+<div class="cpd-chart" data-cpd-tips><svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
+<title id="{{ uid }}-t">{{ title }}</title>
+<desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}: {% for b in row.bars %}{% if series.length %}{{ series[b.s] }} {% endif %}{{ b.tip }}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+<g transform="translate({{ g.plotX }},0)">
+{%- for t in g.ticks %}
+<line class="cp-grid" x1="{{ t.x }}" x2="{{ t.x }}" y1="0" y2="{{ g.axisY }}"/>
+<text class="cp-tick" x="{{ t.x }}" y="{{ g.axisY + 26 }}" text-anchor="middle">{{ t.label }}</text>
+{%- endfor %}
+{%- for row in g.rows %}
+{%- for b in row.bars %}
+{%- if b.suppressed %}
+<text class="cp-withheld" x="2" y="{{ b.midY }}">withheld</text>
+{%- else %}
+<path class="cp-bar cp-bar-s{{ b.s }}{% if b.zero %} cp-bar-zero{% endif %}" data-tip="{{ row.label }}: {{ b.tip }}" transform="translate(0,{{ b.y }})" d="{{ b.path }}"/>
+<text class="cp-bar-value" x="{{ b.vx }}" y="{{ b.midY }}">{{ b.text }}</text>
+{%- endif %}
+{%- endfor %}
+{%- endfor %}
+</g>
+{%- for row in g.rows %}
+<text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}</text>
+{%- endfor %}
+</svg></div>
+{%- if series.length %}<ul class="cpd-legend" aria-hidden="true">{% for name in series %}<li><span class="cpd-swatch cp-bar-s{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}</ul>{% endif %}
+<h4 class="sr-only">{{ title }} — data table</h4>
+<table class="sr-only">
+<thead><tr><th scope="col"></th>{% if series.length %}{% for name in series %}<th scope="col">{{ name }}</th>{% endfor %}{% else %}<th scope="col">Value</th>{% endif %}</tr></thead>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for b in row.bars %}<td>{{ b.tip }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table>
+{% endmacro %}
+
+{#- Absolute stacked bars: flood critical facilities (inside/outside), SLR natural landscapes (one
+    bar per increment). Rows share one segment order, given as `legend`; `segClasses`, when given,
+    picks each segment's swatch class by index instead of the default cycling palette (natural
+    landscapes uses it to make the natural classes carry the emphasis and "Other" a muted neutral).
+    Row labels sit in a left column. The end-of-bar label is `row.keyLabel` — the one share that
+    matters here (the caller decides which, since only it knows: "share inside the floodplain" for
+    critical facilities, "natural share" for land cover) — NOAA's end-of-bar convention; every
+    segment's exact value is in its own tooltip (sparse enough for the native <title>) and the data
+    table. -#}
+{% macro stackedBars(uid, rows, format, legend, title, segClasses) %}
+{%- set g = rows | stackedBars(format) %}
+<p class="cpd-chart-title">{{ title }}</p>
+<div class="cpd-chart" data-cpd-tips>
+    <svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
+        <title id="{{ uid }}-t">{{ title }}</title>
+
+        <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}: {% for seg in row.segments %}{{ legend[loop.index0] }} {{ seg.text }}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+
+        <g transform="translate({{ g.plotX }},0)">
+            {%- for t in g.ticks %}
+                <line class="cp-grid" x1="{{ t.x }}" x2="{{ t.x }}" y1="0" y2="{{ g.axisY }}"/>
+                <text class="cp-tick" x="{{ t.x }}" y="{{ g.axisY + 26 }}" text-anchor="middle">{{ t.label }}</text>
+            {%- endfor %}
+            {%- for row in g.rows %}
+                {%- for seg in row.segments %}
+                    {%- if seg.suppressed %}
+                        <text class="cp-withheld" x="{{ seg.x + 2 }}" y="{{ row.midY }}">withheld</text>
+                    {%- else %}
+                        <path class="cp-bar {{ segClasses[loop.index0] if segClasses else ('cp-bar-s' + loop.index0) }}" data-tip="{{ row.label }} — {{ legend[loop.index0] }}: {{ seg.text }}" transform="translate(0,{{ row.barY }})" d="{{ seg.path }}"/>
+                    {%- endif %}
+                {%- endfor %}
+                <text class="cp-bar-value" x="{{ (row.segments | last).x + (row.segments | last).w + 10 }}" y="{{ row.midY }}">{{ row.keyLabel }}</text>
+            {%- endfor %}
+        </g>
+        {%- for row in g.rows %}
+            <text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}</text>
+        {%- endfor %}
+    </svg>
+
+</div>
+    {%- if legend.length > 1 %}
+        <ul class="cpd-legend" aria-hidden="true">
+            {% for name in legend %}
+                <li><span class="cpd-swatch {{ segClasses[loop.index0] if segClasses else ('cp-bar-s' + loop.index0) }}"></span>{{ name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+<h4 class="sr-only">{{ title }} — data table</h4>
+<table class="sr-only">
+<thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for seg in row.segments %}<td>{{ seg.text }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table>
+{% endmacro %}
+
+{#- 100%-stacked bars: economic diversity (establishments, wages, employment, GDP by sector). Colour
+    and label only the headline sector — the one named in the big number above (`headline`); every
+    other sector is a neutral alternating shade, separated by a thin gap and identified either by its
+    own Material Symbols sector icon (segments wide enough to hold one — outlined for every sector,
+    filled for the headline sector, same glyph, so "on" reads as a fill change not a different icon)
+    or by name in the legend and on hover/focus/tap via the styled tooltip, which also gives the
+    exact figure for every segment. A withheld sector isn't drawn at all — there is no value to give
+    it a width — and is named in the section's own footnote instead; the accessible table still
+    lists it, as "withheld". -#}
+{% macro stacked100Bars(uid, measures, legend, title, headline) %}
+{%- set g = measures | stacked100Bars %}
+<p class="cpd-chart-title">{{ title }}</p>
+
+<div class="cpd-chart" data-cpd-tips>
+    <svg class="cp-bars cp-bars-100" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
+    <title id="{{ uid }}-t">{{ title }}</title>
+    <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}, by sector: {% for seg in row.segments %}{{ legend[loop.index0] }} {% if seg.suppressed %}withheld{% else %}{{ seg.pctText }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+    {%- for row in g.rows %}
+        <text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}</text>
+        {%- for seg in row.segments %}
+            {%- if not seg.suppressed %}
+                {%- set sc = 'cp-sec-headline' if seg.isHeadline else ('cp-sec-neutral-' + (loop.index0 % 2)) %}
+                <path class="cp-bar {{ sc }}" data-tip="{{ seg.tip }}" transform="translate({{ g.plotX }},{{ row.barY }})" d="{{ seg.path }}"/>
+                    {%- if seg.showLabel %}<text class="cpd-onfill-headline" x="{{ g.plotX + seg.labelX }}" y="{{ seg.midY }}" text-anchor="middle">{{ seg.pctText }}</text>
+                {%- elif seg.showIcon %}
+                    <svg x="{{ g.plotX + seg.iconX }}" y="{{ seg.iconY }}" width="30" height="30" viewBox="{{ seg.icon.viewBox }}" class="cpd-sector-icon{{ ' cpd-onfill-headline' if seg.isHeadline else '' }}" data-tip="{{ seg.tip }}">{{ (seg.icon.fillInner if seg.isHeadline else seg.icon.outlineInner) | safe }}</svg>
+                {% endif %}
+            {%- endif %}
+        {%- endfor %}
+    {%- endfor %}
+    </svg>
+</div>
+<ul class="cpd-legend" aria-hidden="true">{% for name in legend %}{% set seg0 = g.rows[0].segments[loop.index0] %}<li><span class="cpd-legend-icon{{ ' cpd-legend-icon-headline' if seg0.isHeadline else '' }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="18" height="18" aria-hidden="true">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}</span>{{ name }}</li>{% endfor %}</ul>
+<h4 class="sr-only">{{ title }} — data table</h4>
+<table class="sr-only">
+<thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for seg in row.segments %}<td>{% if seg.suppressed %}withheld{% else %}{{ seg.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table>
+{% endmacro %}
+
+{#- Vertical grouped columns: SLR People at Risk, one column per increment. Dense: styled tooltip on
+    every column. Only the selected increment's columns take their ramp colour (`cpd-col-active`);
+    the rest draw in one muted tone. Each column's value is drawn in a fixed row above the plot area,
+    in full-contrast ink, never on the fill, and only the selected increment's labels are visible
+    (site/js/county-deck.js toggles both the class and [hidden]) — when `increments` is given, a
+    vertical slider (matching the timing chart's, to the chart's right) chooses which, defaulting to
+    the highest; otherwise the highest increment just shows, with no picker. -#}
+{% macro columns(uid, items, legend, title, increments) %}
+{%- set g = items | groupedColumns(legend) %}
+<p class="cpd-chart-title">{{ title }}</p>
+<div class="cpd-chart-row">
+<div class="cpd-chart" data-cpd-tips><svg class="cpd-col-chart" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
+<title id="{{ uid }}-t">{{ title }}</title>
+<desc id="{{ uid }}-d">{% for grp in g.groups %}{{ grp.label }}: {% for c in grp.cols %}{{ legend[loop.index0] }} {% if c.suppressed %}withheld{% else %}{{ c.text }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+{%- for t in g.ticks %}
+<line class="cpd-grid" x1="{{ g.ml }}" x2="{{ g.width - g.mr }}" y1="{{ t.y }}" y2="{{ t.y }}"/>
+<text class="cpd-axis" x="{{ g.ml - 14 }}" y="{{ t.y + 7 }}" text-anchor="end">{{ t.label }}</text>
+{%- endfor %}
+{%- for grp in g.groups %}
+{%- for c in grp.cols %}
+{%- if c.suppressed %}
+<text class="cpd-withheld" x="{{ c.labelX }}" y="{{ g.axisY - 10 }}" text-anchor="middle">withheld</text>
+{%- else %}
+<path class="cpd-col cpd-ramp-{{ c.s }}{% if c.isLast %} cpd-col-active{% endif %}" data-cpd-col="{{ increments[c.s] if increments else '' }}" data-tip="{{ c.tip }}" d="{{ c.path }}"/>
+<text class="cpd-vlabel" data-cpd-collabel="{{ increments[c.s] if increments else '' }}" x="{{ c.labelX }}" y="{{ c.labelY }}" text-anchor="middle"{% if not c.isLast %} hidden{% endif %}>{{ c.text }}</text>
+{%- endif %}
+{%- endfor %}
+<text class="cpd-glabel" x="{{ grp.labelX }}" y="{{ grp.labelY }}" text-anchor="middle">{{ grp.label }}</text>
+{%- endfor %}
+<line x1="{{ g.ml }}" x2="{{ g.width - g.mr }}" y1="{{ g.axisY }}" y2="{{ g.axisY }}" style="stroke:var(--ink-soft);stroke-width:1.5"/>
+</svg>
+</div>
+{%- if increments %}{{ incrementSlider(uid, increments, increments[increments.length - 1], 'data-cpd-col-incs', g.mt / g.width, (g.height - g.axisY) / g.width) }}{% endif %}
+</div>
+<ul class="cpd-legend" aria-hidden="true">{% for name in legend %}<li><span class="cpd-swatch cpd-ramp-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}</ul>
+<h4 class="sr-only">{{ title }} — data table</h4>
+<table class="sr-only">
+<thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
+<tbody>{% for grp in g.groups %}<tr><th scope="row">{{ grp.label }}</th>{% for c in grp.cols %}<td>{% if c.suppressed %}withheld{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table>
+{% endmacro %}
+
+{#- Horizontal bars stacked by increment: SLR Flooded Facilities. NOAA pattern — each facility type
+    is one bar, split into "exposed at the selected increment" and the rest of that type as a muted
+    "not yet exposed" segment, so the type's real total (which varies wildly: hundreds of schools,
+    dozens of medical facilities) stays visible. An increment picker like People at Risk's drives
+    which increment's split and end label show; every increment's split is already drawn, in its own
+    `<g data-cpd-fac-state>`, and county-deck.js only shows one at a time per row. Row labels sit in
+    a left column. -#}
+{% macro facilitiesStack(uid, items, title, increments) %}
+{%- set g = items | stackedByIncrement(increments) %}
+<p class="cpd-chart-title">{{ title }}</p>
+<div class="cpd-chart-row">
+<div class="cpd-chart" data-cpd-tips><svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
+<title id="{{ uid }}-t">{{ title }}</title>
+<desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }} ({{ row.total }} total): {% for st in row.states %}{{ st.ft }} ft {{ st.keyLabel }} exposed{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+<g transform="translate({{ g.plotX }},0)">
+{%- for t in g.ticks %}
+<line class="cp-grid" x1="{{ t.x }}" x2="{{ t.x }}" y1="0" y2="{{ g.axisY }}"/>
+<text class="cp-tick" x="{{ t.x }}" y="{{ g.axisY + 26 }}" text-anchor="middle">{{ t.label }}</text>
+{%- endfor %}
+{%- for row in g.rows %}
+{%- for st in row.states %}
+<g data-cpd-fac-state="{{ st.ft }}"{% if not loop.first %} hidden{% endif %}>
+{%- if st.exposedPath %}<path class="cp-bar cp-bar-s0" data-tip="{{ row.label }} exposed at {{ st.ft }} ft: {{ st.keyLabel }} of {{ row.total }}" transform="translate(0,{{ row.barY }})" d="{{ st.exposedPath }}"/>{% endif %}
+{%- if st.restPath %}<path class="cp-bar cp-bar-not-exposed" transform="translate(0,{{ row.barY }})" d="{{ st.restPath }}"/>{% endif %}
+<text class="cp-bar-value" x="{{ st.vx }}" y="{{ row.midY }}">{{ st.keyLabel }}</text>
+</g>
+{%- endfor %}
+{%- endfor %}
+</g>
+{%- for row in g.rows %}
+<text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}</text>
+{%- endfor %}
+</svg>
+</div>
+{{ incrementSlider(uid, increments, increments[0], 'data-cpd-fac-incs', 0, (g.height - g.axisY) / g.width) }}
+</div>
+<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch cp-bar-s0"></span>Exposed at the selected increment</li><li><span class="cpd-swatch cp-bar-not-exposed"></span>Not yet exposed</li></ul>
+<h4 class="sr-only">{{ title }} — data table</h4>
+<table class="sr-only">
+<thead><tr><th scope="col"></th><th scope="col">Total</th>{% for ft in increments %}<th scope="col">{{ ft }} ft exposed</th>{% endfor %}</tr></thead>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.keyLabel }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table>
+{% endmacro %}
+
+{#- Dot plot: average wage per sector (county / coastal California / coastal U.S.). Row labels sit
+    in a fixed-width left column (longer names wrap to two lines), to the left of the plot rather
+    than stacked above each row, with a vertical gridline at each x-axis tick and a horizontal one
+    along each row, carrying the eye from a sector's name to its dots. Dense: styled tooltip per
+    dot. -#}
+{% macro dots(uid, items, series, title) %}
+{%- set g = items | dotPlot(series) %}
+<p class="cpd-chart-title">{{ title }}</p>
+<div class="cpd-chart cpd-chart-dotplot" data-cpd-tips><svg viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
+<title id="{{ uid }}-t">{{ title }}</title>
+<desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}: {% for d in row.dots %}{{ series[loop.index0] }} {% if d.suppressed %}withheld{% else %}{{ d.text }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+{%- for t in g.ticks %}
+<line class="cpd-grid" x1="{{ t.x }}" x2="{{ t.x }}" y1="0" y2="{{ g.axisY }}"/>
+<text class="cpd-axis" x="{{ t.x }}" y="{{ g.axisY + 28 }}" text-anchor="middle">{{ t.label }}</text>
+{%- endfor %}
+{%- for row in g.rows %}
+<line class="cpd-grid" x1="{{ g.plotL }}" x2="{{ g.plotR }}" y1="{{ row.cy }}" y2="{{ row.cy }}"/>
+<text class="cpd-dotplot-label" x="{{ row.labelX }}" y="{{ row.cy }}" text-anchor="end">{% for ln in row.labelLines %}<tspan x="{{ row.labelX }}" dy="{{ ln.dy }}">{{ ln.text }}</tspan>{% endfor %}</text>
+{%- if row.lineX1 != null %}<line class="cpd-dotplot-line" x1="{{ row.lineX1 }}" x2="{{ row.lineX2 }}" y1="{{ row.cy }}" y2="{{ row.cy }}"/>{% endif %}
+{%- for d in row.dots | reverse %}{% if not d.suppressed %}<circle class="cpd-dot-{{ d.s }}" data-tip="{{ d.tip }}" cx="{{ d.cx }}" cy="{{ row.cy }}" r="10"/>{% endif %}{% endfor %}
+{%- endfor %}
+</svg>
+</div>
+<ul class="cpd-legend" aria-hidden="true">{% for name in series %}<li><span class="cpd-swatch cpd-dot-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}</ul>
+<h4 class="sr-only">{{ title }} — data table</h4>
+<table class="sr-only">
+<thead><tr><th scope="col"></th>{% for name in series %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for d in row.dots %}<td>{% if d.suppressed %}withheld{% else %}{{ d.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table>
+{% endmacro %}
+
+{#- Sea level rise scenario curves for the county's gauge, with an increment picker (2/4/6/8/10 ft) —
+    the one chart NOAA itself offers as both a chart and a table, so it keeps the Chart/Table switch.
+    Every increment but the selected one shows as a plain, muted gridline with a plain label; the
+    selected increment's own muted twin is hidden and its threshold line, label, crossing dots and
+    drop lines draw bold and full-strength instead, so moving the slider visibly moves the emphasis.
+    Scenarios are named in a legend below the chart, like every other chart's series, rather than
+    at the curves' ends. Both panes sit in the same
+    grid cell (`.cpd-timing-stage`) so the taller one sets the height regardless of which is shown,
+    and the source line below never moves when the switch is pressed. -#}
+{% macro curves(uid, county, reference, increments) %}
+{%- set g = reference | slrCurves(county.gauge, increments) %}
+<div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Year each increment is reached, by scenario</p>
+<div class="cpd-view" role="group" aria-label="Show as" data-cpd-timing-view>
+<button type="button" aria-pressed="true" data-show="chart">Chart</button>
+<button type="button" aria-pressed="false" data-show="table">Table</button>
+</div></div>
+<div class="cpd-timing-stage">
+<div data-cpd-pane="chart" class="cpd-pane">
+<div class="cpd-chart-row">
+<div class="cpd-chart"><svg viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t {{ uid }}-d" preserveAspectRatio="xMidYMid meet">
+<title id="{{ uid }}-t">Projected sea level rise at the {{ county.gaugeName }} tide gauge, 2000 to 2150, by scenario</title>
+<desc id="{{ uid }}-d">Feet of sea level rise above 2000, for the Intermediate, Intermediate-High and High scenarios. The year each increment is reached is in the table.</desc>
+{%- for t in g.yTicks %}
+<line class="cpd-grid" x1="{{ g.left }}" x2="{{ g.right }}" y1="{{ t.y }}" y2="{{ t.y }}"/>
+{%- if t.label %}<text class="cpd-axis" x="{{ g.left - 14 }}" y="{{ t.ty }}" text-anchor="end">{{ t.label }}</text>{% endif %}
+{%- endfor %}
+{%- for t in g.xTicks %}
+<text class="cpd-axis" x="{{ t.x }}" y="{{ g.height - 14 }}" text-anchor="middle">{{ t.label }}</text>
+{%- endfor %}
+{%- for c in g.curves %}
+<path class="cpd-curve" style="stroke:var(--ramp-{{ c.ramp }})" d="{{ c.d }}"/>
+{%- endfor %}
+{%- for st in g.states %}
+<g data-cpd-muted="{{ st.ft }}"{% if loop.first %} hidden{% endif %}>
+<line class="cpd-thresh-muted" x1="{{ g.left }}" x2="{{ g.right }}" y1="{{ st.y }}" y2="{{ st.y }}"/>
+<text class="cpd-xlab-muted" x="{{ g.left + 10 }}" y="{{ st.y - 10 }}">{{ st.ft }} ft</text>
+</g>
+{%- endfor %}
+{%- for st in g.states %}
+<g data-cpd-state="{{ st.ft }}"{% if not loop.first %} hidden{% endif %}>
+<line class="cpd-thresh" x1="{{ g.left }}" x2="{{ g.right }}" y1="{{ st.y }}" y2="{{ st.y }}"/>
+<text class="cpd-xlab" x="{{ g.left + 10 }}" y="{{ st.y - 13 }}">{{ st.ft }} ft</text>
+{%- for cr in st.crossings %}
+{%- if cr.x != null %}
+<line class="cpd-drop" style="stroke:var(--ramp-{{ cr.ramp }})" x1="{{ cr.x }}" x2="{{ cr.x }}" y1="{{ st.y }}" y2="{{ g.bottom }}"/>
+<circle cx="{{ cr.x }}" cy="{{ st.y }}" r="8" style="fill:var(--ramp-{{ cr.ramp }});stroke:var(--paper-2);stroke-width:3"><title>{{ cr.label }} reaches {{ st.ft }} ft in {{ cr.text }}</title></circle>
+{%- endif %}
+{%- endfor %}
+</g>
+{%- endfor %}
+</svg>
+</div>
+{{ incrementSlider(uid, increments, increments[0], 'data-cpd-incs', g.top / g.width, (g.height - g.bottom) / g.width) }}
+</div>
+<ul class="cpd-legend" aria-hidden="true">{% for c in g.curves | reverse %}<li><span class="cpd-swatch cpd-ramp-{{ c.ramp }}"></span>{{ c.label }}</li>{% endfor %}</ul>
+{%- for st in g.states %}
+<div class="cpd-readout" data-cpd-readout="{{ st.ft }}"{% if not loop.first %} hidden{% endif %} aria-live="polite">
+<p class="cpd-readout-label">{{ st.readoutLabel }}</p>
+<dl class="cpd-readout-stats">{% for cr in st.crossings %}<div><dt>{{ cr.label }}</dt><dd{% if cr.beyond %} class="cpd-beyond-stat"{% endif %}>{{ cr.text }}</dd></div>{% endfor %}</dl>
+</div>
+{%- endfor %}
+</div>
+<div data-cpd-pane="table" class="cpd-pane cpd-pane-hidden cpd-tview">
+{%- for t in county.timing %}
+<table class="cp-timing-table">
+<caption style="text-align:left;font-size:13px;color:var(--ink-soft);padding-bottom:6px">Based on projections for the {{ t.name }} tide gauge{% if t.alt %}, this county’s second gauge{% endif %}.</caption>
+<thead><tr><th scope="col">Sea level rise</th><th scope="col">Intermediate</th><th scope="col">Intermediate-High</th><th scope="col">High</th></tr></thead>
+<tbody>
+{%- for row in t.rows %}
+<tr><th scope="row">{{ row.feet }} ft</th>{% for c in row.cells %}<td{% if c.year == null %} class="cpd-beyond"{% endif %}>{% if c.year == null %}after 2150{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>
+{%- endfor %}
+</tbody>
+</table>
+{%- endfor %}
+</div>
+</div>
+{% endmacro %}

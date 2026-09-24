@@ -11,6 +11,7 @@
   --paper:#FBF8F1;
   --paper-2:#F3EEE0;
   --line:#D9D0B8;
+  --grid-line:#D9D0B8;
   --ink-soft:#4A5A62;
   --teal-text:#134F45;
   --rust-text:#7C331D;
@@ -19,6 +20,7 @@
   --paper:#0F1D26;
   --paper-2:#152833;
   --line:#2C4552;
+  --grid-line:#3D5C6C;
   --ink:#EDE7D6;
   --ink-soft:#A9BAC1;
   --sand:#22394A;
@@ -31,6 +33,7 @@
     --paper:#0F1D26;
     --paper-2:#152833;
     --line:#2C4552;
+    --grid-line:#3D5C6C;
     --ink:#EDE7D6;
     --ink-soft:#A9BAC1;
     --sand:#22394A;
@@ -636,4 +639,584 @@ legend{
   .site-footer-details-body{position:static;max-height:none;overflow:visible;box-shadow:none;border:0;padding:0;background:none;}
   .site-footer-details-body p{margin:0 0 3px;}
   .site-footer a{color:#000;text-decoration:none;}
+}
+
+/* ---------- county profiles ---------- */
+.cp{max-width:980px;}
+.cp h2{font-size:24px;margin-top:0;}
+.cp h3{font-size:18px;margin:22px 0 4px;}
+.cp code{font-size:.9em;}
+.cp-note{max-width:72ch;font-size:14.5px;color:var(--ink-soft);}
+.cp-topic{margin:0 0 44px;scroll-margin-top:16px;}
+.cp-tier-badge{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.02em;border:1px solid rgba(243,239,224,.5);border-radius:4px;padding:2px 8px;margin-right:6px;color:#FBF8F1;}
+.cp-asof{margin:18px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;color:#FBF8F1;}
+.cp-asof-label{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#E9D9AE;}
+.cp-asof time{font-family:'Spectral',Georgia,serif;font-size:clamp(24px,4vw,32px);font-weight:600;}
+.cp-asof-meta{font-size:13.5px;color:#DCE6DE;}
+.cp-fixture{border:1px solid var(--rust);border-left-width:4px;border-radius:4px;background:var(--paper-2);padding:10px 14px;font-size:14.5px;margin:0 0 18px;color:var(--ink);}
+.cp-fixture p{margin:0 0 6px;}
+.cp-fixture ul{margin:0 0 8px;padding-left:20px;}
+.cp-gauge{font-size:14.5px;color:var(--ink-soft);max-width:72ch;margin:0 0 18px;}
+.cp-toc ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px 18px;padding:12px 0;margin:0 0 28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:14px;font-weight:600;}
+.cp-section{border-top:1px solid var(--line);padding-top:6px;margin-top:22px;scroll-margin-top:16px;}
+.cp-why{font-size:14.5px;color:var(--ink-soft);max-width:68ch;margin:0 0 14px;}
+.cp-figure{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:22px;align-items:start;}
+.cp-callout{border-left:4px solid var(--teal);background:var(--paper-2);border-radius:0 6px 6px 0;padding:14px 18px;}
+.cp-callout p{margin:0;font-family:'Spectral',Georgia,serif;font-size:19px;line-height:1.35;font-weight:500;}
+.cp-sources{font-size:12.5px;color:var(--ink-soft);margin:14px 0 0;}
+.cp-sources-head{font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:11.5px;margin-right:8px;}
+.cp-source{display:inline-block;margin-right:14px;}
+@media (max-width:760px){.cp-figure{grid-template-columns:minmax(0,1fr);}}
+
+/* Share ring: a share with the single figure centred. Colours are CASCA custom properties, so both themes work.
+   auto-fit (not auto-fill) so the columns always match the ring count and spread across the panel,
+   instead of leaving empty ghost tracks when a section has only 2-3 rings. */
+.share-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:18px 14px;}
+.share{margin:0;text-align:center;}
+.share-ring{display:block;width:100%;max-width:240px;height:auto;margin:0 auto;}
+.share-track{stroke:var(--line);}
+.share-arc{stroke:var(--teal-text);}
+.share-figure{fill:var(--ink);font-family:'Spectral',Georgia,serif;font-size:21px;font-weight:600;}
+.share figcaption{margin-top:6px;font-size:13px;line-height:1.35;}
+.share-label{display:block;font-weight:600;font-size:16.5px;margin-bottom:2px;}
+.share-detail{display:block;color:var(--ink-soft);font-size:12.5px;}
+
+/* Counts: a zero is a finding (solid, marked "None"); unavailable is a dashed gap (.cp-gap). */
+.cp-counts{list-style:none;margin:0;padding:0;}
+.cp-counts li{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;padding:9px 0;border-bottom:1px solid var(--line);}
+.cp-count-label{flex:1 1 12ch;font-size:15px;}
+.cp-count-value{font-family:'Spectral',Georgia,serif;font-size:24px;font-weight:600;min-width:3ch;text-align:right;}
+.cp-count-none{flex:1 0 100%;font-size:12.5px;font-weight:600;color:var(--teal-text);text-align:right;}
+.cp-counts li.is-zero .cp-count-value{color:var(--teal-text);}
+.cp-gap,.cp-pending{border:2px dashed var(--line);border-radius:6px;padding:12px 16px;color:var(--ink-soft);background:transparent;}
+.cp-pending p{margin:0;font-size:14.5px;}
+.cp-gap p{margin:0 0 4px;font-size:14.5px;}
+.cp-gap-tag{font-size:11.5px !important;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.cp-gap-code{font-size:12.5px !important;}
+
+.cp-table-wrap{overflow-x:auto;margin:10px 0 6px;}
+.cp table{border-collapse:collapse;width:100%;font-size:13.5px;}
+.cp th,.cp td{text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--line);vertical-align:top;}
+.cp thead th{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);}
+.cp-matrix th[scope="row"]{font-weight:600;min-width:9.5em;}
+.cp-matrix-tier{display:block;font-weight:400;font-size:11.5px;color:var(--ink-soft);}
+.cp-matrix td.is-available{color:var(--teal-text);font-weight:600;}
+.cp-matrix td.is-unavailable{color:var(--ink-soft);}
+.cp-reasons,.cp-tiers{margin:0 0 12px;}
+.cp-reasons div,.cp-tiers div{padding:8px 0;border-bottom:1px solid var(--line);}
+.cp-reasons dt,.cp-tiers dt{font-weight:600;font-size:14.5px;}
+.cp-reasons dd,.cp-tiers dd{margin:2px 0 0;font-size:14px;color:var(--ink-soft);max-width:72ch;}
+.cp-tier-count{font-weight:400;font-size:12.5px;color:var(--ink-soft);margin-left:6px;}
+.cp-stamp{display:flex;flex-wrap:wrap;gap:8px 32px;margin:0 0 10px;}
+.cp-stamp dt{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);}
+.cp-stamp dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:20px;font-weight:600;}
+.cp-citation{font-size:13.5px;overflow-wrap:anywhere;}
+.cp-sources-table th[scope="row"]{font-weight:500;}
+
+.cp [hidden]{display:none !important;}
+.cp-prose{max-width:68ch;font-size:15px;margin:0 0 10px;color:var(--ink);}
+.cp-vintage{color:var(--ink-soft);}
+.cp-figure.is-callout-only,.cp-figure.is-visual-only{grid-template-columns:minmax(0,1fr);}
+.cp-figure.is-callout-only .cp-callout{max-width:60ch;}
+.cp-chart-caption{font-size:13px;color:var(--ink-soft);margin:0 0 8px;}
+.cp-footnote{font-size:12.5px;color:var(--ink-soft);margin:10px 0 0;}
+.cp-intro{max-width:70ch;font-size:15.5px;color:var(--ink-soft);margin:0 0 20px;}
+
+/* Values: a zero is solid (a finding), withheld is dotted and muted, unavailable is the dashed .cp-gap block. */
+.is-withheld{color:var(--ink-soft) !important;font-style:italic;font-weight:400 !important;border-bottom:2px dotted var(--ink-soft);}
+/* A withheld stat is never drawn at the big-number scale — it isn't a finding, it's an absence — so
+   it drops to body-text size regardless of which display type (.cp-stats/.cp-equation) it sits in. */
+.cp-stats dd.is-withheld,.cp-eq-value.is-withheld{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:16px;line-height:1.4;}
+
+/* Key-value slides (Measuring, Coastal Jobs Are Vulnerable, Total Jobs): the values are the slide's
+   content, not supporting labels, so they scale up toward the section's own big number, get real
+   vertical rhythm, and the whole block sits centred in the panel (inherited from .cpd-panel-body's
+   own flex centring). A 4-across row collapses to 2x2 at narrower panel widths instead of
+   compressing every value into a shrinking single row. */
+/* auto-fit, not a fixed 4 columns: a 2-item row (marine economy's jobs/marine-jobs stat pair) then
+   spreads across the full panel width in 2 equal columns instead of sitting in the left half with
+   two empty tracks to the right. */
+.cp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:28px 24px;margin:0;width:100%;}
+.cp-stats dt{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:0 0 6px;}
+.cp-stats dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:clamp(22px,2.8vw,36px);font-weight:600;line-height:1.15;overflow-wrap:break-word;}
+.cp-stats dd.cp-stat-unit{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;font-weight:400;color:var(--ink-soft);margin-top:2px;}
+@media (max-width:640px){.cp-stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
+
+.cp-equation{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 20px;width:100%;}
+.cp-eq-part{display:flex;flex-direction:column;min-width:0;}
+.cp-eq-label{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:4px;}
+.cp-eq-value{font-family:'Spectral',Georgia,serif;font-size:clamp(22px,2.8vw,36px);font-weight:600;line-height:1.15;overflow-wrap:break-word;}
+.cp-eq-op{font-size:clamp(22px,2.6vw,32px);padding-bottom:6px;color:var(--ink-soft);}
+.cp-eq-total .cp-eq-value{color:var(--teal-text);}
+@media (max-width:640px){.cp-equation{gap:14px 16px;}}
+
+/* Bars and graph: SVG whose text and colours come from CASCA's custom properties. No max-width here
+   — these are only used inside the deck's .cpd-chart now, which sizes them, so they stretch exactly
+   as wide as the caption and note text above and below them. */
+.cp-bars,.cp-graph{display:block;width:100%;height:auto;}
+.cp-graph{max-width:640px;}
+.cp-bar{fill:var(--teal-text);}
+.cp-bar-s1{fill:var(--sand-deep);}
+.cp-bar-s2{fill:var(--ink-soft);}
+.cp-bar-s3{fill:var(--rust-text);}
+.cp-bar-s4{fill:var(--navy-2);}
+.cp-bar-zero{fill:var(--ink);}
+.cp-bar-withheld{fill:var(--paper);stroke:var(--ink-soft);stroke-width:1;stroke-dasharray:3 2;}
+/* Diverse Economies: colour and label only the headline sector (the one named in the big number);
+   every other sector is a neutral alternating shade, identified by name on hover/focus/tap. */
+.cp-sec-headline{fill:var(--teal-text);}
+.cp-sec-neutral-0{fill:var(--sand-deep);}
+.cp-sec-neutral-1{fill:var(--line);}
+.cp-legend .cp-sec-headline,.cpd-legend .cp-sec-headline{background:var(--teal-text);}
+.cp-legend .cp-sec-neutral-0,.cpd-legend .cp-sec-neutral-0{background:var(--sand-deep);}
+.cp-legend .cp-sec-neutral-1,.cpd-legend .cp-sec-neutral-1{background:var(--line);}
+/* Land cover: the natural classes (wetland, upland) carry the emphasis; "Other" is a muted neutral. */
+.cp-bar-natural-0{fill:var(--teal-text);}
+.cp-bar-natural-1{fill:var(--ramp-2);}
+.cp-bar-neutral{fill:var(--ink-soft);}
+/* Flooded Facilities' "not yet exposed" segment: the same muted colour as "Outside the floodplain"
+   on the flood-hazard Critical Facilities chart (.cp-bar-s1), not the lighter --ink-soft used for
+   land cover's "Other" — --ink-soft reads as a bright near-white in dark theme, which looked like
+   the highlighted state instead of the muted one. */
+.cp-bar-not-exposed{fill:var(--sand-deep);}
+.cp-legend .cp-bar-natural-0,.cpd-legend .cp-bar-natural-0{background:var(--teal-text);}
+.cp-legend .cp-bar-natural-1,.cpd-legend .cp-bar-natural-1{background:var(--ramp-2);}
+.cp-legend .cp-bar-neutral,.cpd-legend .cp-bar-neutral{background:var(--ink-soft);}
+.cp-legend .cp-bar-not-exposed,.cpd-legend .cp-bar-not-exposed{background:var(--sand-deep);}
+.cp-grid{stroke:var(--grid-line);stroke-width:1;}
+.cp-tick,.cp-bar-label,.cp-bar-value,.cp-withheld{font-size:20px;fill:var(--ink-soft);font-family:'IBM Plex Sans',system-ui,sans-serif;}
+.cp-bar-label{fill:var(--ink);font-weight:600;font-size:21px;}
+/* The end-of-bar value sits at the bar's own vertical centre (see barChart()/stackedBars()' midY),
+   not baseline-minus-a-few-px, which used to read slightly low against the bar. */
+.cp-bar-value{fill:var(--ink);font-weight:600;dominant-baseline:middle;}
+.cp-withheld{font-style:italic;text-decoration:underline dotted;dominant-baseline:middle;}
+.cp-legend{list-style:none;display:flex;flex-wrap:wrap;gap:4px 16px;padding:0;margin:0 0 8px;font-size:12.5px;color:var(--ink-soft);}
+.cp-swatch{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px;}
+/* Swatch used in the deck's own .cpd-legend lists (economic diversity, land cover, wages, SLR
+   ramp); had no sizing rule at all before, so it rendered at 0x0 and every legend swatch vanished. */
+.cpd-swatch{display:inline-block;width:13px;height:13px;border-radius:2px;margin-right:2px;vertical-align:-2px;}
+.cp-legend .cp-bar-s0,.cpd-legend .cp-bar-s0{background:var(--teal-text);}
+.cp-legend .cp-bar-s1,.cpd-legend .cp-bar-s1{background:var(--sand-deep);}
+.cp-legend .cp-bar-s2,.cpd-legend .cp-bar-s2{background:var(--ink-soft);}
+.cp-legend .cp-bar-s3,.cpd-legend .cp-bar-s3{background:var(--rust-text);}
+.cp-legend .cp-bar-s4,.cpd-legend .cp-bar-s4{background:var(--navy-2);}
+.cp-chart-table{margin:10px 0 0;font-size:13px;}
+.cp-chart-table summary{cursor:pointer;color:var(--teal-text);font-weight:600;}
+.cp-chart-table table{margin-top:8px;}
+.cp-curve{stroke-width:2.5;}
+.cp-curve-intermediate{stroke:var(--ink-soft);}
+.cp-curve-intermediate-high{stroke:var(--teal-text);}
+.cp-curve-high{stroke:var(--rust-text);}
+.cp-legend .cp-curve-intermediate{background:var(--ink-soft);}
+.cp-legend .cp-curve-intermediate-high{background:var(--teal-text);}
+.cp-legend .cp-curve-high{background:var(--rust-text);}
+.cp-threshold{stroke:var(--ink);stroke-width:1.5;stroke-dasharray:5 4;}
+
+/* Timing table, tabs and slider. */
+.cp-tabs{display:flex;gap:6px;margin:0 0 10px;}
+.cp-tab{font:inherit;font-size:13px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:4px;padding:5px 12px;cursor:pointer;}
+.cp-tab[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff;}
+.cp-timing-table{table-layout:fixed;width:100%;}
+.cp-timing-table th:first-child{width:19%;}
+.cp-timing-table th:not(:first-child),.cp-timing-table td{width:27%;}
+.cp-timing-table caption{caption-side:top;text-align:left;font-size:13px;color:var(--ink-soft);padding-bottom:6px;}
+.cp-timing-table td,.cp-timing-table th[scope="row"]{font-variant-numeric:tabular-nums;font-weight:600;}
+.cp-graph-controls{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-size:14px;margin:0 0 8px;}
+.cp-graph-controls input{flex:1 1 200px;max-width:320px;accent-color:var(--teal);}
+.cp-readout{font-size:13.5px;margin:6px 0 0;}
+.cp-citation{max-width:72ch;overflow-wrap:anywhere;}
+
+@media print{
+  /* Print is always light , whatever the screen theme, so ring and text colours stay legible on paper. */
+  .cp{--paper:#fff;--paper-2:#fff;--ink:#000;--ink-soft:#333;--line:#bbb;--teal:#134F45;--teal-text:#134F45;--rust:#7C331D;--rust-text:#7C331D;}
+  .cp .share,.cp .cp-section,.cp .cp-gap{break-inside:avoid;}
+  .cp-toc,.no-print{display:none !important;}
+  .cp-bar,.cp-sec-headline,.cp-bar-natural-0{fill:#134F45;}
+  .cp-bar-s1,.cp-sec-neutral-0{fill:#DCC79A;}
+  .cp-bar-s2,.cp-sec-neutral-1,.cp-bar-neutral{fill:#555;}
+  .cp-bar-s3,.cp-bar-natural-1{fill:#7C331D;}
+  .cp-bar-s4{fill:#1B3A4B;}
+  .cp .share-track,.cp .share-arc,.cp .cp-bar,.cp [class*="cp-sec-"],.cp [class*="cp-bar-natural-"],.cp .cp-bar-neutral,.cp .cp-bar-withheld{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+@media (max-width:600px){
+  .cp-matrix td{font-size:12.5px;padding-right:6px;}
+  .cp-matrix td.is-available{white-space:nowrap;}
+}
+
+/* County landing page: a normal document. Each topic is a card with its headline figure/caption
+   and a link into its deck, or its unavailable reason in place. */
+.cp-landing-topics{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin:14px 0;}
+.cp-landing-topic{border:1px solid var(--line);border-radius:8px;padding:18px 20px;background:var(--paper-2);display:flex;flex-direction:column;gap:6px;}
+.cp-landing-topic h3{font-size:17px;margin:0;}
+.cp-landing-figure{font-family:'Spectral',Georgia,serif;font-size:32px;font-weight:600;color:var(--teal-text);margin:4px 0 0;}
+.cp-landing-caption{font-size:13.5px;color:var(--ink-soft);margin:0;flex:1;}
+.cp-snapshot-list{list-style:none;margin:0;padding:0;}
+.cp-snapshot-list li{padding:8px 0;border-bottom:1px solid var(--line);font-size:14.5px;}
+
+/* ================================================================================
+   County Profiles deck (topic pages): a full-width app-shell page, like /map/,
+   deliberately not using .wrap/.main. New classes only (cpd- prefix), so nothing
+   here inherits a max-width or other rule meant for the read-as-document pages.
+   ================================================================================ */
+
+:root{
+  --ramp-0:#6DB3A4; --ramp-1:#4A9A8B; --ramp-2:#2C8070; --ramp-3:#1F6A5D; --ramp-4:#134F45;
+  /* A label drawn on top of the headline fill picks white or ink by that fill's own luminance in
+     the current theme, not by the page's default text colour — computed once by hand from the
+     swatch's real hex per theme (see docs/DECISIONS.md), not guessed at render time. */
+  --onfill-headline:#fff;
+}
+[data-theme="dark"]{
+  --ramp-0:#2C6E63; --ramp-1:#3D8C7E; --ramp-2:#52A999; --ramp-3:#6FC7B6; --ramp-4:#A6E6D8;
+  --onfill-headline:#122430;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ramp-0:#2C6E63; --ramp-1:#3D8C7E; --ramp-2:#52A999; --ramp-3:#6FC7B6; --ramp-4:#A6E6D8;
+    --onfill-headline:#122430;
+  }
+}
+
+/* Visually hidden, but present for a screen reader: a chart's data table, an sr-only heading, or
+   any other "reachable but not visible" content. Never toggled — there is nothing to switch to. */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+table.sr-only{table-layout:fixed;}
+
+body.cpd-page{margin:0;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
+
+.cpd-topbar{
+  position:fixed;top:0;left:0;right:0;z-index:5;height:58px;
+  padding-inline:24px;display:flex;align-items:center;gap:22px;
+  background:var(--paper);border-bottom:1px solid var(--line);
+}
+/* Brand + a way back to the main site: the deck is an app shell with no header/footer of its own,
+   so without this a reader who lands on a topic page has no path back to seachangeatlas.org. */
+.cpd-brand{display:flex;align-items:center;gap:9px;flex:none;text-decoration:none;}
+.cpd-brand img{display:block;width:30px;height:30px;flex:none;}
+.cpd-brand-name{font-family:'IBM Plex Sans',system-ui,sans-serif;font-weight:600;font-size:18px;color:var(--ink);white-space:nowrap;}
+.cpd-brand:hover .cpd-brand-name{text-decoration:underline;}
+.cpd-divider{width:1px;height:28px;background:var(--line);flex:none;}
+@media (max-width:600px){.cpd-brand-name{display:none;}}
+.cpd-crumb{display:flex;flex-direction:column;line-height:1.2;white-space:nowrap;}
+.cpd-crumb small{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+.cpd-crumb small a{color:inherit;text-decoration:none;}
+.cpd-crumb small a:hover{color:var(--ink);text-decoration:underline;}
+.cpd-crumb strong{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:19px;color:var(--ink);}
+.cpd-topics{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;min-width:0;}
+.cpd-topics a{font-size:14px;text-decoration:none;color:var(--ink-soft);padding:7px 12px;border-radius:4px;white-space:nowrap;}
+.cpd-topics a:hover{color:var(--ink);background:var(--paper-2);}
+.cpd-topics a[aria-current="page"]{color:var(--ink);background:var(--paper-2);font-weight:600;}
+.cpd-topics a[aria-disabled="true"]{color:var(--line);pointer-events:none;}
+.cpd-bar-right{margin-left:auto;display:flex;align-items:center;gap:14px;white-space:nowrap;font-size:13px;color:var(--ink-soft);}
+.cpd-bar-right b{color:var(--ink);font-weight:600;}
+.cpd-tag{background:var(--sand-deep);color:var(--ink);font-size:11.5px;padding:3px 8px;border-radius:3px;letter-spacing:.02em;}
+.cpd-btn{font:inherit;font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:4px;padding:5px 11px;cursor:pointer;}
+.cpd-btn[aria-pressed="true"]{background:var(--paper-2);border-color:var(--teal-text);color:var(--ink);font-weight:600;}
+.cpd-btn:disabled{opacity:.5;cursor:not-allowed;}
+.cpd-btn:hover{border-color:var(--ink-soft);}
+
+.cpd-deck{position:fixed;top:58px;bottom:0;left:0;right:0;overflow-y:auto;scroll-behavior:smooth;}
+@media (prefers-reduced-motion:reduce){.cpd-deck{scroll-behavior:auto;}}
+.cpd-deck.is-snap{scroll-snap-type:y mandatory;}
+.cpd-slide{min-height:100%;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);}
+.cpd-deck.is-snap .cpd-slide{scroll-snap-align:start;}
+
+.cpd-left{padding:48px 56px 48px 72px;display:flex;flex-direction:column;justify-content:center;gap:22px;}
+.cpd-eyebrow{font-size:13.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin:0;}
+.cpd-left h1,.cpd-left h2{font-family:'Spectral',Georgia,serif;font-weight:600;color:var(--ink);margin:0;text-wrap:balance;letter-spacing:-.01em;}
+.cpd-left h1{font-size:clamp(48px,6.2vw,92px);line-height:1.02;}
+.cpd-left h2{font-size:clamp(38px,4vw,62px);line-height:1.06;}
+.cpd-prose{margin:0;max-width:44ch;color:var(--ink);font-size:clamp(19px,1.45vw,22px);line-height:1.5;}
+.cpd-meta{margin:0;font-size:16px;color:var(--ink-soft);}
+
+.cpd-panel{background:var(--paper-2);padding:44px 56px 28px;display:flex;flex-direction:column;gap:22px;min-width:0;}
+.cpd-panel-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px;min-width:0;}
+
+.cpd-bign{display:flex;align-items:center;gap:28px;width:100%;}
+.cpd-bign .cpd-fig{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:clamp(64px,6.6vw,108px);line-height:1;color:var(--ink);letter-spacing:-.02em;white-space:nowrap;}
+.cpd-bign .cpd-cap{margin:0;flex:1;min-width:0;font-size:clamp(18px,1.35vw,21px);line-height:1.5;color:var(--ink);}
+.cpd-note{margin:0;font-size:16px;color:var(--ink-soft);width:100%;}
+
+/* A stat-pair slide (e.g. Jobs at Risk) has no big number of its own, so its two stats take
+   .cpd-fig-scale sizing and sit centred as a group — they're the slide's whole content, not
+   supporting figures underneath one. */
+.cpd-bign-group{display:grid;grid-template-columns:repeat(2,1fr);justify-items:center;gap:24px 64px;width:100%;text-align:center;}
+.cpd-bign-item{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.cpd-bign-item .cpd-fig{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:clamp(48px,5.2vw,84px);line-height:1;color:var(--ink);letter-spacing:-.02em;white-space:nowrap;}
+.cpd-bign-item .cpd-cap{margin:0;font-size:15px;color:var(--ink-soft);}
+/* The stat-pair's explanatory prose (rendered as a footnote below the two big numbers, since there's
+   no other note position on a slide with no big number of its own) reads centred like the row above
+   it, not left-aligned against the panel. */
+.cpd-bign-group + .cpd-footnote{text-align:center;}
+
+/* Chart title/caption and legend read as a unit centred over the chart itself, not left-aligned
+   against the panel — both are full-width block elements sized to the same container the chart's
+   own .cpd-chart div fills, so centring their text/content centres them relative to the chart.
+   Exception: a chart with an increment picker shares its title's row with that control
+   (.cpd-fighead is a space-between flex row), so the title there stays left-aligned. */
+.cpd-chart-title{margin:0;font-size:16px;font-weight:600;color:var(--ink);text-align:center;}
+.cpd-fighead .cpd-chart-title{text-align:left;}
+.cpd-fighead-centered{position:relative;justify-content:flex-end;}
+.cpd-fighead-centered .cpd-chart-title{position:absolute;left:50%;transform:translateX(-50%);text-align:center;}
+.cpd-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin:0 0 10px;padding:0;list-style:none;font-size:15px;color:var(--ink-soft);}
+.cpd-legend li{display:inline-flex;align-items:center;gap:6px;}
+.cpd-legend i{width:13px;height:13px;border-radius:2px;display:inline-block;}
+.cpd-chart{width:100%;}
+/* No max-height: each chart now draws in a viewBox close to the panel's own aspect ratio (see
+   template-helpers.mjs), so width:100%;height:auto sizes it correctly on its own. A height cap
+   fighting a narrow viewBox used to force the browser to shrink the whole drawing to fit and
+   letterbox it with side gutters — see docs/DECISIONS.md. */
+.cpd-chart svg{display:block;width:100%;height:auto;}
+/* The one deliberate exception to "no max-height": at up to 11 rows the wages dot plot's natural
+   height ran taller than the panel at 1400px and below, clipping at the bottom. A cap here trades a
+   little of the no-letterboxing rule for actually fitting the slide — its own row height was also
+   tightened in template-helpers.mjs so the cap rarely needs to bite. */
+.cpd-chart-dotplot svg{max-height:52vh;}
+/* SVG has no UA display:none for [hidden] the way HTML does, so an <g hidden> or <text hidden>
+   inside a chart stays fully visible unless a rule says otherwise. */
+svg [hidden]{display:none;}
+.cpd-axis,.cpd-axis text,.cpd-glabel{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:24px;fill:var(--ink-soft);}
+.cpd-glabel{fill:var(--ink);font-weight:500;}
+.cpd-vlabel{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:22px;fill:var(--ink);font-variant-numeric:tabular-nums;}
+/* SLR People at Risk (the only groupedColumns caller): its own, smaller type scale. Its viewBox is
+   narrower than the bar charts' (1000 vs ~1180) and it spans the whole chart column, so at the
+   shared size its text rendered noticeably larger than the neighbouring slides'; these sizes bring
+   it back in line with Flooded Facilities' ticks and row labels. */
+.cpd-col-chart .cpd-axis{font-size:18px;}
+.cpd-col-chart .cpd-glabel{font-size:18px;font-weight:600;}
+.cpd-col-chart .cpd-vlabel{font-size:18px;font-weight:600;}
+/* Only the slider's selected increment keeps its ramp colour; every other column is one muted tone,
+   so the selection reads at a glance and the ramp isn't competing with itself. */
+.cpd-col:not(.cpd-col-active){fill:var(--ink-soft);opacity:.28;}
+.cpd-col-chart .cpd-withheld{font-size:20px;}
+.cpd-grid{stroke:var(--grid-line);stroke-width:1;}
+.cpd-ramp-0{fill:var(--ramp-0);} .cpd-ramp-1{fill:var(--ramp-1);} .cpd-ramp-2{fill:var(--ramp-2);} .cpd-ramp-3{fill:var(--ramp-3);} .cpd-ramp-4{fill:var(--ramp-4);}
+.cpd-legend .cpd-ramp-0{background:var(--ramp-0);} .cpd-legend .cpd-ramp-1{background:var(--ramp-1);} .cpd-legend .cpd-ramp-2{background:var(--ramp-2);} .cpd-legend .cpd-ramp-3{background:var(--ramp-3);} .cpd-legend .cpd-ramp-4{background:var(--ramp-4);}
+.cpd-withheld{font-style:italic;text-decoration:underline dotted;font-size:22px;fill:var(--ink-soft);}
+.cpd-stacked{max-width:520px;}
+/* A value label set inside a mark's own saturated fill (never axis ticks, group labels or legend
+   swatches, which keep the ordinary text tokens). */
+.cpd-onfill-headline{fill:var(--onfill-headline);color:var(--onfill-headline);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:20px;font-weight:600;dominant-baseline:middle;}
+/* A sector's small identifying Material Symbols icon, drawn on top of its own segment fill (a solid
+   path, no stroke — set fill, not stroke, to currentColor). The headline sector's icon picks up the
+   same fill-luminance contrast token as its % label (.cpd-onfill-headline sets `color`, which
+   fill="currentColor" reads); every neutral sector's icon uses a fixed, theme-aware ink tone, since
+   neutral fills are all in the same light-to-mid luminance band. */
+.cpd-sector-icon{fill:currentColor;color:var(--ink);opacity:.8;}
+/* The legend's own copy of each sector's icon (item B): a small inline glyph instead of a plain
+   colour swatch, so the legend visually teaches the icon-to-sector mapping the chart itself uses. */
+.cpd-legend-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;flex:none;color:var(--ink-soft);vertical-align:-4px;}
+.cpd-legend-icon svg{fill:currentColor;display:block;}
+.cpd-legend-icon-headline{color:var(--teal-text);}
+
+/* A small, fast, styled tooltip for the denser charts (Diverse Economies, Wages, SLR grouped
+   columns) — native <title> tooltips are slow to appear and unstyled. Sparser charts keep native
+   <title>. One shared element, positioned by county-deck.js; it never computes a value, only
+   copies the mark's own data-tip text. */
+.cpd-tooltip{position:fixed;z-index:60;background:var(--ink);color:var(--paper);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:12.5px;line-height:1.3;padding:5px 9px;border-radius:4px;pointer-events:none;white-space:nowrap;transform:translate(-50%,-100%);box-shadow:0 2px 8px rgba(0,0,0,.25);}
+[data-theme="dark"] .cpd-tooltip,body.cpd-page .cpd-tooltip{background:var(--ink);color:var(--paper);}
+.cpd-tooltip[hidden]{display:none;}
+[data-tip]{cursor:pointer;}
+
+.cpd-sources{border-top:1px solid var(--line);padding-top:12px;margin-top:2px;display:flex;align-items:baseline;gap:10px 20px;flex-wrap:wrap;font-size:15px;line-height:1.3;color:var(--ink-soft);width:100%;}
+.cpd-sources b{font-size:13px;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;font-weight:600;}
+.cpd-vintage{color:var(--ink-soft);}
+
+/* timing table */
+.cpd-panel table:not(.sr-only){border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;}
+.cpd-panel th,.cpd-panel td{padding:10px 14px;text-align:right;border-bottom:1px solid var(--line);}
+.cpd-panel th:first-child,.cpd-panel td:first-child{text-align:left;}
+.cpd-panel thead th{font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;}
+.cpd-panel tbody th{font-weight:600;color:var(--ink);font-size:16px;}
+.cpd-panel td{font-size:19px;font-family:'IBM Plex Sans',system-ui,sans-serif;color:var(--ink);}
+.cpd-panel td.cpd-beyond{color:var(--ink-soft);font-size:16px;}
+
+/* title-slide contents list */
+.cpd-contents{list-style:none;margin:0;padding:0;display:grid;gap:2px;max-width:560px;}
+.cpd-contents a{display:flex;justify-content:space-between;gap:16px;padding:15px 4px;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);font-size:19px;}
+.cpd-contents a span{color:var(--ink-soft);font-size:15px;}
+.cpd-contents a:hover{color:var(--teal-text);}
+
+/* figure header: title + chart/table switch */
+.cpd-fighead{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 10px;flex-wrap:wrap;width:100%;}
+.cpd-view{display:inline-flex;border:1px solid var(--line);border-radius:5px;padding:2px;background:var(--paper);}
+.cpd-view button{font:inherit;font-size:14px;color:var(--ink-soft);background:transparent;border:0;border-radius:3px;padding:5px 14px;min-height:30px;cursor:pointer;}
+.cpd-view button[aria-pressed="true"]{background:var(--paper-2);color:var(--ink);font-weight:600;box-shadow:inset 0 0 0 1px var(--line);}
+.cpd-view button:hover{color:var(--ink);}
+.cpd-tview{max-height:48vh;overflow:auto;}
+.cpd-tview td{font-size:17px;}
+
+/* about slide */
+.cpd-facts{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:10px 22px;font-size:17px;}
+.cpd-facts dt{color:var(--ink-soft);}
+.cpd-facts dd{margin:0;}
+.cpd-citebox{border:1px solid var(--line);background:var(--paper);border-radius:5px;padding:12px 16px;width:100%;}
+.cpd-cite{margin:5px 0 8px;font-size:18px;line-height:1.45;overflow-wrap:anywhere;}
+.cpd-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14.5px;}
+.cpd-srctable{width:100%;}
+.cpd-srctable th,.cpd-srctable td{text-align:left;padding:9px 12px 9px 0;line-height:1.3;}
+/* The About slide is reference material, not a section: everything on it except the heading is
+   smaller than the rest of the deck, and it can carry a long facts list and a sources table with as
+   many rows as the topic has sources — tighten its vertical rhythm rather than shrinking type
+   further, so it still fits 1280x800 at every topic's row count. */
+/* Centred like every other slide's content — .cpd-panel-body only wraps the citebox/sources table
+   here, since the footer sits outside it as a separate flex child pinned to the panel's bottom. */
+#s-about .cpd-panel-body{gap:10px;justify-content:center;padding-top:6px;}
+#s-about .cpd-left{gap:8px;padding-top:44px;padding-bottom:20px;justify-content:center;}
+#s-about .cpd-panel{padding-top:22px;padding-bottom:0;gap:14px;}
+#s-about .cpd-facts{gap:4px 22px;font-size:14px;}
+#s-about .cpd-prose{font-size:14.5px;max-width:48ch;}
+#s-about .cpd-eyebrow{font-size:12px;}
+#s-about .cpd-cite{font-size:14.5px;}
+#s-about .cpd-chart-title{margin-bottom:2px !important;font-size:13px;}
+#s-about .cpd-left h2{font-size:clamp(30px,3.2vw,46px);}
+.cpd-srctable tbody th{font-weight:500;font-size:13.5px;}
+.cpd-srctable td{font-size:13.5px;color:var(--ink);}
+.cpd-srctable td.cpd-num{font-variant-numeric:tabular-nums;white-space:nowrap;}
+.cpd-srctable td.cpd-vintage-cell{color:var(--ink-soft);}
+.cpd-footnote{font-size:14px;color:var(--ink-soft);width:100%;margin:0;}
+
+/* The About slide closes with the site's own footer, same as an ordinary page, instead of a
+   standalone link row — it reads as the end of the page, not the end of a deck. Only this one
+   instance is un-hidden from the deck-wide `body.cpd-page .site-footer{display:none}` rule. */
+#s-about .site-footer{display:block;position:static;background:none;padding:0;border:0;width:100%;}
+#s-about .site-footer .wrap{padding:0;max-width:none;}
+#s-about .site-footer-links{font-size:13px;gap:6px 16px;}
+#s-about .site-footer-note{font-size:12px;margin-top:8px;}
+#s-about .site-footer-attribution{font-size:11px;}
+
+/* sea level rise curves. Both Chart/Table panes sit in the same grid cell (grid-area 1/1) so the
+   row's height is the taller of the two regardless of which is shown — the source line beneath
+   never moves when the switch is pressed. The hidden pane uses visibility, not `hidden`/display:
+   none, precisely so it keeps contributing to that height. */
+.cpd-timing-stage{display:grid;}
+.cpd-timing-stage .cpd-pane{grid-area:1/1;min-width:0;}
+.cpd-timing-stage .cpd-pane-hidden{visibility:hidden;}
+/* A chart with an increment slider: the SVG on the left, the vertical slider to its right — NOAA's
+   own layout for this control — with the chart's legend below the row. The slider's track spans
+   exactly the chart's plot area: its bottom on the x-axis, its top on the top gridline. The macro
+   passes where those sit as fractions of the SVG's viewBox width (--cpd-plot-top/-bottom); the SVG
+   is drawn at the chart column's full width, and that width is known in CSS from the row as a
+   container (100cqw, less the slider and gap), so the offsets are exact at any panel width.
+   Everything inside the slider is absolutely positioned, so the slider adds no height of its own:
+   the row is exactly as tall as the SVG, and stretching the slider to it can't feed back into it. */
+.cpd-chart-row,.cpd-chart-row + .cpd-legend{--cpd-slider-w:62px;--cpd-row-gap:24px;}
+.cpd-chart-row{display:flex;align-items:stretch;gap:var(--cpd-row-gap);width:100%;container-type:inline-size;}
+.cpd-chart-row .cpd-chart{flex:1;min-width:0;}
+.cpd-chart-row + .cpd-legend{padding-right:calc(var(--cpd-slider-w) + var(--cpd-row-gap));margin-top:8px;}
+.cpd-slider-wrap{
+  --cpd-chart-w:calc(100cqw - var(--cpd-slider-w) - var(--cpd-row-gap));
+  --cpd-track-top:calc(var(--cpd-chart-w) * var(--cpd-plot-top, 0));
+  --cpd-track-bottom:calc(var(--cpd-chart-w) * var(--cpd-plot-bottom, 0));
+  position:relative;flex:none;width:var(--cpd-slider-w);
+}
+.cpd-slider-label{position:absolute;left:0;top:var(--cpd-track-top);bottom:var(--cpd-track-bottom);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;letter-spacing:.02em;color:var(--ink-soft);writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;}
+.cpd-slider-track-wrap{position:absolute;left:26px;top:var(--cpd-track-top);bottom:var(--cpd-track-bottom);}
+/* The input is exactly as wide as its thumb, so the thumb is centred on it by construction (an
+   8px-wide input with a 22px thumb sat visibly off-centre in Chrome). The 8px track is drawn as a
+   centred, non-repeating background strip on the input; its filled part runs from the bottom to the
+   thumb's centre, which travels from half a thumb above the bottom to half a thumb below the top —
+   hence the calc(). county-deck.js sets --cpd-slider-frac (0–1) on load and on every input event.
+   `-webkit-appearance:slider-vertical` isn't an alternative: Chrome no longer honours it. Firefox
+   draws its own centred track and fill via ::-moz-range-track/-progress. */
+input[type="range"].cpd-slider{
+  --cpd-thumb:22px;
+  -webkit-appearance:none; appearance:none;
+  writing-mode:vertical-lr; direction:rtl;
+  width:var(--cpd-thumb); height:100%; margin:0; padding:0;
+  cursor:pointer;
+  background:linear-gradient(to top, var(--teal-text) 0, var(--teal-text) calc(var(--cpd-thumb) / 2 + (100% - var(--cpd-thumb)) * var(--cpd-slider-frac, 0)), var(--line) calc(var(--cpd-thumb) / 2 + (100% - var(--cpd-thumb)) * var(--cpd-slider-frac, 0)), var(--line) 100%) center / 8px 100% no-repeat;
+}
+input[type="range"].cpd-slider::-webkit-slider-runnable-track{background:transparent;border:0;}
+input[type="range"].cpd-slider::-webkit-slider-thumb{
+  -webkit-appearance:none; width:var(--cpd-thumb); height:var(--cpd-thumb); border-radius:50%; box-sizing:border-box;
+  background:var(--teal-text); border:3px solid var(--paper-2);
+  box-shadow:0 1px 4px rgba(0,0,0,.35); cursor:pointer;
+}
+input[type="range"].cpd-slider::-moz-range-track{background:var(--line);width:8px;border-radius:4px;}
+input[type="range"].cpd-slider::-moz-range-progress{background:var(--teal-text);width:8px;border-radius:4px;}
+input[type="range"].cpd-slider::-moz-range-thumb{
+  width:var(--cpd-thumb); height:var(--cpd-thumb); box-sizing:border-box; border-radius:50%; border:3px solid var(--paper-2);
+  background:var(--teal-text); box-shadow:0 1px 4px rgba(0,0,0,.35); cursor:pointer;
+}
+input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);outline-offset:3px;border-radius:11px;}
+.cpd-slider-value{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:8px;font-size:17px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.cpd-readout{margin:10px 0 0;width:100%;}
+/* The crossing years read as a small three-item stat row (scenario name above, year below), not an
+   inline sentence — the same visual language as .cp-stats, just tighter since it's a caption. */
+.cpd-readout-label{margin:0 0 8px;font-size:15px;color:var(--ink-soft);}
+.cpd-readout-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 20px;margin:0;width:100%;}
+.cpd-readout-stats dt{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin:0 0 3px;}
+.cpd-readout-stats dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:20px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums;}
+.cpd-readout-stats dd.cpd-beyond-stat{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:15px;font-weight:400;color:var(--ink-soft);}
+.cpd-curve{fill:none;stroke-width:4;stroke-linejoin:round;stroke-linecap:round;}
+/* Only the selected increment draws bold and full-strength; the other four are ordinary, muted
+   gridlines with plain tick labels, so pressing a different increment button visibly moves which
+   line is emphasized instead of leaving the chart looking unchanged. */
+.cpd-thresh{stroke:var(--ink);stroke-width:3;}
+.cpd-thresh-muted{stroke:var(--line);stroke-width:1.5;stroke-dasharray:5 5;}
+.cpd-drop{stroke-width:1.5;}
+.cpd-xlab{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:23px;font-weight:700;fill:var(--ink);}
+.cpd-xlab-muted{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:19px;font-weight:400;fill:var(--ink-soft);}
+
+/* dot nav */
+.cpd-dots{position:fixed;left:26px;top:calc(50% + 29px);transform:translateY(-50%);z-index:4;display:flex;flex-direction:column;gap:12px;}
+.cpd-dots button{width:10px;height:10px;padding:0;border-radius:50%;border:1.5px solid var(--ink-soft);background:transparent;cursor:pointer;}
+.cpd-dots button[aria-current="true"]{background:var(--teal-text);border-color:var(--teal-text);}
+
+/* dot plot (wages). Its viewBox renders at barely over half scale in the panel, so the shared 1px
+   gridline all but vanished here; 2px keeps it visible as a gridline. */
+.cpd-dotplot-label{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:21px;font-weight:500;fill:var(--ink);dominant-baseline:middle;}
+.cpd-chart-dotplot .cpd-grid{stroke-width:2;}
+.cpd-dotplot-line{stroke:var(--line);stroke-width:3;}
+.cpd-dot-0{fill:var(--teal-text);} .cpd-dot-1{fill:var(--sand-deep);} .cpd-dot-2{fill:var(--ink-soft);}
+.cpd-legend .cpd-dot-0{background:var(--teal-text);} .cpd-legend .cpd-dot-1{background:var(--sand-deep);} .cpd-legend .cpd-dot-2{background:var(--ink-soft);}
+
+/* Flood critical facilities and SLR natural landscapes reuse the existing (unprefixed) `.cp-bar*`,
+   `.cp-sec-*`, `.cp-legend`, `.cp-grid`, `.cp-tick` and `.cp-chart-table` rules from the landing/about
+   pages' stylesheet above — those class selectors were never scoped to `.cp`, so they apply here too. */
+.cpd-gap{border:2px dashed var(--line);border-radius:6px;padding:12px 16px;color:var(--ink-soft);width:100%;}
+.cpd-gap p{margin:0 0 4px;font-size:15px;}
+.cpd-gap-tag{font-size:12px !important;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+
+/* narrow or short screens: normal scrolling, stacked columns, no snapping. The topbar switches
+   from fixed-with-hardcoded-offset to sticky, since it can wrap to two rows here and a fixed
+   height would either hide the tabs or clip the deck under it. */
+@media (max-width:900px),(max-height:620px){
+  .cpd-deck.is-snap{scroll-snap-type:none;}
+  .cpd-slide{grid-template-columns:1fr;min-height:auto;}
+  .cpd-left{padding:36px 20px 20px;}
+  .cpd-panel{padding:22px 20px 20px;}
+  .cpd-dots{display:none;}
+  .cpd-topbar{position:sticky;}
+  .cpd-deck{position:static;top:auto;}
+  body.cpd-page{height:auto;overflow:visible;}
+}
+@media (max-width:900px){
+  /* Keep the topic tabs reachable (scrollable) rather than hiding them: wrap the bar to a second
+     row instead. */
+  .cpd-topbar{height:auto;min-height:58px;flex-wrap:wrap;padding-block:8px;row-gap:6px;}
+  .cpd-topics{order:3;flex-basis:100%;}
+  .cpd-bar-right .cpd-asof{display:none;}
+}
+@media (max-width:520px){
+  .cpd-bign{flex-direction:column;align-items:flex-start;gap:8px;}
+}
+
+@media print{
+  body.cpd-page{height:auto;overflow:visible;display:block;}
+  .cpd-dots,.cpd-view,.cpd-tooltip{display:none;}
+  .cpd-topbar{position:static;height:auto;}
+  .cpd-topics,.cpd-bar-right{display:none;}
+  .cpd-brand,.cpd-crumb small a{text-decoration:none;}
+  .cpd-deck{position:static;overflow:visible;top:0;}
+  .cpd-slide{display:block;min-height:0;break-inside:avoid;border-bottom:1px solid var(--line);}
+  .cpd-left,.cpd-panel{padding:18px 0;background:none;}
+  .cpd-left h1{font-size:34px;} .cpd-left h2{font-size:24px;}
+  .cpd-chart svg{max-height:none;}
+  /* The sea-level-rise curves graph is screen only (use.pdf: false); the timing table is what
+     prints, regardless of which the on-screen switch currently shows. */
+  .cpd-timing-stage [data-cpd-pane="chart"]{display:none;}
+  .cpd-timing-stage [data-cpd-pane="table"]{visibility:visible;display:block;}
 }

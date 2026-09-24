@@ -24,7 +24,7 @@ npm run build   # one-off build into _site/ (gitignored); must pass before a PR
 | The tool dataset (and per-tool status) | `site/data/tools.json`; [`docs/TOOLS.md`](docs/TOOLS.md) |
 | Tool list page | `site/compare/index.njk`, `site/js/sources.js` |
 | Tool page and compare page | `site/compare/tool.njk`; `site/compare/side-by-side.njk`, `site/js/compare.js`; layout in `site/data/toolDetailSchema.json`, resolved by `site/js/tool-detail.js` |
-| County profiles tool | `site/county-profiles/` (once built), `scripts/county-profiles/`; [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md) |
+| County profiles tool | `site/county-profiles/`, `site/data/countyProfileSchema.json`, `site/_data/countySpine.json`, `site/_data/opcGaugeProjections.json`, `scripts/county-profiles/`; [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md) |
 | Licenses and credits page | `site/about/licenses.njk` fed by `site/_data/credits.json`; [`docs/LICENSING.md`](docs/LICENSING.md) |
 | Why something is the way it is | [`docs/DECISIONS.md`](docs/DECISIONS.md) |
 | How to contribute, license rules | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
@@ -35,7 +35,8 @@ npm run build   # one-off build into _site/ (gitignored); must pass before a PR
 - **`site/data/toolDetailSchema.json` is the single source of truth for the tool page's and compare page's section/row layout.** Add or reorder sections there, not in `compare/tool.njk` or `compare.js`.
 - **Never overlay a comparison-only source's data.** No fetching, proxying or embedding of a tool marked `mapEligibility: "excluded"`. See `docs/LICENSING.md`.
 - Every source or library needs an entry in `site/_data/credits.json`, and only openly licensed material is added (`CONTRIBUTING.md`). The exception is small, credited, dated tool screenshots (`docs/LICENSING.md#screenshots`).
-- Map data is loaded live from publishers' servers, never copied into the repo.
+- Map data is loaded live from publishers' servers, never copied into the repo. The one exception is County Profiles' derived statistics (`site/data/county-profiles/`), which are computed, not copied (`docs/DECISIONS.md`).
+- **`site/data/countyProfileSchema.json` is the source of truth for the County Profiles snapshot shape and reason codes.** Zero, withheld and unavailable are three different states: keep them distinct in data and templates. A County Profiles callout never repeats a figure its section shows (the build enforces it). `site/data/county-profiles/latest/` is pipeline output only; fixtures go in `site/_data/countyProfileFixtures/`.
 - Map layers use `groupPane(map, key)` from `site/js/map/shared/panes.js`; new keys go in `GROUP_PANE_KEYS`.
 - Third-party scripts are pinned to a version with an SRI hash.
 - Internal links go through the `url` filter (`pathPrefix` is `/`). Front matter and `site/js/sources.js` can't use filters, so they use relative paths (`../map/`, `tool/<id>/`), never a hardcoded host or prefix. Nested pages (anything under `map/`, `compare/`, `about/`) link with a trailing slash (e.g. `/compare/side-by-side/`), not `.html`, since their permalink is `.../index.html`.

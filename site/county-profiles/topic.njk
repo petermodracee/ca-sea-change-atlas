@@ -1,0 +1,23 @@
+---
+layout: base.njk
+pagination:
+  data: countyProfiles.topicPages
+  size: 1
+  alias: entry
+  addAllPagesToCollections: true
+permalink: "county-profiles/county/{{ entry.county.slug }}/{{ entry.topic.slug }}/index.html"
+nav: county-profiles
+bodyClass: cpd-page
+extraScripts:
+  - /js/county-deck.js
+eleventyComputed:
+  title: "{{ entry.topic.label }} — {{ entry.county.name }} County profile — CA Sea Change Atlas"
+  description: "{{ entry.topic.label }} exposure for {{ entry.county.name }} County, California, with the vintage of every figure."
+---
+{%- set county = entry.county %}
+{%- set topic = entry.topic %}
+{%- set sections = entry.sections %}
+{%- set placeholders = entry.placeholders %}
+{%- set sourcesUsed = entry.sourcesUsed %}
+{%- set dated = false %}
+{% include "county-profiles/deck.njk" %}
