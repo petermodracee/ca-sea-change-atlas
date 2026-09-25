@@ -16,6 +16,9 @@ module.exports = async function (eleventyConfig) {
   // comment on checkNoStaleHost.
   const { checkNoStaleHost } = require("./scripts/county-profiles/validate.js");
   eleventyConfig.on("eleventy.after", ({ dir }) => checkNoStaleHost(dir.output));
+  // Every archived page must canonicalise to its current, undated equivalent.
+  const { checkArchiveCanonicals } = require("./scripts/county-profiles/validate.js");
+  eleventyConfig.on("eleventy.after", ({ dir }) => checkArchiveCanonicals(dir.output));
 
   eleventyConfig.addPassthroughCopy({ "site/css": "css" });
   eleventyConfig.addPassthroughCopy({ "site/js": "js" });
@@ -27,6 +30,11 @@ module.exports = async function (eleventyConfig) {
   const latestDir = "site/data/county-profiles/latest";
   // A glob passthrough flattens its output, so the snapshot directory is copied as a directory.
   if (fs.existsSync(latestDir)) eleventyConfig.addPassthroughCopy({ [latestDir]: "data/county-profiles/latest" });
+  // Each dated snapshot directory is copied the same way, to the same path.
+  const dataRoot = "site/data/county-profiles";
+  for (const d of fs.existsSync(dataRoot) ? fs.readdirSync(dataRoot).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x)) : []) {
+    eleventyConfig.addPassthroughCopy({ [dataRoot + "/" + d]: "data/county-profiles/" + d });
+  }
   const realSnapshots = new Set(fs.existsSync(latestDir) ? fs.readdirSync(latestDir) : []);
   const fixtureDir = "site/_data/countyProfileFixtures"; // none ship since Phase 3; the directory is for prototyping a county
   for (const file of fs.existsSync(fixtureDir) ? fs.readdirSync(fixtureDir) : []) {

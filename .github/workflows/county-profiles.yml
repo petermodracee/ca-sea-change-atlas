@@ -1,0 +1,109 @@
+name: County Profiles refresh and deploy
+
+# One workflow does the whole job: check the sources, recompute what changed, commit the JSON, build
+# the site and deploy it to Pages. It is deliberately not split into a data-commit workflow plus the
+# push-triggered deploy.yml: a push made with the default GITHUB_TOKEN does not fire other workflows'
+# `push` events, so that split would commit new data and never deploy it. The deploy step here runs in
+# the same run as the commit.
+#
+# Note: GitHub disables scheduled workflows after 60 days without repository activity.
+# docs/COUNTY-PROFILES.md ("Automation") records this as a known risk; the "data as of" stamp on every
+# county page is what makes a lapse visible.
+
+on:
+  schedule:
+    - cron: "17 9 5 1,4,7,10 *" # quarterly: 09:17 UTC on the 5th of Jan, Apr, Jul, Oct
+  workflow_dispatch:
+    inputs:
+      counties:
+        description: "County FIPS codes to check (comma-separated), or all"
+        default: "all"
+      force:
+        description: "Recompute even if the NFHL effective dates are unchanged"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write # commit the snapshot JSON
+  pages: write
+  id-token: write
+
+concurrency:
+  group: county-profiles
+  cancel-in-progress: false
+
+jobs:
+  refresh-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+
+      # 1. The EFF_DATE gate: cheap NFHL queries per county, diffed against the last build.
+      - name: Check NFHL effective dates
+        id: gate
+        run: |
+          set -o pipefail
+          node scripts/county-profiles/pipeline/gate.js "${{ inputs.counties || 'all' }}" ${{ inputs.force && '--force' || '' }} | tee gate.log
+
+      # 2. Fetch, intersect and write JSON, only for counties the gate flagged.
+      - name: Recompute changed counties
+        if: steps.gate.outputs.changed != ''
+        run: node --max-old-space-size=14336 scripts/county-profiles/pipeline/run.js "${{ steps.gate.outputs.changed }}"
+
+      - name: Summarise
+        run: |
+          {
+            echo "## County Profiles run"
+            echo
+            echo "Counties recomputed: \`${{ steps.gate.outputs.changed || 'none' }}\`"
+            echo
+            echo '```'
+            head -n -1 gate.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # 3. Checks: published snapshots untouched, every availability state legal.
+      - run: node scripts/county-profiles/check-archive.js
+      - run: node scripts/county-profiles/state-report.js
+
+      # 4. Build before committing, so a snapshot that breaks the site is never pushed.
+      - run: npx eleventy
+
+      # 5. Commit the JSON (dated snapshots, latest/, gate state) and push.
+      - name: Commit data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data/county-profiles
+          if git diff --cached --quiet; then
+            echo "No data changes to commit."
+          else
+            git commit -m "County Profiles data: ${{ steps.gate.outputs.changed || 'source check' }}"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  # 6. Deploy in this same run.
+  deploy:
+    needs: refresh-and-build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

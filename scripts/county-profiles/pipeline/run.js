@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // County Profiles pipeline: fetch every source for a county, run the block-level intersect, and
-// write site/data/county-profiles/latest/<fips>.json after validating it.
+// write site/data/county-profiles/latest/<fips>.json after validating it. A dated copy under
+// site/data/county-profiles/<date>/ is minted only when the county's content differs from latest/'s.
 //
 //   node scripts/county-profiles/pipeline/run.js 06059 [--refresh]
 //   node scripts/county-profiles/pipeline/run.js all [--refresh]
@@ -22,6 +23,8 @@ const { compute } = require("./intersect");
 const { buildSnapshot } = require("./snapshot");
 const { validateSnapshot } = require("../validate");
 const { today, cachePath } = require("./http");
+const { commitCounty } = require("./archive");
+const { recordComputed } = require("./gate");
 
 const ROOT = path.join(__dirname, "..", "..", "..");
 const schema = require(path.join(ROOT, "site/data/countyProfileSchema.json"));
@@ -53,6 +56,8 @@ async function verifyAll(log) {
   for (const [k, url] of Object.entries(S.SOURCE_ENDPOINTS)) verified[k] = await S.verifyEndpoint(url);
   return (verifiedCache = verified);
 }
+
+const outcomes = [];
 
 async function runCounty(entry, fipsList, opts) {
   const fips = entry.fips;
@@ -127,9 +132,10 @@ async function runCounty(entry, fipsList, opts) {
   });
 
   validateSnapshot(snap, { schema, spine, file: fips + ".json", fixture: false });
-  const outDir = path.join(ROOT, "site/data/county-profiles/latest");
-  fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(path.join(outDir, fips + ".json"), JSON.stringify(snap, null, 2) + "\n");
+  // Snapshot-on-change: latest/ always updates; a dated snapshot is minted only if the content differs.
+  const outcome = commitCounty(snap, { today: today() });
+  recordComputed(fips, nfhl.value);
+  outcomes.push({ fips, county: entry.name, ...outcome });
   const { diag, ...rest } = results;
   fs.writeFileSync(cachePath("report-" + fips + ".json"), JSON.stringify({
     meta, results: { ...rest, diag }, gaps, computeSeconds,
@@ -139,7 +145,7 @@ async function runCounty(entry, fipsList, opts) {
     ccap: ccap.value,
     econ: { baseSeries: econ.value.baseSeries, oceanYear: econ.value.oceanYear, totalYear: econ.value.totalYear },
   }, null, 2));
-  log("wrote site/data/county-profiles/latest/" + fips + ".json" + (gaps.length ? " (gaps: " + gaps.join("; ") + ")" : ""));
+  log("latest/" + fips + ".json written, snapshot " + outcome.snapshot + " (" + outcome.action + (outcome.previous ? ", previous " + outcome.previous : "") + ")" + (gaps.length ? " (gaps: " + gaps.join("; ") + ")" : ""));
 }
 
 async function main() {
@@ -153,6 +159,11 @@ async function main() {
   for (const fips of todo) {
     const entry = spine.counties.find((c) => c.fips === fips);
     try { await runCounty(entry, all, opts); } catch (e) { console.error("[" + fips + " " + entry.name + "] FAILED: " + (e.stack || e)); failures.push(fips); if (todo.length === 1) throw e; }
+  }
+  // A per-run summary for the workflow: which counties minted a dated snapshot and which only refreshed.
+  fs.writeFileSync(cachePath("run-outcomes.json"), JSON.stringify(outcomes, null, 2));
+  if (process.env.GITHUB_STEP_SUMMARY && outcomes.length) {
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "\n### Recomputed counties\n\n| County | Result | Snapshot |\n|---|---|---|\n" + outcomes.map((o) => "| " + o.county + " | " + o.action + " | " + o.snapshot + " |").join("\n") + "\n");
   }
   if (failures.length) { console.error("failed: " + failures.join(", ")); process.exit(1); }
 }

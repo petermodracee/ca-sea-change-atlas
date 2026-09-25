@@ -7,6 +7,8 @@ Non-Eleventy tooling for [`docs/COUNTY-PROFILES.md`](../../docs/COUNTY-PROFILES.
 - `pipeline/` is the data pipeline. `node scripts/county-profiles/pipeline/run.js <fips | fips,fips | all>` fetches FEMA NFHL, Census blocks and ACS, LODES, USGS Structures, OpenFEMA, NOAA SLR inundation (seven regional files), NOAA ENOW and Total Economy, Census Nonemployer Statistics and NOAA C-CAP land cover, runs the block-level intersect and writes `site/data/county-profiles/latest/<fips>.json`. See the "Data pipeline" section of the doc for the method and the sources.
 - `.cache/` (gitignored) holds the raw downloads, so a re-run does not fetch them again, plus the run's diagnostics report. Delete it or pass `--refresh` to re-fetch.
 
-Still to come: the `EFF_DATE` change-detection gate (Phase 5) and the Playwright PDF renderer (Phase 6).
+- `pipeline/gate.js` is the `EFF_DATE` change gate, `pipeline/archive.js` decides when a dated snapshot is minted, and `check-archive.js` fails if a published dated snapshot was edited (Phase 5; see "Automation and the archive" in the doc). The workflow is `.github/workflows/county-profiles.yml`.
+
+Still to come: the Playwright PDF renderer (Phase 6).
 
 These scripts run once per Actions workflow invocation and write their output directly into `site/data/county-profiles/` — they are build-time tooling, not site source, which is why they live outside `site/`.

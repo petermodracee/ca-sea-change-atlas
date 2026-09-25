@@ -47,6 +47,28 @@ function load(dir, fixture) {
 const latest = load(path.join(__dirname, "..", "data", "county-profiles", "latest"), false);
 const fixtures = load(path.join(__dirname, "countyProfileFixtures"), true);
 
+// The archive: one directory per dated snapshot, each holding the counties whose content changed in
+// that build. Dated pages render from these files, never from latest/, so a published page cannot
+// drift when latest/ is refreshed. scripts/county-profiles/check-archive.js guards the files.
+const dataDir = path.join(__dirname, "..", "data", "county-profiles");
+const archive = {}; // date -> fips -> snapshot
+for (const date of fs.existsSync(dataDir) ? fs.readdirSync(dataDir).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort() : []) {
+  archive[date] = load(path.join(dataDir, date), false);
+  for (const [fips, snap] of Object.entries(archive[date])) {
+    if (snap.snapshot !== date) throw new Error(date + "/" + fips + ".json: snapshot field says " + snap.snapshot);
+  }
+}
+const corrections = require("./countyProfileCorrections.json").corrections;
+for (const x of corrections) {
+  for (const d of [x.snapshot, x.supersededBy]) if (!archive[d] || !archive[d][x.fips]) throw new Error("correction for " + x.fips + " names snapshot " + d + ", which is not in the archive");
+  if (!(x.supersededBy > x.snapshot)) throw new Error("correction for " + x.fips + ": supersededBy must be later than snapshot");
+  if (!x.note || !x.date) throw new Error("correction for " + x.fips + " " + x.snapshot + " needs a note and a date");
+}
+for (const [fips, snap] of Object.entries(latest)) {
+  // latest/ is the newest minted snapshot, so it must have a dated copy to link to.
+  if (!archive[snap.snapshot] || !archive[snap.snapshot][fips]) throw new Error("latest/" + fips + ".json is snapshot " + snap.snapshot + ", which has no dated copy (node scripts/county-profiles/check-archive.js)");
+}
+
 // A county with no snapshot in latest/ falls back to a hand-written fixture if one exists (none ships
 // since Phase 3: all 27 counties have a real snapshot). A section the pipeline could not compute is
 // unavailable in the snapshot itself, with a reason from the schema's closed set, and renders as a
@@ -96,10 +118,7 @@ function placeholderTitlesOf(sections, wholeFixture) {
   return sections.filter((s) => s.sec.available && wholeFixture && s.def.kind !== "timing").map((s) => s.def.title);
 }
 
-const counties = spine.counties
-  .map((c) => {
-    const real = latest[c.fips] || null;
-    const profile = real || fixtures[c.fips] || null;
+function buildCounty(c, profile) {
     const coverage = schema.topics.map((t) => {
       // A snapshot's topic states are validated to equal its tier's rule, so either source gives the same answer.
       const state = profile ? profile.topics[t.id] : schema.tiers[c.tier].topics[t.id];
@@ -143,11 +162,29 @@ const counties = spine.counties
       isFixture: Boolean(profile && profile.fixture),
       topicSections,
       sources: profile ? sourceViews(profile) : null,
-      // Fixtures currently carry exactly one dated snapshot; Phase 5 appends older ones here.
-      snapshots: profile ? [{ date: profile.snapshot, isCurrent: true }] : [],
+      // Every dated snapshot of this county, newest first. A fixture has just its own.
+      snapshots: profile ? snapshotsOf(c.fips, profile) : [],
+      correction: profile && !profile.fixture ? (corrections.find((x) => x.fips === c.fips && x.snapshot === profile.snapshot) || null) : null,
     };
-  })
-  .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function snapshotsOf(fips, profile) {
+  const current = (latest[fips] || profile).snapshot;
+  const dates = Object.keys(archive).filter((d) => archive[d][fips]);
+  if (!dates.includes(profile.snapshot)) dates.push(profile.snapshot);
+  return dates.sort().reverse().map((date) => ({ date, isCurrent: date === current, correction: corrections.find((x) => x.fips === fips && x.snapshot === date) || null }));
+}
+
+const byName = (a, b) => a.name.localeCompare(b.name);
+const counties = spine.counties.map((c) => buildCounty(c, latest[c.fips] || fixtures[c.fips] || null)).sort(byName);
+
+// One view per (county, dated snapshot), each built from the archived file. A fixture has no archive
+// and gets one dated view built from itself.
+const archivedCounties = spine.counties.flatMap((c) => {
+  const dated = Object.keys(archive).filter((d) => archive[d][c.fips]).map((d) => buildCounty(c, archive[d][c.fips]));
+  if (!latest[c.fips] && fixtures[c.fips]) dated.push(buildCounty(c, fixtures[c.fips]));
+  return dated;
+}).sort((a, b) => byName(a, b) || b.profile.snapshot.localeCompare(a.profile.snapshot));
 
 
 const tiers = Object.entries(schema.tiers).map(([id, t]) => {
@@ -174,13 +211,14 @@ function sourcesUsedBy(profile, sections) {
 
 // One entry per (county, topic) that gets its own deck page — pagination data for
 // site/county-profiles/topic.njk and topic-snapshot.njk.
-const topicPages = [];
-for (const county of counties) {
+function topicPagesOf(views) {
+const pages = [];
+for (const county of views) {
   if (!county.profile) continue;
   for (const topicDef of schema.topics) {
     const sections = county.topicSections[topicDef.id];
     if (!sections) continue;
-    topicPages.push({
+    pages.push({
       county,
       topic: topicDef,
       sections,
@@ -189,13 +227,18 @@ for (const county of counties) {
     });
   }
 }
+return pages;
+}
+const topicPages = topicPagesOf(counties);
+const snapshotTopicPages = topicPagesOf(archivedCounties);
 
 module.exports = {
   reasonsById: schema.reasons,
   counties,
-  // One landing page per county that has a snapshot, at its current snapshot's date.
-  landingSnapshotPages: counties.filter((c) => c.profile),
+  // One landing page per dated snapshot of each county, and one deck page per topic of each.
+  landingSnapshotPages: archivedCounties.filter((c) => c.profile),
   topicPages,
+  snapshotTopicPages,
   tiers,
   floodOnly: tiers.find((t) => t.id === "flood-only"),
   topics: schema.topics,

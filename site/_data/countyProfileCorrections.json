@@ -1,0 +1,4 @@
+{
+  "_doc": "Correction notices for published dated snapshots. A published snapshot's JSON and figures are never edited: a bug found in one ships as a new dated snapshot (the pipeline mints it, since the content differs) plus an entry here, which puts a notice on the old snapshot's dated pages linking to the new one. Entry: {fips, snapshot (the snapshot being corrected), supersededBy (the dated snapshot that carries the fix), date (when the notice was added, YYYY-MM-DD), note (what was wrong, which figures, by how much)}. The build fails if either snapshot does not exist for the county, or supersededBy is not later than snapshot.",
+  "corrections": []
+}
