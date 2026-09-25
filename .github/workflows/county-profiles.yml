@@ -55,7 +55,7 @@ jobs:
       # 2. Fetch, intersect and write JSON, only for counties the gate flagged.
       - name: Recompute changed counties
         if: steps.gate.outputs.changed != ''
-        run: node --max-old-space-size=12288 scripts/county-profiles/pipeline/run.js "${{ steps.gate.outputs.changed }}"
+        run: node --max-old-space-size=14336 scripts/county-profiles/pipeline/run.js "${{ steps.gate.outputs.changed }}"
 
       - name: Summarise
         run: |
