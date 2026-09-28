@@ -1,0 +1,67 @@
+{#- The inside of one section's panel: the big number, the visual, footnotes. Shared by the deck slide (deck.njk)
+    and the print block (print-topic.njk), so both loop over the same section objects. Expects `county`, `topic`,
+    `def`, `sec`, `model`, `uid`, `reasons` and `printMode` (true in the print block: no pickers, no Chart/Table
+    switch, every increment shown). -#}
+{%- from "county-profiles/blocks-deck.njk" import gap, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves -%}
+{%- from "county-profiles/share-ring.njk" import shareRing -%}
+{%- set cid = uid ~ ("-p" if printMode else "") -%}
+{%- if not sec.available %}
+{{ gap(sec.reason, reasons, def.title) }}
+{%- else %}
+{%- if model.callout %}
+<div class="cpd-bign"><span class="cpd-fig">{{ model.callout.figure }}</span><p class="cpd-cap">{{ model.callout.caption }}</p></div>
+{%- endif %}
+{%- set v = model.visual %}
+{#- A stat-pair slide has no big number of its own — its two stats ARE the slide's content, so they
+    take .cpd-fig sizing instead, and the explanatory prose moves below as a footnote rather than
+    sitting above the numbers as a note. -#}
+{%- if not (v and v.type == "stat-pair") %}
+{%- for p in def.prose %}{% if not loop.first %}<p class="cpd-note">{{ p }}</p>{% endif %}{% endfor %}
+{%- endif %}
+{#- Named per stat, not a generic disclaimer: the footnote says which value(s) are withheld. A
+    section can instead set its own model.footnote (e.g. Diverse Economies' denominator rule),
+    which always wins over this generic computation. -#}
+{%- set withheldLabels = [] %}
+{%- if v and v.type == "stats" %}{% for it in v.items %}{% if it.suppressed %}{% set _ = withheldLabels.push(it.label) %}{% endif %}{% endfor %}{% endif %}
+{%- if v and v.type == "equation" %}{% for p in v.parts %}{% if p.suppressed %}{% set _ = withheldLabels.push(p.label) %}{% endif %}{% endfor %}{% endif %}
+{%- if v %}
+{%- if v.type == "rings" %}
+{%- set basis = "" if def.id == "natural-features" else topic.basis %}
+{%- if def.id == "natural-features" %}<p class="cpd-chart-title">Development added, 1996–2016, as a share of land developed by 2016</p>
+{%- elif def.id == "people-at-risk" %}<p class="cpd-chart-title">Share of population at risk</p>{% endif %}
+<div class="share-row">{% for it in v.items %}{{ shareRing(cid ~ "-" ~ loop.index, it.label, it.label, it.count, it.total, it.unit, basis, it.showCounts) }}{% endfor %}</div>
+{%- if def.id == "natural-features" %}<p class="cpd-chart-title"><ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Development added, 1996–2016</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Already developed in 1996</li></ul></p>
+{%- elif def.id == "people-at-risk" %}<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Population inside floodplain</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Population outside floodplain</li></ul>{% endif %}
+{%- elif v.type == "bars" %}{{ bars(cid, v.items, v.format, v.series, def.title) }}
+{%- elif v.type == "stacked" %}{{ stackedBars(cid, v.rows, v.format, v.legend, def.caption or def.title, v.segClasses, v.opts) }}
+{%- elif v.type == "stacked100" %}{{ stacked100Bars(cid, v.measures, v.legend, def.caption or def.title, v.headline) }}
+{%- elif v.type == "columns" %}{{ columns(cid, v.items, countyProfiles.incrementLabels, def.caption or def.title, none if printMode else (countyProfiles.increments if def.id == "people-at-risk" else none)) }}
+{%- elif v.type == "facilities-stack" %}{{ facilitiesStack(cid, v.items, def.caption or def.title, countyProfiles.increments, printMode) }}
+{%- elif v.type == "dots" %}{{ dots(cid, v.items, v.series, def.caption or def.title) }}
+{%- elif v.type == "timing" %}{{ curves(cid, county, opcGaugeProjections, countyProfiles.increments, printMode) }}
+{%- elif v.type == "stats" %}
+{#- A withheld stat isn't drawn at all — it's named in the footnote instead of taking a slot here. -#}
+<dl class="cp-stats">{% for it in v.items %}{% if not it.suppressed %}<div><dt>{{ it.label }}</dt><dd>{{ it.text }}</dd></div>{% endif %}{% endfor %}</dl>
+{%- elif v.type == "equation" %}
+<div class="cp-equation">
+{%- for p in v.parts %}
+<div class="cp-eq-part"><span class="cp-eq-label">{{ p.label }}</span><span class="cp-eq-value{% if p.suppressed %} is-withheld{% endif %}">{% if p.suppressed %}Withheld*{% else %}{{ p.text }}{% endif %}</span></div>
+<span class="cp-eq-op" aria-hidden="true">{% if loop.first %}+{% else %}={% endif %}</span>
+{%- endfor %}
+<div class="cp-eq-part cp-eq-total"><span class="cp-eq-label">Total{% if v.total.partial %}, incomplete{% endif %}</span><span class="cp-eq-value">{{ v.total.text }}{% if v.total.partial %}*{% endif %}</span></div>
+</div>
+{%- elif v.type == "stat-pair" %}
+<div class="cpd-bign-group">{% for it in v.items %}<div class="cpd-bign-item"><p class="cpd-cap">{{ it.label }}</p><span class="cpd-fig">{{ it.text }}</span></div>{% endfor %}</div>
+{%- elif v.type == "plain-stat" %}
+<p class="cpd-note">{{ v.text }}</p>
+{%- endif %}
+{%- endif %}
+{%- if v and v.type == "stat-pair" %}
+{%- for p in def.prose %}{% if not loop.first %}<p class="cpd-footnote">{{ p }}</p>{% endif %}{% endfor %}
+{%- endif %}
+{%- if model.footnote %}
+<p class="cpd-footnote">{{ model.footnote }}</p>
+{%- elif model.partial %}
+<p class="cpd-footnote">{% if withheldLabels.length %}* {{ withheldLabels | join(" and ") }} {{ "is" if withheldLabels.length == 1 else "are" }} withheld by the publisher for confidentiality.{% else %}* One or more values are withheld by the publisher for confidentiality, so this figure may be incomplete.{% endif %}</p>
+{%- endif %}
+{%- endif %}

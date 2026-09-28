@@ -224,9 +224,10 @@
     which increment's split and end label show; every increment's split is already drawn, in its own
     `<g data-cpd-fac-state>`, and county-deck.js only shows one at a time per row. Row labels sit in
     a left column. -#}
-{% macro facilitiesStack(uid, items, title, increments) %}
+{% macro facilitiesStack(uid, items, title, increments, print) %}
 {%- set g = items | stackedByIncrement(increments) %}
 <p class="cpd-chart-title">{{ title }}</p>
+{%- if not print %}
 <div class="cpd-chart-row">
 <div class="cpd-chart" data-cpd-tips><svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }} ({{ row.total }} total): {% for st in row.states %}{{ st.ft }} ft {{ st.connLabel }} exposed{% if st.lowLabel %} ({{ st.lowLabel }} with low-lying areas){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
@@ -255,8 +256,9 @@
 {{ incrementSlider(uid, increments, increments[0], 'data-cpd-fac-incs', 0, (g.height - g.axisY) / g.width) }}
 </div>
 <ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch cp-bar-s0"></span>Exposed at the selected increment</li>{% if g.rows[0].states[0].lowLabel %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}<li><span class="cpd-swatch cp-bar-not-exposed"></span>Not yet exposed</li></ul>
+{%- endif %}
 <h4 class="sr-only">{{ title }} — data table</h4>
-<table class="sr-only">
+<table class="{{ 'cpp-figtable' if print else 'sr-only' }}">
 <thead><tr><th scope="col"></th><th scope="col">Total</th>{% for ft in increments %}<th scope="col">{{ ft }} ft exposed</th>{% endfor %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.connLabel }}</td>{% endfor %}</tr>{% if row.states[0].lowLabel %}<tr><th scope="row">{{ row.label }}, including low-lying areas</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.lowLabel }}</td>{% endfor %}</tr>{% endif %}{% endfor %}</tbody>
 </table>
@@ -301,8 +303,24 @@
     at the curves' ends. Both panes sit in the same
     grid cell (`.cpd-timing-stage`) so the taller one sets the height regardless of which is shown,
     and the source line below never moves when the switch is pressed. -#}
-{% macro curves(uid, county, reference, increments) %}
+{% macro curves(uid, county, reference, increments, print) %}
 {%- set g = reference | slrCurves(county.gauge, increments) %}
+{%- if print %}
+<p class="cpd-chart-title">Year each increment is reached at the {{ county.gaugeName }} gauge, by scenario</p>
+<div class="cpp-timing">
+{%- for t in county.timing %}
+<table class="cp-timing-table">
+<caption style="text-align:left;font-size:13px;color:var(--ink-soft);padding-bottom:6px">Based on projections for the {{ t.name }} tide gauge.</caption>
+<thead><tr><th scope="col">Sea level rise</th><th scope="col">Intermediate</th><th scope="col">Intermediate-High</th><th scope="col">High</th></tr></thead>
+<tbody>
+{%- for row in t.rows %}
+<tr><th scope="row">{{ row.feet }} ft</th>{% for c in row.cells %}<td{% if c.year == null %} class="cpd-beyond"{% endif %}>{% if c.year == null %}after 2150{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>
+{%- endfor %}
+</tbody>
+</table>
+{%- endfor %}
+</div>
+{%- else %}
 <div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Year each increment is reached at the {{ county.gaugeName }} gauge, by scenario</p>
 <div class="cpd-view" role="group" aria-label="Show as" data-cpd-timing-view>
 <button type="button" aria-pressed="true" data-show="chart">Chart</button>
@@ -392,4 +410,5 @@
 {%- endfor %}
 </div>
 </div>
+{%- endif %}
 {% endmacro %}

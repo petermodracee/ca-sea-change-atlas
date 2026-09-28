@@ -366,6 +366,17 @@ The Phase 3 gate. Phase 2 reconciled Orange County's flood and sea level rise fi
 
 *The delta counties get a sea level rise topic.* Sacramento, San Joaquin and Yolo now have flood hazard, sea level rise and marine economy, still no total economy. The tier rule no longer withholds SLR from the delta tier; `no-slr-extent` remains the flood-only tier's rule and the section-level reason if NOAA's data has no polygon in a county that should have some. Their SLR is read from NOAA's Delta inundation file (the pipeline already read all seven regional files). Total economy's *Coastal Jobs Are Vulnerable* needs the total economy and stays out of the delta tier.
 
+### Print is the reader's browser, from the page (Phase 6)
+The spec planned Playwright-generated PDFs at stable URLs. That was dropped: PDFs are not generated, stored or deployed, and no headless browser enters the build. Print CSS is built into every page instead. NOAA's Print View works only from its button (their `@media print` hides the whole app, and the print modal is empty until JavaScript fills it), and our deck has the same hazards, so each page renders a `.print-only` block at build time from the same section objects as the deck, shown under `@media print`. Ctrl+P, File > Print and the Print button then print the same thing. The cost is real: a planner cannot attach a file from a stable URL, only save their own copy. The page's recommended citation, and the footer of every printed page, carry the citable address instead.
+
+The footer carries data-as-of, snapshot, method version and the dated URL, and no print date. A static page cannot know the date, and printing one is how NOAA's "Date Printed" passes 2014–2018 data off as current. The reader's browser may add its own date in its header and footer; the docs say how to turn that off.
+
+*Repeating header and footer.* `position: fixed` inside `@media print` repeats on every page, but reserving space for it with page margin or padding failed in testing (offsets landed off the page, and padding reserves space only on the first page). The final form is a zero `@page` margin plus a real `thead`/`tfoot` spacer pair, which the engine repeats per page.
+
+*"View on the map" is dropped from print.* On screen it is a disabled stub until the map deep link exists, and a printed URL for a pan-and-zoom state would be long and unreadable on paper, the dead-link-on-paper problem the spec cites in the original. Every real source, methodology and correction link prints its address.
+
+*Refactor.* The inside of a section's panel moved to `section-body.njk`, included by the deck slide and by the print block. The built HTML of every existing page is unchanged apart from the added print block, the landing page's Print controls and a body class.
+
 ## Behavior
 
 ### Nominatim: submit only

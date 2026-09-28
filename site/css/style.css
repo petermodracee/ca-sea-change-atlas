@@ -1238,3 +1238,139 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
   .cpd-timing-stage [data-cpd-pane="chart"]{display:none;}
   .cpd-timing-stage [data-cpd-pane="table"]{visibility:visible;display:block;}
 }
+
+/* ================================================================================
+   County Profiles print layout. Every page carries a `.cpp` block rendered at build time from the
+   same sections as the deck (print-topic.njk / print-landing.njk). `.print-only` hides it on screen;
+   @media print hides the deck and all chrome and shows it, so Ctrl+P, File > Print and the Print
+   button print the same thing with no JavaScript. The full-profile page (/print/) shows the same
+   block on screen as a paper preview. Print is always light.
+   ================================================================================ */
+.print-only{display:none;}
+.cpp{
+  --paper:#fff;--paper-2:#fff;--ink:#000;--ink-soft:#333;--line:#bbb;--grid-line:#ccc;
+  --teal:#134F45;--teal-text:#134F45;--rust:#7C331D;--rust-text:#7C331D;--sand-deep:#DCC79A;--navy-2:#1B3A4B;
+  --ramp-0:#6DB3A4;--ramp-1:#4A9A8B;--ramp-2:#2C8070;--ramp-3:#1F6A5D;--ramp-4:#134F45;--onfill-headline:#fff;
+  color:#000;background:#fff;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:10.5pt;line-height:1.4;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+}
+.cpp-defs{position:absolute;}
+.cpp-layout{width:100%;table-layout:fixed;border-collapse:collapse;}
+.cpp-layout td{padding:0;}
+.cpp-head,.cpp-foot{display:none;}
+.cpp a{color:inherit;text-decoration:underline;overflow-wrap:anywhere;}
+.cpp h1,.cpp h2,.cpp h3{font-family:'Spectral',Georgia,serif;font-weight:600;color:#000;margin:0;}
+.cpp h1{font-size:26pt;line-height:1.1;} .cpp h2{font-size:16pt;margin:0 0 6pt;} .cpp h3{font-size:12.5pt;margin:0 0 4pt;}
+.cpp-eyebrow{font-size:8.5pt;letter-spacing:.08em;text-transform:uppercase;color:#333;margin:0 0 4pt;}
+.cpp-intro,.cpp-prose{margin:6pt 0;font-size:10.5pt;}
+.cpp-meta,.cpp-note,.cpp-lede,.cpp-asof{margin:5pt 0;font-size:9.5pt;color:#333;}
+.cpp-lede{font-size:11pt;color:#000;}
+.cpp-tier{border:1px solid #000;border-radius:3px;padding:1px 6px;font-weight:600;font-size:9pt;}
+.cpp-asof-label{text-transform:uppercase;letter-spacing:.06em;font-size:8.5pt;}
+.cpp-asof b{font-family:'Spectral',Georgia,serif;font-size:15pt;}
+.cpp-asof-meta{margin-left:10pt;}
+.cpp-notice{border:1.5px solid #000;padding:6pt 9pt;margin:8pt 0;font-size:9.5pt;}
+.cpp-cover{margin:0 0 12pt;padding-bottom:8pt;border-bottom:1.5px solid #000;}
+.cpp-section{padding:10pt 0;border-bottom:1px solid #bbb;}
+.cpp-section > h2,.cpp-section > h3{break-after:avoid;}
+.cpp-figure{margin:8pt 0;}
+.cpp-cite{font-size:9.5pt;margin:8pt 0;overflow-wrap:anywhere;}
+.cpp-facts{display:grid;grid-template-columns:auto 1fr;gap:2pt 12pt;font-size:9.5pt;margin:6pt 0;}
+.cpp-facts dt{font-weight:600;} .cpp-facts dd{margin:0;}
+.cpp-topics{display:grid;grid-template-columns:1fr 1fr;gap:10pt;margin:8pt 0;}
+.cpp-topic-card{border:1px solid #888;border-radius:4px;padding:8pt 10pt;break-inside:avoid;}
+.cpp-fig{font-family:'Spectral',Georgia,serif;font-size:22pt;font-weight:600;margin:2pt 0 0;color:#134F45;}
+.cpp-cap{font-size:9.5pt;margin:0 0 4pt;}
+.cpp-gaps{margin:4pt 0 0;padding-left:14pt;font-size:9pt;}
+.cpp-code{font-size:8.5pt;}
+.cpp-srctable{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6pt;}
+.cpp-srctable th,.cpp-srctable td{text-align:left;padding:3pt 5pt;border-bottom:1px solid #ccc;vertical-align:top;font-weight:400;}
+.cpp-srctable thead th{font-weight:600;border-bottom:1.5px solid #000;}
+.cpp-srctable tbody th{font-weight:500;}
+/* Section body, at paper size: undo the deck's slide-scale type. */
+.cpp .cpd-bign{display:flex;align-items:center;gap:14pt;margin:0 0 8pt;}
+.cpp .cpd-bign .cpd-fig{font-family:'Spectral',Georgia,serif;font-size:30pt;font-weight:600;line-height:1;white-space:nowrap;}
+.cpp .cpd-bign .cpd-cap{font-size:10.5pt;margin:0;flex:1;}
+.cpp .cpd-bign-group{display:grid;grid-template-columns:1fr 1fr;gap:10pt 30pt;text-align:center;margin:6pt 0;}
+.cpp .cpd-bign-item .cpd-fig{font-family:'Spectral',Georgia,serif;font-size:26pt;font-weight:600;}
+.cpp .cpd-bign-item .cpd-cap{font-size:9.5pt;margin:0;}
+.cpp .cpd-note,.cpp .cpd-footnote{font-size:9pt;color:#333;margin:5pt 0;}
+.cpp .cpd-bign-group + .cpd-footnote{text-align:center;}
+.cpp .cpd-chart-title{font-size:10pt;font-weight:600;text-align:center;margin:6pt 0 3pt;}
+.cpp .cpd-chart{width:100%;break-inside:avoid;}
+.cpp .cpd-chart svg,.cpp svg.cp-bars{display:block;width:100%;height:auto;max-height:none;}
+.cpp .cpd-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:3pt 12pt;margin:4pt 0;padding:0;list-style:none;font-size:9pt;color:#000;}
+.cpp .cpd-legend li{display:inline-flex;align-items:center;gap:4pt;white-space:normal;}
+.cpp .cpd-swatch{width:10pt;height:10pt;border:1px solid #000;flex:none;}
+.cpp .cpd-legend .cp-bar-s0{background:#134F45;} .cpp .cpd-legend .cp-bar-s1{background:#DCC79A;} .cpp .cpd-legend .cp-bar-s2{background:#555;}
+.cpp .cpd-legend .cp-bar-s3{background:repeating-linear-gradient(45deg,#7C331D 0 2.5pt,#F3EFE0 2.5pt 4.5pt);}
+.cpp .cpd-legend .cp-bar-s4{background:radial-gradient(circle,#F3EFE0 1.2pt,#1B3A4B 1.4pt) 0 0/4pt 4pt;}
+.cpp .cpd-legend .cpd-dot-0{background:#134F45;border-radius:50%;} .cpp .cpd-legend .cpd-dot-1{background:#DCC79A;border-radius:50%;}
+.cpp .cpd-legend .cpd-dot-2{background:#fff;border:2px solid #000;border-radius:50%;}
+.cpp .cpd-legend .cpd-ramp-0{background:#6DB3A4;} .cpp .cpd-legend .cpd-ramp-1{background:#4A9A8B;} .cpp .cpd-legend .cpd-ramp-2{background:#2C8070;}
+.cpp .cpd-legend .cpd-ramp-3{background:#1F6A5D;} .cpp .cpd-legend .cpd-ramp-4{background:#134F45;}
+.cpp .cp-bar-s3{fill:url(#cpp-hatch);} .cpp .cp-bar-s4{fill:url(#cpp-dots);}
+/* The alternating neutral sectors carry dark icons, so both stay light; a sector is named by its icon and the legend. */
+.cpp .cp-sec-neutral-0{fill:#DCC79A;} .cpp .cp-sec-neutral-1{fill:#BDBDBD;}
+.cpp .cpd-dot-2{fill:#fff;stroke:#000;stroke-width:4;}
+/* No slider on paper: every increment is drawn in its own ramp colour with its value label. */
+.cpp [hidden]{display:revert;}
+.cpp svg [hidden]{display:inline;}
+.cpp .cpd-col:not(.cpd-col-active){fill:revert-layer;opacity:1;}
+.cpp .cpd-col.cpd-ramp-0{fill:#6DB3A4;} .cpp .cpd-col.cpd-ramp-1{fill:#4A9A8B;} .cpp .cpd-col.cpd-ramp-2{fill:#2C8070;} .cpp .cpd-col.cpd-ramp-3{fill:#1F6A5D;} .cpp .cpd-col.cpd-ramp-4{fill:#134F45;}
+.cpp .cpd-col-extra{opacity:1;}
+/* Five labels per group collide at paper width; every exact figure is in the data table printed under the chart. */
+.cpp .cpd-col-chart .cpd-vlabel[data-cpd-collabel]{display:none;}
+.cpp .share-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8pt;}
+.cpp .share-ring{max-width:1.5in;}
+.cpp .share-label{font-size:9.5pt;} .cpp .share-detail{font-size:8.5pt;color:#333;}
+.cpp .cp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(1.3in,1fr));gap:10pt;}
+.cpp .cp-stats dd{font-size:18pt;} .cpp .cp-stats dt{font-size:8pt;}
+.cpp .cp-equation{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8pt 12pt;}
+.cpp .cp-eq-value{font-size:18pt;} .cpp .cp-eq-label{font-size:8pt;}
+.cpp .cpd-gap,.cpp .cpd-gap p{color:#000;}
+.cpp .cpd-gap{border:2px dashed #000;padding:8pt 10pt;break-inside:avoid;margin:6pt 0;}
+.cpp .cpd-gap p{font-size:9.5pt;margin:0 0 3pt;}
+.cpp .cpd-sources{border-top:1px solid #888;margin-top:6pt;padding-top:4pt;display:flex;flex-wrap:wrap;gap:2pt 12pt;font-size:8pt;color:#333;}
+.cpp .cpd-sources b{text-transform:uppercase;letter-spacing:.08em;}
+.cpp .cpd-vintage{color:#333;}
+.cpp .cpp-timing table,.cpp .cpp-figtable{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+.cpp .cpp-timing th,.cpp .cpp-timing td,.cpp .cpp-figtable th,.cpp .cpp-figtable td{padding:3pt 6pt;text-align:right;border-bottom:1px solid #ccc;font-size:10pt;}
+.cpp .cpp-timing th:first-child,.cpp .cpp-timing td:first-child,.cpp .cpp-figtable th:first-child{text-align:left;}
+.cpp .cpp-timing caption{text-align:left;font-size:9pt;padding-bottom:3pt;}
+.cpp .cpd-beyond{color:#333;}
+/* Data tables that are screen-reader-only in the deck print as small real tables under their chart. */
+.cpp table.sr-only{position:static;width:100%;height:auto;margin:3pt 0 0;overflow:visible;clip:auto;white-space:normal;border-collapse:collapse;font-size:8pt;table-layout:auto;}
+.cpp table.sr-only th,.cpp table.sr-only td{border-bottom:1px solid #ddd;padding:1.5pt 4pt;text-align:right;font-weight:400;}
+.cpp table.sr-only th:first-child{text-align:left;font-weight:600;}
+.cpp h4.sr-only{position:static;width:auto;height:auto;margin:6pt 0 0;overflow:visible;clip:auto;white-space:normal;font-size:8pt;font-weight:600;color:#333;}
+/* Paper cannot be clicked: content links show their destination. Nav/decorative links carry none. */
+.cpp .cpd-sources a[href^="http"]::after{content:" <" attr(href) ">";font-size:7.5pt;color:#333;overflow-wrap:anywhere;}
+
+/* /print/ page: the same block shown on screen as a paper preview. */
+.cpp-preview{max-width:8.5in;margin:24px auto 60px;padding:.6in;box-shadow:0 0 0 1px #ccc;}
+.cpp-screenbar{background:var(--paper-2);border-bottom:1px solid var(--line);padding:12px 0;}
+.cpp-screenbar .wrap{display:flex;gap:16px;align-items:center;justify-content:space-between;}
+.cpp-screenbar p{margin:0;font-size:14px;}
+.cp-actions{margin:0 0 14px;display:flex;gap:14px;align-items:center;}
+
+@page{size:letter;margin:0;}
+@media print{
+  html,body,body.cpd-page,body.cp-landing{height:auto;overflow:visible;display:block;background:#fff;color:#000;}
+  .cpd-topbar,.cpd-dots,.cpd-deck,.cpd-tooltip,.site-header,.site-footer,.hero,.main,.no-print{display:none !important;}
+  .print-only{display:block;}
+  .cpp{margin:0;padding:0;box-shadow:none;max-width:none;}
+  /* Zero page margin; the fixed header/footer sit in it and the table-group spacers reserve the same
+     height on every printed page (padding would only reserve it on the first). */
+  .cpp-layout{width:100%;border-collapse:collapse;}
+  .cpp-layout td{padding:0;}
+  .cpp-sp-h{height:.95in;} .cpp-sp-f{height:.85in;}
+  .cpp-layout td.cpp-body{padding-inline:.6in;vertical-align:top;}
+  .cpp-head,.cpp-foot{display:flex;position:fixed;left:.6in;right:.6in;font-size:8pt;color:#000;background:#fff;}
+  .cpp-head{top:.4in;justify-content:space-between;align-items:baseline;border-bottom:1.5px solid #000;padding-bottom:3pt;}
+  .cpp-head-name{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:11pt;}
+  .cpp-foot{bottom:.35in;flex-direction:column;gap:1pt;border-top:1px solid #000;padding-top:3pt;}
+  .cpp-foot-vintage{font-size:8.5pt;} .cpp-foot-cite{overflow-wrap:anywhere;}
+  .cpp-doc .cpp-topic,.cpp-cover-page ~ .cpp-topic{break-before:page;}
+  .cpp-section,.cpp-figure,.cpp .share,.cpp .cpd-gap,.cpp-about{break-inside:avoid;}
+}
