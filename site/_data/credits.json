@@ -190,7 +190,7 @@
         {
           "name": "NOAA Economics: National Ocean Watch (ENOW)",
           "url": "https://coast.noaa.gov/digitalcoast/data/enow.html",
-          "note": "County Profiles: marine economy (ocean economy establishments, employment, wages and GDP by sector, and self-employed workers), county series through 2021, read through NOAA's Quick Report data API.",
+          "note": "County Profiles: the self-employed workers series (county, through 2021) and the 2021 county figures the estimates are checked against, read through NOAA's Quick Report data API. The marine economy figures themselves are built from public QCEW (see the entries below).",
           "licenses": [
             "pd-us"
           ]
@@ -198,7 +198,39 @@
         {
           "name": "NOAA Total Economy (Coastal)",
           "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
-          "note": "County Profiles: total economy (all-industry establishments, employment, wages and GDP by sector, from BLS QCEW and BEA), read through NOAA's Quick Report data API.",
+          "note": "County Profiles: the coastal California and coastal U.S. comparison values on the total economy wages chart (2023, its newest year), and the series the county totals are checked against, read through NOAA's Quick Report data API.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA Open ENOW",
+          "url": "https://coast.noaa.gov/digitalcoast/data/openenow.html",
+          "note": "County Profiles: the method (sector and NAICS definitions, the imputation ladder, the GDP approach) that the county marine economy estimates follow, and the California and coastal U.S. values on the marine wages chart, read through NOAA's data API.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Bureau of Labor Statistics — Quarterly Census of Employment and Wages",
+          "url": "https://www.bls.gov/cew/",
+          "note": "County Profiles: annual average establishments, employment and wages by county, NAICS code and ownership, from the public annual by-area files. The basis of the marine and total economy figures.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Bureau of Economic Analysis — GDP by state and industry",
+          "url": "https://www.bea.gov/data/gdp/gdp-industry",
+          "note": "County Profiles: California GDP by industry (table SAGDP2, current dollars), used with QCEW wages to estimate sector GDP.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Census Bureau — ZIP Code Business Patterns and TIGER shoreline geography",
+          "url": "https://www.census.gov/programs-surveys/cbp/data/datasets.html",
+          "note": "County Profiles: establishments by ZIP code, industry and size class (ZIP Code Business Patterns), and the 2020 ZIP code tabulation areas, coastline and tidal water areas (TIGER), used to estimate the share of tourism and recreation in shoreline-adjacent ZIP codes.",
           "licenses": [
             "pd-us"
           ]

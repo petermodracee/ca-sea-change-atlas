@@ -7,6 +7,8 @@ const { validateSnapshot } = require("../../scripts/county-profiles/validate.js"
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
 const { timingTable, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
+const { ESTIMATED_SHARE_THRESHOLD } = require("../../scripts/county-profiles/estimated.js");
+const { SHORE_TOLERANCE_M } = require("../../scripts/county-profiles/pipeline/enow-def.js");
 
 // Everything the County Profiles pages need, derived from the spine, the schema, the OPC reference
 // table and the snapshot files. Validation and the assertions below run here, so a malformed
@@ -232,7 +234,21 @@ return pages;
 const topicPages = topicPagesOf(counties);
 const snapshotTopicPages = topicPagesOf(archivedCounties);
 
+// What the About page states about the economy sources: each source's own year, read from a full-tier
+// snapshot (every county carries the same vintages), so the page cannot drift from the data.
+function economyMethod() {
+  const c = counties.find((x) => x.profile && x.tier === "full");
+  if (!c) return null;
+  const year = (key) => { const s = c.profile.sources[key]; return s && s.vintage ? s.vintage.year : null; };
+  return {
+    qcew: year("qcew"), qcewWages: year("qcew-wages"), beaMarine: year("bea-marine"), beaTotal: year("bea-total"), zbp: year("zbp"),
+    openEnow: year("open-enow"), enowSelf: year("enow-self"), coastalEconomy: year("coastal-economy"), nes: year("nes"), totalWages: year("qcew-total-wages"),
+    thresholdPercent: Math.round(ESTIMATED_SHARE_THRESHOLD * 100), shoreMetres: SHORE_TOLERANCE_M,
+  };
+}
+
 module.exports = {
+  economyMethod: economyMethod(),
   reasonsById: schema.reasons,
   counties,
   // One landing page per dated snapshot of each county, and one deck page per topic of each.

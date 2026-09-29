@@ -13,6 +13,7 @@
 const { pct, num, usd, usdWords, compact } = require("./format.js");
 const usdCompact = (n) => compact(n, true, 2); // the big stat numbers: two decimals
 const { sectorIconFor } = require("./sector-icons.js");
+const { cellValue: cv, cellEst, isEstimatedCell, isPartialCell, ESTIMATED_SHARE_THRESHOLD } = require("./estimated.js");
 
 // A callout share is built with pc() so that, if it happens to equal a number the chart labels,
 // the callout can be restated at two decimals instead of failing the build over a coincidence.
@@ -32,8 +33,8 @@ const SECTOR_MEASURES = [
 // `print` is what the printed data table shows: the same abbreviation as the big-number callouts
 // ("$2.81B"), so a dollar amount reads one way on paper. The screen keeps `fmt`.
 
-// Value cell -> display text; a suppressed cell has no text.
-const cellText = (v, fmt) => (isSuppressed(v) ? null : fmt(v));
+// Value cell -> display text; a suppressed cell has no text. A cell may carry provenance ({value, est}).
+const cellText = (v, fmt) => (isSuppressed(v) ? null : fmt(cv(v)));
 
 function buildSectionModel({ county, topicId, def, data, increments }) {
   const C = county + " County";
@@ -47,6 +48,12 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   // low-lying part dashed. The explanation lives on the County Profiles about page, not on the section.
   let hasLow = false;
   let footnote = null; // overrides the generic "one or more values are withheld" text when set
+  // The estimated state: every figure drawn from this section that is marked "≈" (imputed share at or
+  // above ESTIMATED_SHARE_THRESHOLD) is registered here, so the section can explain the mark once.
+  const marks = [];
+  // Notes that say which year each figure is for, wherever the years differ (one line each).
+  const notes = [];
+  const mark = (cell) => { const on = isEstimatedCell(cell); if (on) marks.push(cellEst(cell).share); return on; };
 
   // Rings: flood People at Risk (independent shares) and flood natural features (development
   // added 1996–2016 as a share of land developed by 2016, inside vs. outside the floodplain). The
@@ -215,14 +222,15 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       ].map((s) => {
         const text = cellText(s.v, s.fmt);
         show(text);
-        return { label: s.label, text, suppressed: text === null };
+        return { label: s.label, text, suppressed: text === null, est: mark(s.v) };
       });
-      visual = { type: "stats", items, partial: anySuppressed([data.establishments, data.jobs, data.wages, data.gdp]) };
+      if (data.year) notes.push(data.gdpYear && data.gdpYear !== data.year ? "Establishments, jobs and wages are for " + data.year + "; GDP is for " + data.gdpYear + ", the newest year BEA publishes for these industries." : "All figures are for " + data.year + ".");
+      visual = { type: "stats", items, partial: [data.establishments, data.jobs, data.wages, data.gdp].some((v) => isSuppressed(v) || isPartialCell(v)) };
       if (!isSuppressed(data.jobs)) {
-        const p = pc(data.jobs, data.denominator);
+        const p = pc(cv(data.jobs), data.denominator);
         callout = topicId === "marine-economy"
-          ? { figure: p, caption: "of total employment in " + C + " is in the marine economy." }
-          : { figure: p, caption: "of all employment in California is in " + C + "." };
+          ? { figure: p, caption: "of total employment in " + C + " is in the marine economy.", est: isEstimatedCell(data.jobs) }
+          : { figure: p, caption: "of all employment in California is in " + C + ".", est: isEstimatedCell(data.jobs) };
       }
       break;
     }
@@ -231,7 +239,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       // No value here is drawn as visible chart text (only the accessible table/description), so
       // the callout figure below is free to reuse a real number from the data.
       const present0 = data.sectors.filter((s) => !isSuppressed(s.employment));
-      const top = present0.sort((a, b) => b.employment - a.employment)[0];
+      const top = present0.sort((a, b) => cv(b.employment) - cv(a.employment))[0];
       // Colour and label only the headline sector (the one named in the big number, `top`); every
       // other sector is a neutral alternating shade, identified by name on hover/focus/tap instead.
       const measures = SECTOR_MEASURES.map((m) => ({
@@ -239,24 +247,28 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         segments: data.sectors.map((s) => {
           const v = s[m.key];
           const suppressed = isSuppressed(v);
-          return { label: s.label, value: suppressed ? 0 : v, suppressed, text: suppressed ? "withheld" : m.fmt(v), printText: suppressed ? "withheld" : (m.print || m.fmt)(v), isHeadline: s.label === top.label, icon: sectorIconFor(s.label) };
+          const est = !suppressed && mark(v);
+          const val = suppressed ? 0 : cv(v);
+          return { label: s.label, value: val, suppressed, est, text: suppressed ? "withheld" : (est ? "≈ " : "") + m.fmt(val), printText: suppressed ? "withheld" : (est ? "≈ " : "") + (m.print || m.fmt)(val), isHeadline: s.label === top.label, icon: sectorIconFor(s.label) };
         }),
       }));
-      const partial = SECTOR_MEASURES.some((m) => data.sectors.some((s) => isSuppressed(s[m.key])));
+      if (data.year && data.gdpYear && data.gdpYear !== data.year) notes.push("Establishments, employment and wages are for " + data.year + "; GDP is for " + data.gdpYear + ", the newest year BEA publishes for these industries.");
+      const partial = SECTOR_MEASURES.some((m) => data.sectors.some((s) => isSuppressed(s[m.key]) || isPartialCell(s[m.key])));
       visual = { type: "stacked100", legend: data.sectors.map((s) => s.label), measures, partial, headline: top.label };
       // One denominator rule, everywhere: a share is always of the sectors actually known for that
       // measure, a withheld sector excluded — the callout's employment share, the chart's own
       // Employment bar, and every other measure's bar all divide by their own present-sectors total,
       // never a total that pretends to include an unknown value. Stated in the footnote below so the
       // rule is visible, not just consistently applied.
-      const totalEmployment = sum(present0.map((s) => s.employment));
+      const totalEmployment = sum(present0.map((s) => cv(s.employment)));
       const withheldSectors = data.sectors.filter((s) => SECTOR_MEASURES.some((m) => isSuppressed(s[m.key]))).map((s) => s.label);
       const withheld = withheldSectors.length > 0;
       const whose = topicId === "marine-economy" ? "marine economy workforce" : "workforce";
       callout = {
-        figure: pc(top.employment, totalEmployment),
+        figure: pc(cv(top.employment), totalEmployment),
         caption: "of " + C + "’s " + whose + " works in " + top.label + ", its largest sector by employment" + (withheld ? PARTIAL_MARK : "") + ".",
         partial: withheld,
+        est: isEstimatedCell(top.employment),
       };
       if (withheld) {
         footnote = "* " + withheldSectors.join(" and ") + " " + (withheldSectors.length === 1 ? "is" : "are") + " withheld by the publisher for confidentiality; shares shown are of the remaining sectors.";
@@ -272,20 +284,23 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         label: i.label,
         values: keys.map((k) => {
           const text = cellText(i[k], usd);
-          return { value: isSuppressed(i[k]) ? null : i[k], text, suppressed: isSuppressed(i[k]) };
+          const est = !isSuppressed(i[k]) && mark(i[k]);
+          return { value: isSuppressed(i[k]) ? null : cv(i[k]), text: est ? "≈ " + text : text, suppressed: isSuppressed(i[k]), est };
         }),
       }));
+      if (data.year) notes.push("All three series are for " + data.year + ", the newest year the comparison series covers, so the county's dot is for " + data.year + " rather than the headline year of the other slides.");
       const partial = data.items.some((i) => keys.some((k) => isSuppressed(i[k])));
       visual = { type: "dots", items, series, partial };
       const present = data.items.filter((i) => !isSuppressed(i.county));
-      const top = present.sort((a, b) => b.county - a.county)[0];
-      const bottom = present.sort((a, b) => a.county - b.county)[0];
+      const top = present.sort((a, b) => cv(b.county) - cv(a.county))[0];
+      const bottom = present.sort((a, b) => cv(a.county) - cv(b.county))[0];
       const countyWithheld = data.items.some((i) => isSuppressed(i.county));
-      const ratio = (top.county / bottom.county).toFixed(1) + "×";
+      const ratio = (cv(top.county) / cv(bottom.county)).toFixed(1) + "×";
       callout = {
         figure: ratio,
         caption: top.label + " pays the most on average in " + C + "’s economy" + (countyWithheld ? PARTIAL_MARK : "") + " — that many times the lowest-paying sector's wage.",
         partial: countyWithheld,
+        est: isEstimatedCell(top.county) || isEstimatedCell(bottom.county),
       };
       // A sector the county has no jobs in (data.noJobs) is simply not a row: the slide says nothing
       // about it, and /county-profiles/about/#sectors-not-shown explains it once for every county.
@@ -299,22 +314,26 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       // numbers are real. When self-employed itself is withheld, "Total" would just be a copy of
       // "Employed" with an unknown addend — misleading arithmetic, not a partial one. Drop the
       // equation and state the one number that is real instead.
+      if (data.employedYear && data.selfEmployedYear) notes.push(data.employedYear === data.selfEmployedYear ? "Both counts are for " + data.employedYear + "." : "Employed is for " + data.employedYear + " and self-employed is for " + data.selfEmployedYear + ", the newest year each source publishes, so the total adds two different years.");
+      const employedEst = mark(data.employed);
       if (isSuppressed(data.selfEmployed)) {
-        const employedText = num(data.employed);
+        const employedText = num(cv(data.employed));
         show(employedText);
-        visual = { type: "plain-stat", text: employedText + " people employed in this industry (self-employed count withheld).", partial: true };
+        visual = { type: "plain-stat", text: (employedEst ? "≈ " : "") + employedText + " people employed in this industry (self-employed count withheld).", partial: true, est: employedEst };
       } else {
         const parts = [
-          { label: "Employed", v: data.employed },
-          { label: "Self-employed", v: data.selfEmployed },
+          { label: "Employed", v: data.employed, est: employedEst },
+          { label: "Self-employed", v: data.selfEmployed, est: false },
         ].map((p) => {
           const text = cellText(p.v, num);
           show(text);
-          return { label: p.label, text, suppressed: text === null };
+          return { label: p.label, text, suppressed: text === null, est: p.est };
         });
         const totalText = num(data.total.value);
         show(totalText);
-        visual = { type: "equation", parts, total: { text: totalText, partial: data.total.partial }, partial: data.total.partial };
+        // The total is estimated when the imputed part of employed is a large enough share of the total.
+        const totalEst = employedEst && (cellEst(data.employed).share * cv(data.employed)) / data.total.value >= ESTIMATED_SHARE_THRESHOLD;
+        visual = { type: "equation", parts, total: { text: totalText, partial: data.total.partial, est: totalEst }, partial: data.total.partial };
       }
       const present = data.sectors.filter((s) => !isSuppressed(s.selfEmployed)).sort((a, b) => b.selfEmployed - a.selfEmployed);
       const withheld = data.sectors.some((s) => isSuppressed(s.selfEmployed));
@@ -359,7 +378,10 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   }
 
   const partial = Boolean((visual && visual.partial) || (callout && callout.partial));
-  return { visual, callout, partial, footnote };
+  // `estimated` is set when any figure on this section carries the "≈" mark: the template then prints the
+  // one-line explanation, and the callout's figure gets the mark when what it is built from is estimated.
+  const estimated = marks.length || (callout && callout.est) ? { count: marks.length, maxShare: marks.length ? Math.max(...marks) : null } : null;
+  return { visual, callout, partial, footnote, estimated, notes };
 }
 
 module.exports = { buildSectionModel };

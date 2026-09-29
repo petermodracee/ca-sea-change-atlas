@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const opcReference = require("../../site/_data/opcGaugeProjections.json");
 const site = require("../../site/_data/site.js");
+const { cellValue } = require("./estimated");
 
 // A stale reference to the site's old GitHub Pages home (petermodracee.github.io/ca-sea-change-atlas/),
 // left over from before the seachangeatlas.org move. Every internal link and generated URL (canonical,
@@ -59,6 +60,13 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
   const isStr = (v) => typeof v === "string" && v.length > 0;
   const isSuppressed = (v) => isObj(v) && v.suppressed === true && Object.keys(v).length === 1;
   const isDate = (v) => ISO_DATE.test(v || "");
+  // A figure with provenance: {value, est: {share, step}} (partly imputed), {value, partial: true} (a sum
+  // with a component nothing could estimate), or both. A published figure is a plain number.
+  const isFig = (v) => isObj(v) && isQty(v.value)
+    && Object.keys(v).every((k) => ["value", "est", "partial"].includes(k))
+    && (v.est !== undefined || v.partial !== undefined)
+    && (v.partial === undefined || v.partial === true)
+    && (v.est === undefined || (isObj(v.est) && Object.keys(v.est).sort().join() === "share,step" && typeof v.est.share === "number" && v.est.share > 0 && v.est.share <= 1 && Number.isInteger(v.est.step) && v.est.step >= 1 && v.est.step <= 5));
 
   const entry = spine.counties.find((c) => c.fips === snap.fips);
   if (!entry) fail("fips " + snap.fips + " is not in the county spine");
@@ -137,8 +145,8 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
     const suppressible = SUPPRESSIBLE_TOPICS.has(topicId);
     // A value that is a quantity, or {suppressed: true} where the topic allows it.
     const cell = (v, w) => {
-      if (suppressible && isSuppressed(v)) return;
-      if (!isQty(v)) fail(w + " must be a number >= 0" + (suppressible ? " or {\"suppressed\": true}" : "") + " (null is not zero; mark the section unavailable instead)");
+      if (suppressible && (isSuppressed(v) || isFig(v))) return;
+      if (!isQty(v)) fail(w + " must be a number >= 0" + (suppressible ? ", {\"suppressed\": true} or {value, est, partial}" : "") + " (null is not zero; mark the section unavailable instead)");
     };
     const share = (o, w) => {
       if (!isObj(o) || !isQty(o.count) || !isQty(o.total) || o.total <= 0) fail(w + " needs count >= 0 and total > 0");
@@ -248,9 +256,9 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
         const t = data.total;
         if (!isObj(t) || !isQty(t.value) || typeof t.partial !== "boolean") fail(where + ".data.total must be {value, partial}");
         const parts = [data.employed, data.selfEmployed];
-        const anySuppressed = parts.some(isSuppressed);
-        if (t.partial !== anySuppressed) fail(where + ".data.total.partial must be true if and only if a component is suppressed");
-        const sum = parts.reduce((s, p) => s + (isSuppressed(p) ? 0 : p), 0);
+        const anySuppressed = parts.some((p) => isSuppressed(p) || (isObj(p) && p.partial === true));
+        if (t.partial !== anySuppressed) fail(where + ".data.total.partial must be true if and only if a component is suppressed or partial");
+        const sum = parts.reduce((s, p) => s + (isSuppressed(p) ? 0 : cellValue(p)), 0);
         if (t.value !== sum) fail(where + ".data.total.value must equal the sum of the components that are present (" + sum + ")");
         if (!Array.isArray(data.sectors) || !data.sectors.length) fail(where + ".data.sectors must be a non-empty array");
         data.sectors.forEach((s, i) => {

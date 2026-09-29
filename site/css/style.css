@@ -1187,6 +1187,12 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpd-dotplot-label{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:21px;font-weight:500;fill:var(--ink);dominant-baseline:middle;}
 .cpd-chart-dotplot .cpd-grid{stroke-width:2;}
 .cpd-dotplot-line{stroke:var(--line);stroke-width:3;}
+
+/* The estimated state (Phase 7): a figure partly built from imputed QCEW cells. Never colour alone: a "≈" glyph
+   before the number, a diagonal hatch over a bar segment, a dashed ring on a dot. All three survive greyscale. */
+.cp-est-mark{font-family:'IBM Plex Sans',system-ui,sans-serif;font-weight:600;color:var(--ink-soft);margin-right:.18em;font-size:.72em;vertical-align:.08em;}
+.cp-est-overlay{pointer-events:auto;}
+.cpd-dot-est{stroke:var(--ink);stroke-width:3;stroke-dasharray:4 3;}
 .cpd-dot-0{fill:var(--teal-text);} .cpd-dot-1{fill:var(--sand-deep);} .cpd-dot-2{fill:var(--ink-soft);}
 .cpd-legend .cpd-dot-0{background:var(--teal-text);} .cpd-legend .cpd-dot-1{background:var(--sand-deep);} .cpd-legend .cpd-dot-2{background:var(--ink-soft);}
 
@@ -1313,6 +1319,8 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 /* The 11-row wages plot plus its data table is taller than a page (707pt vs 662pt usable), so it would split; cap the plot so the section fits. */
 .cpp .cpd-chart-dotplot svg{max-height:3.3in;}
 .cpp .cpd-dot-2{fill:#fff;stroke:#000;stroke-width:4;}
+.cpp .cpd-dot-est{stroke:#000;stroke-width:3;stroke-dasharray:4 3;}
+.cpp .cp-est-mark{color:#000;}
 /* No slider on paper: every increment is drawn in its own ramp colour with its value label. */
 .cpp [hidden]{display:revert;}
 .cpp svg [hidden]{display:inline;}
