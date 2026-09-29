@@ -1,0 +1,71 @@
+{#- One topic as a paper document: cover, then each section that prints (use.pdf), then a data, methods
+    and citation block. Built from the same `sections` objects as the deck, through the same
+    section-body.njk. Expects the context deck.njk sets (`county`, `topic`, `sections`, `sourcesUsed`,
+    `dated`, `profile`, `base`, `permalink`), plus `fullPrint` (true inside the full-county document,
+    where headings sit one level lower). Every href here is absolute (`site.url`), because the print
+    stylesheet shows each link's destination. -#}
+{%- from "county-profiles/blocks-deck.njk" import sources -%}
+{%- set ch = "h2" if fullPrint else "h1" -%}
+{%- set sh = "h3" if fullPrint else "h2" -%}
+{%- set aboutUrl = site.url ~ ('/county-profiles/about/' | url) -%}
+{%- set currentUrl = site.url ~ ((base + topic.slug + '/') | url) -%}
+{%- set printMode = true -%}
+<article class="cpp-topic">
+<div class="cpp-cover">
+<p class="cpp-eyebrow">{{ topic.label }} · {{ county.name }} County, CA</p>
+<{{ ch }}>{{ topic.label }}</{{ ch }}>
+<p class="cpp-intro">{{ topic.intro }}</p>
+{%- if topic.id == "slr" and county.gaugeName %}
+<p class="cpp-meta">Projections for the {{ county.gaugeName }} tide gauge, assigned to {{ county.name }} County. Exposure at {{ countyProfiles.increments | join(", ") }} ft above MHHW.</p>
+{%- endif %}
+{%- if county.isFixture %}<p class="cpp-meta"><strong>Placeholder figures.</strong> Invented numbers that exercise the layout, not measurements.</p>{% endif %}
+{%- if dated %}
+<p class="cpp-meta">This is the {{ profile.snapshot }} snapshot. Current profile: <a href="{{ currentUrl }}">{{ currentUrl }}</a></p>
+{%- if county.correction %}
+{%- set fixUrl = site.url ~ ((base + county.correction.supersededBy + '/' + topic.slug + '/') | url) %}
+<p class="cpp-notice"><strong>Correction notice ({{ county.correction.date }}).</strong> {{ county.correction.note }} Corrected figures: <a href="{{ fixUrl }}">{{ fixUrl }}</a>. This snapshot is left as published.</p>
+{%- endif %}
+{%- endif %}
+</div>
+
+{%- for s in sections %}
+{%- if s.sec.use.pdf %}
+{%- set def = s.def %}
+{%- set sec = s.sec %}
+{%- set model = s.model %}
+{%- set uid = county.fips ~ "-" ~ topic.id ~ "-" ~ def.id %}
+<section class="cpp-section">
+<{{ sh }}>{{ def.title }}</{{ sh }}>
+{%- if def.prose.length %}<p class="cpp-prose">{{ def.prose[0] }}</p>{% endif %}
+<div class="cpp-figure">
+{% include "county-profiles/section-body.njk" %}
+</div>
+{{ sources(sec.sources, county.sources, true) }}
+</section>
+{%- endif %}
+{%- endfor %}
+
+<section class="cpp-section cpp-about">
+<{{ sh }}>Data, methods and citation</{{ sh }}>
+<p class="cpp-prose">Every figure here comes from one dated snapshot. A source's vintage is the period it describes, which can be years before the snapshot date.</p>
+<dl class="cpp-facts">
+<dt>Snapshot</dt><dd>{{ profile.snapshot }}</dd>
+<dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ aboutUrl }}#methodology-changelog">{{ aboutUrl }}#methodology-changelog</a></dd>
+{%- if topic.id == "slr" and county.gaugeName %}
+<dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix F)</dd>
+<dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
+{%- endif %}
+</dl>
+{%- if topic.id == "marine-economy" %}
+<p class="cpp-note">This topic omits jobs at risk: no open source isolates marine jobs by location. See <a href="{{ aboutUrl }}#marine-jobs">{{ aboutUrl }}#marine-jobs</a></p>
+{%- endif %}
+<p class="cpp-cite"><b>Recommended citation.</b> California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile: {{ topic.label }}</em>. <a href="{{ permalink }}">{{ permalink }}</a></p>
+<table class="cpp-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Vintage</th><th scope="col">Retrieved</th></tr></thead>
+<tbody>
+{%- for s in sourcesUsed %}
+<tr><th scope="row">{{ s.label }}<br><a href="{{ s.url }}">{{ s.url }}</a></th><td>{{ s.vintage }}</td><td>{{ s.retrieved }}</td></tr>
+{%- endfor %}
+</tbody>
+</table>
+</section>
+</article>

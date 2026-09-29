@@ -1,0 +1,20 @@
+{#- The running header and footer of a printed page. `position: fixed` inside @media print makes the
+    browser repeat them on every page. Nothing here is a date the reader's machine knows: the footer
+    leads with the data's vintage, the snapshot, the method version and the address to cite, and
+    there is deliberately no print date. Expects `county`, `profile`, `frameLabel` (the topic label, or
+    "Full profile") and `frameCite` (absolute URL). Hidden on screen; see the `.cpp` rules in style.css.
+    The two <pattern>s give the rust and navy series a hatch and a dot fill so they stay distinct in
+    greyscale, where teal, rust and navy would otherwise print as the same dark grey. -#}
+<svg class="cpp-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+<pattern id="cpp-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#7C331D"/><rect width="3" height="8" fill="#F3EFE0"/></pattern>
+<pattern id="cpp-dots" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#1B3A4B"/><circle cx="4" cy="4" r="1.8" fill="#F3EFE0"/></pattern>
+</defs></svg>
+<div class="cpp-head" aria-hidden="true">
+<span class="cpp-head-name">{{ county.name }} County</span>
+<span class="cpp-head-topic">{{ frameLabel }}</span>
+<span class="cpp-head-tier">{{ county.tierLabel }} coverage</span>
+</div>
+<div class="cpp-foot" aria-hidden="true">
+<span class="cpp-foot-vintage">Data as of <b>{{ profile.snapshot }}</b> · Snapshot {{ profile.snapshot }} · Methodology version {{ profile.method }}</span>
+<span class="cpp-foot-cite">{{ site.name }} · {{ frameCite }}</span>
+</div>

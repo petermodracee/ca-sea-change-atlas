@@ -41,6 +41,8 @@
 </div>
 {%- endif %}
 
+<p class="cp-actions no-print"><button class="cpd-btn" type="button" onclick="window.print()">Print</button>{% if not dated %} <a href="{{ (base + 'print/') | url }}">Print full profile</a>{% endif %}</p>
+
 <section class="cp-topic" id="topics">
 <h2>Topics</h2>
 <div class="cp-landing-topics">
@@ -91,4 +93,15 @@
 </section>
 
 </div>
+</div>
+
+{#- The paper version (hidden on screen, shown by @media print): a cover/summary with absolute URLs. -#}
+{%- set fullPrint = false %}
+{%- set frameLabel = "County profile" %}
+{%- set frameCite = site.url ~ ((base + profile.snapshot + "/") | url) %}
+<div class="cpp print-only">
+{% include "county-profiles/print-frame.njk" %}
+<table class="cpp-layout" role="presentation"><thead><tr><td><div class="cpp-sp-h"></div></td></tr></thead><tfoot><tr><td><div class="cpp-sp-f"></div></td></tr></tfoot><tbody><tr><td class="cpp-body">
+{% include "county-profiles/print-landing.njk" %}
+</td></tr></tbody></table>
 </div>

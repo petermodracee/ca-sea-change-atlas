@@ -1,0 +1,45 @@
+---
+layout: base.njk
+pagination:
+  data: countyProfiles.counties
+  size: 1
+  alias: county
+  addAllPagesToCollections: false
+permalink: "county-profiles/county/{{ county.slug }}/print/index.html"
+nav: county-profiles
+bodyClass: cp-landing cpp-doc
+eleventyExcludeFromCollections: true
+robots: "noindex"
+eleventyComputed:
+  title: "{{ county.name }} County profile, full print version — CA Sea Change Atlas"
+  description: "Every topic of the {{ county.name }} County profile as one printable document."
+  canonical: "{{ site.url }}/county-profiles/county/{{ county.slug }}/"
+---
+{%- set dated = false %}
+{%- set profile = county.profile %}
+{%- set base = "/county-profiles/county/" + county.slug + "/" %}
+{%- set datedBase = base + profile.snapshot + "/" %}
+{%- set fullPrint = true %}
+<div class="cpp-screenbar no-print">
+<div class="wrap">
+<p><strong>Full profile, print version.</strong> Every topic of the {{ county.name }} County profile, in order, as one document. Use your browser's print dialog or the button. <a href="{{ base | url }}">Back to the profile</a></p>
+<button class="cpd-btn" type="button" onclick="window.print()">Print</button>
+</div>
+</div>
+<div class="cpp cpp-preview">
+{%- set frameLabel = "Full profile" %}
+{%- set frameCite = site.url ~ (datedBase | url) %}
+{% include "county-profiles/print-frame.njk" %}
+<table class="cpp-layout" role="presentation"><thead><tr><td><div class="cpp-sp-h"></div></td></tr></thead><tfoot><tr><td><div class="cpp-sp-f"></div></td></tr></tfoot><tbody><tr><td class="cpp-body">
+{% include "county-profiles/print-landing.njk" %}
+{%- for entry in countyProfiles.topicPages %}
+{%- if entry.county.fips == county.fips %}
+{%- set topic = entry.topic %}
+{%- set sections = entry.sections %}
+{%- set sourcesUsed = entry.sourcesUsed %}
+{%- set permalink = site.url ~ ((datedBase + topic.slug + "/") | url) %}
+{% include "county-profiles/print-topic.njk" %}
+{%- endif %}
+{%- endfor %}
+</td></tr></tbody></table>
+</div>

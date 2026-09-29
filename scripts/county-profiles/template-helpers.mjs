@@ -252,6 +252,7 @@ export function stacked100Bars(measures) {
         ...s,
         pctText: shareText(pct),
         path: rectPath(segX, 0, w, BAR_H_100, isLastDrawn),
+        w,
         labelX: segX + w / 2,
         midY: barY + BAR_H_100 / 2,
         iconX: segX + w / 2 - ICON_SIZE / 2,

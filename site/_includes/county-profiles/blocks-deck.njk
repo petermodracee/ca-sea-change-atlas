@@ -14,11 +14,11 @@
 {% endmacro %}
 
 {#- The sources line at the foot of a panel. -#}
-{% macro sources(keys, sources) %}
+{% macro sources(keys, sources, short) %}
 <div class="cpd-sources"><b>Sources</b>
 {%- for key in keys %}
 {%- set s = sources[key] %}
-<span><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a> <span class="cpd-vintage">({{ s.inline }})</span></span>
+<span>{% if short %}<span class="cpp-srcname">{{ s.label }}</span>{% else %}<a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a>{% endif %} <span class="cpd-vintage">({{ s.inline }})</span></span>
 {%- endfor %}
 </div>
 {% endmacro %}
@@ -142,7 +142,7 @@
     exact figure for every segment. A withheld sector isn't drawn at all — there is no value to give
     it a width — and is named in the section's own footnote instead; the accessible table still
     lists it, as "withheld". -#}
-{% macro stacked100Bars(uid, measures, legend, title, headline) %}
+{% macro stacked100Bars(uid, measures, legend, title, headline, print) %}
 {%- set g = measures | stacked100Bars %}
 <p class="cpd-chart-title">{{ title }}</p>
 
@@ -156,7 +156,7 @@
                 {%- set sc = 'cp-sec-headline' if seg.isHeadline else ('cp-sec-neutral-' + (loop.index0 % 2)) %}
                 <path class="cp-bar {{ sc }}" data-tip="{{ seg.tip }}" transform="translate({{ g.plotX }},{{ row.barY }})" d="{{ seg.path }}"/>
                     {%- if seg.showLabel %}<text class="cpd-onfill-headline" x="{{ g.plotX + seg.labelX }}" y="{{ seg.midY }}" text-anchor="middle">{{ seg.pctText }}</text>
-                {%- elif seg.showIcon %}
+                {%- elif seg.showIcon and (not print or seg.w >= 64) %}
                     <svg x="{{ g.plotX + seg.iconX }}" y="{{ seg.iconY }}" width="30" height="30" viewBox="{{ seg.icon.viewBox }}" class="cpd-sector-icon{{ ' cpd-onfill-headline' if seg.isHeadline else '' }}" data-tip="{{ seg.tip }}">{{ (seg.icon.fillInner if seg.isHeadline else seg.icon.outlineInner) | safe }}</svg>
                 {% endif %}
             {%- endif %}
@@ -164,12 +164,14 @@
     {%- endfor %}
     </svg>
 </div>
-<ul class="cpd-legend" aria-hidden="true">{% for name in legend %}{% set seg0 = g.rows[0].segments[loop.index0] %}<li><span class="cpd-legend-icon{{ ' cpd-legend-icon-headline' if seg0.isHeadline else '' }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="18" height="18" aria-hidden="true">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}</span>{{ name }}</li>{% endfor %}</ul>
+{%- set legendHtml %}<ul class="cpd-legend{{ ' cpp-key' if print else '' }}" aria-hidden="true">{% for name in legend %}{% set seg0 = g.rows[0].segments[loop.index0] %}<li><span class="cpd-legend-icon{{ ' cpd-legend-icon-headline' if seg0.isHeadline else '' }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="18" height="18" aria-hidden="true">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}</span>{{ name }}</li>{% endfor %}</ul>{% endset %}
+{%- if not print %}{{ legendHtml | safe }}{% endif %}
 <h4 class="sr-only">{{ title }} — data table</h4>
-<table class="sr-only">
-<thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
-<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for seg in row.segments %}<td>{% if seg.suppressed %}withheld{% else %}{{ seg.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+<table class="{{ 'sr-only cpp-icons' if print else 'sr-only' }}">
+<thead><tr><th scope="col"></th>{% for name in legend %}{% if print %}{% set seg0 = g.rows[0].segments[loop.index0] %}<th scope="col" class="cpp-iconhead" title="{{ name }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="17" height="17" aria-hidden="true" class="cpp-headicon{{ ' cpp-headicon-headline' if seg0.isHeadline else '' }}">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}<span class="cpp-vh">{{ name }}</span></th>{% else %}<th scope="col">{{ name }}</th>{% endif %}{% endfor %}</tr></thead>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for seg in row.segments %}<td>{% if seg.suppressed %}withheld{% elif print %}{{ seg.printText or seg.text }}{% else %}{{ seg.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
 </table>
+{%- if print %}{{ legendHtml | safe }}{% endif %}
 {% endmacro %}
 
 {#- Vertical grouped columns: SLR People at Risk, one column per increment. Dense: styled tooltip on
@@ -179,7 +181,7 @@
     (site/js/county-deck.js toggles both the class and [hidden]) — when `increments` is given, a
     vertical slider (matching the timing chart's, to the chart's right) chooses which, defaulting to
     the highest; otherwise the highest increment just shows, with no picker. -#}
-{% macro columns(uid, items, legend, title, increments) %}
+{% macro columns(uid, items, legend, title, increments, print) %}
 {%- set g = items | groupedColumns(legend) %}
 <p class="cpd-chart-title">{{ title }}</p>
 <div class="cpd-chart-row">
@@ -212,8 +214,9 @@
 <ul class="cpd-legend" aria-hidden="true">{% for name in legend %}<li><span class="cpd-swatch cpd-ramp-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}{% if g.groups[0].cols[0].hasLow %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}</ul>
 <h4 class="sr-only">{{ title }} — data table</h4>
 <table class="sr-only">
+{%- if print and g.groups[0].cols[0].hasLow %}<caption>Each cell: exposure in ocean-connected areas; the figure in parentheses beneath includes isolated low-lying areas.</caption>{% endif %}
 <thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
-<tbody>{% for grp in g.groups %}{% if grp.cols[0].hasLow %}<tr><th scope="row">{{ grp.label }}, ocean-connected</th>{% for c in grp.cols %}<td>{{ c.connText }}</td>{% endfor %}</tr><tr><th scope="row">{{ grp.label }}, including low-lying areas</th>{% for c in grp.cols %}<td>{{ c.text }}</td>{% endfor %}</tr>{% else %}<tr><th scope="row">{{ grp.label }}</th>{% for c in grp.cols %}<td>{% if c.suppressed %}withheld{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>{% endif %}{% endfor %}</tbody>
+<tbody>{% for grp in g.groups %}{% if print and grp.cols[0].hasLow %}<tr><th scope="row">{{ grp.label }}</th>{% for c in grp.cols %}<td>{{ c.connText }}<span class="cpp-low">({{ c.text }})</span></td>{% endfor %}</tr>{% elif grp.cols[0].hasLow %}<tr><th scope="row">{{ grp.label }}, ocean-connected</th>{% for c in grp.cols %}<td>{{ c.connText }}</td>{% endfor %}</tr><tr><th scope="row">{{ grp.label }}, including low-lying areas</th>{% for c in grp.cols %}<td>{{ c.text }}</td>{% endfor %}</tr>{% else %}<tr><th scope="row">{{ grp.label }}</th>{% for c in grp.cols %}<td>{% if c.suppressed %}withheld{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>{% endif %}{% endfor %}</tbody>
 </table>
 {% endmacro %}
 
@@ -224,9 +227,10 @@
     which increment's split and end label show; every increment's split is already drawn, in its own
     `<g data-cpd-fac-state>`, and county-deck.js only shows one at a time per row. Row labels sit in
     a left column. -#}
-{% macro facilitiesStack(uid, items, title, increments) %}
+{% macro facilitiesStack(uid, items, title, increments, print) %}
 {%- set g = items | stackedByIncrement(increments) %}
 <p class="cpd-chart-title">{{ title }}</p>
+{%- if not print %}
 <div class="cpd-chart-row">
 <div class="cpd-chart" data-cpd-tips><svg class="cp-bars" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }} ({{ row.total }} total): {% for st in row.states %}{{ st.ft }} ft {{ st.connLabel }} exposed{% if st.lowLabel %} ({{ st.lowLabel }} with low-lying areas){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
@@ -255,10 +259,12 @@
 {{ incrementSlider(uid, increments, increments[0], 'data-cpd-fac-incs', 0, (g.height - g.axisY) / g.width) }}
 </div>
 <ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch cp-bar-s0"></span>Exposed at the selected increment</li>{% if g.rows[0].states[0].lowLabel %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}<li><span class="cpd-swatch cp-bar-not-exposed"></span>Not yet exposed</li></ul>
+{%- endif %}
 <h4 class="sr-only">{{ title }} — data table</h4>
-<table class="sr-only">
+<table class="{{ 'cpp-figtable' if print else 'sr-only' }}">
+{%- if print and g.rows[0].states[0].lowLabel %}<caption>Each cell: facilities exposed in ocean-connected areas; the figure in parentheses beneath includes isolated low-lying areas.</caption>{% endif %}
 <thead><tr><th scope="col"></th><th scope="col">Total</th>{% for ft in increments %}<th scope="col">{{ ft }} ft exposed</th>{% endfor %}</tr></thead>
-<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.connLabel }}</td>{% endfor %}</tr>{% if row.states[0].lowLabel %}<tr><th scope="row">{{ row.label }}, including low-lying areas</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.lowLabel }}</td>{% endfor %}</tr>{% endif %}{% endfor %}</tbody>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.connLabel }}{% if print and st.lowLabel %}<span class="cpp-low">({{ st.lowLabel }})</span>{% endif %}</td>{% endfor %}</tr>{% if row.states[0].lowLabel and not print %}<tr><th scope="row">{{ row.label }}, including low-lying areas</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.lowLabel }}</td>{% endfor %}</tr>{% endif %}{% endfor %}</tbody>
 </table>
 {% endmacro %}
 
@@ -301,8 +307,48 @@
     at the curves' ends. Both panes sit in the same
     grid cell (`.cpd-timing-stage`) so the taller one sets the height regardless of which is shown,
     and the source line below never moves when the switch is pressed. -#}
-{% macro curves(uid, county, reference, increments) %}
+{% macro curves(uid, county, reference, increments, print) %}
 {%- set g = reference | slrCurves(county.gauge, increments) %}
+{%- if print %}
+<div class="cpp-horizons">
+{%- set hz = reference | horizonColumns(county.gauge) %}
+<p class="cpd-chart-subtitle">Projected rise at the {{ county.gaugeName }} gauge in 2050 and 2100, in feet above 2000</p>
+<div class="cpd-chart" data-cpd-tips><svg class="cpd-col-chart" viewBox="0 0 {{ hz.width }} {{ hz.height }}" role="img" aria-labelledby="{{ uid }}-ht" aria-describedby="{{ uid }}-hd" preserveAspectRatio="xMidYMid meet">
+<title id="{{ uid }}-ht">Projected sea level rise at the {{ county.gaugeName }} tide gauge in 2050 and 2100, by scenario</title>
+<desc id="{{ uid }}-hd">Feet above 2000. {% for grp in hz.groups %}{{ grp.label }}: {% for c in grp.cols %}{{ hz.legend[loop.index0].label }} {{ c.text }} ft{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+{%- for t in hz.ticks %}
+<line class="cpd-grid" x1="{{ hz.ml }}" x2="{{ hz.width - hz.mr }}" y1="{{ t.y }}" y2="{{ t.y }}"/>
+<text class="cpd-axis" x="{{ hz.ml - 14 }}" y="{{ t.y + 7 }}" text-anchor="end">{{ t.label }}</text>
+{%- endfor %}
+{%- for grp in hz.groups %}
+{%- for c in grp.cols %}
+<path class="cpd-col cpd-ramp-{{ c.s }} cpd-col-active" data-tip="{{ c.tip }}" d="{{ c.path }}"/>
+<text class="cpd-vlabel" x="{{ c.labelX }}" y="{{ c.labelY }}" text-anchor="middle">{{ c.text }}</text>
+{%- endfor %}
+<text class="cpd-glabel" x="{{ grp.labelX }}" y="{{ grp.labelY }}" text-anchor="middle">{{ grp.label }}</text>
+{%- endfor %}
+<line x1="{{ hz.ml }}" x2="{{ hz.width - hz.mr }}" y1="{{ hz.axisY }}" y2="{{ hz.axisY }}" style="stroke:var(--ink-soft);stroke-width:1.5"/>
+</svg></div>
+<ul class="cpd-legend" aria-hidden="true">{% for l in hz.legend %}<li><span class="cpd-swatch cpd-ramp-{{ l.ramp }}"></span>{{ l.label }}</li>{% endfor %}</ul>
+{%- if hz.flags.below %}<p class="cpd-horizon-note">† Under {{ hz.flags.min }} ft, the lowest level the map shows.</p>{% endif %}
+{%- if hz.flags.above %}<p class="cpd-horizon-note">‡ Over {{ hz.flags.max }} ft, the highest level the map shows.</p>{% endif %}
+
+</div>
+<div class="cpp-timing">
+<p class="cpd-chart-title">Year each increment is reached at the {{ county.gaugeName }} gauge, by scenario</p>
+{%- for t in county.timing %}
+<table class="cp-timing-table">
+<caption style="text-align:left;font-size:13px;color:var(--ink-soft);padding-bottom:6px">Based on projections for the {{ t.name }} tide gauge.</caption>
+<thead><tr><th scope="col">Sea level rise</th><th scope="col">Intermediate</th><th scope="col">Intermediate-High</th><th scope="col">High</th></tr></thead>
+<tbody>
+{%- for row in t.rows %}
+<tr><th scope="row">{{ row.feet }} ft</th>{% for c in row.cells %}<td{% if c.year == null %} class="cpd-beyond"{% endif %}>{% if c.year == null %}after 2150{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>
+{%- endfor %}
+</tbody>
+</table>
+{%- endfor %}
+</div>
+{%- else %}
 <div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Year each increment is reached at the {{ county.gaugeName }} gauge, by scenario</p>
 <div class="cpd-view" role="group" aria-label="Show as" data-cpd-timing-view>
 <button type="button" aria-pressed="true" data-show="chart">Chart</button>
@@ -392,4 +438,5 @@
 {%- endfor %}
 </div>
 </div>
+{%- endif %}
 {% endmacro %}

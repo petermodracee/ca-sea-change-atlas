@@ -1,0 +1,60 @@
+{#- The county landing page as a paper cover/summary: coverage tier, the four topics with their headline
+    figures, and a reason for every topic or section that is missing. Absolute hrefs only. Expects
+    `county`, `profile`, `dated`, `base`, and `fullPrint` (the full-county document, where the topics
+    follow in the same document). -#}
+{%- set reasons = countyProfiles.reasonsById -%}
+{%- set datedBase = base + profile.snapshot + "/" -%}
+{%- set currentLanding = site.url ~ (base | url) -%}
+{%- set datedLanding = site.url ~ (datedBase | url) -%}
+<article class="cpp-cover-page">
+<p class="cpp-eyebrow">California Sea Change Atlas · County profile</p>
+<h1>{{ county.name }} County</h1>
+<p class="cpp-lede"><span class="cpp-tier">{{ county.tierLabel }} coverage</span> {% for t in countyProfiles.tiers %}{% if t.id == county.tier %}{{ t.summary }}{% endif %}{% endfor %}</p>
+<p class="cpp-asof"><span class="cpp-asof-label">Data as of</span> <b>{{ profile.snapshot }}</b><span class="cpp-asof-meta">Methodology version {{ profile.method }} · generated {{ profile.generated }}</span></p>
+{%- if dated %}
+<p class="cpp-meta">This is the dated snapshot of {{ profile.snapshot }}. Current profile: <a href="{{ currentLanding }}">{{ currentLanding }}</a></p>
+{%- if county.correction %}
+{%- set fixUrl = site.url ~ ((base + county.correction.supersededBy + '/') | url) %}
+<p class="cpp-notice"><strong>Correction notice ({{ county.correction.date }}).</strong> {{ county.correction.note }} Corrected figures: <a href="{{ fixUrl }}">{{ fixUrl }}</a>. This snapshot is left as published.</p>
+{%- endif %}
+{%- elif county.isFixture %}
+<p class="cpp-notice"><strong>Placeholder figures.</strong> Invented numbers that exercise the layout, not measurements of {{ county.name }} County.</p>
+{%- endif %}
+<h2>Topics</h2>
+<div class="cpp-topics">
+{%- for t in county.coverage %}
+<div class="cpp-topic-card">
+<h3>{{ t.label }}</h3>
+{%- if t.hasPage %}
+{%- if t.headline %}
+<p class="cpp-fig">{{ t.headline.figure }}</p>
+<p class="cpp-cap">{{ t.headline.caption }}</p>
+{%- endif %}
+{%- if fullPrint %}
+<p class="cpp-meta">Full detail follows in this document.</p>
+{%- else %}
+{%- set tu = site.url ~ ((base + (profile.snapshot + '/' if dated else '') + t.slug + '/') | url) %}
+<p class="cpp-meta">Full topic: <a href="{{ tu }}">{{ tu }}</a></p>
+{%- endif %}
+{%- if t.sectionGaps.length %}
+<ul class="cpp-gaps">
+{%- for g in t.sectionGaps %}
+<li><strong>{{ g.title }}</strong>: unavailable. {{ g.reasonLabel }} <code>{{ g.reason }}</code></li>
+{%- endfor %}
+</ul>
+{%- endif %}
+{%- elif t.available %}
+<p class="cpp-note">No data snapshot yet. This topic is available for {{ county.name }} County; its figures have not been built.</p>
+{%- else %}
+<div class="cpd-gap" role="note">
+<p class="cpd-gap-tag">Unavailable</p>
+<p><strong>{{ reasons[t.reason].label }}.</strong> {{ reasons[t.reason].rule }}</p>
+<p class="cpp-code">{{ t.label }} · reason code <code>{{ t.reason }}</code></p>
+</div>
+{%- endif %}
+</div>
+{%- endfor %}
+</div>
+{%- if county.gauge %}<p class="cpp-meta">Reference tide gauge: <strong>{{ county.gaugeName }}</strong>.</p>{% endif %}
+<p class="cpp-cite"><b>Recommended citation.</b> California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile</em>. <a href="{{ datedLanding }}">{{ datedLanding }}</a></p>
+</article>
