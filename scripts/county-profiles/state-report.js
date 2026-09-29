@@ -21,7 +21,7 @@ const dir = path.join(ROOT, "site/data/county-profiles/latest");
 
 const reasons = Object.keys(schema.reasons);
 const where = Object.fromEntries(reasons.map((r) => [r, []]));
-const { ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE } = require("./estimated");
+const { ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE, WITHHOLD_REASONS } = require("./estimated");
 const { CATS, slotsOf } = require("./figure-slots");
 const values = { zeroCounts: 0, noJobsSectors: 0 };
 const figs = { figures: 0, partial: 0, ...Object.fromEntries(CATS.map((c) => [c, 0])) };
@@ -35,6 +35,7 @@ for (const c of spine.counties) {
   const file = path.join(dir, c.fips + ".json");
   if (!fs.existsSync(file)) { problems.push(c.name + ": no snapshot"); continue; }
   const snap = JSON.parse(fs.readFileSync(file, "utf8"));
+  if (snap.estimation && (snap.estimation.thresholds.marker !== ESTIMATED_SHARE_THRESHOLD || snap.estimation.thresholds.withholdWeakShare !== WITHHOLD_WEAK_SHARE)) problems.push(c.name + ": estimation.thresholds " + JSON.stringify(snap.estimation.thresholds) + " differ from the thresholds in force");
   for (const [id, name] of [["marine-economy", "marine"], ["total-economy", "total"]]) {
     const tp = snap.topics[id];
     if (!tp.available) continue;
@@ -61,7 +62,12 @@ for (const c of spine.counties) {
         continue;
       }
       // An estimate outside the economy topics is an error; the figure counts below use figure-slots.js.
-      walk(sec.data, (v) => { if (v && typeof v === "object" && v.est && !SUPPRESSIBLE.has(t.id)) problems.push(c.name + "/" + t.id + "/" + s.id + ": an estimated figure outside the economy topics"); });
+      // Withheld figures carry a reason from the closed vocabulary, and an estimated figure that is shown must be
+      // below the withholding threshold at the weak steps (so the rule can be reproduced from the file alone).
+      walk(sec.data, (v) => {
+        if (v && typeof v === "object" && v.suppressed === true && !WITHHOLD_REASONS.includes(v.reason)) problems.push(c.name + "/" + t.id + "/" + s.id + ": a withheld figure with reason " + JSON.stringify(v.reason));
+        if (v && typeof v === "object" && v.est && v.est.weakShare >= WITHHOLD_WEAK_SHARE) problems.push(c.name + "/" + t.id + "/" + s.id + ": a shown figure is at least " + WITHHOLD_WEAK_SHARE + " imputed at the weak steps (weakShare " + v.est.weakShare + ") and should be withheld");
+        if (v && typeof v === "object" && v.est && !SUPPRESSIBLE.has(t.id)) problems.push(c.name + "/" + t.id + "/" + s.id + ": an estimated figure outside the economy topics"); });
       if (sec.data && sec.data.noJobs) values.noJobsSectors += sec.data.noJobs.length;
       const d = sec.data;
       if (s.kind === "inside-outside") values.zeroCounts += d.items.filter((i) => i.inside === 0).length;
@@ -92,7 +98,9 @@ if (base) {
     snap.sources = Object.fromEntries(Object.entries(snap.sources).filter(([k]) => cited.has(k)));
     return snap;
   };
+  let synthetic = 0;
   const check = (label, snap, shouldPass) => {
+    synthetic++;
     let passed = true;
     try { validateSnapshot(snap, { schema, spine, file: base.fips + ".json", fixture: false }); } catch (e) { passed = false; }
     if (passed !== shouldPass) problems.push("synthetic check failed: " + label + (shouldPass ? " should validate" : " should be rejected"));
@@ -101,21 +109,26 @@ if (base) {
   // outside the economy topics, is rejected.
   const withEst = (mutate) => { const snap = JSON.parse(JSON.stringify(real)); mutate(snap); return snap; };
   const eco = (snap) => snap.topics["marine-economy"].sections.measuring.data;
-  check("an estimated figure {value, est}", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 0.4, step: 2 } }; }), true);
-  check("a partial estimated figure", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 1, step: 5 }, partial: true }; }), true);
-  check("an estimate with share 0", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 0, step: 2 } }; }), false);
-  check("an estimate with step 6", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 0.5, step: 6 } }; }), false);
+  check("an estimated figure {value, est}", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 0.4, step: 2, weakShare: 0.1 } }; }), true);
+  check("a partial estimated figure", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 1, step: 5, weakShare: 0.2 }, partial: true }; }), true);
+  check("an estimate with share 0", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 0, step: 2, weakShare: 0 } }; }), false);
+  check("an estimate with step 6", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 0.5, step: 6, weakShare: 0 } }; }), false);
+  check("an estimate without weakShare", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 0.4, step: 2 } }; }), false);
+  check("an estimate whose weakShare exceeds its share", withEst((sn) => { eco(sn).jobs = { value: 100, est: { share: 0.2, step: 5, weakShare: 0.5 } }; }), false);
   check("an object with neither est nor partial", withEst((sn) => { eco(sn).jobs = { value: 100 }; }), false);
   // No live figure is withheld any more (the ladder resolves every cell), so the suppressed state is exercised here.
-  check("a withheld economy figure {suppressed: true}", withEst((sn) => { eco(sn).gdp = { suppressed: true }; }), true);
-  check("a withheld figure in flood hazard", withEst((sn) => { sn.topics.flood.sections["jobs-at-risk"].data.count = { suppressed: true }; }), false);
-  check("an estimated figure in flood hazard", withEst((sn) => { sn.topics.flood.sections["jobs-at-risk"].data.count = { value: 1, est: { share: 0.5, step: 1 } }; }), false);
+  for (const reason of WITHHOLD_REASONS) check("a withheld economy figure with reason " + reason, withEst((sn) => { eco(sn).gdp = { suppressed: true, reason }; }), true);
+  check("a withheld figure with no reason", withEst((sn) => { eco(sn).gdp = { suppressed: true }; }), false);
+  check("a withheld figure with an unknown reason", withEst((sn) => { eco(sn).gdp = { suppressed: true, reason: "confidential" }; }), false);
+  check("estimation.thresholds missing", withEst((sn) => { delete sn.estimation.thresholds; }), false);
+  check("a withheld figure in flood hazard", withEst((sn) => { sn.topics.flood.sections["jobs-at-risk"].data.count = { suppressed: true, reason: "no-data" }; }), false);
+  check("an estimated figure in flood hazard", withEst((sn) => { sn.topics.flood.sections["jobs-at-risk"].data.count = { value: 1, est: { share: 0.5, step: 1, weakShare: 0 } }; }), false);
   for (const [t, id, reason] of forced) check(base.name + " " + t + "/" + id + " as " + reason, withGap(t, id, reason), true);
   check("a section gap with an unknown reason", withGap("flood", "people-at-risk", "pending-phase-3"), false);
   const bad = JSON.parse(JSON.stringify(real));
   bad.topics.flood.sections["people-at-risk"].reason = "no-nfhl-coverage";
   check("a reason on an available section", bad, false);
-  console.log("Synthetic checks run: " + (forced.length + 10) + " (each section-level reason forced onto " + base.name + ", two that must be rejected, six for the estimated state and two for the withheld state)");
+  console.log("Synthetic checks run: " + (forced.length + 10 + 2 + WITHHOLD_REASONS.length + 1) + " (each section-level reason forced onto " + base.name + ", two that must be rejected, six for the estimated state and two for the withheld state)");
 }
 
 console.log("Reason codes and where each is used:");

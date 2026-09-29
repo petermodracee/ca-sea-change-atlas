@@ -3,11 +3,12 @@
 // (run.js --economy-only), so the two cannot drift. The figures come from economy-sections.js (public QCEW).
 
 
+const { withheldCell, ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE } = require("../estimated");
+
 const round = (n) => Math.round(n);
-const SUPPRESSED = { suppressed: true };
 const isSup = (v) => v === "SUP" || v === null || v === undefined || v === -9999 || v === "-9999";
 // A published quantity, or a withheld marker; `rounder` is the rounding the figure is stored at.
-const qty = (v, rounder = round) => (isSup(v) ? { ...SUPPRESSED } : rounder(Number(v)));
+const qty = (v, rounder = round) => (isSup(v) ? withheldCell("no-data") : rounder(Number(v)));
 const isSuppressedCell = (v) => v !== null && typeof v === "object" && v.suppressed === true;
 
 // The eleven sectors of the total economy: display label, the name in NOAA's data API (which cuts the
@@ -88,11 +89,11 @@ function buildEconomyTopics({ entry, has, S, eco, nes, meta, jobsAtRiskTotal, ga
     const nesRow = nes ? nes.value.counties[entry.fips] : null;
     const nesCell = (code) => {
       const c = nesRow[code];
-      return c === undefined ? 0 : c.suppressed ? { ...SUPPRESSED } : c.estab;
+      return c === undefined ? 0 : c.suppressed ? withheldCell("no-data") : c.estab;
     };
     const nesSector = (s) => {
       const cells = s.naics.map(nesCell);
-      return cells.some(isSuppressedCell) ? { ...SUPPRESSED } : cells.reduce((a, b) => a + b, 0);
+      return cells.some(isSuppressedCell) ? withheldCell("no-data") : cells.reduce((a, b) => a + b, 0);
     };
     const t = eco.total;
     totalEconomy = {
@@ -102,7 +103,7 @@ function buildEconomyTopics({ entry, has, S, eco, nes, meta, jobsAtRiskTotal, ga
       wages: section(["qcew-total-wages", "coastal-economy"], t.wages),
       "total-jobs": !nesRow || !Object.keys(nesRow).length ? noteGap("total-economy/total-jobs", "source-geography") : section(["qcew", "nes"], jobsPair(
         t.employed,
-        nesRow["00"] ? nesCell("00") : { ...SUPPRESSED },
+        nesRow["00"] ? nesCell("00") : withheldCell("no-data"),
         TOTAL_SECTORS.map((s) => ({ label: s.label, selfEmployed: nesSector(s) })),
         { employedYear: t.Y, selfEmployedYear: nes.value.year },
       )),
@@ -126,7 +127,7 @@ function buildEconomyTopics({ entry, has, S, eco, nes, meta, jobsAtRiskTotal, ga
       )),
     };
   }
-  return { totalEconomy, marine, sources: economySources({ S, eco, nes, meta }), estimation: eco && eco.marine ? { tourismShoreShare: eco.marine.calibration } : null };
+  return { totalEconomy, marine, sources: economySources({ S, eco, nes, meta }), estimation: eco && eco.marine ? { thresholds: { marker: ESTIMATED_SHARE_THRESHOLD, withholdWeakShare: WITHHOLD_WEAK_SHARE }, tourismShoreShare: eco.marine.calibration } : null };
 }
 
 module.exports = { buildEconomyTopics, economySources, TOTAL_SECTORS, MARINE_SECTORS, jobsPair, qty, rowOf };

@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T21:40:39Z",
+  "generated": "2026-09-29T23:14:30Z",
   "gauge": {
     "id": "alameda",
     "name": "Alameda",
@@ -845,7 +845,8 @@
                 "wages": 3877744647,
                 "employment": 27990,
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "gdp-unreproducible"
                 }
               },
               {
@@ -1059,7 +1060,8 @@
               "value": 8255,
               "est": {
                 "share": 0.0191,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0088
               },
               "partial": true
             },
@@ -1067,7 +1069,8 @@
               "value": 526864804,
               "est": {
                 "share": 0.0226,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0076
               },
               "partial": true
             },
@@ -1075,7 +1078,8 @@
               "value": 974933153,
               "est": {
                 "share": 0.0853,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0086
               },
               "partial": true
             },
@@ -1108,7 +1112,8 @@
                   "value": 67772641,
                   "est": {
                     "share": 0.0452,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -1126,21 +1131,24 @@
                   "value": 270438515,
                   "est": {
                     "share": 0.0021,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0021
                   }
                 },
                 "employment": {
                   "value": 2225,
                   "est": {
                     "share": 0.0031,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0031
                   }
                 },
                 "gdp": {
                   "value": 437259132,
                   "est": {
                     "share": 0.004,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.004
                   }
                 }
               },
@@ -1151,21 +1159,24 @@
                   "value": 17892998,
                   "est": {
                     "share": 0.4537,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1256
                   }
                 },
                 "employment": {
                   "value": 130,
                   "est": {
                     "share": 0.5847,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.2077
                   }
                 },
                 "gdp": {
                   "value": 47902089,
                   "est": {
                     "share": 0.8299,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1478
                   }
                 }
               },
@@ -1173,13 +1184,16 @@
                 "label": "Ship and boat building",
                 "establishments": 1,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
@@ -1189,21 +1203,24 @@
                   "value": 209837392,
                   "est": {
                     "share": 0.0155,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0057
                   }
                 },
                 "employment": {
                   "value": 5465,
                   "est": {
                     "share": 0.0136,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0071
                   }
                 },
                 "gdp": {
                   "value": 414253567,
                   "est": {
                     "share": 0.1475,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0057
                   }
                 }
               }
@@ -1233,7 +1250,8 @@
                   "value": 56964,
                   "est": {
                     "share": 0.0668,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 64138,
@@ -1251,7 +1269,8 @@
                   "value": 119193,
                   "est": {
                     "share": 0.006,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.006
                   }
                 },
                 "coastalState": 93343,
@@ -1263,7 +1282,8 @@
                   "value": 124883,
                   "est": {
                     "share": 0.8439,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.2218
                   }
                 },
                 "coastalState": 134731,
@@ -1272,7 +1292,8 @@
               {
                 "label": "Ship and boat building",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 89401,
                 "coastalUS": 82170
@@ -1283,7 +1304,8 @@
                   "value": 37438,
                   "est": {
                     "share": 0.1475,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0069
                   }
                 },
                 "coastalState": 37578,
@@ -1311,7 +1333,8 @@
               "value": 8255,
               "est": {
                 "share": 0.0191,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0088
               },
               "partial": true
             },
@@ -1350,6 +1373,10 @@
     }
   },
   "estimation": {
+    "thresholds": {
+      "marker": 0.25,
+      "withholdWeakShare": 0.25
+    },
     "tourismShoreShare": {
       "jobs": {
         "method": "calibrated",

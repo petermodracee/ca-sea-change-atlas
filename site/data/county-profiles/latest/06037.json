@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T21:34:22Z",
+  "generated": "2026-09-29T23:08:14Z",
   "gauge": {
     "id": "los-angeles",
     "name": "Los Angeles",
@@ -845,7 +845,8 @@
                 "wages": 21771660359,
                 "employment": 176739,
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "gdp-unreproducible"
                 }
               },
               {
@@ -1059,21 +1060,24 @@
               "value": 103243,
               "est": {
                 "share": 0.0039,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0006
               }
             },
             "wages": {
               "value": 8076532958,
               "est": {
                 "share": 0.0054,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0007
               }
             },
             "gdp": {
               "value": 18742106057,
               "est": {
                 "share": 0.0061,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0006
               }
             },
             "denominator": 4525460,
@@ -1103,21 +1107,24 @@
                   "value": 323335668,
                   "est": {
                     "share": 0.0261,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0179
                   }
                 },
                 "employment": {
                   "value": 4460,
                   "est": {
                     "share": 0.024,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0139
                   }
                 },
                 "gdp": {
                   "value": 904349841,
                   "est": {
                     "share": 0.0245,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0158
                   }
                 }
               },
@@ -1142,21 +1149,24 @@
                   "value": 199323715,
                   "est": {
                     "share": 0.1708,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 1685,
                   "est": {
                     "share": 0.1644,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 1002445292,
                   "est": {
                     "share": 0.1197,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -1174,21 +1184,24 @@
                   "value": 1963223248,
                   "est": {
                     "share": 0.0006,
-                    "step": 3
+                    "step": 3,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 50857,
                   "est": {
                     "share": 0.0004,
-                    "step": 3
+                    "step": 3,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 3961492318,
                   "est": {
                     "share": 0.0077,
-                    "step": 1
+                    "step": 1,
+                    "weakShare": 0
                   }
                 }
               }
@@ -1218,7 +1231,8 @@
                   "value": 69898,
                   "est": {
                     "share": 0.0245,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0158
                   }
                 },
                 "coastalState": 64138,
@@ -1242,7 +1256,8 @@
                   "value": 138402,
                   "est": {
                     "share": 0.1502,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 134731,
@@ -1260,7 +1275,8 @@
                   "value": 37427,
                   "est": {
                     "share": 0.0077,
-                    "step": 1
+                    "step": 1,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 37578,
@@ -1288,7 +1304,8 @@
               "value": 103243,
               "est": {
                 "share": 0.0039,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0006
               }
             },
             "employedYear": 2025,
@@ -1326,6 +1343,10 @@
     }
   },
   "estimation": {
+    "thresholds": {
+      "marker": 0.25,
+      "withholdWeakShare": 0.25
+    },
     "tourismShoreShare": {
       "jobs": {
         "method": "calibrated",

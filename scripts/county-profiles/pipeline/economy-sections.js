@@ -12,10 +12,9 @@
 
 const D = require("./enow-def");
 const E = require("./economy");
-const { isWithheldByRule } = require("../estimated");
+const { isWithheldByRule, withheldCell } = require("../estimated");
 
 const round = (n) => Math.round(n);
-const SUPPRESSED = { suppressed: true };
 const isSup = (v) => v === "SUP" || v === null || v === undefined || v === -9999 || v === "-9999";
 const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
 
@@ -23,31 +22,34 @@ const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
 // (4 and 5) reaches the threshold. `vk` names the value ("emp" or "wages") and WEAK the part imputed weakly.
 const WEAK = { emp: "empWeak", wages: "wagesWeak" };
 const withheld = (s, vk) => s[vk] > 0 && isWithheldByRule(s[WEAK[vk]] / s[vk]);
-const secFig = (s, vk, ik) => (withheld(s, vk) ? { ...SUPPRESSED } : E.fig(s[vk], s[vk] > 0 ? s[ik] / s[vk] : 0, s.step, { unresolved: s.unresolved }));
+const weakOf = (s, vk) => (s[vk] > 0 ? s[WEAK[vk]] / s[vk] : 0);
+const secFig = (s, vk, ik) => (withheld(s, vk) ? withheldCell("weak-share") : E.fig(s[vk], s[vk] > 0 ? s[ik] / s[vk] : 0, s.step, { unresolved: s.unresolved, weakShare: weakOf(s, vk) }));
 // A total over sectors: withheld sectors are left out and the total is marked partial (a floor); the total is
 // itself withheld if the part of what is left that was imputed weakly reaches the threshold.
 function totalFig(list, vk, ik) {
   const kept = list.filter((s) => !withheld(s, vk));
   const value = sum(kept, (s) => s[vk]);
   const imp = sum(kept, (s) => s[ik]);
-  if (value > 0 && isWithheldByRule(sum(kept, (s) => s[WEAK[vk]]) / value)) return { ...SUPPRESSED };
+  const weak = value > 0 ? sum(kept, (s) => s[WEAK[vk]]) / value : 0;
+  if (value > 0 && isWithheldByRule(weak)) return withheldCell("weak-share");
   const dropped = list.length - kept.length;
-  return E.fig(value, value > 0 ? imp / value : 0, Math.max(0, ...kept.map((s) => s.step)), { unresolved: sum(kept, (s) => s.unresolved) + dropped });
+  return E.fig(value, value > 0 ? imp / value : 0, Math.max(0, ...kept.map((s) => s.step)), { unresolved: sum(kept, (s) => s.unresolved) + dropped, weakShare: weak });
 }
 // Provenance of an average wage (wages / jobs): withheld if either part is, else the larger of the two shares.
 function avgWageFig(s) {
   if (!(s.emp > 0)) return null;
-  if (withheld(s, "emp") || withheld(s, "wages")) return { ...SUPPRESSED };
+  if (withheld(s, "emp") || withheld(s, "wages")) return withheldCell("weak-share");
   const share = Math.max(s.empImp / s.emp, s.wages > 0 ? s.wagesImp / s.wages : 0);
-  return E.fig(s.wages / s.emp, share, s.step, { unresolved: s.unresolved });
+  return E.fig(s.wages / s.emp, share, s.step, { unresolved: s.unresolved, weakShare: Math.max(weakOf(s, "emp"), weakOf(s, "wages")) });
 }
 // GDP: the wages' provenance. `gdp` null means no ratio exists (Public administration): withheld.
-const gdpSecFig = (s) => (s.gdp === null || withheld(s, "wages") ? { ...SUPPRESSED } : E.fig(s.gdp, s.wages > 0 ? s.wagesImp / s.wages : 0, s.step, { unresolved: s.unresolved }));
+const gdpSecFig = (s) => (s.gdp === null ? withheldCell("gdp-unreproducible") : withheld(s, "wages") ? withheldCell("weak-share") : E.fig(s.gdp, s.wages > 0 ? s.wagesImp / s.wages : 0, s.step, { unresolved: s.unresolved, weakShare: weakOf(s, "wages") }));
 function gdpTotalFig(list) {
   const kept = list.filter((s) => s.gdp !== null && !withheld(s, "wages"));
   const value = sum(kept, (s) => s.gdp), w = sum(kept, (s) => s.wages);
-  if (w > 0 && isWithheldByRule(sum(kept, (s) => s.wagesWeak) / w)) return { ...SUPPRESSED };
-  return E.fig(value, w > 0 ? sum(kept, (s) => s.wagesImp) / w : 0, Math.max(0, ...kept.map((s) => s.step)), { unresolved: sum(kept, (s) => s.unresolved) + (list.length - kept.length) });
+  const weak = w > 0 ? sum(kept, (s) => s.wagesWeak) / w : 0;
+  if (w > 0 && isWithheldByRule(weak)) return withheldCell("weak-share");
+  return E.fig(value, w > 0 ? sum(kept, (s) => s.wagesImp) / w : 0, Math.max(0, ...kept.map((s) => s.step)), { unresolved: sum(kept, (s) => s.unresolved) + (list.length - kept.length), weakShare: weak });
 }
 
 // ---- marine economy --------------------------------------------------------------------------------------
@@ -145,7 +147,7 @@ function totalSections(input) {
     if (!(s.emp > 0)) { noJobs.push(k); continue; }
     const st = noaaAvg(noaaRow(noaa.state, k)), us = noaaAvg(noaaRow(noaa.nation, k));
     if (st === undefined || us === undefined) throw new Error("the coastal state or U.S. series has no jobs in " + k);
-    items.push({ label: k, county: avgWageFig(s), coastalState: st === null ? { ...SUPPRESSED } : st, coastalUS: us === null ? { ...SUPPRESSED } : us });
+    items.push({ label: k, county: avgWageFig(s), coastalState: st === null ? withheldCell("no-data") : st, coastalUS: us === null ? withheldCell("no-data") : us });
   }
   const wages = noJobs.length ? { items, noJobs, year: Yw } : { items, year: Yw };
   return { Y, gdpYear: gy, wagesYear: Yw, measuring, diversity, wages, employed: total.emp, sectorLabels: labels };

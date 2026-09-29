@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T21:36:05Z",
+  "generated": "2026-09-29T23:09:56Z",
   "gauge": {
     "id": "monterey",
     "name": "Monterey",
@@ -845,7 +845,8 @@
                 "wages": 1370812421,
                 "employment": 14530,
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "gdp-unreproducible"
                 }
               },
               {
@@ -1059,7 +1060,8 @@
               "value": 15990,
               "est": {
                 "share": 0.1057,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0105
               },
               "partial": true
             },
@@ -1067,7 +1069,8 @@
               "value": 684317518,
               "est": {
                 "share": 0.0991,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0168
               },
               "partial": true
             },
@@ -1075,7 +1078,8 @@
               "value": 1380936288,
               "est": {
                 "share": 0.103,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.023
               },
               "partial": true
             },
@@ -1106,21 +1110,24 @@
                   "value": 5963704,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 85,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 12216790,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -1131,21 +1138,24 @@
                   "value": 2173149,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 23,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 3699467,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -1156,21 +1166,24 @@
                   "value": 27300779,
                   "est": {
                     "share": 0.0616,
-                    "step": 4
+                    "step": 4,
+                    "weakShare": 0.0616
                   }
                 },
                 "employment": {
                   "value": 353,
                   "est": {
                     "share": 0.0397,
-                    "step": 4
+                    "step": 4,
+                    "weakShare": 0.0397
                   }
                 },
                 "gdp": {
                   "value": 35778707,
                   "est": {
                     "share": 0.1443,
-                    "step": 4
+                    "step": 4,
+                    "weakShare": 0.1443
                   }
                 }
               },
@@ -1178,13 +1191,16 @@
                 "label": "Offshore mineral resources",
                 "establishments": 11,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
@@ -1201,21 +1217,24 @@
                   "value": 648879886,
                   "est": {
                     "share": 0.0894,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0151
                   }
                 },
                 "employment": {
                   "value": 15529,
                   "est": {
                     "share": 0.1009,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0099
                   }
                 },
                 "gdp": {
                   "value": 1329241323,
                   "est": {
                     "share": 0.0906,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.018
                   }
                 }
               }
@@ -1245,7 +1264,8 @@
                   "value": 62757,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 64138,
@@ -1257,7 +1277,8 @@
                   "value": 86971,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 135639,
@@ -1269,7 +1290,8 @@
                   "value": 79169,
                   "est": {
                     "share": 0.1443,
-                    "step": 4
+                    "step": 4,
+                    "weakShare": 0.1443
                   }
                 },
                 "coastalState": 93343,
@@ -1278,7 +1300,8 @@
               {
                 "label": "Offshore mineral resources",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 134731,
                 "coastalUS": 193706
@@ -1289,7 +1312,8 @@
                   "value": 40106,
                   "est": {
                     "share": 0.1,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.018
                   }
                 },
                 "coastalState": 37578,
@@ -1320,7 +1344,8 @@
               "value": 15990,
               "est": {
                 "share": 0.1057,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0105
               },
               "partial": true
             },
@@ -1359,6 +1384,10 @@
     }
   },
   "estimation": {
+    "thresholds": {
+      "marker": 0.25,
+      "withholdWeakShare": 0.25
+    },
     "tourismShoreShare": {
       "jobs": {
         "method": "calibrated",

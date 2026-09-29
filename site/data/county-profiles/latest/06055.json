@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T21:36:39Z",
+  "generated": "2026-09-29T23:10:32Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -845,7 +845,8 @@
                 "wages": 381752163,
                 "employment": 3510,
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "gdp-unreproducible"
                 }
               },
               {
@@ -1059,7 +1060,8 @@
               "value": 790,
               "est": {
                 "share": 0.027,
-                "step": 5
+                "step": 5,
+                "weakShare": 0
               },
               "partial": true
             },
@@ -1067,7 +1069,8 @@
               "value": 55907340,
               "est": {
                 "share": 0.0146,
-                "step": 5
+                "step": 5,
+                "weakShare": 0
               },
               "partial": true
             },
@@ -1075,7 +1078,8 @@
               "value": 64124016,
               "est": {
                 "share": 0.0171,
-                "step": 5
+                "step": 5,
+                "weakShare": 0
               },
               "partial": true
             },
@@ -1103,13 +1107,16 @@
                 "label": "Living resources",
                 "establishments": 2,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
@@ -1130,13 +1137,16 @@
                 "label": "Offshore mineral resources",
                 "establishments": 3,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
@@ -1153,21 +1163,24 @@
                   "value": 815350,
                   "est": {
                     "share": 1,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 21,
                   "est": {
                     "share": 1,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 1305161,
                   "est": {
                     "share": 1,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0
                   }
                 }
               }
@@ -1194,7 +1207,8 @@
               {
                 "label": "Living resources",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 64138,
                 "coastalUS": 59563
@@ -1214,7 +1228,8 @@
               {
                 "label": "Offshore mineral resources",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 134731,
                 "coastalUS": 193706
@@ -1225,7 +1240,8 @@
                   "value": 38220,
                   "est": {
                     "share": 1,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 37578,
@@ -1256,7 +1272,8 @@
               "value": 790,
               "est": {
                 "share": 0.027,
-                "step": 5
+                "step": 5,
+                "weakShare": 0
               },
               "partial": true
             },
@@ -1295,6 +1312,10 @@
     }
   },
   "estimation": {
+    "thresholds": {
+      "marker": 0.25,
+      "withholdWeakShare": 0.25
+    },
     "tourismShoreShare": {
       "jobs": {
         "method": "zip-rule",

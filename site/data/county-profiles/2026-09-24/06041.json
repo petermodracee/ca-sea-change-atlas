@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T21:34:56Z",
+  "generated": "2026-09-29T23:08:48Z",
   "gauge": {
     "id": "point-reyes",
     "name": "Point Reyes",
@@ -757,7 +757,8 @@
               "value": 22793549224,
               "est": {
                 "share": 0.1499,
-                "step": 2
+                "step": 2,
+                "weakShare": 0
               },
               "partial": true
             },
@@ -808,21 +809,24 @@
                   "value": 705837830,
                   "est": {
                     "share": 0.9872,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 2892,
                   "est": {
                     "share": 0.9353,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 1952374847,
                   "est": {
                     "share": 0.9872,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -840,21 +844,24 @@
                   "value": 779546215,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 3977,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 1869718237,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -865,21 +872,24 @@
                   "value": 23457261,
                   "est": {
                     "share": 0.8859,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 391,
                   "est": {
                     "share": 0.9258,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 70396578,
                   "est": {
                     "share": 0.8859,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -903,7 +913,8 @@
                 "wages": 627970635,
                 "employment": 6276,
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "gdp-unreproducible"
                 }
               },
               {
@@ -1117,7 +1128,8 @@
               "value": 10741,
               "est": {
                 "share": 0.1241,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.001
               },
               "partial": true
             },
@@ -1125,7 +1137,8 @@
               "value": 452722458,
               "est": {
                 "share": 0.1231,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0014
               },
               "partial": true
             },
@@ -1133,7 +1146,8 @@
               "value": 884797011,
               "est": {
                 "share": 0.1254,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0015
               },
               "partial": true
             },
@@ -1164,21 +1178,24 @@
                   "value": 4102778,
                   "est": {
                     "share": 0.04,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 54,
                   "est": {
                     "share": 0.0529,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 13234133,
                   "est": {
                     "share": 0.3392,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -1196,21 +1213,24 @@
                   "value": 3273474,
                   "est": {
                     "share": 0.5329,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1106
                   }
                 },
                 "employment": {
                   "value": 47,
                   "est": {
                     "share": 0.6149,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1284
                   }
                 },
                 "gdp": {
                   "value": 7073091,
                   "est": {
                     "share": 0.5299,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1138
                   }
                 }
               },
@@ -1221,21 +1241,24 @@
                   "value": 633279,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 8,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 1036651,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -1243,13 +1266,16 @@
                 "label": "Ship and boat building",
                 "establishments": 3,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
@@ -1259,21 +1285,24 @@
                   "value": 431646224,
                   "est": {
                     "share": 0.1232,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0006
                   }
                 },
                 "employment": {
                   "value": 10538,
                   "est": {
                     "share": 0.1227,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0005
                   }
                 },
                 "gdp": {
                   "value": 835295427,
                   "est": {
                     "share": 0.1229,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0007
                   }
                 }
               }
@@ -1303,7 +1332,8 @@
                   "value": 72946,
                   "est": {
                     "share": 0.4198,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 64138,
@@ -1321,7 +1351,8 @@
                   "value": 76339,
                   "est": {
                     "share": 0.688,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.144
                   }
                 },
                 "coastalState": 93343,
@@ -1333,7 +1364,8 @@
                   "value": 69917,
                   "est": {
                     "share": 1,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 134731,
@@ -1342,7 +1374,8 @@
               {
                 "label": "Ship and boat building",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 89401,
                 "coastalUS": 82170
@@ -1353,7 +1386,8 @@
                   "value": 39621,
                   "est": {
                     "share": 0.1229,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0007
                   }
                 },
                 "coastalState": 37578,
@@ -1381,7 +1415,8 @@
               "value": 10741,
               "est": {
                 "share": 0.1241,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.001
               },
               "partial": true
             },
@@ -1420,6 +1455,10 @@
     }
   },
   "estimation": {
+    "thresholds": {
+      "marker": 0.25,
+      "withholdWeakShare": 0.25
+    },
     "tourismShoreShare": {
       "jobs": {
         "method": "calibrated",

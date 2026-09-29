@@ -5,7 +5,7 @@
   "tier": "delta",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T21:43:00Z",
+  "generated": "2026-09-29T23:16:49Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -721,21 +721,24 @@
               "value": 9513,
               "est": {
                 "share": 0.0612,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0112
               }
             },
             "wages": {
               "value": 658280508,
               "est": {
                 "share": 0.0752,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0149
               }
             },
             "gdp": {
               "value": 886046249,
               "est": {
                 "share": 0.0681,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.014
               }
             },
             "denominator": 733061,
@@ -765,21 +768,24 @@
                   "value": 19411863,
                   "est": {
                     "share": 0.7532,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 257,
                   "est": {
                     "share": 0.7474,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 54024910,
                   "est": {
                     "share": 0.9394,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -797,21 +803,24 @@
                   "value": 572257856,
                   "est": {
                     "share": 0.009,
-                    "step": 4
+                    "step": 4,
+                    "weakShare": 0.009
                   }
                 },
                 "employment": {
                   "value": 8565,
                   "est": {
                     "share": 0.0055,
-                    "step": 4
+                    "step": 4,
+                    "weakShare": 0.0055
                   }
                 },
                 "gdp": {
                   "value": 685898864,
                   "est": {
                     "share": 0.0073,
-                    "step": 4
+                    "step": 4,
+                    "weakShare": 0.0073
                   }
                 }
               },
@@ -822,21 +831,24 @@
                   "value": 15288949,
                   "est": {
                     "share": 1,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1416
                   }
                 },
                 "employment": {
                   "value": 117,
                   "est": {
                     "share": 1,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1536
                   }
                 },
                 "gdp": {
                   "value": 52198817,
                   "est": {
                     "share": 0.5009,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1356
                   }
                 }
               },
@@ -854,21 +866,24 @@
                   "value": 20751840,
                   "est": {
                     "share": 0.695,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1187
                   }
                 },
                 "employment": {
                   "value": 347,
                   "est": {
                     "share": 0.6512,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1199
                   }
                 },
                 "gdp": {
                   "value": 46628803,
                   "est": {
                     "share": 0.6958,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1406
                   }
                 }
               }
@@ -898,7 +913,8 @@
                   "value": 71964,
                   "est": {
                     "share": 0.9394,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 64138,
@@ -916,7 +932,8 @@
                   "value": 70783,
                   "est": {
                     "share": 0.0073,
-                    "step": 4
+                    "step": 4,
+                    "weakShare": 0.0073
                   }
                 },
                 "coastalState": 93343,
@@ -928,7 +945,8 @@
                   "value": 123853,
                   "est": {
                     "share": 0.5009,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1356
                   }
                 },
                 "coastalState": 134731,
@@ -940,7 +958,8 @@
                   "value": 58449,
                   "est": {
                     "share": 0.6958,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1462
                   }
                 },
                 "coastalState": 37578,
@@ -971,7 +990,8 @@
               "value": 9513,
               "est": {
                 "share": 0.0612,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0112
               }
             },
             "employedYear": 2025,
@@ -1009,6 +1029,10 @@
     }
   },
   "estimation": {
+    "thresholds": {
+      "marker": 0.25,
+      "withholdWeakShare": 0.25
+    },
     "tourismShoreShare": {
       "jobs": {
         "method": "zip-rule",

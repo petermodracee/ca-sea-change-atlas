@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T21:35:31Z",
+  "generated": "2026-09-29T23:09:22Z",
   "gauge": {
     "id": "arena-cove",
     "name": "Arena Cove",
@@ -757,7 +757,8 @@
               "value": 3220389178,
               "est": {
                 "share": 0.0269,
-                "step": 2
+                "step": 2,
+                "weakShare": 0
               },
               "partial": true
             },
@@ -808,21 +809,24 @@
                   "value": 14775555,
                   "est": {
                     "share": 0.8691,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 222,
                   "est": {
                     "share": 0.8021,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 40869758,
                   "est": {
                     "share": 0.8691,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -854,21 +858,24 @@
                   "value": 29877535,
                   "est": {
                     "share": 0.9865,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 692,
                   "est": {
                     "share": 0.9899,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 73442954,
                   "est": {
                     "share": 0.9865,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -885,7 +892,8 @@
                 "wages": 199809899,
                 "employment": 2884,
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "gdp-unreproducible"
                 }
               },
               {
@@ -1099,7 +1107,8 @@
               "value": 2025,
               "est": {
                 "share": 0.2269,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.014
               },
               "partial": true
             },
@@ -1107,7 +1116,8 @@
               "value": 66593830,
               "est": {
                 "share": 0.2681,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0172
               },
               "partial": true
             },
@@ -1115,7 +1125,8 @@
               "value": 139545583,
               "est": {
                 "share": 0.1537,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0149
               },
               "partial": true
             },
@@ -1146,21 +1157,24 @@
                   "value": 8214982,
                   "est": {
                     "share": 1,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0356
                   }
                 },
                 "employment": {
                   "value": 163,
                   "est": {
                     "share": 1,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0397
                   }
                 },
                 "gdp": {
                   "value": 17140820,
                   "est": {
                     "share": 0.801,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0169
                   }
                 }
               },
@@ -1168,39 +1182,48 @@
                 "label": "Marine construction",
                 "establishments": 4,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
                 "label": "Marine transportation",
                 "establishments": 7,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
                 "label": "Offshore mineral resources",
                 "establishments": 1,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
@@ -1217,21 +1240,24 @@
                   "value": 58378848,
                   "est": {
                     "share": 0.1651,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0146
                   }
                 },
                 "employment": {
                   "value": 1862,
                   "est": {
                     "share": 0.1593,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0118
                   }
                 },
                 "gdp": {
                   "value": 122404763,
                   "est": {
                     "share": 0.0691,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0146
                   }
                 }
               }
@@ -1261,7 +1287,8 @@
                   "value": 44807,
                   "est": {
                     "share": 0.801,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0169
                   }
                 },
                 "coastalState": 64138,
@@ -1270,7 +1297,8 @@
               {
                 "label": "Marine construction",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 135639,
                 "coastalUS": 102260
@@ -1278,7 +1306,8 @@
               {
                 "label": "Marine transportation",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 93343,
                 "coastalUS": 72991
@@ -1286,7 +1315,8 @@
               {
                 "label": "Offshore mineral resources",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 134731,
                 "coastalUS": 193706
@@ -1297,7 +1327,8 @@
                   "value": 29917,
                   "est": {
                     "share": 0.0691,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0146
                   }
                 },
                 "coastalState": 37578,
@@ -1328,7 +1359,8 @@
               "value": 2025,
               "est": {
                 "share": 0.2269,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.014
               },
               "partial": true
             },
@@ -1367,6 +1399,10 @@
     }
   },
   "estimation": {
+    "thresholds": {
+      "marker": 0.25,
+      "withholdWeakShare": 0.25
+    },
     "tourismShoreShare": {
       "jobs": {
         "method": "calibrated",

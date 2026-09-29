@@ -10,6 +10,7 @@
 
 const { MARINE_CODES, codesFor, BEA_LINES, TOTAL_SECTORS_QCEW } = require("./enow-def");
 const { OWNS, buildCell, estimateRow, estimateCounty } = require("./impute");
+const { withheldCell } = require("../estimated");
 
 const r4 = (x) => Math.round(x * 10000) / 10000; // share precision: 0.01%
 const MARINE_SECTOR_ORDER = ["Living Resources", "Marine Construction", "Marine Transportation", "Offshore Mineral Resources", "Ship and Boat Building", "Tourism and Recreation"];
@@ -109,12 +110,14 @@ function sumSector(cells, weightOf, gdpFn, beaOf) {
 
 // A figure from a value and its provenance. Withholding (estimated.js) is decided by the callers, which know
 // the part imputed at the weak steps.
-function fig(value, share, step, { unresolved = 0, allMissing = false } = {}) {
-  if (allMissing) return { suppressed: true };
+// `weakShare` is the part of the value imputed at ladder steps 4 and 5, recorded in `est` so the withholding rule can
+// be reproduced from the snapshot alone.
+function fig(value, share, step, { unresolved = 0, allMissing = false, weakShare = 0 } = {}) {
+  if (allMissing) return withheldCell("no-data");
   const v = Math.round(value);
   const o = { value: v };
   // A share under 0.005% rounds to nothing and is not recorded as an estimate.
-  if (share >= 0.00005 && step > 0) o.est = { share: Math.max(0.0001, r4(Math.min(1, share))), step };
+  if (share >= 0.00005 && step > 0) o.est = { share: Math.max(0.0001, r4(Math.min(1, share))), step, weakShare: r4(Math.min(1, weakShare)) };
   if (unresolved > 0) o.partial = true;
   return Object.keys(o).length === 1 ? v : o;
 }

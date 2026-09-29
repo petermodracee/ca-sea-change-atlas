@@ -18,6 +18,13 @@ const ESTIMATED_SHARE_THRESHOLD = 0.25;
 const WITHHOLD_WEAK_SHARE = 0.25;
 const isWithheldByRule = (weakShare) => weakShare >= WITHHOLD_WEAK_SHARE;
 
+// Why a figure is withheld ({suppressed: true, reason}): the closed vocabulary. weak-share: withheld by the rule above;
+// no-data: the source withholds it and there is nothing to estimate it from; gdp-unreproducible: Public
+// administration's GDP (BEA's government GDP includes schools and hospitals that QCEW counts elsewhere, so no
+// defensible ratio exists).
+const WITHHOLD_REASONS = ["weak-share", "no-data", "gdp-unreproducible"];
+const withheldCell = (reason) => ({ suppressed: true, reason });
+
 const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 // A figure's number, whether published (a plain number) or carrying provenance.
 const cellValue = (v) => (isObj(v) && "value" in v ? v.value : v);
@@ -25,4 +32,4 @@ const cellEst = (v) => (isObj(v) && v.est ? v.est : null);
 const isEstimatedCell = (v) => { const e = cellEst(v); return Boolean(e && e.share >= ESTIMATED_SHARE_THRESHOLD); };
 const isPartialCell = (v) => isObj(v) && v.partial === true;
 
-module.exports = { WITHHOLD_WEAK_SHARE, isWithheldByRule, ESTIMATED_SHARE_THRESHOLD, cellValue, cellEst, isEstimatedCell, isPartialCell };
+module.exports = { WITHHOLD_REASONS, withheldCell, WITHHOLD_WEAK_SHARE, isWithheldByRule, ESTIMATED_SHARE_THRESHOLD, cellValue, cellEst, isEstimatedCell, isPartialCell };

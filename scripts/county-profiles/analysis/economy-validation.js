@@ -266,6 +266,61 @@ function marineTransportationTables(rows) {
   return out;
 }
 
+// The comparison that is out of sample. Tourism and recreation is calibrated to the original ENOW's 2021 county
+// figure, so a comparison that includes it is in-sample for the largest sector. This one compares only the five
+// other sectors (living resources, marine construction, marine transportation, offshore mineral resources, ship and
+// boat building), jobs, 2021: our figure against the original's, per county and per sector. A sector the original
+// withholds in a county is left out of that county's combined figure on both sides; an original zero is a figure.
+function outOfSample2021(L) {
+  const NON = E.MARINE_SECTOR_ORDER.filter((x) => x !== "Tourism and Recreation");
+  const rows = [], bySector = Object.fromEntries(NON.map((k) => [k, []])), skipped = [];
+  for (const c of L.marineCounties) {
+    const file = cachePath("econ-" + c.fips + ".json");
+    if (!fs.existsSync(file)) continue;
+    const orig = JSON.parse(fs.readFileSync(file, "utf8")).ocean;
+    if (!orig.length) continue;
+    const mine = figures(L, c.fips, 2021);
+    let o = 0, m = 0, imp = 0, used = 0;
+    for (const k of NON) {
+      const r = orig.find((x) => x.sector === k);
+      if (!r || r.employment === "SUP") { skipped.push(c.name + " " + k); continue; }
+      const ov = Number(r.employment);
+      o += ov; m += mine[k].emp; imp += mine[k].empImp; used++;
+      bySector[k].push({ county: c.name, orig: ov, ours: mine[k].emp, imp: mine[k].empImp });
+    }
+    if (o > 0) rows.push({ county: c.name, orig: o, ours: m, imputed: m > 0 ? imp / m : 0, sectors: used });
+  }
+  // tourism where it could not be calibrated (the original's figure is withheld or zero): the ZIP rule alone
+  const fallback = [];
+  for (const c of L.marineCounties) {
+    const cal = E.calibrateTourism(L.ests[c.fips], c.fips, L.shoreRes.shares, orig2021(c.fips));
+    if (cal.calibration.jobs.method !== "zip-rule") continue;
+    const file = cachePath("econ-" + c.fips + ".json");
+    const t = JSON.parse(fs.readFileSync(file, "utf8")).ocean.find((x) => x.sector === "Tourism and Recreation");
+    const mine = figures(L, c.fips, 2021)["Tourism and Recreation"];
+    fallback.push({ county: c.name, ours: mine.emp, orig: t ? t.employment : "not in the original", oursEst: mine.estabs, origEst: t ? t.establishments : "n/a", zip: cal.calibration.zipRuleJobsShare });
+  }
+  return { rows, bySector, skipped, fallback };
+}
+function outOfSampleTables(r) {
+  const d = (a, b) => a / b - 1;
+  const sg = (x) => (x >= 0 ? "+" : "") + (x * 100).toFixed(1) + "%";
+  const stats = (a) => { const v = a.map((x) => d(x.ours, x.orig)); return { med: median(v), medAbs: median(v.map(Math.abs)), within: v.filter((x) => Math.abs(x) <= 0.1).length, above: v.filter((x) => x > 0).length, below: v.filter((x) => x < 0).length, n: v.length }; };
+  const S = stats(r.rows);
+  let out = "**Out of sample: the five non-tourism sectors combined, jobs, 2021, ours against the original ENOW.** Tourism and recreation is left out because it is calibrated to the original's 2021 county figure (in-sample). The original's employment is confidential-microdata; ours is public QCEW with the ladder. Do not quote the all-sector comparison (21 of 23 counties within 10%) as accuracy: it is dominated by the calibrated sector.\n\n";
+  out += table(["county", "original ENOW", "ours", "difference (signed)", "share of ours imputed"], r.rows.map((x) => [x.county, f0(x.orig), f0(x.ours), sg(d(x.ours, x.orig)), f1(x.imputed)]));
+  out += "\n" + S.n + " counties: " + S.within + " within 10% of the original, " + (S.n - S.within) + " outside; " + S.above + " above the original and " + S.below + " below; median difference " + sg(S.med) + ", median absolute difference " + f1(S.medAbs) + ".\n";
+  out += "\nPer sector, across the counties where the original has a figure (original zero counted; \"total\" columns sum the counties; the median columns are over counties where the original is above zero):\n\n";
+  out += table(["sector", "counties", "original, total jobs", "ours, total jobs", "difference of totals (signed)", "median county difference (signed)", "median county difference (absolute)", "within 10% / above / below", "share of ours imputed"], Object.entries(r.bySector).map(([k, a]) => {
+    const pos = a.filter((x) => x.orig > 0), st = stats(pos), O = a.reduce((s2, x) => s2 + x.orig, 0), M = a.reduce((s2, x) => s2 + x.ours, 0), I = a.reduce((s2, x) => s2 + x.imp, 0);
+    return [k, String(a.length) + " (" + pos.length + " above zero)", f0(O), f0(M), O > 0 ? sg(d(M, O)) : "n/a", pos.length ? sg(st.med) : "n/a", pos.length ? f1(st.medAbs) : "n/a", pos.length ? st.within + " / " + st.above + " / " + st.below : "n/a", M > 0 ? f1(I / M) : "n/a"];
+  }));
+  out += "\nLeft out because the original withholds the sector in that county: " + (r.skipped.length ? r.skipped.join(", ") : "none") + ".\n";
+  out += "\n**The only out-of-sample view of the ZIP rule for tourism and recreation:** the counties where calibration was not possible because the original's 2021 figure is withheld or zero, so tourism uses the 1 km ZIP rule alone (jobs and establishments, 2021):\n\n";
+  out += table(["county", "ours, tourism jobs (ZIP rule)", "original ENOW, tourism jobs", "ours, establishments", "original, establishments", "ZIP rule's jobs share"], r.fallback.map((x) => [x.county, f0(x.ours), String(x.orig), f0(x.oursEst), String(x.origEst), f1(x.zip)]));
+  return out;
+}
+
 // --- 4. total economy -----------------------------------------------------------------------------------
 // Our all-industry QCEW totals and eleven sectors for 2023 against NOAA's Total Economy (Coastal) series for
 // 2023 (the series' newest year), and against what Phase 3 shipped (which was that NOAA series). `shipped` is
@@ -348,9 +403,10 @@ async function main() {
   if (want("backtest")) console.log("## Imputation backtest\n\n" + backtest(L));
   if (want("sum")) { const r = sumCheck(L); console.log("## Sum check against Open ENOW California\n" + sumCheckTables(r)); }
   if (want("total")) { const dirArg = args.find((a) => a.startsWith("--shipped=")); console.log("## Total economy\n\n" + totalTables(totalEconomy(L, dirArg ? dirArg.slice(10) : null))); }
+  if (want("oos")) console.log("## Out-of-sample 2021 comparison\n\n" + outOfSampleTables(outOfSample2021(L)));
   if (want("mt")) console.log("## Marine transportation\n\n" + marineTransportationTables(marineTransportation(L)));
   if (want("enow2021")) { console.log("## 2021 against original ENOW\n" + enow2021Tables(enow2021(L))); }
 }
 
-module.exports = { orig2021, totalEconomy, totalTables, load, figures, sumCheck, sumCheckTables, enow2021, enow2021Tables, backtest, median, mean, pctl, f1, f0, table };
+module.exports = { outOfSample2021, outOfSampleTables, orig2021, totalEconomy, totalTables, load, figures, sumCheck, sumCheckTables, enow2021, enow2021Tables, backtest, median, mean, pctl, f1, f0, table };
 if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });

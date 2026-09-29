@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T21:38:22Z",
+  "generated": "2026-09-29T23:12:14Z",
   "gauge": {
     "id": "san-francisco",
     "name": "San Francisco",
@@ -845,7 +845,8 @@
                 "wages": 4820438828,
                 "employment": 33040,
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "gdp-unreproducible"
                 }
               },
               {
@@ -1059,7 +1060,8 @@
               "value": 48483,
               "est": {
                 "share": 0.0104,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0097
               },
               "partial": true
             },
@@ -1067,7 +1069,8 @@
               "value": 2439404137,
               "est": {
                 "share": 0.0092,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0078
               },
               "partial": true
             },
@@ -1075,7 +1078,8 @@
               "value": 4920915069,
               "est": {
                 "share": 0.0198,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.008
               },
               "partial": true
             },
@@ -1106,21 +1110,24 @@
                   "value": 21547796,
                   "est": {
                     "share": 0.1394,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "employment": {
                   "value": 345,
                   "est": {
                     "share": 0.0883,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "gdp": {
                   "value": 64352760,
                   "est": {
                     "share": 0.1349,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 }
               },
@@ -1135,30 +1142,36 @@
                 "label": "Marine transportation",
                 "establishments": 41,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
                   "value": 977,
                   "est": {
                     "share": 0.1952,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.1952
                   }
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
                 "label": "Offshore mineral resources",
                 "establishments": 6,
                 "wages": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "employment": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "gdp": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 }
               },
               {
@@ -1175,21 +1188,24 @@
                   "value": 2380559327,
                   "est": {
                     "share": 0.0081,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.008
                   }
                 },
                 "employment": {
                   "value": 46850,
                   "est": {
                     "share": 0.0061,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0059
                   }
                 },
                 "gdp": {
                   "value": 4801487984,
                   "est": {
                     "share": 0.019,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0082
                   }
                 }
               }
@@ -1219,7 +1235,8 @@
                   "value": 57377,
                   "est": {
                     "share": 0.1349,
-                    "step": 2
+                    "step": 2,
+                    "weakShare": 0
                   }
                 },
                 "coastalState": 64138,
@@ -1234,7 +1251,8 @@
               {
                 "label": "Marine transportation",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 93343,
                 "coastalUS": 72991
@@ -1242,7 +1260,8 @@
               {
                 "label": "Offshore mineral resources",
                 "county": {
-                  "suppressed": true
+                  "suppressed": true,
+                  "reason": "weak-share"
                 },
                 "coastalState": 134731,
                 "coastalUS": 193706
@@ -1253,7 +1272,8 @@
                   "value": 48116,
                   "est": {
                     "share": 0.019,
-                    "step": 5
+                    "step": 5,
+                    "weakShare": 0.0082
                   }
                 },
                 "coastalState": 37578,
@@ -1284,7 +1304,8 @@
               "value": 48483,
               "est": {
                 "share": 0.0104,
-                "step": 5
+                "step": 5,
+                "weakShare": 0.0097
               },
               "partial": true
             },
@@ -1323,6 +1344,10 @@
     }
   },
   "estimation": {
+    "thresholds": {
+      "marker": 0.25,
+      "withholdWeakShare": 0.25
+    },
     "tourismShoreShare": {
       "jobs": {
         "method": "calibrated",

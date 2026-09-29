@@ -984,7 +984,159 @@ By county, ocean-economy employment (the six sectors summed), 2021, after every 
 23 counties: 21 within 10% of the original, 2 outside 10%; 16 above the original and 7 below (median difference +0.3%, median absolute difference 0.5%).
 
 
+*Read this table with follow-up 3 below:* tourism and recreation, most of every county's jobs, is calibrated to these very figures, so "21 of 23 counties within 10%" is **in-sample and is not an accuracy figure**. The comparison that is out of sample (the five other sectors: 5 of 23 counties within 10%, all 23 above, median +27.1%) is in follow-up 3.
+
 **Runtime and memory (re-measured again).** The same cold run (`run.js all --economy-only --refresh` with the QCEW cache emptied) took 1336 s (22 minutes) with a peak working set of 803 MB (review round: 1,305 s and 804 MB; first round: 1,610 s and 778 MB); the change to weak-share tracking adds a few additions per cell and no measurable time or memory. About 6% of the 350-minute and 6% of the 14 GB workflow budget, paid on every run that recomputes any county.
+
+### Phase 7 follow-up 3: a harsher backtest, provenance in the JSON, an out-of-sample comparison
+
+This round adds measurement and provenance only. No imputation logic, withholding rule, threshold (0.25 for both the marker and `WITHHOLD_WEAK_SHARE`), definition or displayed figure value changed: `analysis/diff-provenance.js` compares every snapshot file with the previous commit after removing the new fields and finds nothing else different, and the rendered economy pages differ from the previous build only by the one added data-page note (below).
+
+**1. A harsher backtest, and signed error for both.** (`node scripts/county-profiles/analysis/backtest-runs.js`, on demand only: it is not part of the build or the workflow, and runs in about 3 seconds.) The existing backtest hides one published county-code-ownership-year row at a time and leaves every other year visible, so steps 1 and 2 always have a neighbouring year to anchor on and the error it reports for them flatters them. Real suppression runs across years. The new backtest hides **runs of consecutive years** of the same series (interior windows of 2, 3 and 5 years, every window of published rows; and the last 2, 3 and 5 years of the series, where nothing later exists), with an ancestor identical to the hidden row hidden with it, and runs the ladder with no anchor inside the run, as it would behave for a persistently withheld cell. Each hidden row-year is estimated by each ladder step alone and by the ladder as run. Both backtests are in one table set below: the "single cell" rows reproduce the existing backtest exactly (5,912 row-years, 5.7% median absolute error as run, the numbers in the first Phase 7 validation section), and the run-masked rows are new. Error is (estimate - truth) / truth, so **positive is too high**; percent and absolute jobs are both reported, with samples (row-years) for every row and rows under 30 flagged †.
+
+Row-years hidden as runs (interior windows of 2, 3 and 5 years, and the last 2, 3 and 5 years), stride 1; 48250 row-years estimated by the ladder as run. † marks rows under 30 samples. Positive error means the estimate is too high.
+
+**By run length, ladder as run:**
+
+| run | n | median signed | mean signed | median abs | mean abs | p90 abs | median abs error (jobs) | mean abs error (jobs) | total bias (sum of errors / sum of truth) |
+|---|---|---|---|---|---|---|---|---|---|
+| single cell (the existing backtest) | 5912 | -0.1% | +5.1% | 5.7% | 14.6% | 29.7% | 14 | 146 | -0.1% |
+| interior, 2 years | 10044 | -0.5% | +5.2% | 7.3% | 16.3% | 34.6% | 21 | 220 | -0.2% |
+| interior, 3 years | 12951 | -0.7% | +4.7% | 8.6% | 17.4% | 38.8% | 29 | 291 | -0.4% |
+| interior, 5 years | 15890 | -0.6% | +6.3% | 10.6% | 21.3% | 46.2% | 44 | 434 | -0.9% |
+| tail, last 2 years | 784 | +0.0% | +2.9% | 6.3% | 13.5% | 32.2% | 19 | 109 | -0.1% |
+| tail, last 3 years | 1164 | -0.3% | +1.1% | 7.0% | 14.6% | 33.5% | 23 | 123 | -0.4% |
+| tail, last 5 years | 1505 | -8.0% | +2.3% | 17.8% | 31.6% | 52.6% | 67 | 725 | -12.6% |
+
+**By ladder step (each step alone on every row-year it can estimate), all runs:**
+
+| step | n | median signed | mean signed | median abs | mean abs | p90 abs | median abs error (jobs) | mean abs error (jobs) | total bias (sum of errors / sum of truth) |
+|---|---|---|---|---|---|---|---|---|---|
+| step 1 (interpolated) | 34709 | -0.6% | +4.9% | 8.0% | 16.3% | 36.8% | 30 | 336 | -0.2% |
+| step 2 (state-scaled) | 30305 | +0.1% | +4.1% | 7.1% | 16.2% | 36.8% | 24 | 126 | +0.2% |
+| step 3 (establishment-scaled) | 47999 | -0.1% | +3.8% | 9.4% | 18.5% | 42.6% | 32 | 342 | -0.3% |
+| step 4 (parent average, same year) | 16436 | +1.8% | +26.3% | 16.5% | 43.5% | 73.3% | 174 | 1,448 | -2.8% |
+| step 5 (parent average, earlier year) | 48238 | +4.8% | +53.4% | 25.8% | 73.7% | 160.0% | 91 | 832 | -3.6% |
+| as run | 48250 | -0.6% | +5.2% | 8.6% | 18.4% | 40.0% | 29 | 312 | -1.0% |
+
+**By ladder step and run length (median signed % error / median abs % error, n):**
+
+| step | single cell (the existing backtest) | interior, 2 years | interior, 3 years | interior, 5 years | tail, last 2 years | tail, last 3 years | tail, last 5 years |
+|---|---|---|---|---|---|---|---|
+| step 1 | -0.3% / 5.2%, n=4656 | -0.8% / 7.0%, n=7876 | -1.1% / 8.5%, n=9987 | -0.2% / 9.8%, n=12190 | n/a | n/a | n/a |
+| step 2 | +0.4% / 6.4%, n=3852 | +0.0% / 6.3%, n=6571 | +0.1% / 7.2%, n=8023 | +0.1% / 8.2%, n=9172 | +0.0% / 6.2%, n=768 | -0.3% / 7.0%, n=1143 | +0.8% / 9.8%, n=776 |
+| step 3 | +0.0% / 7.7%, n=5863 | +0.0% / 7.7%, n=9984 | +0.0% / 9.1%, n=12898 | +0.0% / 11.0%, n=15823 | +0.8% / 7.9%, n=778 | -1.4% / 8.9%, n=1158 | -15.4% / 22.1%, n=1495 |
+| step 4 | +1.9% / 17.9%, n=1935 | +1.8% / 16.9%, n=3351 | +1.8% / 16.5%, n=4390 | +1.8% / 15.8%, n=5608 | +3.0% / 19.1%, n=242 | +3.0% / 19.0%, n=359 | +3.4% / 16.8%, n=551 |
+| step 5 | +5.4% / 26.6%, n=5910 | +5.1% / 26.3%, n=10041 | +4.7% / 26.2%, n=12947 | +5.1% / 25.6%, n=15887 | +6.4% / 23.7%, n=784 | +3.8% / 23.7%, n=1164 | +0.0% / 26.1%, n=1505 |
+
+**By sector, ladder as run:**
+
+| sector | n | median signed | mean signed | median abs | mean abs | p90 abs | median abs error (jobs) | mean abs error (jobs) | total bias (sum of errors / sum of truth) |
+|---|---|---|---|---|---|---|---|---|---|
+| Living Resources | 3264 | -0.7% | +6.5% | 9.8% | 21.2% | 43.3% | 10 | 24 | -0.9% |
+| Marine Construction | 2004 | +0.7% | +16.5% | 15.6% | 33.7% | 64.9% | 35 | 73 | +1.2% |
+| Marine Transportation | 5485 | -0.3% | +6.3% | 10.3% | 21.7% | 46.7% | 49 | 297 | -1.0% |
+| Offshore Mineral Resources | 1844 | -0.0% | +10.8% | 13.6% | 27.6% | 54.2% | 12 | 27 | +0.9% |
+| Ship and Boat Building | 537 | +0.0% | +8.2% | 9.0% | 24.5% | 44.6% | 21 | 95 | -0.9% |
+| Tourism and Recreation | 35116 | -0.6% | +3.9% | 7.7% | 16.2% | 37.2% | 32 | 373 | -1.0% |
+
+**By number of establishments in the cell, ladder as run:**
+
+| establishments | n | median signed | mean signed | median abs | mean abs | p90 abs | median abs error (jobs) | mean abs error (jobs) | total bias (sum of errors / sum of truth) |
+|---|---|---|---|---|---|---|---|---|---|
+| 1-4 establishments | 7827 | +0.0% | +14.7% | 11.1% | 30.3% | 59.2% | 3 | 11 | +0.8% |
+| 5-9 | 8172 | -0.5% | +8.5% | 12.6% | 25.4% | 51.7% | 9 | 23 | -0.5% |
+| 10-24 | 9822 | -0.5% | +3.9% | 10.6% | 18.4% | 41.4% | 21 | 68 | -0.0% |
+| 25 or more | 22429 | -0.9% | +1.3% | 6.2% | 11.7% | 29.4% | 116 | 630 | -1.0% |
+
+**By establishments, steps 4 and 5 only (each alone):**
+
+| establishments | n | median signed | mean signed | median abs | mean abs | p90 abs | median abs error (jobs) | mean abs error (jobs) | total bias (sum of errors / sum of truth) |
+|---|---|---|---|---|---|---|---|---|---|
+| 1-4 establishments | 8767 | +6.3% | +119.5% | 35.8% | 143.3% | 314.7% | 10 | 41 | +18.0% |
+| 5-9 | 10570 | +15.5% | +79.0% | 38.1% | 101.0% | 228.4% | 32 | 76 | +8.7% |
+| 10-24 | 12281 | +9.1% | +55.8% | 30.8% | 75.7% | 208.9% | 60 | 219 | -8.8% |
+| 25 or more | 33056 | +1.2% | +13.4% | 15.7% | 30.8% | 73.3% | 405 | 1,817 | -3.3% |
+
+**Runtime of this backtest:** 3 s.
+
+*Direction of the bias, plainly.* **The ladder does not lean high in the middle of its distribution and does lean high in its tail.** Steps 1 to 3 have median signed error within about 1 point of zero in every run length except the last 5 years of a series (step 1 -0.6%, step 2 +0.1%, step 3 -0.1% over all runs); their mean signed error is +4% to +5% because the error distribution is right-skewed (a few large overshoots). **Steps 4 and 5 overshoot**: step 4 median +1.8% and mean +26%; step 5 median +4.8% and mean +53%, and for small cells the overshoot is large and systematic (steps 4 and 5 on cells of 1 to 4 establishments: median +6%, mean +120%, and the sum of the errors is 18% of the sum of the truth; 5 to 9 establishments: median +15.5%). Weighted by jobs the picture reverses: the ladder as run has a total bias of -1.0% over all runs, because large cells, where steps 1 to 3 apply, are slightly underestimated (the last 5 years of a series, where nothing later exists to anchor on, are underestimated by 12.6% in total and step 3 by 15% at the median: probably series that shrank, a decline that scaling by establishment count cannot see). So the ladder's contribution to a county total is small and, if anything, low; what leans high is the count of small, weakly imputed cells, and the withholding rule (a quarter imputed at steps 4 and 5) is aimed at exactly those. **The high lean of our county totals against the original ENOW is not mainly the ladder** (see the out-of-sample table below: the overshoot is as large in counties where 2% to 6% of the figure is imputed).
+
+*Harsher, but how much?* Stepping from one hidden cell to runs of 2, 3 and 5 years moves the ladder-as-run median absolute error from 5.7% to 7.3%, 8.6% and 10.6% (interior) and the 90th percentile from 30% to 35%, 39% and 46%; steps 1 and 2 degrade the most (step 1 from 5.2% to 7.0%, 8.5% and 9.8%; step 2 from 6.4% to 6.3%, 7.2% and 8.2%), steps 4 and 5 barely move because they never used the same cell's neighbours. By sector the median absolute error as run is 7.7% (tourism and recreation) to 15.6% (marine construction), and small cells are worse in percent (1 to 4 establishments 11.1% median, 30% mean) and smaller in jobs (median 3 jobs, mean 11).
+
+*What this test still does not capture.* Every row in it is a cell QCEW published, and a published cell is published because it is not dominated by one or a few employers; the cells that really are withheld are withheld precisely because a few employers dominate them, so their size and their year-to-year swings are larger and more erratic than the hidden published cells' (Santa Barbara's 334511, a real employer of about 1,500, is the typical case), and their neighbouring years and parents are more often withheld too. No test on published cells can reproduce that. The errors above should be read as a floor on the error of the imputed cells actually shown, most of all at steps 4 and 5.
+
+**2. Provenance in the snapshot JSON.** So that a reader can reproduce the withholding rule and know what a file was built with, each figure and the file itself now carry more (existing fields `share`, `step`, `partial` and `value` are unchanged):
+
+- `est` gains **`weakShare`**: the fraction (0 to 1) of the figure's value imputed at ladder steps 4 and 5 combined, the quantity the withholding rule tests. A figure that is shown always has `weakShare` below `WITHHOLD_WEAK_SHARE` (state-report.js checks this, so a shown figure that the rule should have withheld is an error). `weakShare` cannot exceed `share`.
+- A withheld figure is `{"suppressed": true, "reason": ...}` with `reason` from a closed vocabulary: **`weak-share`** (withheld by the rule), **`no-data`** (the source withholds it and there is nothing to impute from: a Census nonemployer cell marked S, a NOAA comparator marked SUP), **`gdp-unreproducible`** (Public administration's GDP: BEA's government GDP includes schools and hospitals that QCEW counts under other sectors, so no defensible ratio exists). A withheld figure with no reason, or an unknown one, is a validation error.
+- The `estimation` block gains **`thresholds`**: `{marker, withholdWeakShare}`, the thresholds in force when the file was built (0.25 and 0.25); `state-report.js` checks they equal the thresholds in the code, and the validator requires the block for every county with a marine topic.
+
+The accessible tables, charts, print blocks and footnotes are unchanged in output. Checked two ways: (a) `analysis/diff-provenance.js HEAD` over all 54 snapshot files (27 dated, 27 latest): 896 `weakShare` fields, 226 reasons and 46 `thresholds` blocks added and **nothing else differs** (no figure, source, vintage or availability); (b) the economy pages rendered before and after (with the `generated` timestamp, which the pages print, normalised): the only differing files are the 86 economy topic pages (46 marine, 40 total, current and dated), and the only differing line in each is the added note. The one deliberate visible addition is a short note on the "Data, methods and citation" slide of the marine and total economy decks, beside the unchanged "Download this snapshot (JSON)" link, saying what `est` and `reason` mean and that published-only figures are those with no `est` object and no `suppressed` flag.
+
+**3. The out-of-sample 2021 comparison, and why the all-sector figure must not be quoted as accuracy.** Tourism and recreation is calibrated to the original ENOW's 2021 county figures and is most of every county's jobs, so the 2021 county comparison in follow-up 2 ("21 of 23 counties within 10%") is **in-sample for the largest sector and must not be quoted as accuracy**. The comparison that is not fitted to the original is the five other sectors (living resources, marine construction, marine transportation, offshore minerals, ship and boat building) on their own:
+
+**Out of sample: the five non-tourism sectors combined, jobs, 2021, ours against the original ENOW.** Tourism and recreation is left out because it is calibrated to the original's 2021 county figure (in-sample). The original's employment is confidential-microdata; ours is public QCEW with the ladder. Do not quote the all-sector comparison (21 of 23 counties within 10%) as accuracy: it is dominated by the calibrated sector.
+
+| county | original ENOW | ours | difference (signed) | share of ours imputed |
+|---|---|---|---|---|
+| Alameda | 10,692 | 13,660 | +27.8% | 5.6% |
+| Contra Costa | 1,768 | 2,488 | +40.7% | 23.1% |
+| Del Norte | 73 | 88 | +20.8% | 17.2% |
+| Humboldt | 266 | 328 | +23.2% | 23.4% |
+| Los Angeles | 61,861 | 66,147 | +6.9% | 3.0% |
+| Marin | 344 | 394 | +14.6% | 12.7% |
+| Mendocino | 186 | 239 | +28.7% | 20.2% |
+| Monterey | 316 | 462 | +46.2% | 21.5% |
+| Napa | 567 | 586 | +3.4% | 0.0% |
+| Orange | 8,740 | 10,121 | +15.8% | 8.6% |
+| San Diego | 20,327 | 21,353 | +5.0% | 3.3% |
+| San Francisco | 2,196 | 2,971 | +35.3% | 17.4% |
+| San Luis Obispo | 262 | 393 | +50.2% | 32.4% |
+| San Mateo | 975 | 1,351 | +38.6% | 24.3% |
+| Santa Barbara | 338 | 2,564 | +658.7% | 75.3% |
+| Santa Clara | 1,510 | 1,665 | +10.2% | 6.5% |
+| Santa Cruz | 85 | 251 | +195.2% | 39.4% |
+| Solano | 489 | 622 | +27.1% | 6.2% |
+| Sonoma | 534 | 747 | +39.9% | 4.1% |
+| Ventura | 1,329 | 2,146 | +61.4% | 28.6% |
+| Sacramento | 5,896 | 6,261 | +6.2% | 4.1% |
+| San Joaquin | 27,055 | 27,441 | +1.4% | 0.5% |
+| Yolo | 3,315 | 4,099 | +23.6% | 2.3% |
+
+23 counties: 5 within 10% of the original, 18 outside; 23 above the original and 0 below; median difference +27.1%, median absolute difference 27.1%.
+
+Per sector, across the counties where the original has a figure (original zero counted; "total" columns sum the counties; the median columns are over counties where the original is above zero):
+
+| sector | counties | original, total jobs | ours, total jobs | difference of totals (signed) | median county difference (signed) | median county difference (absolute) | within 10% / above / below | share of ours imputed |
+|---|---|---|---|---|---|---|---|---|
+| Living Resources | 19 (19 above zero) | 7,305 | 8,145 | +11.5% | +17.1% | 17.1% | 7 / 16 / 1 | 10.5% |
+| Marine Construction | 18 (18 above zero) | 8,203 | 8,235 | +0.4% | +0.0% | 0.0% | 17 / 4 / 0 | 0.4% |
+| Marine Transportation | 22 (22 above zero) | 123,057 | 138,139 | +12.3% | +30.7% | 30.7% | 5 / 22 / 0 | 5.3% |
+| Offshore Mineral Resources | 10 (9 above zero) | 2,896 | 4,167 | +43.9% | +21.5% | 21.5% | 3 / 8 / 0 | 30.5% |
+| Ship and Boat Building | 8 (3 above zero) | 7,663 | 7,692 | +0.4% | +0.0% | 0.0% | 2 / 1 / 0 | 0.8% |
+
+Left out because the original withholds the sector in that county: Alameda Ship and Boat Building, Contra Costa Ship and Boat Building, Del Norte Marine Construction, Del Norte Marine Transportation, Del Norte Ship and Boat Building, Humboldt Offshore Mineral Resources, Humboldt Ship and Boat Building, Marin Offshore Mineral Resources, Marin Ship and Boat Building, Mendocino Marine Construction, Mendocino Offshore Mineral Resources, Monterey Marine Construction, Monterey Offshore Mineral Resources, Napa Living Resources, Napa Offshore Mineral Resources, San Francisco Offshore Mineral Resources, San Francisco Ship and Boat Building, San Luis Obispo Offshore Mineral Resources, San Luis Obispo Ship and Boat Building, San Mateo Marine Construction, San Mateo Ship and Boat Building, Santa Barbara Ship and Boat Building, Santa Clara Offshore Mineral Resources, Santa Clara Ship and Boat Building, Santa Cruz Offshore Mineral Resources, Santa Cruz Ship and Boat Building, Solano Living Resources, Solano Offshore Mineral Resources, Solano Ship and Boat Building, Sonoma Offshore Mineral Resources, Sonoma Ship and Boat Building, Ventura Ship and Boat Building, Sacramento Offshore Mineral Resources, San Joaquin Living Resources, San Joaquin Offshore Mineral Resources, Yolo Living Resources, Yolo Marine Construction, Yolo Ship and Boat Building.
+
+**The only out-of-sample view of the ZIP rule for tourism and recreation:** the counties where calibration was not possible because the original's 2021 figure is withheld or zero, so tourism uses the 1 km ZIP rule alone (jobs and establishments, 2021):
+
+| county | ours, tourism jobs (ZIP rule) | original ENOW, tourism jobs | ours, establishments | original, establishments | ZIP rule's jobs share |
+|---|---|---|---|---|---|
+| Napa | 21 | 0 | 2 | 0 | 0.0% |
+| Sacramento | 364 | 0 | 28 | 0 | 0.0% |
+| San Joaquin | 3,033 | 0 | 206 | 0 | 14.1% |
+| Yolo | 9 | 0 | 2 | 0 | 0.0% |
+
+*What it shows.* **Out of sample, our county figures are higher than the original's in every county: 5 of 23 counties within 10%, 18 outside, all 23 above, median +27.1%.** Two sectors agree (marine construction and ship and boat building: median difference 0.0%, and a difference of totals of +0.4% each, at 0.4% and 0.8% imputed); marine transportation (+30.7% median, +12.3% of totals), offshore minerals (+21.5%; +43.9% of totals, 30% imputed) and living resources (+17.1%) are higher. The lean is **not mainly the ladder**: it is as large in counties with almost nothing imputed (Alameda +27.8% at 5.6% imputed, Sonoma +39.9% at 4.1%, Solano +27.1% at 6.2%, Los Angeles +6.9% at 3.0%, Napa +3.4% at 0.0%) as in heavily imputed ones (Santa Barbara +659% at 75% imputed, the 334511 case; Santa Cruz +195% at 39%), and the backtest's jobs-weighted bias for the ladder is -1%. It is the difference between public QCEW and the original's confidential microdata for multi-code sectors, plus, for the extra code 493190 in marine transportation, the definition (removing the published 493190 rows takes about 3 points off; establishment counts match). One tested and rejected explanation: scoping marine transportation's warehousing (4931, most of its jobs) to shoreline ZIP codes, as the original's FAQ describes for "some industrial classes", overcorrects (median about -36% instead of about +31% on the 22 counties with an original figure; Los Angeles alone would fall from 57,105 to 36,349 against the original's 53,135). The cause is not established.
+
+*Tourism, the only out-of-sample view of the ZIP rule.* The four counties where calibration was not possible (the original's 2021 tourism figure is 0 or withheld) use the 1 km ZIP rule alone. In all four the original reports **zero** tourism jobs and zero establishments; the ZIP rule gives Napa 21 jobs, Sacramento 364, San Joaquin 3,033 and Yolo 9. So the ZIP rule alone puts tourism where the original has none (San Joaquin's 3,033 jobs come from a 14.1% jobs share of ZIP codes near the Delta's tidal water). The original ENOW may be zeroing sectors in counties outside its shore-adjacent definition; these four are the delta counties and Napa, which ENOW's own geography flags as not shore-adjacent. Treat tourism jobs in these four counties as the least certain in the tool; the ZIP share is not itself flagged as uncertain in the snapshot beyond the `zip-rule` method in `estimation.tourismShoreShare`.
+
+**4. Two small count movements in the follow-up 2 table, explained.** (Both are classification effects, not bugs; nothing changed.)
+
+- *Published 1,418 (old rule) to 1,415 (rule off and every later column).* The three figures are Napa's marine county totals (jobs, wages and GDP). In the snapshots at commit `39e1a18` the old rule withheld one of Napa's sectors, the total left it out and became `{value, partial: true}`, and the sectors that remained were all published, so the total carried no `est` object and was counted "published" (with the partial flag). With the rule off nothing is left out, the total includes the imputed sector, and it carries an `est` object, so it is counted estimated (not marked). The 1,415 is the same in every column from "rule off" on because a published figure does not depend on any threshold.
+- *Estimated, not marked: 228 (rule off) to 230 (0.25).* Two totals, Mendocino's marine jobs and Santa Barbara's marine wages, were **marked** with the rule off because heavily imputed sectors were in them (share at or above 0.25); with the rule on those sectors are withheld and left out, the total is recomputed over what is shown, its imputed share falls below 0.25, and it moves from marked to not marked (and becomes partial). Withholding sectors can therefore raise the not-marked count by moving a total across the marker line. Of the 290 marked with no rule, 93 became withheld and 2 became not marked, leaving 195 (290 - 93 - 2). Confirmed by comparing the two runs figure by figure: the only category changes are those 93 marked-to-withheld and these 2 marked-to-not-marked.
+
+**Runtime and memory (re-measured).** The same cold run of the whole economy pipeline for all 27 counties (`run.js all --economy-only --refresh` with the QCEW cache emptied) took 1352 s (23 minutes) with a peak working set of 801 MB (follow-up 2: 1,336 s and 803 MB; review round: 1,305 s and 804 MB; first round: 1,610 s and 778 MB): unchanged, as expected, since this round adds fields and a note and no computation. The backtests run separately and on demand in about 3 seconds each and are not part of the build or the workflow.
 
 ## Behavior
 
