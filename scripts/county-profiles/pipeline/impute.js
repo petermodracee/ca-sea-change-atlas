@@ -27,6 +27,9 @@ const { codesFor, MARINE_CODES, parentOf: naicsParent, NAICS_SECTORS, SUPERSECTO
 const parentOf = (code) => naicsParent(code) || (NAICS_SECTORS.includes(code) || SUPERSECTOR_CODES.includes(code) ? "10" : null);
 
 const OWNS = ["1", "2", "3", "5"];
+// Steps 4 and 5 (the parent averages) are the weak steps: the withholding rule looks at the part of a figure
+// imputed by them (estimated.js).
+const WEAK_STEP = 4;
 const STEP_NAMES = { 0: "published", 1: "interpolated", 2: "state-scaled", 3: "establishment-scaled", 4: "parent average, same year", 5: "parent average, earlier year" };
 
 // Wraps the compact QCEW data. `validYears(code)` limits a marine code to the years it is in force.
@@ -138,7 +141,7 @@ function estimateRow(ctx, fips, own, code, Y, only) {
 // `emp`/`w` sum the rows that are published or estimated; `unresolved` counts withheld rows nothing could
 // estimate (the cell is then partial).
 function buildCell(ctx, fips, code, Y) {
-  const cell = { code, year: Y, e: 0, emp: 0, w: 0, empImp: 0, wImp: 0, step: 0, unresolved: 0, rows: [] };
+  const cell = { code, year: Y, e: 0, emp: 0, w: 0, empImp: 0, wImp: 0, empWeak: 0, wWeak: 0, step: 0, unresolved: 0, rows: [] };
   for (const own of OWNS) {
     const r = ctx.row(Y, fips, own, code);
     if (!r) continue;
@@ -147,6 +150,7 @@ function buildCell(ctx, fips, code, Y) {
     const est = estimateRow(ctx, fips, own, code, Y);
     if (!est) { cell.unresolved++; cell.rows.push({ own, step: null, e: r[1], emp: null, w: null }); continue; }
     cell.emp += est.emp; cell.w += est.w; cell.empImp += est.emp; cell.wImp += est.w;
+    if (est.step >= WEAK_STEP) { cell.empWeak += est.emp; cell.wWeak += est.w; }
     cell.step = Math.max(cell.step, est.step);
     cell.rows.push({ own, step: est.step, e: r[1], emp: est.emp, w: est.w });
   }
@@ -187,7 +191,8 @@ function capToParents(ctx, fips, Y, cells, log) {
         for (const { cell, row } of items) {
           const before = row[field];
           row[field] = before * f;
-          if (field === "emp") { cell.emp -= before - row.emp; cell.empImp -= before - row.emp; } else { cell.w -= before - row.w; cell.wImp -= before - row.w; }
+          const d = before - row[field], weak = row.step >= WEAK_STEP;
+          if (field === "emp") { cell.emp -= d; cell.empImp -= d; if (weak) cell.empWeak -= d; } else { cell.w -= d; cell.wImp -= d; if (weak) cell.wWeak -= d; }
           row.capped = true; cell.capped = true;
         }
       }
@@ -209,4 +214,4 @@ function estimateCounty(ctx, fips) {
   return { cells: out, violations: log };
 }
 
-module.exports = { OWNS, STEP_NAMES, makeContext, knownAt, stateAt, parentAt, estimateRow, buildCell, capToParents, estimateCounty };
+module.exports = { WEAK_STEP, OWNS, STEP_NAMES, makeContext, knownAt, stateAt, parentAt, estimateRow, buildCell, capToParents, estimateCounty };

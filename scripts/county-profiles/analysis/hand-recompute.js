@@ -91,4 +91,34 @@ const log = (s) => out.push(s);
   const emp = (p.emp / p.e) * r.e;
   log("**Step 4, parent average (county " + fips + " " + year + ", NAICS " + code + ", " + OWN_NAME[own] + ").** Raw " + year + ": " + fmt(r) + ". No published history to interpolate or scale from. Parent NAICS " + parent + ", same county, year and ownership: " + fmt(p) + ", so " + p.emp + " / " + p.e + " = " + (p.emp / p.e).toFixed(3) + " jobs per establishment. Jobs = " + (p.emp / p.e).toFixed(3) + " x " + r.e + " = " + emp.toFixed(2) + "; pipeline: " + hit.pipeline.emp.toFixed(2) + ". Wages = " + p.w + " / " + p.emp + " x " + emp.toFixed(2) + " = " + ((p.w / p.emp) * emp).toFixed(0) + "; pipeline: " + hit.pipeline.w.toFixed(0) + ".");
 }
+// 5. step 5
+{
+  const hit = pick("06001", 2025, 5, (c) => c.code === "311710") || pick("06001", 2025, 5);
+  const { fips, code, own, year } = hit;
+  const r = raw(year, fips, own, code);
+  const known = [];
+  for (let y = 2012; y <= 2025; y++) { const x = raw(y, fips, own, code); if (x && x.disc !== "N") known.push(y); }
+  const p1 = code.slice(0, -1), p2 = code.slice(0, -2);
+  const parentRaw = (y, pcode) => {
+    const x = raw(y, fips, own, pcode);
+    if (x && x.disc !== "N" && x.e > 0 && x.emp > 0) return { ...x, basis: OWN_NAME[own] + " row" };
+    let e = 0, emp = 0, w = 0, any = false;
+    for (const o of ["1", "2", "3", "5"]) { const z = raw(y, fips, o, pcode); if (!z) continue; if (z.disc === "N") return null; any = true; e += z.e; emp += z.emp; w += z.w; }
+    return any && e > 0 && emp > 0 ? { e, emp, w, basis: "summed over ownerships" } : null;
+  };
+  const steps = [];
+  steps.push("published years of this row: " + (known.length ? known.join(", ") : "none") + (known.length ? "" : ", so steps 1 to 3 have nothing to interpolate or scale from"));
+  const same = parentRaw(year, p1);
+  steps.push("step 4, parent " + p1 + " in " + year + ": " + (same ? fmt(same) : "withheld or no usable row") + (same ? "" : ", so step 4 fails"));
+  let found = null;
+  const order = [];
+  for (let y = year - 1; y >= 2012; y--) order.push(y);
+  for (let y = year + 1; y <= 2025; y++) order.push(y);
+  for (let p = p2; p && p.length >= 2 && !found; p = p.length === 3 ? null : p.slice(0, -1)) {
+    for (const y of order) { const x = parentRaw(y, p); if (x) { found = { y, p, x }; break; } }
+  }
+  const { y: fy, p: fp, x } = found;
+  const emp = (x.emp / x.e) * r.e;
+  log("**Step 5, broader parent in another year (county " + fips + " " + year + ", NAICS " + code + ", " + OWN_NAME[own] + ").** Raw " + year + ": " + fmt(r) + ". " + steps.join("; ") + ". Step 5 tries the parent two digits shorter (" + p2 + ") in the nearest earlier year first: " + fp + " in " + fy + " (" + x.basis + "): " + fmt(x) + ", so " + x.emp + " / " + x.e + " = " + (x.emp / x.e).toFixed(3) + " jobs per establishment. Jobs = " + (x.emp / x.e).toFixed(3) + " x " + r.e + " = " + emp.toFixed(2) + "; pipeline: " + hit.pipeline.emp.toFixed(2) + ". Wages = " + x.w + " / " + x.emp + " x " + emp.toFixed(2) + " = " + ((x.w / x.emp) * emp).toFixed(0) + "; pipeline: " + hit.pipeline.w.toFixed(0) + ".");
+}
 console.log(out.join("\n\n"));

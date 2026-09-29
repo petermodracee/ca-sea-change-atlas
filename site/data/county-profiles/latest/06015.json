@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T19:29:03Z",
+  "generated": "2026-09-29T21:33:14Z",
   "gauge": {
     "id": "crescent-city",
     "name": "Crescent City",
@@ -1158,17 +1158,17 @@
               "partial": true
             },
             "wages": {
-              "value": 35877943,
+              "value": 45124586,
               "est": {
-                "share": 0.2659,
+                "share": 0.4163,
                 "step": 5
               },
               "partial": true
             },
             "gdp": {
-              "value": 59758024,
+              "value": 75055841,
               "est": {
-                "share": 0.3647,
+                "share": 0.5031,
                 "step": 5
               },
               "partial": true
@@ -1197,13 +1197,21 @@
                 "label": "Living resources",
                 "establishments": 43,
                 "wages": {
-                  "suppressed": true
+                  "value": 9246643,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "employment": {
                   "suppressed": true
                 },
                 "gdp": {
-                  "suppressed": true
+                  "value": 15297817,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 }
               },
               {

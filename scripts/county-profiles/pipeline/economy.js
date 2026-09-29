@@ -4,13 +4,12 @@
 //
 // A figure that has any imputed component is written {value, est: {share, step}}: `share` is the fraction of
 // the figure's value that came from imputed rows (0 to 1) and `step` is the weakest (highest-numbered)
-// ladder step used. A figure whose weakest step is 4 or 5 and whose imputed share is at least 75% is withheld
+// ladder step used. A figure with at least WITHHOLD_WEAK_SHARE of its value imputed at steps 4 and 5 is withheld
 // ({suppressed: true}, see estimated.js), and a total it feeds is {value, partial: true}, a floor. A
 // published figure is a plain number.
 
 const { MARINE_CODES, codesFor, BEA_LINES, TOTAL_SECTORS_QCEW } = require("./enow-def");
 const { OWNS, buildCell, estimateRow, estimateCounty } = require("./impute");
-const { isWithheldByRule } = require("../estimated");
 
 const r4 = (x) => Math.round(x * 10000) / 10000; // share precision: 0.01%
 const MARINE_SECTOR_ORDER = ["Living Resources", "Marine Construction", "Marine Transportation", "Offshore Mineral Resources", "Ship and Boat Building", "Tourism and Recreation"];
@@ -87,12 +86,13 @@ function makeGdp(ctx, gdp) {
 // for a code counted in full). Returns sums and provenance; `gdpFn(code, own)` is the GDP-to-wages ratio for a
 // row (marine only).
 function sumSector(cells, weightOf, gdpFn, beaOf) {
-  const s = { estabs: 0, emp: 0, wages: 0, empImp: 0, wagesImp: 0, step: 0, unresolved: 0, cells: cells.length, gdp: gdpFn ? 0 : null, gdpMissing: false };
+  const s = { estabs: 0, emp: 0, wages: 0, empImp: 0, wagesImp: 0, empWeak: 0, wagesWeak: 0, step: 0, unresolved: 0, cells: cells.length, gdp: gdpFn ? 0 : null, gdpMissing: false };
   for (const c of cells) {
     const w = weightOf(c);
     s.estabs += c.e * w.est;
     s.emp += c.emp * w.emp; s.wages += c.w * w.emp;
     s.empImp += c.empImp * w.emp; s.wagesImp += c.wImp * w.emp;
+    s.empWeak += c.empWeak * w.emp; s.wagesWeak += c.wWeak * w.emp;
     s.step = Math.max(s.step, c.step);
     s.unresolved += c.unresolved;
     if (gdpFn) {
@@ -107,11 +107,10 @@ function sumSector(cells, weightOf, gdpFn, beaOf) {
   return s;
 }
 
-// A figure from a value and its provenance. Withheld by the rule (weakest step >= 4 and share >= 75%) when
-// `rule` is not false.
-function fig(value, share, step, { unresolved = 0, allMissing = false, rule = true } = {}) {
+// A figure from a value and its provenance. Withholding (estimated.js) is decided by the callers, which know
+// the part imputed at the weak steps.
+function fig(value, share, step, { unresolved = 0, allMissing = false } = {}) {
   if (allMissing) return { suppressed: true };
-  if (rule && share > 0 && isWithheldByRule(share, step)) return { suppressed: true };
   const v = Math.round(value);
   const o = { value: v };
   // A share under 0.005% rounds to nothing and is not recorded as an estimate.

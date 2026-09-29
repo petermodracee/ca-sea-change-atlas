@@ -171,7 +171,7 @@ function enow2021(L, opts = {}) {
       }
     }
     const o = orig.find((r) => r.sector === "Ocean Economy");
-    if (o && o.employment !== "SUP") { const tot = Object.values(mine).reduce((s, v) => s + v.emp, 0); perCounty.push({ county: c.name, orig: Number(o.employment), mine: tot }); }
+    if (o && o.employment !== "SUP") { const tot = Object.values(mine).reduce((s, v) => s + v.emp, 0), imp = Object.values(mine).reduce((s, v) => s + v.empImp, 0); perCounty.push({ county: c.name, orig: Number(o.employment), mine: tot, imputed: tot > 0 ? imp / tot : 0 }); }
   }
   // Attribution to imputation: the same comparison split by how much of our county figure was imputed.
   const byImp = [];
@@ -225,8 +225,11 @@ function enow2021Tables(res) {
     out += "\nThe same employment comparison split by how much of our county figure was imputed (below or at least 10%):\n\n";
     out += table(["sector", "counties, imputed < 10%", "median difference", "counties, imputed >= 10%", "median difference"], res.byImp.map((x) => [x.sec, String(x.lo.length), f1(median(x.lo)), String(x.hi.length), f1(median(x.hi))]));
   }
-  out += "\nBy county, ocean-economy employment (sum of the six sectors), 2021:\n\n";
-  out += table(["county", "original ENOW", "ours", "difference"], res.perCounty.map((x) => [x.county, f0(x.orig), f0(x.mine), (x.mine / x.orig - 1 >= 0 ? "+" : "") + ((x.mine / x.orig - 1) * 100).toFixed(1) + "%"]));
+  const diffs = res.perCounty.map((x) => x.mine / x.orig - 1);
+  const within = diffs.filter((d) => Math.abs(d) <= 0.1).length, above = diffs.filter((d) => d > 0).length, below = diffs.filter((d) => d < 0).length;
+  out += "\nBy county, ocean-economy employment (the six sectors summed), 2021, after every change. Tourism and recreation is calibrated to the original's 2021 county figure, so this comparison is in-sample for that sector (where the original has one) and out of sample for the other five:\n\n";
+  out += table(["county", "original ENOW", "ours", "difference", "share of ours imputed"], res.perCounty.map((x) => [x.county, f0(x.orig), f0(x.mine), (x.mine / x.orig - 1 >= 0 ? "+" : "") + ((x.mine / x.orig - 1) * 100).toFixed(1) + "%", f1(x.imputed)]));
+  out += "\n" + res.perCounty.length + " counties: " + within + " within 10% of the original, " + (res.perCounty.length - within) + " outside 10%; " + above + " above the original and " + below + " below (median difference " + (median(diffs) >= 0 ? "+" : "") + (median(diffs) * 100).toFixed(1) + "%, median absolute difference " + (median(diffs.map(Math.abs)) * 100).toFixed(1) + "%).\n";
   return out;
 }
 

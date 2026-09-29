@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T19:27:54Z",
+  "generated": "2026-09-29T21:32:05Z",
   "gauge": {
     "id": "alameda",
     "name": "Alameda",
@@ -1056,25 +1056,23 @@
           "data": {
             "establishments": 2528,
             "jobs": {
-              "value": 38312,
+              "value": 38411,
               "est": {
-                "share": 0.0875,
+                "share": 0.0899,
                 "step": 5
-              },
-              "partial": true
+              }
             },
             "wages": {
-              "value": 1996269006,
+              "value": 2009984736,
               "est": {
-                "share": 0.2159,
+                "share": 0.2213,
                 "step": 5
-              },
-              "partial": true
+              }
             },
             "gdp": {
-              "value": 4100516860,
+              "value": 4070807839,
               "est": {
-                "share": 0.2091,
+                "share": 0.2137,
                 "step": 5
               },
               "partial": true
@@ -1117,11 +1115,7 @@
                   }
                 },
                 "gdp": {
-                  "value": 93267515,
-                  "est": {
-                    "share": 0.26,
-                    "step": 5
-                  }
+                  "suppressed": true
                 }
               },
               {
@@ -1160,13 +1154,25 @@
                 "label": "Offshore mineral resources",
                 "establishments": 11,
                 "wages": {
-                  "suppressed": true
+                  "value": 13715731,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "employment": {
-                  "suppressed": true
+                  "value": 99,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "gdp": {
-                  "suppressed": true
+                  "value": 63558494,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 }
               },
               {
@@ -1242,11 +1248,7 @@
               {
                 "label": "Living resources",
                 "county": {
-                  "value": 61401,
-                  "est": {
-                    "share": 0.26,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "coastalState": 64138,
                 "coastalUS": 59563
@@ -1272,7 +1274,11 @@
               {
                 "label": "Offshore mineral resources",
                 "county": {
-                  "suppressed": true
+                  "value": 131345,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "coastalState": 134731,
                 "coastalUS": 193706
@@ -1320,12 +1326,11 @@
           ],
           "data": {
             "employed": {
-              "value": 38312,
+              "value": 38411,
               "est": {
-                "share": 0.0875,
+                "share": 0.0899,
                 "step": 5
-              },
-              "partial": true
+              }
             },
             "employedYear": 2025,
             "selfEmployed": 913,

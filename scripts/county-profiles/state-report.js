@@ -21,8 +21,10 @@ const dir = path.join(ROOT, "site/data/county-profiles/latest");
 
 const reasons = Object.keys(schema.reasons);
 const where = Object.fromEntries(reasons.map((r) => [r, []]));
-const { ESTIMATED_SHARE_THRESHOLD, isEstimatedCell } = require("./estimated");
-const values = { zeroCounts: 0, withheldCells: 0, partialTotals: 0, noJobsSectors: 0, estimatedFigures: 0, provenanceBelowThreshold: 0, publishedFigures: 0 };
+const { ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE } = require("./estimated");
+const { CATS, slotsOf } = require("./figure-slots");
+const values = { zeroCounts: 0, noJobsSectors: 0 };
+const figs = { figures: 0, partial: 0, ...Object.fromEntries(CATS.map((c) => [c, 0])) };
 const estShares = [], estSteps = {};
 const problems = [];
 
@@ -33,6 +35,15 @@ for (const c of spine.counties) {
   const file = path.join(dir, c.fips + ".json");
   if (!fs.existsSync(file)) { problems.push(c.name + ": no snapshot"); continue; }
   const snap = JSON.parse(fs.readFileSync(file, "utf8"));
+  for (const [id, name] of [["marine-economy", "marine"], ["total-economy", "total"]]) {
+    const tp = snap.topics[id];
+    if (!tp.available) continue;
+    for (const f of slotsOf(name, { measuring: tp.sections.measuring.data, diversity: tp.sections.diversity.data, wages: tp.sections.wages.data })) {
+      figs.figures++; figs[f.cat]++;
+      if (f.partial) figs.partial++;
+      if (f.cat === "marked" || f.cat === "unmarked") { estShares.push(f.cell.est.share); estSteps[f.cell.est.step] = (estSteps[f.cell.est.step] || 0) + 1; }
+    }
+  }
   for (const t of schema.topics) {
     const topic = snap.topics[t.id];
     const rule = schema.tiers[c.tier].topics[t.id];
@@ -49,16 +60,8 @@ for (const c of spine.counties) {
         where[sec.reason].push(c.name + " " + t.id + "/" + s.id);
         continue;
       }
-      walk(sec.data, (v) => {
-        if (v && v.suppressed === true) values.withheldCells++;
-        if (v && typeof v === "object" && v.partial === true) values.partialTotals++;
-        if (v && typeof v === "object" && v.est) {
-          if (!SUPPRESSIBLE.has(t.id)) problems.push(c.name + "/" + t.id + "/" + s.id + ": an estimated figure outside the economy topics");
-          estShares.push(v.est.share); estSteps[v.est.step] = (estSteps[v.est.step] || 0) + 1;
-          if (isEstimatedCell(v)) values.estimatedFigures++; else values.provenanceBelowThreshold++;
-        }
-      });
-      if (SUPPRESSIBLE.has(t.id) && s.id !== "jobs-at-risk") walk(sec.data, (v) => { if (typeof v === "number" || (v && typeof v === "object" && "value" in v)) values.publishedFigures++; });
+      // An estimate outside the economy topics is an error; the figure counts below use figure-slots.js.
+      walk(sec.data, (v) => { if (v && typeof v === "object" && v.est && !SUPPRESSIBLE.has(t.id)) problems.push(c.name + "/" + t.id + "/" + s.id + ": an estimated figure outside the economy topics"); });
       if (sec.data && sec.data.noJobs) values.noJobsSectors += sec.data.noJobs.length;
       const d = sec.data;
       if (s.kind === "inside-outside") values.zeroCounts += d.items.filter((i) => i.inside === 0).length;
@@ -118,11 +121,11 @@ if (base) {
 console.log("Reason codes and where each is used:");
 for (const r of reasons) console.log("  " + r + ": " + (where[r].length ? where[r].length + " (" + [...new Set(where[r].map((w) => w.replace(/^\S+( \S+)*? (?=\S+\/|\S+ \(topic\))/, "")))].slice(0, 4).join("; ") + ")" : "not used by any live county"));
 console.log("Value-level states: " + JSON.stringify(values));
+console.log("Economy figures (definition in scripts/county-profiles/figure-slots.js): " + figs.figures + " = " + figs.published + " published + " + figs.unmarked + " estimated, not marked + " + figs.marked + " estimated, marked ≈ + " + figs["withheld-rule"] + " withheld by the rule + " + figs["withheld-structural"] + " withheld (Public administration GDP). Partial totals (a flag, not a category): " + figs.partial + ".");
 if (estShares.length) {
   const sorted = estShares.slice().sort((a, b) => a - b), q = (p) => sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
-  console.log("Estimated state: threshold " + ESTIMATED_SHARE_THRESHOLD + " (scripts/county-profiles/estimated.js). " + estShares.length + " economy figures carry provenance; " + values.estimatedFigures + " reach the threshold and are marked, " + values.provenanceBelowThreshold + " do not.");
-  console.log("  imputed share, quantiles: 10% " + q(0.1) + ", 25% " + q(0.25) + ", median " + q(0.5) + ", 75% " + q(0.75) + ", 90% " + q(0.9) + "; ladder step used (weakest): " + JSON.stringify(estSteps));
-  console.log("  at other thresholds, figures marked: " + [0.05, 0.1, 0.25, 0.5, 0.75].map((t) => t + " -> " + estShares.filter((x) => x >= t).length).join("; "));
+  console.log("Estimated state: marker threshold " + ESTIMATED_SHARE_THRESHOLD + "; withholding threshold " + WITHHOLD_WEAK_SHARE + " of the value imputed at ladder steps 4 and 5 (scripts/county-profiles/estimated.js).");
+  console.log("  imputed share of the " + estShares.length + " estimated figures, quantiles: 10% " + q(0.1) + ", 25% " + q(0.25) + ", median " + q(0.5) + ", 75% " + q(0.75) + ", 90% " + q(0.9) + "; weakest ladder step used: " + JSON.stringify(estSteps));
 }
 if (problems.length) { console.error("\nProblems:\n  " + problems.join("\n  ")); process.exit(1); }
 console.log("\nOK: every gap states a closed-set reason and every tier agrees.");

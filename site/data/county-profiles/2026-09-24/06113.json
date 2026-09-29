@@ -5,7 +5,7 @@
   "tier": "delta",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T19:38:55Z",
+  "generated": "2026-09-29T21:43:04Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -718,26 +718,26 @@
           "data": {
             "establishments": 62,
             "jobs": {
-              "value": 3590,
+              "value": 3744,
               "est": {
-                "share": 0.0494,
+                "share": 0.0786,
                 "step": 5
               },
               "partial": true
             },
             "wages": {
-              "value": 240739132,
+              "value": 257374651,
               "est": {
-                "share": 0.0685,
+                "share": 0.1158,
                 "step": 5
               },
               "partial": true
             },
             "gdp": {
-              "value": 301379493,
+              "value": 360021889,
               "est": {
-                "share": 0.0154,
-                "step": 4
+                "share": 0.0697,
+                "step": 5
               },
               "partial": true
             },
@@ -834,13 +834,25 @@
                 "label": "Offshore mineral resources",
                 "establishments": 12,
                 "wages": {
-                  "suppressed": true
+                  "value": 16635519,
+                  "est": {
+                    "share": 0.7998,
+                    "step": 5
+                  }
                 },
                 "employment": {
-                  "suppressed": true
+                  "value": 154,
+                  "est": {
+                    "share": 0.76,
+                    "step": 5
+                  }
                 },
                 "gdp": {
-                  "suppressed": true
+                  "value": 58642397,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 }
               },
               {
@@ -916,7 +928,11 @@
               {
                 "label": "Offshore mineral resources",
                 "county": {
-                  "suppressed": true
+                  "value": 99855,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "coastalState": 134731,
                 "coastalUS": 193706
@@ -951,9 +967,9 @@
           ],
           "data": {
             "employed": {
-              "value": 3590,
+              "value": 3744,
               "est": {
-                "share": 0.0494,
+                "share": 0.0786,
                 "step": 5
               },
               "partial": true

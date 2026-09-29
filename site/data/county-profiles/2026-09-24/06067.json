@@ -5,7 +5,7 @@
   "tier": "delta",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T19:38:51Z",
+  "generated": "2026-09-29T21:43:00Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -718,20 +718,18 @@
           "data": {
             "establishments": 161,
             "jobs": {
-              "value": 9396,
+              "value": 9513,
               "est": {
-                "share": 0.0495,
+                "share": 0.0612,
                 "step": 5
-              },
-              "partial": true
+              }
             },
             "wages": {
-              "value": 642991559,
+              "value": 658280508,
               "est": {
-                "share": 0.0532,
+                "share": 0.0752,
                 "step": 5
-              },
-              "partial": true
+              }
             },
             "gdp": {
               "value": 886046249,
@@ -821,10 +819,18 @@
                 "label": "Offshore mineral resources",
                 "establishments": 15,
                 "wages": {
-                  "suppressed": true
+                  "value": 15288949,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "employment": {
-                  "suppressed": true
+                  "value": 117,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "gdp": {
                   "value": 52198817,
@@ -962,12 +968,11 @@
           ],
           "data": {
             "employed": {
-              "value": 9396,
+              "value": 9513,
               "est": {
-                "share": 0.0495,
+                "share": 0.0612,
                 "step": 5
-              },
-              "partial": true
+              }
             },
             "employedYear": 2025,
             "selfEmployed": 136,

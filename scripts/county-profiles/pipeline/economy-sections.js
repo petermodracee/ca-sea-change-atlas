@@ -19,30 +19,34 @@ const SUPPRESSED = { suppressed: true };
 const isSup = (v) => v === "SUP" || v === null || v === undefined || v === -9999 || v === "-9999";
 const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
 
-// Withholding: a sector figure is withheld when its weakest ladder step is 4 or 5 and 75% or more of it was
-// imputed (estimated.js). `vk`/`ik` name the value and its imputed part on a summed sector.
-const withheld = (s, vk, ik) => s[vk] > 0 && isWithheldByRule(s[ik] / s[vk], s.step);
-const secFig = (s, vk, ik) => (withheld(s, vk, ik) ? { ...SUPPRESSED } : E.fig(s[vk], s[vk] > 0 ? s[ik] / s[vk] : 0, s.step, { unresolved: s.unresolved, rule: false }));
-// A total over sectors: withheld sectors are left out and the total is marked partial (a floor).
+// Withholding (estimated.js): a sector figure is withheld when the share of it imputed at the weak ladder steps
+// (4 and 5) reaches the threshold. `vk` names the value ("emp" or "wages") and WEAK the part imputed weakly.
+const WEAK = { emp: "empWeak", wages: "wagesWeak" };
+const withheld = (s, vk) => s[vk] > 0 && isWithheldByRule(s[WEAK[vk]] / s[vk]);
+const secFig = (s, vk, ik) => (withheld(s, vk) ? { ...SUPPRESSED } : E.fig(s[vk], s[vk] > 0 ? s[ik] / s[vk] : 0, s.step, { unresolved: s.unresolved }));
+// A total over sectors: withheld sectors are left out and the total is marked partial (a floor); the total is
+// itself withheld if the part of what is left that was imputed weakly reaches the threshold.
 function totalFig(list, vk, ik) {
-  const kept = list.filter((s) => !withheld(s, vk, ik));
+  const kept = list.filter((s) => !withheld(s, vk));
   const value = sum(kept, (s) => s[vk]);
   const imp = sum(kept, (s) => s[ik]);
+  if (value > 0 && isWithheldByRule(sum(kept, (s) => s[WEAK[vk]]) / value)) return { ...SUPPRESSED };
   const dropped = list.length - kept.length;
   return E.fig(value, value > 0 ? imp / value : 0, Math.max(0, ...kept.map((s) => s.step)), { unresolved: sum(kept, (s) => s.unresolved) + dropped });
 }
 // Provenance of an average wage (wages / jobs): withheld if either part is, else the larger of the two shares.
 function avgWageFig(s) {
   if (!(s.emp > 0)) return null;
-  if (withheld(s, "emp", "empImp") || withheld(s, "wages", "wagesImp")) return { ...SUPPRESSED };
+  if (withheld(s, "emp") || withheld(s, "wages")) return { ...SUPPRESSED };
   const share = Math.max(s.empImp / s.emp, s.wages > 0 ? s.wagesImp / s.wages : 0);
-  return E.fig(s.wages / s.emp, share, s.step, { unresolved: s.unresolved, rule: false });
+  return E.fig(s.wages / s.emp, share, s.step, { unresolved: s.unresolved });
 }
 // GDP: the wages' provenance. `gdp` null means no ratio exists (Public administration): withheld.
-const gdpSecFig = (s) => (s.gdp === null || withheld(s, "wages", "wagesImp") ? { ...SUPPRESSED } : E.fig(s.gdp, s.wages > 0 ? s.wagesImp / s.wages : 0, s.step, { unresolved: s.unresolved, rule: false }));
+const gdpSecFig = (s) => (s.gdp === null || withheld(s, "wages") ? { ...SUPPRESSED } : E.fig(s.gdp, s.wages > 0 ? s.wagesImp / s.wages : 0, s.step, { unresolved: s.unresolved }));
 function gdpTotalFig(list) {
-  const kept = list.filter((s) => s.gdp !== null && !withheld(s, "wages", "wagesImp"));
+  const kept = list.filter((s) => s.gdp !== null && !withheld(s, "wages"));
   const value = sum(kept, (s) => s.gdp), w = sum(kept, (s) => s.wages);
+  if (w > 0 && isWithheldByRule(sum(kept, (s) => s.wagesWeak) / w)) return { ...SUPPRESSED };
   return E.fig(value, w > 0 ? sum(kept, (s) => s.wagesImp) / w : 0, Math.max(0, ...kept.map((s) => s.step)), { unresolved: sum(kept, (s) => s.unresolved) + (list.length - kept.length) });
 }
 

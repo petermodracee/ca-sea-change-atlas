@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T19:36:31Z",
+  "generated": "2026-09-29T21:40:39Z",
   "gauge": {
     "id": "alameda",
     "name": "Alameda",
@@ -1072,9 +1072,9 @@
               "partial": true
             },
             "gdp": {
-              "value": 927031064,
+              "value": 974933153,
               "est": {
-                "share": 0.0632,
+                "share": 0.0853,
                 "step": 5
               },
               "partial": true
@@ -1162,7 +1162,11 @@
                   }
                 },
                 "gdp": {
-                  "suppressed": true
+                  "value": 47902089,
+                  "est": {
+                    "share": 0.8299,
+                    "step": 5
+                  }
                 }
               },
               {
@@ -1256,7 +1260,11 @@
               {
                 "label": "Offshore mineral resources",
                 "county": {
-                  "suppressed": true
+                  "value": 124883,
+                  "est": {
+                    "share": 0.8439,
+                    "step": 5
+                  }
                 },
                 "coastalState": 134731,
                 "coastalUS": 193706

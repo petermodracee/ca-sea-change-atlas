@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T19:32:30Z",
+  "generated": "2026-09-29T21:36:39Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -1056,15 +1056,27 @@
           "data": {
             "establishments": 45,
             "jobs": {
-              "value": 769,
+              "value": 790,
+              "est": {
+                "share": 0.027,
+                "step": 5
+              },
               "partial": true
             },
             "wages": {
-              "value": 55091990,
+              "value": 55907340,
+              "est": {
+                "share": 0.0146,
+                "step": 5
+              },
               "partial": true
             },
             "gdp": {
-              "value": 62818855,
+              "value": 64124016,
+              "est": {
+                "share": 0.0171,
+                "step": 5
+              },
               "partial": true
             },
             "denominator": 79072,
@@ -1138,13 +1150,25 @@
                 "label": "Tourism and recreation",
                 "establishments": 3,
                 "wages": {
-                  "suppressed": true
+                  "value": 815350,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "employment": {
-                  "suppressed": true
+                  "value": 21,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "gdp": {
-                  "suppressed": true
+                  "value": 1305161,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 }
               }
             ],
@@ -1198,7 +1222,11 @@
               {
                 "label": "Tourism and recreation",
                 "county": {
-                  "suppressed": true
+                  "value": 38220,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "coastalState": 37578,
                 "coastalUS": 35063
@@ -1225,7 +1253,11 @@
           ],
           "data": {
             "employed": {
-              "value": 769,
+              "value": 790,
+              "est": {
+                "share": 0.027,
+                "step": 5
+              },
               "partial": true
             },
             "employedYear": 2025,

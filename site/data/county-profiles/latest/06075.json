@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T19:34:13Z",
+  "generated": "2026-09-29T21:38:22Z",
   "gauge": {
     "id": "san-francisco",
     "name": "San Francisco",
@@ -1064,17 +1064,17 @@
               "partial": true
             },
             "wages": {
-              "value": 2565914897,
+              "value": 2439404137,
               "est": {
-                "share": 0.0217,
+                "share": 0.0092,
                 "step": 5
               },
               "partial": true
             },
             "gdp": {
-              "value": 5278667245,
+              "value": 4920915069,
               "est": {
-                "share": 0.0352,
+                "share": 0.0198,
                 "step": 5
               },
               "partial": true
@@ -1135,11 +1135,7 @@
                 "label": "Marine transportation",
                 "establishments": 41,
                 "wages": {
-                  "value": 126510760,
-                  "est": {
-                    "share": 0.2627,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "employment": {
                   "value": 977,
@@ -1149,11 +1145,7 @@
                   }
                 },
                 "gdp": {
-                  "value": 357752176,
-                  "est": {
-                    "share": 0.3046,
-                    "step": 5
-                  }
+                  "suppressed": true
                 }
               },
               {
@@ -1242,11 +1234,7 @@
               {
                 "label": "Marine transportation",
                 "county": {
-                  "value": 110627,
-                  "est": {
-                    "share": 0.3046,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "coastalState": 93343,
                 "coastalUS": 72991

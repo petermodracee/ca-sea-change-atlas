@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T19:31:21Z",
+  "generated": "2026-09-29T21:35:31Z",
   "gauge": {
     "id": "arena-cove",
     "name": "Arena Cove",
@@ -1096,25 +1096,25 @@
           "data": {
             "establishments": 188,
             "jobs": {
-              "value": 1949,
+              "value": 2025,
               "est": {
-                "share": 0.1681,
+                "share": 0.2269,
                 "step": 5
               },
               "partial": true
             },
             "wages": {
-              "value": 63670316,
+              "value": 66593830,
               "est": {
-                "share": 0.1767,
+                "share": 0.2681,
                 "step": 5
               },
               "partial": true
             },
             "gdp": {
-              "value": 128847080,
+              "value": 139545583,
               "est": {
-                "share": 0.0876,
+                "share": 0.1537,
                 "step": 5
               },
               "partial": true
@@ -1143,13 +1143,25 @@
                 "label": "Living resources",
                 "establishments": 20,
                 "wages": {
-                  "suppressed": true
+                  "value": 8214982,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "employment": {
-                  "suppressed": true
+                  "value": 163,
+                  "est": {
+                    "share": 1,
+                    "step": 5
+                  }
                 },
                 "gdp": {
-                  "suppressed": true
+                  "value": 17140820,
+                  "est": {
+                    "share": 0.801,
+                    "step": 5
+                  }
                 }
               },
               {
@@ -1169,25 +1181,13 @@
                 "label": "Marine transportation",
                 "establishments": 7,
                 "wages": {
-                  "value": 5291467,
-                  "est": {
-                    "share": 0.3042,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "employment": {
-                  "value": 87,
-                  "est": {
-                    "share": 0.3573,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "gdp": {
-                  "value": 6442317,
-                  "est": {
-                    "share": 0.2853,
-                    "step": 5
-                  }
+                  "suppressed": true
                 }
               },
               {
@@ -1258,7 +1258,11 @@
               {
                 "label": "Living resources",
                 "county": {
-                  "suppressed": true
+                  "value": 44807,
+                  "est": {
+                    "share": 0.801,
+                    "step": 5
+                  }
                 },
                 "coastalState": 64138,
                 "coastalUS": 59563
@@ -1274,11 +1278,7 @@
               {
                 "label": "Marine transportation",
                 "county": {
-                  "value": 61335,
-                  "est": {
-                    "share": 0.3445,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "coastalState": 93343,
                 "coastalUS": 72991
@@ -1325,9 +1325,9 @@
           ],
           "data": {
             "employed": {
-              "value": 1949,
+              "value": 2025,
               "est": {
-                "share": 0.1681,
+                "share": 0.2269,
                 "step": 5
               },
               "partial": true
