@@ -377,6 +377,8 @@ The footer carries data-as-of, snapshot, method version and the dated URL, and n
 
 *Refactor.* The inside of a section's panel moved to `section-body.njk`, included by the deck slide and by the print block. The built HTML of every existing page is unchanged apart from the added print block, the landing page's Print controls and a body class.
 
+*No NOAA-style sidebar callout in print.* NOAA's print view sets the headline figure in a tinted box beside the section's prose. We keep the callout inline, above the visual. Tried as a CSS-only experiment on Contra Costa (a grid with the figure wrapper set to `display: contents`, so nothing was built): our callouts are one line, and boxed into a narrow column they grow from about 125–150pt to 360–465pt per topic, because the box ends up taller than the prose it sits beside. Sections grew 6–11% in total, sea level rise went from 6 pages to 7 and the other topics stayed put. NOAA's shorter print comes from elsewhere: pie charts, no printed data tables, one-line sources and no closing About page. The printed data tables stay (exact figures matter and thin segments can't be labelled), and per-section sources print name and vintage only, with URLs in the closing citation table. Revisit only if the callout is made shorter than its prose.
+
 ## Behavior
 
 ### Nominatim: submit only
