@@ -1312,6 +1312,8 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp .cp-bar-s3{fill:url(#cpp-hatch);} .cpp .cp-bar-s4{fill:url(#cpp-dots);}
 /* The alternating neutral sectors carry dark icons, so both stay light; a sector is named by its icon and the legend. */
 .cpp .cp-sec-neutral-0{fill:#DCC79A;} .cpp .cp-sec-neutral-1{fill:#BDBDBD;}
+/* The 11-row wages plot plus its data table is taller than a page (707pt vs 662pt usable), so it would split; cap the plot so the section fits. */
+.cpp .cpd-chart-dotplot svg{max-height:3.3in;}
 .cpp .cpd-dot-2{fill:#fff;stroke:#000;stroke-width:4;}
 /* No slider on paper: every increment is drawn in its own ramp colour with its value label. */
 .cpp [hidden]{display:revert;}
@@ -1340,9 +1342,9 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp .cpp-timing caption{text-align:left;font-size:9pt;padding-bottom:3pt;}
 .cpp .cpd-beyond{color:#333;}
 /* Data tables that are screen-reader-only in the deck print as small real tables under their chart. */
-.cpp table.sr-only{position:static;width:100%;height:auto;margin:3pt 0 0;overflow:visible;clip:auto;white-space:normal;border-collapse:collapse;font-size:8pt;table-layout:auto;}
+.cpp table.sr-only{position:static;width:100%;height:auto;margin:3pt 0 0;overflow:visible;clip:auto;white-space:normal;border-collapse:collapse;font-size:8pt;table-layout:fixed;overflow-wrap:anywhere;}
 .cpp table.sr-only th,.cpp table.sr-only td{border-bottom:1px solid #ddd;padding:1.5pt 4pt;text-align:right;font-weight:400;}
-.cpp table.sr-only th:first-child{text-align:left;font-weight:600;}
+.cpp table.sr-only th:first-child{text-align:left;font-weight:600;width:24%;}
 .cpp h4.sr-only{position:static;width:auto;height:auto;margin:6pt 0 0;overflow:visible;clip:auto;white-space:normal;font-size:8pt;font-weight:600;color:#333;}
 /* Paper cannot be clicked: content links show their destination. Nav/decorative links carry none. */
 .cpp .cpd-sources a[href^="http"]::after{content:" <" attr(href) ">";font-size:7.5pt;color:#333;overflow-wrap:anywhere;}
