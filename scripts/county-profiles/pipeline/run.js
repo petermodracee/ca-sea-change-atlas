@@ -69,7 +69,7 @@ const outcomes = [];
 async function buildEco(entry, fipsList, tierTopics, econ, opts) {
   if (!tierTopics["marine-economy"].available && !tierTopics["total-economy"].available) return null;
   const inputs = await loadEconomyInputs(fipsList, spine, opts);
-  return economyFor(inputs, entry, tierTopics, { year: econ.value.totalYear, state: econ.value.coastalState, nation: econ.value.coastalNation });
+  return economyFor(inputs, entry, tierTopics, { year: econ.value.totalYear, state: econ.value.coastalState, nation: econ.value.coastalNation }, econ);
 }
 
 // --economy-only: rebuild the marine and total economy topics of an existing snapshot (and their sources),
@@ -98,6 +98,8 @@ async function economyOnly(entry, fipsList, opts) {
   if (wantsTotal) topics["total-economy"].sections = economy.totalEconomy;
   if (wantsMarine) topics["marine-economy"].sections = economy.marine;
   const snap = { ...prev, generated: new Date().toISOString().replace(/\.\d+Z$/, "Z"), topics };
+  delete snap.estimation;
+  if (economy.estimation) snap.estimation = economy.estimation;
   snap.sources = pruneSources({ ...prev.sources, ...economy.sources }, topics);
   validateSnapshot(snap, { schema, spine, file: fips + ".json", fixture: false });
   const outcome = process.argv.includes("--reset-archive") ? resetCounty(snap, { date: prev.snapshot }) : commitCounty(snap, { today: today() });

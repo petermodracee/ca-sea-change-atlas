@@ -49,9 +49,22 @@ async function load() {
   return { q, ctx, shoreRes, gdp, caOpen, usOpen, marineCounties, ests };
 }
 
+// The original ENOW's 2021 tourism and recreation figures for a county (what the shoreline share is calibrated to).
+function orig2021(fips) {
+  const file = cachePath("econ-" + fips + ".json");
+  if (!fs.existsSync(file)) return null;
+  const t = JSON.parse(fs.readFileSync(file, "utf8")).ocean.find((r) => r.sector === "Tourism and Recreation");
+  const num = (v) => (v === "SUP" || v === undefined || v === null ? null : Number(v));
+  return t ? { employment: num(t.employment), establishments: num(t.establishments) } : null;
+}
+// Sector sums for a county-year. By default the county's tourism share is the calibrated one (as shipped);
+// `opts.shares` overrides it (the ZIP rule alone: pass computeShares(...)), and `opts.zipRule` uses the ZIP rule.
 function figures(L, fips, Y, opts = {}) {
-  const shares = opts.shares === undefined ? L.shoreRes.shares : opts.shares;
-  const g = E.makeGdp(L.ctx, L.gdp, opts.gdpMode || "all");
+  let shares;
+  if (opts.shares !== undefined) shares = opts.shares;
+  else if (opts.zipRule) shares = L.shoreRes.shares;
+  else shares = E.calibrateTourism(L.ests[fips], fips, L.shoreRes.shares, orig2021(fips)).shares;
+  const g = E.makeGdp(L.ctx, L.gdp);
   const lines = [...new Set(Object.values(D.MARINE_CODES).flat().filter((c) => c.from <= Y && Y <= c.to).map((c) => c.bea))];
   const gy = g.yearFor(lines, Y);
   return E.marineSectors(L.ctx, L.ests[fips], fips, Y, shares, gy === Y ? { ratio: g.ratio, year: Y } : null, opts);
@@ -217,6 +230,39 @@ function enow2021Tables(res) {
   return out;
 }
 
+// Marine transportation against the original ENOW 2021, split into definition and imputation: per county, our
+// jobs, the same with the published 493190 rows removed from our pull, and how much of ours is imputed.
+function marineTransportation(L) {
+  const rows = [];
+  for (const c of L.marineCounties) {
+    const file = cachePath("econ-" + c.fips + ".json");
+    if (!fs.existsSync(file)) continue;
+    const o = JSON.parse(fs.readFileSync(file, "utf8")).ocean.find((r) => r.sector === "Marine Transportation");
+    if (!o || o.employment === "SUP" || !Number(o.employment)) continue;
+    const m = figures(L, c.fips, 2021)["Marine Transportation"];
+    let e493 = 0, n493 = 0, wd = 0;
+    for (const own of imp.OWNS) { const r = L.ctx.row(2021, c.fips, own, "493190"); if (!r) continue; n493 += r[1]; if (r[0] === "N") wd += r[1]; else e493 += r[2]; }
+    const orig = Number(o.employment);
+    rows.push({ county: c.name, orig, ours: m.emp, ex: m.emp - e493, imputed: m.emp > 0 ? m.empImp / m.emp : 0, e493, wd, estabsOrig: Number(o.establishments), estabsEx: m.estabs - n493 });
+  }
+  return rows;
+}
+function marineTransportationTables(rows) {
+  const d = (a, b) => a / b - 1;
+  const grp = (f) => rows.filter(f);
+  const line = (label, g) => [label, String(g.length), f1(median(g.map((r) => d(r.ours, r.orig)))), f1(median(g.map((r) => d(r.ex, r.orig)))), f1(median(g.map((r) => Math.abs(d(r.ex, r.orig)))))];
+  let out = "Marine transportation employment, 2021, ours against the original ENOW (22 counties where the original has a figure). \"Ours, minus 493190\" removes the published 493190 rows (Open ENOW's extra code) from our pull; a withheld 493190 row cannot be removed.\n\n";
+  out += table(["group", "counties", "median difference, ours", "median difference, ours minus 493190", "median abs difference, ours minus 493190"], [
+    line("all counties", rows),
+    line("none of our figure imputed (share < 1%)", grp((r) => r.imputed < 0.01)),
+    line("less than 10% imputed", grp((r) => r.imputed < 0.1)),
+    line("10% or more imputed", grp((r) => r.imputed >= 0.1)),
+    line("25% or more imputed", grp((r) => r.imputed >= 0.25)),
+  ]);
+  out += "\nBy county:\n\n" + table(["county", "original", "ours", "ours minus published 493190", "493190 removed (jobs)", "our imputed share", "establishments: original / ours minus 493190"], rows.map((r) => [r.county, f0(r.orig), f0(r.ours), f0(r.ex), f0(r.e493), f1(r.imputed), r.estabsOrig + " / " + Math.round(r.estabsEx)]));
+  return out;
+}
+
 // --- 4. total economy -----------------------------------------------------------------------------------
 // Our all-industry QCEW totals and eleven sectors for 2023 against NOAA's Total Economy (Coastal) series for
 // 2023 (the series' newest year), and against what Phase 3 shipped (which was that NOAA series). `shipped` is
@@ -224,7 +270,7 @@ function enow2021Tables(res) {
 function totalEconomy(L, shippedDir) {
   const API = { "Construction": "Construction", "Financial activities": "Financial Activities", "Education and health services": "Education and Health Services", "Information": "Information", "Leisure and hospitality": "Leisure and Hospitality", "Manufacturing": "Manufacturing", "Natural resources and mining": "Natural Resources and Mining", "Other services": "Other Services", "Professional and business services": "Professional and Business Services", "Public administration": "Public Administration", "Trade, transportation, and utilities": "Trade, Transportation, and Utilitie" };
   const g = E.makeGdp(L.ctx, L.gdp);
-  const rows = { measure: { estabs: [], emp: [], wages: [], gdp: [] }, sector: {} };
+  const rows = { measure: { estabs: [], emp: [], wages: [], gdp: [], gdpExPA: [] }, sector: {} };
   const vsShipped = { jobs: [], wages: [], establishments: [], gdp: [] }, change = [];
   for (const c of spine.counties.filter((x) => x.tier === "full")) {
     const file = cachePath("econ-" + c.fips + ".json");
@@ -233,13 +279,16 @@ function totalEconomy(L, shippedDir) {
     if (!noaa.length) continue;
     const tot = noaa.find((r) => r.sector.startsWith("Total, all"));
     const mine = E.countyTotal(L.ctx, c.fips, 2023);
-    const secs = E.totalSectors(L.ctx, c.fips, 2023, { ratio: g.ratio, year: 2023 });
-    const gdpMine = Object.values(secs).reduce((s2, v) => s2 + v.gdp, 0);
+    const secs = E.totalSectors(L.ctx, c.fips, 2023, { superRatio: g.superRatio, year: 2023 });
+    const gdpMine = Object.values(secs).reduce((s2, v) => s2 + (v.gdp || 0), 0);
     const d = (a, b) => (Number(b) ? a / Number(b) - 1 : null);
     rows.measure.estabs.push({ c: c.name, diff: d(mine.estabs, tot.establishments) });
     rows.measure.emp.push({ c: c.name, diff: d(mine.emp, tot.employment) });
     rows.measure.wages.push({ c: c.name, diff: d(mine.wages, tot.wages) });
     rows.measure.gdp.push({ c: c.name, diff: d(gdpMine, tot.gdp) });
+    const pa = noaa.find((x) => x.sector.startsWith("Public Admin"));
+    const noaaSectorSum = noaa.filter((x) => !/^Total|^Public Admin/.test(x.sector) && x.gdp !== "SUP").reduce((a, x) => a + Number(x.gdp), 0);
+    rows.measure.gdpExPA.push({ c: c.name, diff: noaaSectorSum ? d(gdpMine, noaaSectorSum) : null });
     for (const [label, api] of Object.entries(API)) {
       const r = noaa.find((x) => x.sector.startsWith(api.slice(0, 20)));
       if (!r || r.employment === "SUP" || !Number(r.employment)) continue;
@@ -265,7 +314,7 @@ function totalTables(t) {
   const st = (a) => { const v = a.filter((x) => x.diff !== null); return [String(v.length), f1(median(v.map((x) => x.diff))), f1(median(v.map((x) => Math.abs(x.diff)))), f1(pctl(v.map((x) => Math.abs(x.diff)), 0.9)), f1(Math.max(...v.map((x) => Math.abs(x.diff))))]; };
   const head = ["", "counties", "median difference", "median abs", "90th percentile abs", "max abs"];
   let out = "Ours (QCEW, 2023) against NOAA Total Economy (Coastal), 2023, county totals, 20 full-tier counties:\n\n";
-  out += table(head, [["Establishments", ...st(t.rows.measure.estabs)], ["Jobs", ...st(t.rows.measure.emp)], ["Wages", ...st(t.rows.measure.wages)], ["GDP", ...st(t.rows.measure.gdp)]]);
+  out += table(head, [["Establishments", ...st(t.rows.measure.estabs)], ["Jobs", ...st(t.rows.measure.emp)], ["Wages", ...st(t.rows.measure.wages)], ["GDP (ours has no Public administration)", ...st(t.rows.measure.gdp)], ["GDP, against the sum of NOAA's sectors without Public administration", ...st(t.rows.measure.gdpExPA)]]);
   out += "\nBy sector, employment, and wages, and GDP (median abs difference across counties; NOAA cells withheld or zero are skipped):\n\n";
   out += table(["sector", "counties", "employment: median difference", "median abs", "wages: median abs", "GDP: median abs"], Object.entries(t.rows.sector).map(([k, v]) => [k, String(v.emp.length), f1(median(v.emp.map((x) => x.diff))), f1(median(v.emp.map((x) => Math.abs(x.diff)))), f1(median(v.wages.map((x) => Math.abs(x.diff)))), f1(median(v.gdp.map((x) => Math.abs(x.diff))))]));
   if (t.vsShipped.jobs.length) {
@@ -296,8 +345,9 @@ async function main() {
   if (want("backtest")) console.log("## Imputation backtest\n\n" + backtest(L));
   if (want("sum")) { const r = sumCheck(L); console.log("## Sum check against Open ENOW California\n" + sumCheckTables(r)); }
   if (want("total")) { const dirArg = args.find((a) => a.startsWith("--shipped=")); console.log("## Total economy\n\n" + totalTables(totalEconomy(L, dirArg ? dirArg.slice(10) : null))); }
+  if (want("mt")) console.log("## Marine transportation\n\n" + marineTransportationTables(marineTransportation(L)));
   if (want("enow2021")) { console.log("## 2021 against original ENOW\n" + enow2021Tables(enow2021(L))); }
 }
 
-module.exports = { totalEconomy, totalTables, load, figures, sumCheck, sumCheckTables, enow2021, enow2021Tables, backtest, median, mean, pctl, f1, f0, table };
+module.exports = { orig2021, totalEconomy, totalTables, load, figures, sumCheck, sumCheckTables, enow2021, enow2021Tables, backtest, median, mean, pctl, f1, f0, table };
 if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });

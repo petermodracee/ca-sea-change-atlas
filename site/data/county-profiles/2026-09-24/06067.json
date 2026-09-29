@@ -5,7 +5,7 @@
   "tier": "delta",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T10:07:40Z",
+  "generated": "2026-09-29T19:38:51Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -718,21 +718,23 @@
           "data": {
             "establishments": 161,
             "jobs": {
-              "value": 9513,
+              "value": 9396,
               "est": {
-                "share": 0.0612,
+                "share": 0.0495,
                 "step": 5
-              }
+              },
+              "partial": true
             },
             "wages": {
-              "value": 658280508,
+              "value": 642991559,
               "est": {
-                "share": 0.0752,
+                "share": 0.0532,
                 "step": 5
-              }
+              },
+              "partial": true
             },
             "gdp": {
-              "value": 869644939,
+              "value": 886046249,
               "est": {
                 "share": 0.0681,
                 "step": 5
@@ -819,21 +821,13 @@
                 "label": "Offshore mineral resources",
                 "establishments": 15,
                 "wages": {
-                  "value": 15288949,
-                  "est": {
-                    "share": 1,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "employment": {
-                  "value": 117,
-                  "est": {
-                    "share": 1,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "gdp": {
-                  "value": 35797507,
+                  "value": 52198817,
                   "est": {
                     "share": 0.5009,
                     "step": 5
@@ -968,17 +962,16 @@
           ],
           "data": {
             "employed": {
-              "value": 9513,
+              "value": 9396,
               "est": {
-                "share": 0.0612,
+                "share": 0.0495,
                 "step": 5
-              }
+              },
+              "partial": true
             },
+            "employedYear": 2025,
             "selfEmployed": 136,
-            "total": {
-              "value": 9649,
-              "partial": false
-            },
+            "selfEmployedYear": 2021,
             "sectors": [
               {
                 "label": "Living resources",
@@ -1004,12 +997,25 @@
                 "label": "Tourism and recreation",
                 "selfEmployed": 0
               }
-            ],
-            "employedYear": 2025,
-            "selfEmployedYear": 2021
+            ]
           }
         }
       }
+    }
+  },
+  "estimation": {
+    "tourismShoreShare": {
+      "jobs": {
+        "method": "zip-rule",
+        "share": 0,
+        "target2021": null
+      },
+      "establishments": {
+        "method": "zip-rule",
+        "share": 0,
+        "target2021": null
+      },
+      "zipRuleJobsShare": 0
     }
   }
 }

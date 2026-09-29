@@ -2,7 +2,6 @@
 // (buildEconomyTopics) builds them for both the full pipeline (snapshot.js) and the economy-only refresh
 // (run.js --economy-only), so the two cannot drift. The figures come from economy-sections.js (public QCEW).
 
-const { cellValue } = require("../estimated");
 
 const round = (n) => Math.round(n);
 const SUPPRESSED = { suppressed: true };
@@ -42,13 +41,10 @@ const rowOf = (rows, api) => {
   return hit;
 };
 
-// Total-jobs equation: employed + self-employed. The total is the sum of the components that are
-// present, and is partial when either is withheld or is itself a partial sum.
-function jobsEquation(employed, selfEmployed, sectors, years) {
-  const parts = [employed, selfEmployed];
-  const value = parts.reduce((s, p) => s + (isSuppressedCell(p) ? 0 : cellValue(p)), 0);
-  const partial = parts.some((p) => isSuppressedCell(p) || (p !== null && typeof p === "object" && p.partial === true));
-  return { employed, selfEmployed, total: { value, partial }, sectors, ...(years || {}) };
+// Total Jobs: employed workers (QCEW) and self-employed workers (a different source and year) as two separate
+// figures, each with its own year. They are not added: the two counts describe different years.
+function jobsPair(employed, selfEmployed, sectors, years) {
+  return { employed, employedYear: years.employedYear, selfEmployed, selfEmployedYear: years.selfEmployedYear, sectors };
 }
 
 const vintageYear = (year) => ({ kind: "year", year });
@@ -104,7 +100,7 @@ function buildEconomyTopics({ entry, has, S, eco, nes, meta, jobsAtRiskTotal, ga
       diversity: section(["qcew", "bea-total"], t.diversity),
       "jobs-at-risk": jobsAtRiskTotal,
       wages: section(["qcew-total-wages", "coastal-economy"], t.wages),
-      "total-jobs": !nesRow || !Object.keys(nesRow).length ? noteGap("total-economy/total-jobs", "source-geography") : section(["qcew", "nes"], jobsEquation(
+      "total-jobs": !nesRow || !Object.keys(nesRow).length ? noteGap("total-economy/total-jobs", "source-geography") : section(["qcew", "nes"], jobsPair(
         t.employed,
         nesRow["00"] ? nesCell("00") : { ...SUPPRESSED },
         TOTAL_SECTORS.map((s) => ({ label: s.label, selfEmployed: nesSector(s) })),
@@ -122,7 +118,7 @@ function buildEconomyTopics({ entry, has, S, eco, nes, meta, jobsAtRiskTotal, ga
       measuring: section(["qcew", "bea-marine", "zbp"], m.measuring),
       diversity: section(["qcew", "bea-marine", "zbp"], m.diversity),
       wages: section(["qcew-wages", "open-enow", "zbp"], m.wages),
-      "total-jobs": section(["qcew", "zbp", "enow-self"], jobsEquation(
+      "total-jobs": section(["qcew", "zbp", "enow-self"], jobsPair(
         m.employed,
         qty(selfAll.employment),
         MARINE_SECTORS.map((s) => ({ label: s.label, selfEmployed: qty(rowOf(self, s.api).employment) })),
@@ -130,7 +126,7 @@ function buildEconomyTopics({ entry, has, S, eco, nes, meta, jobsAtRiskTotal, ga
       )),
     };
   }
-  return { totalEconomy, marine, sources: economySources({ S, eco, nes, meta }) };
+  return { totalEconomy, marine, sources: economySources({ S, eco, nes, meta }), estimation: eco && eco.marine ? { tourismShoreShare: eco.marine.calibration } : null };
 }
 
-module.exports = { buildEconomyTopics, economySources, TOTAL_SECTORS, MARINE_SECTORS, jobsEquation, qty, rowOf };
+module.exports = { buildEconomyTopics, economySources, TOTAL_SECTORS, MARINE_SECTORS, jobsPair, qty, rowOf };

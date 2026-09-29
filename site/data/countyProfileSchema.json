@@ -100,7 +100,7 @@
     "stats": "data: {establishments, jobs, wages, gdp, denominator}. Four figures; each may be suppressed except `denominator`. No prose of its own.",
     "sector-measures": "data: {sectors: [{label, establishments, wages, employment, gdp}]}. Renders as four 100%-stacked horizontal bars, one per measure, sharing one sector order and colour set. Any sector value may be suppressed per measure; a withheld segment is a marked placeholder, not a gap.",
     "sector-wages": "data: {items: [{label, county, coastalState, coastalUS}], noJobs?: [label]}. A dot plot: one row per sector, one dot each for county, coastal California and coastal U.S. average wage. Any value may be suppressed. A sector the county has no jobs in has no average to draw (a real zero, not a withheld value): it is left out of `items` and named in `noJobs`; the slide says nothing about it, and the about page explains it once.",
-    "jobs-equation": "data: {employed, selfEmployed, total: {value, partial}, sectors: [{label, selfEmployed}]}. Any count may be suppressed.",
+    "jobs-pair": "data: {employed, employedYear, selfEmployed, selfEmployedYear, sectors: [{label, selfEmployed}]}. Employed and self-employed workers are two separate figures, each with its own year and source, and are not added. Any count may be suppressed.",
     "stat-pair": "data: {sfha: {count, total}, slr6: {count, total}}. Two counts, no callout. `slr6` is the combined (ocean-connected plus low-lying) count at 6 ft, the same series the sea level rise topic draws.",
     "timing": "data: {}. Computed at build from the gauge and the OPC reference file; not stored."
   },
@@ -244,7 +244,7 @@
           "id": "total-jobs",
           "title": "Total Jobs",
           "prose": ["Many economic reports don't include the self-employed in their job numbers, yet this group can play an important role in the local economy. Most commercial fishermen, for instance, are self-employed."],
-          "kind": "jobs-equation"
+          "kind": "jobs-pair"
         }
       ]
     },
@@ -279,7 +279,7 @@
           "id": "total-jobs",
           "title": "Total Jobs",
           "prose": ["Many economic reports don't include the self-employed in their job numbers, yet this group can play an important role in the local economy. Most commercial fishermen, for instance, are self-employed."],
-          "kind": "jobs-equation"
+          "kind": "jobs-pair"
         }
       ]
     }

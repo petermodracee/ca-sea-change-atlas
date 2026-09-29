@@ -12,32 +12,44 @@
 
 const D = require("./enow-def");
 const E = require("./economy");
-const { OWNS } = require("./impute");
+const { isWithheldByRule } = require("../estimated");
 
 const round = (n) => Math.round(n);
 const SUPPRESSED = { suppressed: true };
 const isSup = (v) => v === "SUP" || v === null || v === undefined || v === -9999 || v === "-9999";
 const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
 
-// A figure from summed parts: number, {value, est}, {value, partial}, or {suppressed}.
-function figOf(parts, valueKey, impKey) {
-  const value = sum(parts, (p) => p[valueKey]);
-  const imp = sum(parts, (p) => p[impKey]);
-  const step = Math.max(0, ...parts.map((p) => p.step));
-  const unresolved = sum(parts, (p) => p.unresolved);
-  return E.fig(value, value > 0 ? imp / value : 0, step, { unresolved });
+// Withholding: a sector figure is withheld when its weakest ladder step is 4 or 5 and 75% or more of it was
+// imputed (estimated.js). `vk`/`ik` name the value and its imputed part on a summed sector.
+const withheld = (s, vk, ik) => s[vk] > 0 && isWithheldByRule(s[ik] / s[vk], s.step);
+const secFig = (s, vk, ik) => (withheld(s, vk, ik) ? { ...SUPPRESSED } : E.fig(s[vk], s[vk] > 0 ? s[ik] / s[vk] : 0, s.step, { unresolved: s.unresolved, rule: false }));
+// A total over sectors: withheld sectors are left out and the total is marked partial (a floor).
+function totalFig(list, vk, ik) {
+  const kept = list.filter((s) => !withheld(s, vk, ik));
+  const value = sum(kept, (s) => s[vk]);
+  const imp = sum(kept, (s) => s[ik]);
+  const dropped = list.length - kept.length;
+  return E.fig(value, value > 0 ? imp / value : 0, Math.max(0, ...kept.map((s) => s.step)), { unresolved: sum(kept, (s) => s.unresolved) + dropped });
 }
-// Provenance of an average wage (wages / jobs): the larger of the two shares.
+// Provenance of an average wage (wages / jobs): withheld if either part is, else the larger of the two shares.
 function avgWageFig(s) {
   if (!(s.emp > 0)) return null;
+  if (withheld(s, "emp", "empImp") || withheld(s, "wages", "wagesImp")) return { ...SUPPRESSED };
   const share = Math.max(s.empImp / s.emp, s.wages > 0 ? s.wagesImp / s.wages : 0);
-  return E.fig(s.wages / s.emp, share, s.step, { unresolved: s.unresolved });
+  return E.fig(s.wages / s.emp, share, s.step, { unresolved: s.unresolved, rule: false });
+}
+// GDP: the wages' provenance. `gdp` null means no ratio exists (Public administration): withheld.
+const gdpSecFig = (s) => (s.gdp === null || withheld(s, "wages", "wagesImp") ? { ...SUPPRESSED } : E.fig(s.gdp, s.wages > 0 ? s.wagesImp / s.wages : 0, s.step, { unresolved: s.unresolved, rule: false }));
+function gdpTotalFig(list) {
+  const kept = list.filter((s) => s.gdp !== null && !withheld(s, "wages", "wagesImp"));
+  const value = sum(kept, (s) => s.gdp), w = sum(kept, (s) => s.wages);
+  return E.fig(value, w > 0 ? sum(kept, (s) => s.wagesImp) / w : 0, Math.max(0, ...kept.map((s) => s.step)), { unresolved: sum(kept, (s) => s.unresolved) + (list.length - kept.length) });
 }
 
 // ---- marine economy --------------------------------------------------------------------------------------
 // `in`: {ctx, est, shares, gdp (makeGdp), fips, openEnow: {ca, us}, self (ENOW self-employed rows, or null)}
 function marineSections(input) {
-  const { ctx, est, shares, g, fips, openEnow } = input;
+  const { ctx, est, shares, g, fips, openEnow, calibration } = input;
   const Y = ctx.last;
   const lines = [...new Set(D.ALL_MARINE_CODES.map((c) => Object.values(D.MARINE_CODES).flat().find((d) => d.code === c).bea))];
   const gy = g.yearFor(lines, Y);
@@ -45,15 +57,13 @@ function marineSections(input) {
   const secG = E.marineSectors(ctx, est, fips, gy, shares, { ratio: g.ratio, year: gy });
   const list = E.MARINE_SECTOR_ORDER;
   const total = E.countyTotal(ctx, fips, Y);
-  const gdpFig = (s) => E.fig(s.gdp, s.wages > 0 ? s.wagesImp / s.wages : 0, s.step, { unresolved: s.unresolved });
-
   const all = list.map((k) => secY[k]);
   const allG = list.map((k) => secG[k]);
   const measuring = {
-    establishments: E.fig(sum(all, (s) => s.estabs), 0, 0),
-    jobs: figOf(all, "emp", "empImp"),
-    wages: figOf(all, "wages", "wagesImp"),
-    gdp: E.fig(sum(allG, (s) => s.gdp), sum(allG, (s) => s.wages) > 0 ? sum(allG, (s) => s.wagesImp) / sum(allG, (s) => s.wages) : 0, Math.max(0, ...allG.map((s) => s.step)), { unresolved: sum(allG, (s) => s.unresolved) }),
+    establishments: E.fig(sum(all, (x) => x.estabs), 0, 0),
+    jobs: totalFig(all, "emp", "empImp"),
+    wages: totalFig(all, "wages", "wagesImp"),
+    gdp: gdpTotalFig(allG),
     denominator: round(total.emp),
     year: Y, gdpYear: gy,
   };
@@ -62,9 +72,9 @@ function marineSections(input) {
     sectors: list.map((k) => ({
       label: labels[k],
       establishments: E.fig(secY[k].estabs, 0, 0),
-      wages: figOf([secY[k]], "wages", "wagesImp"),
-      employment: figOf([secY[k]], "emp", "empImp"),
-      gdp: E.fig(secG[k].gdp, secG[k].wages > 0 ? secG[k].wagesImp / secG[k].wages : 0, secG[k].step, { unresolved: secG[k].unresolved }),
+      wages: secFig(secY[k], "wages", "wagesImp"),
+      employment: secFig(secY[k], "emp", "empImp"),
+      gdp: gdpSecFig(secG[k]),
     })),
     year: Y, gdpYear: gy,
   };
@@ -85,7 +95,7 @@ function marineSections(input) {
   }
   const wages = noJobs.length ? { items, noJobs, year: Yw } : { items, year: Yw };
 
-  return { Y, gdpYear: gy, wagesYear: Yw, measuring, diversity, wages, employed: measuring.jobs, sectorLabels: labels };
+  return { Y, gdpYear: gy, wagesYear: Yw, measuring, diversity, wages, employed: measuring.jobs, sectorLabels: labels, calibration };
 }
 
 // ---- total economy ---------------------------------------------------------------------------------------
@@ -93,19 +103,18 @@ function marineSections(input) {
 function totalSections(input) {
   const { ctx, fips, g, noaa } = input;
   const Y = ctx.last;
-  const gy = g.yearFor(D.NAICS_SECTORS.filter((s) => s !== "92").concat([]), Y) || Y;
-  const secY = E.totalSectors(ctx, fips, Y, null);
-  const secG = E.totalSectors(ctx, fips, gy, { ratio: g.ratio, year: gy });
   const labels = Object.keys(D.TOTAL_SECTOR_CODES);
+  const gdpLabels = labels.filter((l) => D.TOTAL_SECTORS_QCEW[l].bea);
+  const gy = g.yearForSuper(gdpLabels, Y) || Y;
+  const secY = E.totalSectors(ctx, fips, Y, null);
+  const secG = E.totalSectors(ctx, fips, gy, { superRatio: g.superRatio, year: gy });
   const total = E.countyTotal(ctx, fips, Y);
   const ca = E.countyTotal(ctx, ctx.state, Y);
-  const gdpFig = (s) => E.fig(s.gdp, s.wages > 0 ? s.wagesImp / s.wages : 0, s.step, { unresolved: s.unresolved });
-  const allG = labels.map((k) => secG[k]);
   const measuring = {
     establishments: total.estabs,
     jobs: total.emp,
     wages: total.wages,
-    gdp: E.fig(sum(allG, (s) => s.gdp), sum(allG, (s) => s.wages) > 0 ? sum(allG, (s) => s.wagesImp) / sum(allG, (s) => s.wages) : 0, Math.max(0, ...allG.map((s) => s.step)), { unresolved: sum(allG, (s) => s.unresolved) }),
+    gdp: gdpTotalFig(labels.map((k) => secG[k])),
     denominator: round(ca.emp),
     year: Y, gdpYear: gy,
   };
@@ -113,9 +122,9 @@ function totalSections(input) {
     sectors: labels.map((k) => ({
       label: k,
       establishments: E.fig(secY[k].estabs, 0, 0),
-      wages: figOf([secY[k]], "wages", "wagesImp"),
-      employment: figOf([secY[k]], "emp", "empImp"),
-      gdp: gdpFig(secG[k]),
+      wages: secFig(secY[k], "wages", "wagesImp"),
+      employment: secFig(secY[k], "emp", "empImp"),
+      gdp: gdpSecFig(secG[k]),
     })),
     year: Y, gdpYear: gy,
   };

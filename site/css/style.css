@@ -741,6 +741,8 @@ legend{
 .cp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:28px 24px;margin:0;width:100%;}
 .cp-stats dt{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:0 0 6px;}
 .cp-stats dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:clamp(22px,2.8vw,36px);font-weight:600;line-height:1.15;overflow-wrap:break-word;}
+.cp-stats-pair{grid-template-columns:1.6fr 1fr;}
+.cp-stats-pair > div:first-child dd{font-size:clamp(30px,4.2vw,56px);}
 .cp-stats dd.cp-stat-unit{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;font-weight:400;color:var(--ink-soft);margin-top:2px;}
 @media (max-width:640px){.cp-stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
 
@@ -1335,7 +1337,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp .share-ring{max-width:1.6in;}
 .cpp .share-label{font-size:9.5pt;} .cpp .share-detail{font-size:8.5pt;color:#333;}
 .cpp .cp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(1.3in,1fr));gap:10pt;}
-.cpp .cp-stats dd{font-size:18pt;} .cpp .cp-stats dt{font-size:8pt;}
+.cpp .cp-stats dd{font-size:18pt;} .cpp .cp-stats-pair > div:first-child dd{font-size:24pt;} .cpp .cp-stats dt{font-size:8pt;}
 .cpp .cp-equation{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8pt 12pt;}
 .cpp .cp-eq-value{font-size:18pt;} .cpp .cp-eq-label{font-size:8pt;}
 .cpp .cpd-gap,.cpp .cpd-gap p{color:#000;}

@@ -23,7 +23,6 @@
     which always wins over this generic computation. -#}
 {%- set withheldLabels = [] %}
 {%- if v and v.type == "stats" %}{% for it in v.items %}{% if it.suppressed %}{% set _ = withheldLabels.push(it.label) %}{% endif %}{% endfor %}{% endif %}
-{%- if v and v.type == "equation" %}{% for p in v.parts %}{% if p.suppressed %}{% set _ = withheldLabels.push(p.label) %}{% endif %}{% endfor %}{% endif %}
 {%- if v %}
 {%- if v.type == "rings" %}
 {%- set basis = "" if def.id == "natural-features" else topic.basis %}
@@ -41,19 +40,9 @@
 {%- elif v.type == "timing" %}{{ curves(cid, county, opcGaugeProjections, countyProfiles.increments, printMode) }}
 {%- elif v.type == "stats" %}
 {#- A withheld stat isn't drawn at all — it's named in the footnote instead of taking a slot here. -#}
-<dl class="cp-stats">{% for it in v.items %}{% if not it.suppressed %}<div><dt>{{ it.label }}</dt><dd>{% if it.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ it.text }}</dd></div>{% endif %}{% endfor %}</dl>
-{%- elif v.type == "equation" %}
-<div class="cp-equation">
-{%- for p in v.parts %}
-<div class="cp-eq-part"><span class="cp-eq-label">{{ p.label }}</span><span class="cp-eq-value{% if p.suppressed %} is-withheld{% endif %}">{% if p.suppressed %}Withheld*{% else %}{% if p.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ p.text }}{% endif %}</span></div>
-<span class="cp-eq-op" aria-hidden="true">{% if loop.first %}+{% else %}={% endif %}</span>
-{%- endfor %}
-<div class="cp-eq-part cp-eq-total"><span class="cp-eq-label">Total{% if v.total.partial %}, incomplete{% endif %}</span><span class="cp-eq-value">{% if v.total.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ v.total.text }}{% if v.total.partial %}*{% endif %}</span></div>
-</div>
+<dl class="cp-stats{{ ' cp-stats-pair' if v.pair else '' }}">{% for it in v.items %}{% if not it.suppressed %}<div><dt>{{ it.label }}</dt><dd>{% if it.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ it.text }}</dd></div>{% endif %}{% endfor %}</dl>
 {%- elif v.type == "stat-pair" %}
 <div class="cpd-bign-group">{% for it in v.items %}<div class="cpd-bign-item"><p class="cpd-cap">{{ it.label }}</p><span class="cpd-fig">{{ it.text }}</span></div>{% endfor %}</div>
-{%- elif v.type == "plain-stat" %}
-<p class="cpd-note">{{ v.text }}</p>
 {%- endif %}
 {%- endif %}
 {%- if v and v.type == "stat-pair" %}
@@ -68,6 +57,6 @@
 {%- if model.footnote %}
 <p class="cpd-footnote">{{ model.footnote }}</p>
 {%- elif model.partial %}
-<p class="cpd-footnote">{% if withheldLabels.length %}* {{ withheldLabels | join(" and ") }} {{ "is" if withheldLabels.length == 1 else "are" }} withheld by the publisher for confidentiality.{% else %}* One or more values are withheld by the publisher for confidentiality, so this figure may be incomplete.{% endif %}</p>
+<p class="cpd-footnote">{% if withheldLabels.length %}* {{ withheldLabels | join(" and ") }} {{ "is" if withheldLabels.length == 1 else "are" }} withheld: the source does not publish {{ "it" if withheldLabels.length == 1 else "them" }}, and the estimate that could stand in for {{ "it" if withheldLabels.length == 1 else "them" }} is too uncertain to show.{% else %}* One or more values are withheld (the source does not publish them and the estimate that could stand in for them is too uncertain to show), so this figure is incomplete.{% endif %}</p>
 {%- endif %}
 {%- endif %}

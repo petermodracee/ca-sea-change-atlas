@@ -22,9 +22,9 @@
 // that is itself withheld for the row's ownership falls back to the parent summed over all ownerships when
 // every one of those rows is published.
 
-const { codesFor, MARINE_CODES, parentOf: naicsParent, NAICS_SECTORS } = require("./enow-def");
+const { codesFor, MARINE_CODES, parentOf: naicsParent, NAICS_SECTORS, SUPERSECTOR_CODES } = require("./enow-def");
 // A 2-digit sector's parent is the all-industry total (industry 10).
-const parentOf = (code) => naicsParent(code) || (NAICS_SECTORS.includes(code) ? "10" : null);
+const parentOf = (code) => naicsParent(code) || (NAICS_SECTORS.includes(code) || SUPERSECTOR_CODES.includes(code) ? "10" : null);
 
 const OWNS = ["1", "2", "3", "5"];
 const STEP_NAMES = { 0: "published", 1: "interpolated", 2: "state-scaled", 3: "establishment-scaled", 4: "parent average, same year", 5: "parent average, earlier year" };

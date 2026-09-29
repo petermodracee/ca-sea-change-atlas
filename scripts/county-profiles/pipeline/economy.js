@@ -1,28 +1,29 @@
 // Marine and total economy figures from public QCEW (Phase 7): sector sums over the estimated cells,
-// the shoreline weighting of tourism and recreation, sector GDP, and per-figure provenance.
+// the shoreline weighting of tourism and recreation (calibrated per county), sector GDP, and per-figure
+// provenance.
 //
 // A figure that has any imputed component is written {value, est: {share, step}}: `share` is the fraction of
 // the figure's value that came from imputed rows (0 to 1) and `step` is the weakest (highest-numbered)
-// ladder step used. A figure with a component nothing could estimate is {value, partial: true} (the sum is
-// a floor); one with nothing at all is {suppressed: true}. A published figure is a plain number.
+// ladder step used. A figure whose weakest step is 4 or 5 and whose imputed share is at least 75% is withheld
+// ({suppressed: true}, see estimated.js), and a total it feeds is {value, partial: true}, a floor. A
+// published figure is a plain number.
 
-const { MARINE_CODES, codesFor, BEA_LINES, GOVERNMENT_LINE, TOTAL_SECTOR_CODES } = require("./enow-def");
+const { MARINE_CODES, codesFor, BEA_LINES, TOTAL_SECTORS_QCEW } = require("./enow-def");
 const { OWNS, buildCell, estimateRow, estimateCounty } = require("./impute");
+const { isWithheldByRule } = require("../estimated");
 
 const r4 = (x) => Math.round(x * 10000) / 10000; // share precision: 0.01%
 const MARINE_SECTOR_ORDER = ["Living Resources", "Marine Construction", "Marine Transportation", "Offshore Mineral Resources", "Ship and Boat Building", "Tourism and Recreation"];
 
 // --- GDP ratios ---------------------------------------------------------------------------------------
-// California's ratio of BEA GDP (SAGDP2, current dollars) to QCEW wages for the same industry and year.
-// BEA's private lines exclude government, so a private line's wage base is private (ownership 5) wages and
-// government-owned rows use the government ratio (BEA "Government" GDP over all-industry government wages).
-// `mode: "all"` uses total (all-ownership) wages for every row instead, which is what Open ENOW's text
-// describes and fits its California GDP better; the marine sectors use it, the total economy the split
-// (its sector 92 has no BEA line to divide by).
+// California's ratio of BEA GDP (SAGDP2, current dollars) to QCEW wages for the same industry and year, with
+// all ownerships' wages in the denominator. That is what Open ENOW's text describes and it is what NOAA's own
+// Total Economy series does: its Education and health services ratio is 0.99 in every county, BEA's private
+// 61+62 GDP over all-ownership 61+62 wages is 0.98, while a private-wage base gives 1.55 (docs/DECISIONS.md).
 
-function stateWages(ctx, code, owns, Y) {
+function stateWages(ctx, code, Y) {
   let w = 0;
-  for (const own of owns) {
+  for (const own of OWNS) {
     const r = ctx.row(Y, ctx.state, own, code);
     if (!r) continue;
     if (r[0] !== "N") { w += r[3]; continue; }
@@ -33,30 +34,38 @@ function stateWages(ctx, code, owns, Y) {
   return w;
 }
 
-function makeGdp(ctx, gdp, mode = "ownership") {
+function makeGdp(ctx, gdp) {
   const cache = new Map();
-  const line = (key, Y) => {
-    const def = BEA_LINES[key];
-    const g = def && gdp.value.lines[def.classification] ? gdp.value.lines[def.classification][Y] : null;
+  const cls = (classification, Y) => {
+    const g = gdp.value.lines[classification] ? gdp.value.lines[classification][Y] : null;
     return g === null || g === undefined ? null : g * 1e6;
   };
+  const line = (key, Y) => (BEA_LINES[key] ? cls(BEA_LINES[key].classification, Y) : null);
+  // Marine: a BEA line key from enow-def's BEA_LINES; `own` is accepted for the row-level call and ignored.
   const ratio = (key, own, Y) => {
-    if (!BEA_LINES[key] && !(mode === "ownership" && own !== "5")) return null;
-    const gov = own !== "5";
-    const k = key + "|" + (mode === "all" ? "a" : gov ? "g" : "p") + "|" + Y;
+    const k = key + "|" + Y;
     if (cache.has(k)) return cache.get(k);
     let out = null;
-    if (mode === "ownership" && gov) {
-      const g = gdp.value.lines[GOVERNMENT_LINE.classification] && gdp.value.lines[GOVERNMENT_LINE.classification][Y];
-      const w = stateWages(ctx, "10", ["1", "2", "3"], Y);
-      out = g && w ? (g * 1e6) / w : null;
-    } else {
+    if (BEA_LINES[key]) {
       const g = line(key, Y);
-      const codes = BEA_LINES[key].codes;
       let w = 0, ok = true;
-      for (const c of codes) { const x = stateWages(ctx, c, mode === "all" ? OWNS : ["5"], Y); if (x === null) { ok = false; break; } w += x; }
+      for (const c of BEA_LINES[key].codes) { const x = stateWages(ctx, c, Y); if (x === null) { ok = false; break; } w += x; }
       out = g && ok && w > 0 ? g / w : null;
     }
+    cache.set(k, out);
+    return out;
+  };
+  // Total economy: a supersector's BEA lines over its California wages.
+  const superLines = (label) => TOTAL_SECTORS_QCEW[label].bea;
+  const superRatio = (label, Y) => {
+    const def = TOTAL_SECTORS_QCEW[label];
+    if (!def.bea) return null;
+    const k = "S" + label + "|" + Y;
+    if (cache.has(k)) return cache.get(k);
+    let g = 0, ok = true;
+    for (const l of def.bea) { const x = cls(l, Y); if (x === null) { ok = false; break; } g += x; }
+    const w = stateWages(ctx, def.code, Y);
+    const out = ok && w > 0 ? g / w : null;
     cache.set(k, out);
     return out;
   };
@@ -65,13 +74,18 @@ function makeGdp(ctx, gdp, mode = "ownership") {
     for (let y = max; y >= ctx.first; y--) if (keys.every((k) => line(k, y) !== null)) return y;
     return null;
   };
-  return { ratio, yearFor };
+  const yearForSuper = (labels, max) => {
+    for (let y = max; y >= ctx.first; y--) if (labels.every((l) => superLines(l).every((c) => cls(c, y) !== null))) return y;
+    return null;
+  };
+  return { ratio, superRatio, yearFor, yearForSuper };
 }
 
 // --- sector aggregation -------------------------------------------------------------------------------
 
 // One sector in one year from its cells. `weightOf(cell)` gives {est, emp}: the shoreline weights (1, 1
-// for a code counted in full). Returns sums and provenance; `rows` carry the GDP split by ownership.
+// for a code counted in full). Returns sums and provenance; `gdpFn(code, own)` is the GDP-to-wages ratio for a
+// row (marine only).
 function sumSector(cells, weightOf, gdpFn, beaOf) {
   const s = { estabs: 0, emp: 0, wages: 0, empImp: 0, wagesImp: 0, step: 0, unresolved: 0, cells: cells.length, gdp: gdpFn ? 0 : null, gdpMissing: false };
   for (const c of cells) {
@@ -93,8 +107,11 @@ function sumSector(cells, weightOf, gdpFn, beaOf) {
   return s;
 }
 
-function fig(value, share, step, { unresolved = 0, allMissing = false } = {}) {
+// A figure from a value and its provenance. Withheld by the rule (weakest step >= 4 and share >= 75%) when
+// `rule` is not false.
+function fig(value, share, step, { unresolved = 0, allMissing = false, rule = true } = {}) {
   if (allMissing) return { suppressed: true };
+  if (rule && share > 0 && isWithheldByRule(share, step)) return { suppressed: true };
   const v = Math.round(value);
   const o = { value: v };
   // A share under 0.005% rounds to nothing and is not recorded as an estimate.
@@ -105,7 +122,7 @@ function fig(value, share, step, { unresolved = 0, allMissing = false } = {}) {
 
 // --- marine economy -----------------------------------------------------------------------------------
 
-// Every marine sector for one county-year, as sums with provenance.
+// Every marine sector for one county-year, as sums with provenance. `shares` is {counties: {fips: {codes}}}.
 function marineSectors(ctx, est, fips, Y, shares, gdpApi, { shoreAll = false, exclude = null } = {}) {
   const cellsBy = est.cells[Y];
   const cnty = shares && shares.counties[fips];
@@ -120,19 +137,64 @@ function marineSectors(ctx, est, fips, Y, shares, gdpApi, { shoreAll = false, ex
       return { est: sh ? sh.est : 0, emp: sh ? sh.emp : 0 };
     };
     const beaOf = (code) => defs.find((d) => d.code === code).bea;
-    const s = sumSector(cells, weightOf, gdpApi ? (k, own) => gdpApi.ratio(k, own, gdpApi.year) : null, beaOf);
-    out[sector] = s;
+    out[sector] = sumSector(cells, weightOf, gdpApi ? (k, own) => gdpApi.ratio(k, own, gdpApi.year) : null, beaOf);
   }
   return out;
 }
 
+// --- per-county calibration of the tourism and recreation shoreline share --------------------------------
+// The ZIP-derived share (zbp.js) fits California in total but not each county. Each county's share is instead
+// calibrated so that its 2021 tourism and recreation jobs equal the original ENOW's 2021 county figure, and
+// that county share is then held for every year. Establishments are calibrated the same way against the
+// original's establishment count. Where the original's figure is withheld or zero, or no share in [0, 1] can
+// reach it, the ZIP rule's share is kept. `orig` is {employment, establishments} (numbers, or null).
+function calibrateTourism(est, fips, base, orig, year = 2021) {
+  const defs = codesFor("Tourism and Recreation", year);
+  const cells = est.cells[year]["Tourism and Recreation"];
+  const shoreCodes = defs.filter((d) => d.shore).map((d) => d.code);
+  let fixedEmp = 0, fixedEst = 0, shoreEmp = 0, shoreEst = 0;
+  for (const c of cells) {
+    if (shoreCodes.includes(c.code)) { shoreEmp += c.emp; shoreEst += c.e; } else { fixedEmp += c.emp; fixedEst += c.e; }
+  }
+  const zbp = base && base.counties[fips];
+  const fallback = (code) => (zbp && zbp.codes[code] ? { emp: zbp.codes[code].emp, est: zbp.codes[code].est } : { emp: 0, est: 0 });
+  const solve = (target, fixed, shore) => {
+    if (!(target > 0) || !(shore > 0)) return null;
+    const raw = (target - fixed) / shore;
+    return { raw, share: Math.min(1, Math.max(0, raw)) };
+  };
+  const emp = solve(orig && orig.employment, fixedEmp, shoreEmp), estab = solve(orig && orig.establishments, fixedEst, shoreEst);
+  const codes = {};
+  for (const d of Object.values(MARINE_CODES).flat().filter((x) => x.shore)) {
+    const f = fallback(d.code);
+    codes[d.code] = { emp: emp ? emp.share : f.emp, est: estab ? estab.share : f.est };
+  }
+  const pooled = zbp && zbp.pooled;
+  const method = (x) => (x ? (x.raw < 0 || x.raw > 1 ? "calibrated-clamped" : "calibrated") : "zip-rule");
+  return {
+    shares: { counties: { [fips]: { codes } } },
+    calibration: {
+      jobs: { method: method(emp), share: r4(emp ? emp.share : pooled ? pooled.emp : 0), target2021: orig && orig.employment > 0 ? Math.round(orig.employment) : null },
+      establishments: { method: method(estab), share: r4(estab ? estab.share : pooled ? pooled.est : 0), target2021: orig && orig.establishments > 0 ? Math.round(orig.establishments) : null },
+      zipRuleJobsShare: pooled ? r4(pooled.emp) : null,
+    },
+  };
+}
+
 // --- total economy ------------------------------------------------------------------------------------
 
+// The eleven sectors are QCEW supersectors; each is one cell. GDP is the sector's wages (all ownerships) times
+// California's ratio of the BEA line(s) to that supersector's wages; Public administration has none (null).
 function totalSectors(ctx, fips, Y, gdpApi) {
   const out = {};
-  for (const [label, codes] of Object.entries(TOTAL_SECTOR_CODES)) {
-    const cells = codes.map((code) => buildCell(ctx, fips, code, Y));
-    out[label] = sumSector(cells, () => ({ est: 1, emp: 1 }), gdpApi ? (k, own) => gdpApi.ratio(k, own, gdpApi.year) : null, (code) => code);
+  for (const [label, def] of Object.entries(TOTAL_SECTORS_QCEW)) {
+    const cell = buildCell(ctx, fips, def.code, Y);
+    const s = sumSector([cell], () => ({ est: 1, emp: 1 }), null, null);
+    if (gdpApi) {
+      const r = gdpApi.superRatio(label, gdpApi.year);
+      s.gdp = r === null ? null : s.wages * r;
+    }
+    out[label] = s;
   }
   return out;
 }
@@ -143,4 +205,4 @@ function countyTotal(ctx, fips, Y) {
   return r ? { estabs: r[1], emp: r[2], wages: r[3] } : null;
 }
 
-module.exports = { MARINE_SECTOR_ORDER, makeGdp, marineSectors, totalSectors, countyTotal, sumSector, fig, estimateCounty, r4 };
+module.exports = { MARINE_SECTOR_ORDER, makeGdp, marineSectors, calibrateTourism, totalSectors, countyTotal, sumSector, fig, estimateCounty, r4 };

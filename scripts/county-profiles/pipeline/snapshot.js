@@ -133,6 +133,7 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
     }) : null;
   const economy = buildEconomyTopics({ entry, has, S, eco, nes, meta, jobsAtRiskTotal, gaps, use: USE });
   const { totalEconomy, marine } = economy;
+  const estimation = economy.estimation;
   Object.assign(sources, economy.sources);
 
   const topicSections = { flood, slr, "total-economy": totalEconomy, "marine-economy": marine };
@@ -154,6 +155,7 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
     geometry: null,
     sources: pruneSources(sources, topics),
     topics,
+    ...(estimation ? { estimation } : {}),
   };
 }
 

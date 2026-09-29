@@ -48,8 +48,11 @@ const MARINE_CODES = {
     { code: "211130", from: 2017, to: OPEN, bea: "211" },
     { code: "212321", from: 2001, to: OPEN, bea: "212" },
     { code: "212322", from: 2001, to: OPEN, bea: "212" },
-    { code: "213111", from: 2001, to: OPEN, bea: "213" },
-    { code: "213112", from: 2001, to: OPEN, bea: "213" },
+    // 213 (support activities for mining) is mapped to BEA's whole mining line (21) rather than its own 213
+    // line: the 213 line's GDP-to-wage ratio (2.2) is far below the mining ratios and left Open ENOW's California
+    // offshore minerals GDP 21% low on average; the broader line cuts that to 7% (docs/DECISIONS.md).
+    { code: "213111", from: 2001, to: OPEN, bea: "21" },
+    { code: "213112", from: 2001, to: OPEN, bea: "21" },
     { code: "541360", from: 2001, to: OPEN, bea: "5412-5419" },
   ],
   "Ship and Boat Building": [
@@ -131,11 +134,32 @@ const BEA_LINES = {
 };
 // The total economy's sectors are the 2-digit NAICS sectors; each has its own BEA line.
 for (const s of NAICS_SECTORS) if (s !== "92") BEA_LINES[s] = BEA_LINES[s] || { codes: [s], classification: s };
-const GOVERNMENT_LINE = { classification: "92" }; // BEA "Government and government enterprises"
+
+// The total economy's eleven sectors are QCEW's supersectors (industry codes 1011 to 1028), which is how NOAA's
+// Total Economy (Coastal) series builds them and why its jobs, wages and establishments match QCEW exactly. A
+// supersector row is published even when its 2-digit parts are withheld (Natural resources and mining in San
+// Francisco), so these rows, not sums of 2-digit sectors, are the cells. `bea` lists the BEA SAGDP2 lines whose
+// GDP is divided by the supersector's California wages (all ownerships) to give the GDP-to-wages ratio.
+// Public administration has no ratio: BEA's Government line spans schools and hospitals that QCEW files under
+// other supersectors, and no ratio was found that reproduces NOAA's (docs/DECISIONS.md), so its GDP is withheld.
+const TOTAL_SECTORS_QCEW = {
+  "Construction": { code: "1012", bea: ["23"] },
+  "Financial activities": { code: "1023", bea: ["52,53"] },
+  "Education and health services": { code: "1025", bea: ["61,62"] },
+  "Information": { code: "1022", bea: ["51"] },
+  "Leisure and hospitality": { code: "1026", bea: ["71,72"] },
+  "Manufacturing": { code: "1013", bea: ["31-33"] },
+  "Natural resources and mining": { code: "1011", bea: ["11,21"] },
+  "Other services": { code: "1027", bea: ["81"] },
+  "Professional and business services": { code: "1024", bea: ["54,55,56"] },
+  "Public administration": { code: "1028", bea: null },
+  "Trade, transportation, and utilities": { code: "1021", bea: ["42,44-45", "22,48-49"] },
+};
+const SUPERSECTOR_CODES = Object.values(TOTAL_SECTORS_QCEW).map((s) => s.code);
 
 // Every QCEW industry code the pipeline keeps from the annual files.
 function neededCodes() {
-  const need = new Set(["10", ...NAICS_SECTORS]);
+  const need = new Set(["10", ...NAICS_SECTORS, ...SUPERSECTOR_CODES]);
   for (const code of ALL_MARINE_CODES) { for (let c = code; c; c = parentOf(c)) need.add(c); }
   for (const l of Object.values(BEA_LINES)) for (const c of l.codes) need.add(c);
   return need;
@@ -153,19 +177,7 @@ function codeFilter() {
   return (code) => need.has(code) || (/^[0-9]+$/.test(code) && parents.has(parentOf(code)));
 }
 
-// The eleven total-economy sectors, in NAICS 2-digit codes.
-const TOTAL_SECTOR_CODES = {
-  "Construction": ["23"],
-  "Financial activities": ["52", "53"],
-  "Education and health services": ["61", "62"],
-  "Information": ["51"],
-  "Leisure and hospitality": ["71", "72"],
-  "Manufacturing": ["31-33"],
-  "Natural resources and mining": ["11", "21"],
-  "Other services": ["81"],
-  "Professional and business services": ["54", "55", "56"],
-  "Public administration": ["92"],
-  "Trade, transportation, and utilities": ["22", "42", "44-45", "48-49"],
-};
+// The eleven total-economy sectors, as the QCEW codes that are their cells.
+const TOTAL_SECTOR_CODES = Object.fromEntries(Object.entries(TOTAL_SECTORS_QCEW).map(([k, v]) => [k, [v.code]]));
 
-module.exports = { SHORE_TOLERANCE_M, FIRST_YEAR, OPEN, MARINE_CODES, codesFor, ALL_MARINE_CODES, NAICS_SECTORS, parentOf, BEA_LINES, GOVERNMENT_LINE, neededCodes, codeFilter, ATTRIBUTION_CODES, TOTAL_SECTOR_CODES };
+module.exports = { SHORE_TOLERANCE_M, FIRST_YEAR, OPEN, MARINE_CODES, codesFor, ALL_MARINE_CODES, NAICS_SECTORS, parentOf, BEA_LINES, TOTAL_SECTORS_QCEW, SUPERSECTOR_CODES, neededCodes, codeFilter, ATTRIBUTION_CODES, TOTAL_SECTOR_CODES };

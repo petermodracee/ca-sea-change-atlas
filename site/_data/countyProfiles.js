@@ -7,7 +7,7 @@ const { validateSnapshot } = require("../../scripts/county-profiles/validate.js"
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
 const { timingTable, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
-const { ESTIMATED_SHARE_THRESHOLD } = require("../../scripts/county-profiles/estimated.js");
+const { ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAKEST_STEP, WITHHOLD_MIN_SHARE } = require("../../scripts/county-profiles/estimated.js");
 const { SHORE_TOLERANCE_M } = require("../../scripts/county-profiles/pipeline/enow-def.js");
 
 // Everything the County Profiles pages need, derived from the spine, the schema, the OPC reference
@@ -243,7 +243,7 @@ function economyMethod() {
   return {
     qcew: year("qcew"), qcewWages: year("qcew-wages"), beaMarine: year("bea-marine"), beaTotal: year("bea-total"), zbp: year("zbp"),
     openEnow: year("open-enow"), enowSelf: year("enow-self"), coastalEconomy: year("coastal-economy"), nes: year("nes"), totalWages: year("qcew-total-wages"),
-    thresholdPercent: Math.round(ESTIMATED_SHARE_THRESHOLD * 100), shoreMetres: SHORE_TOLERANCE_M,
+    thresholdPercent: Math.round(ESTIMATED_SHARE_THRESHOLD * 100), shoreMetres: SHORE_TOLERANCE_M, withholdStep: WITHHOLD_WEAKEST_STEP, withholdPercent: Math.round(WITHHOLD_MIN_SHARE * 100),
   };
 }
 

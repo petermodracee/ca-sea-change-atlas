@@ -222,11 +222,14 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       ].map((s) => {
         const text = cellText(s.v, s.fmt);
         show(text);
-        return { label: s.label, text, suppressed: text === null, est: mark(s.v) };
+        return { label: s.label, text: text === null ? null : text + (isPartialCell(s.v) ? "*" : ""), suppressed: text === null, est: mark(s.v) };
       });
       if (data.year) notes.push(data.gdpYear && data.gdpYear !== data.year ? "Establishments, jobs and wages are for " + data.year + "; GDP is for " + data.gdpYear + ", the newest year BEA publishes for these industries." : "All figures are for " + data.year + ".");
+      if (topicId === "total-economy" && isPartialCell(data.gdp)) notes.push("GDP leaves out Public administration, whose GDP is withheld in every county: BEA’s government GDP includes schools and hospitals that QCEW counts under other sectors, so no defensible GDP-to-wages ratio exists for it.");
       visual = { type: "stats", items, partial: [data.establishments, data.jobs, data.wages, data.gdp].some((v) => isSuppressed(v) || isPartialCell(v)) };
-      if (!isSuppressed(data.jobs)) {
+      // A callout never states a figure whose parts are withheld: a jobs total that leaves a sector out is a floor, so
+      // its share of all jobs is not stated.
+      if (!isSuppressed(data.jobs) && !isPartialCell(data.jobs)) {
         const p = pc(cv(data.jobs), data.denominator);
         callout = topicId === "marine-economy"
           ? { figure: p, caption: "of total employment in " + C + " is in the marine economy.", est: isEstimatedCell(data.jobs) }
@@ -249,12 +252,12 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
           const suppressed = isSuppressed(v);
           const est = !suppressed && mark(v);
           const val = suppressed ? 0 : cv(v);
-          return { label: s.label, value: val, suppressed, est, text: suppressed ? "withheld" : (est ? "≈ " : "") + m.fmt(val), printText: suppressed ? "withheld" : (est ? "≈ " : "") + (m.print || m.fmt)(val), isHeadline: s.label === top.label, icon: sectorIconFor(s.label) };
+          return { label: s.label, value: val, suppressed, est, text: suppressed ? "withheld" : (est ? "≈ " : "") + m.fmt(val), printText: suppressed ? "withheld" : (est ? "≈ " : "") + (m.print || m.fmt)(val), isHeadline: Boolean(top) && s.label === top.label, icon: sectorIconFor(s.label) };
         }),
       }));
       if (data.year && data.gdpYear && data.gdpYear !== data.year) notes.push("Establishments, employment and wages are for " + data.year + "; GDP is for " + data.gdpYear + ", the newest year BEA publishes for these industries.");
       const partial = SECTOR_MEASURES.some((m) => data.sectors.some((s) => isSuppressed(s[m.key]) || isPartialCell(s[m.key])));
-      visual = { type: "stacked100", legend: data.sectors.map((s) => s.label), measures, partial, headline: top.label };
+      visual = { type: "stacked100", legend: data.sectors.map((s) => s.label), measures, partial, headline: top ? top.label : null };
       // One denominator rule, everywhere: a share is always of the sectors actually known for that
       // measure, a withheld sector excluded — the callout's employment share, the chart's own
       // Employment bar, and every other measure's bar all divide by their own present-sectors total,
@@ -263,15 +266,26 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       const totalEmployment = sum(present0.map((s) => cv(s.employment)));
       const withheldSectors = data.sectors.filter((s) => SECTOR_MEASURES.some((m) => isSuppressed(s[m.key]))).map((s) => s.label);
       const withheld = withheldSectors.length > 0;
+      // The callout is the largest sector's share of employment, so it is built from every sector's employment.
+      const withheldEmployment = data.sectors.some((s) => isSuppressed(s.employment));
       const whose = topicId === "marine-economy" ? "marine economy workforce" : "workforce";
-      callout = {
+      // A callout never states a figure whose parts are withheld: with any sector's employment withheld the
+      // largest sector's share of the workforce is a share of only part of it, so no callout is stated (the chart
+      // still shows the shares of the sectors that are known, under the denominator rule above).
+      callout = withheldEmployment || !top ? null : {
         figure: pc(cv(top.employment), totalEmployment),
-        caption: "of " + C + "’s " + whose + " works in " + top.label + ", its largest sector by employment" + (withheld ? PARTIAL_MARK : "") + ".",
-        partial: withheld,
+        caption: "of " + C + "’s " + whose + " works in " + top.label + ", its largest sector by employment.",
         est: isEstimatedCell(top.employment),
       };
       if (withheld) {
-        footnote = "* " + withheldSectors.join(" and ") + " " + (withheldSectors.length === 1 ? "is" : "are") + " withheld by the publisher for confidentiality; shares shown are of the remaining sectors.";
+        // Say which measures are withheld for each sector, and why for Public administration's GDP.
+        const parts = data.sectors.map((s) => {
+          const ms = SECTOR_MEASURES.filter((m) => isSuppressed(s[m.key])).map((m) => (m.key === "gdp" ? "GDP" : m.label.toLowerCase()));
+          return ms.length ? (ms.length === SECTOR_MEASURES.length - 1 && !isSuppressed(s.establishments) ? s.label + " (" + ms.join(", ") + ")" : ms.length === 1 ? s.label + "’s " + ms[0] : s.label + " (" + ms.join(", ") + ")") : null;
+        }).filter(Boolean);
+        const paGdp = topicId === "total-economy" && data.sectors.some((s) => s.label === "Public administration" && isSuppressed(s.gdp));
+        footnote = "* Withheld, because the source does not publish it and the estimate that could stand in for it is too uncertain to show: " + parts.join("; ") + ". Shares shown are of the remaining sectors."
+          + (paGdp ? " Public administration’s GDP is withheld in every county: BEA’s government GDP includes schools and hospitals that QCEW counts under other sectors, so no defensible GDP-to-wages ratio exists for it, and the GDP total leaves it out." : "");
       }
       break;
     }
@@ -295,8 +309,8 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       const top = present.sort((a, b) => cv(b.county) - cv(a.county))[0];
       const bottom = present.sort((a, b) => cv(a.county) - cv(b.county))[0];
       const countyWithheld = data.items.some((i) => isSuppressed(i.county));
-      const ratio = (cv(top.county) / cv(bottom.county)).toFixed(1) + "×";
-      callout = {
+      const ratio = top ? (cv(top.county) / cv(bottom.county)).toFixed(1) + "×" : null;
+      callout = countyWithheld || !top ? null : {
         figure: ratio,
         caption: top.label + " pays the most on average in " + C + "’s economy" + (countyWithheld ? PARTIAL_MARK : "") + " — that many times the lowest-paying sector's wage.",
         partial: countyWithheld,
@@ -305,42 +319,29 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       // A sector the county has no jobs in (data.noJobs) is simply not a row: the slide says nothing
       // about it, and /county-profiles/about/#sectors-not-shown explains it once for every county.
       // A withheld value is different (the publisher would not say), so it keeps its footnote.
-      if (partial) footnote = "* One or more average wages are withheld by the publisher for confidentiality.";
+      if (partial) footnote = "* One or more average wages are withheld: the source does not publish them and the estimate that could stand in for them is too uncertain to show.";
       break;
     }
 
-    case "jobs-equation": {
-      // Employed + Self-employed = Total only makes sense to show as an equation when all three
-      // numbers are real. When self-employed itself is withheld, "Total" would just be a copy of
-      // "Employed" with an unknown addend — misleading arithmetic, not a partial one. Drop the
-      // equation and state the one number that is real instead.
-      if (data.employedYear && data.selfEmployedYear) notes.push(data.employedYear === data.selfEmployedYear ? "Both counts are for " + data.employedYear + "." : "Employed is for " + data.employedYear + " and self-employed is for " + data.selfEmployedYear + ", the newest year each source publishes, so the total adds two different years.");
-      const employedEst = mark(data.employed);
-      if (isSuppressed(data.selfEmployed)) {
-        const employedText = num(cv(data.employed));
-        show(employedText);
-        visual = { type: "plain-stat", text: (employedEst ? "≈ " : "") + employedText + " people employed in this industry (self-employed count withheld).", partial: true, est: employedEst };
-      } else {
-        const parts = [
-          { label: "Employed", v: data.employed, est: employedEst },
-          { label: "Self-employed", v: data.selfEmployed, est: false },
-        ].map((p) => {
-          const text = cellText(p.v, num);
-          show(text);
-          return { label: p.label, text, suppressed: text === null, est: p.est };
-        });
-        const totalText = num(data.total.value);
-        show(totalText);
-        // The total is estimated when the imputed part of employed is a large enough share of the total.
-        const totalEst = employedEst && (cellEst(data.employed).share * cv(data.employed)) / data.total.value >= ESTIMATED_SHARE_THRESHOLD;
-        visual = { type: "equation", parts, total: { text: totalText, partial: data.total.partial, est: totalEst }, partial: data.total.partial };
-      }
+    case "jobs-pair": {
+      // Employed and self-employed are two separate figures, each with its own year and source: the two
+      // counts describe different years, so they are not added. Employed leads; a withheld self-employed count
+      // is dropped from the row and named in the footnote, like any withheld stat.
+      const pairItems = [
+        { label: "Employed workers, " + data.employedYear, v: data.employed },
+        { label: "Self-employed workers, " + data.selfEmployedYear, v: data.selfEmployed },
+      ].map((p) => {
+        const text = cellText(p.v, num);
+        show(text);
+        return { label: p.label, text: text === null ? null : text + (isPartialCell(p.v) ? "*" : ""), suppressed: text === null, est: p === undefined ? false : mark(p.v) };
+      });
+      visual = { type: "stats", pair: true, items: pairItems, partial: pairItems.some((i) => i.suppressed) || isPartialCell(data.employed) };
+      notes.push(data.employedYear === data.selfEmployedYear ? "Both counts are for " + data.employedYear + "." : "Employed workers are for " + data.employedYear + " and self-employed workers for " + data.selfEmployedYear + ", the newest year each source publishes. They describe different years, so they are not added.");
       const present = data.sectors.filter((s) => !isSuppressed(s.selfEmployed)).sort((a, b) => b.selfEmployed - a.selfEmployed);
       const withheld = data.sectors.some((s) => isSuppressed(s.selfEmployed));
-      callout = {
+      callout = withheld ? null : {
         figure: num(present[0].selfEmployed),
-        caption: "self-employed " + present[0].label.toLowerCase() + " workers in " + C + ", more than any other sector" + (withheld ? PARTIAL_MARK : "") + ".",
-        partial: withheld,
+        caption: "self-employed " + present[0].label.toLowerCase() + " workers in " + C + ", more than any other sector.",
       };
       break;
     }

@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T10:07:39Z",
+  "generated": "2026-09-29T19:27:54Z",
   "gauge": {
     "id": "alameda",
     "name": "Alameda",
@@ -192,7 +192,7 @@
       "url": "https://www.census.gov/programs-surveys/nonemployer-statistics.html",
       "vintage": {
         "kind": "year",
-        "year": 2023
+        "year": 2024
       },
       "retrieved": "2026-09-29",
       "verified": "2026-09-29"
@@ -753,7 +753,10 @@
             "establishments": 74091,
             "jobs": 783094,
             "wages": 79859385530,
-            "gdp": 183228750737,
+            "gdp": {
+              "value": 156866689015,
+              "partial": true
+            },
             "denominator": 18210243,
             "year": 2025,
             "gdpYear": 2025
@@ -778,77 +781,79 @@
                 "establishments": 3415,
                 "wages": 5115037854,
                 "employment": 46210,
-                "gdp": 9573743638
+                "gdp": 9465912711
               },
               {
                 "label": "Financial activities",
                 "establishments": 3883,
                 "wages": 2502781034,
                 "employment": 22607,
-                "gdp": 22616260461
+                "gdp": 16393263799
               },
               {
                 "label": "Education and health services",
-                "establishments": 35434,
+                "establishments": 35433,
                 "wages": 16735757773,
                 "employment": 205093,
-                "gdp": 27620604271
+                "gdp": 16847663012
               },
               {
                 "label": "Information",
                 "establishments": 876,
                 "wages": 5316807547,
                 "employment": 19555,
-                "gdp": 14719049706
+                "gdp": 14706496136
               },
               {
                 "label": "Leisure and hospitality",
-                "establishments": 5098,
+                "establishments": 5097,
                 "wages": 2813225126,
                 "employment": 72035,
-                "gdp": 6145181431
+                "gdp": 5968432923
               },
               {
                 "label": "Manufacturing",
                 "establishments": 2042,
                 "wages": 10714244669,
                 "employment": 86050,
-                "gdp": 25698355211
+                "gdp": 25697794777
               },
               {
                 "label": "Natural resources and mining",
                 "establishments": 110,
                 "wages": 65690405,
                 "employment": 743,
-                "gdp": 230305027
+                "gdp": 197140652
               },
               {
                 "label": "Other services",
                 "establishments": 4998,
                 "wages": 1860960017,
                 "employment": 29026,
-                "gdp": 4648098907
+                "gdp": 4574487147
               },
               {
                 "label": "Professional and business services",
-                "establishments": 9945,
+                "establishments": 9946,
                 "wages": 18771179644,
-                "employment": 130783,
-                "gdp": 30423223689
+                "employment": 130785,
+                "gdp": 30109066791
               },
               {
                 "label": "Public administration",
                 "establishments": 365,
                 "wages": 4145608954,
                 "employment": 31367,
-                "gdp": 7422013389
+                "gdp": {
+                  "suppressed": true
+                }
               },
               {
                 "label": "Trade, transportation, and utilities",
-                "establishments": 7672,
+                "establishments": 7671,
                 "wages": 11802693810,
-                "employment": 139546,
-                "gdp": 34131915007
+                "employment": 139548,
+                "gdp": 32906431069
               }
             ],
             "year": 2025,
@@ -908,7 +913,7 @@
               },
               {
                 "label": "Education and health services",
-                "county": 78876,
+                "county": 78875,
                 "coastalState": 71683,
                 "coastalUS": 67902
               },
@@ -920,7 +925,7 @@
               },
               {
                 "label": "Leisure and hospitality",
-                "county": 36513,
+                "county": 36514,
                 "coastalState": 42925,
                 "coastalUS": 37140
               },
@@ -932,7 +937,7 @@
               },
               {
                 "label": "Natural resources and mining",
-                "county": 91708,
+                "county": 91806,
                 "coastalState": 48079,
                 "coastalUS": 76365
               },
@@ -978,47 +983,45 @@
           ],
           "data": {
             "employed": 783094,
-            "selfEmployed": 140901,
-            "total": {
-              "value": 923995,
-              "partial": false
-            },
+            "employedYear": 2025,
+            "selfEmployed": 148108,
+            "selfEmployedYear": 2024,
             "sectors": [
               {
                 "label": "Construction",
-                "selfEmployed": 7975
+                "selfEmployed": 8281
               },
               {
                 "label": "Financial activities",
-                "selfEmployed": 15878
+                "selfEmployed": 16174
               },
               {
                 "label": "Education and health services",
-                "selfEmployed": 17830
+                "selfEmployed": 18743
               },
               {
                 "label": "Information",
-                "selfEmployed": 2560
+                "selfEmployed": 2690
               },
               {
                 "label": "Leisure and hospitality",
-                "selfEmployed": 12804
+                "selfEmployed": 13280
               },
               {
                 "label": "Manufacturing",
-                "selfEmployed": 1640
+                "selfEmployed": 1609
               },
               {
                 "label": "Natural resources and mining",
-                "selfEmployed": 209
+                "selfEmployed": 216
               },
               {
                 "label": "Other services",
-                "selfEmployed": 11338
+                "selfEmployed": 11718
               },
               {
                 "label": "Professional and business services",
-                "selfEmployed": 39186
+                "selfEmployed": 40952
               },
               {
                 "label": "Public administration",
@@ -1026,11 +1029,9 @@
               },
               {
                 "label": "Trade, transportation, and utilities",
-                "selfEmployed": 31481
+                "selfEmployed": 34445
               }
-            ],
-            "employedYear": 2025,
-            "selfEmployedYear": 2023
+            ]
           }
         }
       }
@@ -1053,27 +1054,30 @@
             "zbp"
           ],
           "data": {
-            "establishments": 2334,
+            "establishments": 2528,
             "jobs": {
-              "value": 39236,
+              "value": 38312,
               "est": {
-                "share": 0.0883,
+                "share": 0.0875,
                 "step": 5
-              }
+              },
+              "partial": true
             },
             "wages": {
-              "value": 2051311871,
+              "value": 1996269006,
               "est": {
-                "share": 0.2171,
+                "share": 0.2159,
                 "step": 5
-              }
+              },
+              "partial": true
             },
             "gdp": {
-              "value": 4273870807,
+              "value": 4100516860,
               "est": {
-                "share": 0.2102,
+                "share": 0.2091,
                 "step": 5
-              }
+              },
+              "partial": true
             },
             "denominator": 783094,
             "year": 2025,
@@ -1156,25 +1160,13 @@
                 "label": "Offshore mineral resources",
                 "establishments": 11,
                 "wages": {
-                  "value": 13715731,
-                  "est": {
-                    "share": 1,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "employment": {
-                  "value": 99,
-                  "est": {
-                    "share": 1,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "gdp": {
-                  "value": 63558494,
-                  "est": {
-                    "share": 1,
-                    "step": 5
-                  }
+                  "suppressed": true
                 }
               },
               {
@@ -1204,25 +1196,25 @@
               },
               {
                 "label": "Tourism and recreation",
-                "establishments": 2122,
+                "establishments": 2316,
                 "wages": {
-                  "value": 1082106172,
+                  "value": 1040779038,
                   "est": {
-                    "share": 0.0175,
+                    "share": 0.0176,
                     "step": 5
                   }
                 },
                 "employment": {
-                  "value": 28870,
+                  "value": 28045,
                   "est": {
-                    "share": 0.0118,
+                    "share": 0.0117,
                     "step": 5
                   }
                 },
                 "gdp": {
-                  "value": 2183693542,
+                  "value": 2073898090,
                   "est": {
-                    "share": 0.0167,
+                    "share": 0.017,
                     "step": 5
                   }
                 }
@@ -1280,11 +1272,7 @@
               {
                 "label": "Offshore mineral resources",
                 "county": {
-                  "value": 131345,
-                  "est": {
-                    "share": 1,
-                    "step": 5
-                  }
+                  "suppressed": true
                 },
                 "coastalState": 134731,
                 "coastalUS": 193706
@@ -1304,9 +1292,9 @@
               {
                 "label": "Tourism and recreation",
                 "county": {
-                  "value": 36090,
+                  "value": 35808,
                   "est": {
-                    "share": 0.0167,
+                    "share": 0.017,
                     "step": 5
                   }
                 },
@@ -1332,17 +1320,16 @@
           ],
           "data": {
             "employed": {
-              "value": 39236,
+              "value": 38312,
               "est": {
-                "share": 0.0883,
+                "share": 0.0875,
                 "step": 5
-              }
+              },
+              "partial": true
             },
+            "employedYear": 2025,
             "selfEmployed": 913,
-            "total": {
-              "value": 40149,
-              "partial": false
-            },
+            "selfEmployedYear": 2021,
             "sectors": [
               {
                 "label": "Living resources",
@@ -1368,12 +1355,25 @@
                 "label": "Tourism and recreation",
                 "selfEmployed": 314
               }
-            ],
-            "employedYear": 2025,
-            "selfEmployedYear": 2021
+            ]
           }
         }
       }
+    }
+  },
+  "estimation": {
+    "tourismShoreShare": {
+      "jobs": {
+        "method": "calibrated",
+        "share": 0.4785,
+        "target2021": 24382
+      },
+      "establishments": {
+        "method": "calibrated",
+        "share": 0.538,
+        "target2021": 2187
+      },
+      "zipRuleJobsShare": 0.5057
     }
   }
 }

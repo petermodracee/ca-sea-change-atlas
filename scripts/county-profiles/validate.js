@@ -250,16 +250,12 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
           if (data.noJobs.some((l) => data.items.some((it) => it.label === l))) fail(where + ".data.noJobs names a sector that is also in items");
         }
         break;
-      case "jobs-equation": {
+      case "jobs-pair": {
+        // Employed and self-employed are two separate figures with their own years; there is no total.
         cell(data.employed, where + ".data.employed");
         cell(data.selfEmployed, where + ".data.selfEmployed");
-        const t = data.total;
-        if (!isObj(t) || !isQty(t.value) || typeof t.partial !== "boolean") fail(where + ".data.total must be {value, partial}");
-        const parts = [data.employed, data.selfEmployed];
-        const anySuppressed = parts.some((p) => isSuppressed(p) || (isObj(p) && p.partial === true));
-        if (t.partial !== anySuppressed) fail(where + ".data.total.partial must be true if and only if a component is suppressed or partial");
-        const sum = parts.reduce((s, p) => s + (isSuppressed(p) ? 0 : cellValue(p)), 0);
-        if (t.value !== sum) fail(where + ".data.total.value must equal the sum of the components that are present (" + sum + ")");
+        for (const k of ["employedYear", "selfEmployedYear"]) if (!Number.isInteger(data[k]) || data[k] < 1990 || data[k] > 2100) fail(where + ".data." + k + " must be a four-digit year");
+        if ("total" in data) fail(where + ".data.total is not allowed: employed and self-employed are not added");
         if (!Array.isArray(data.sectors) || !data.sectors.length) fail(where + ".data.sectors must be a non-empty array");
         data.sectors.forEach((s, i) => {
           if (!isStr(s.label)) fail(where + ".data.sectors[" + i + "].label is required");
@@ -281,6 +277,18 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
       if (!isQty(data[field])) fail(where + ".data." + field + " must be a number >= 0");
     }
   }
+
+  // Provenance of the estimated tourism shoreline share (Phase 7): required for a county with a marine topic.
+  const marineOn = schema.tiers[snap.tier].topics["marine-economy"].available;
+  if (marineOn) {
+    const t = isObj(snap.estimation) && snap.estimation.tourismShoreShare;
+    if (!isObj(t)) fail("estimation.tourismShoreShare is required when the marine economy topic is available");
+    for (const k of ["jobs", "establishments"]) {
+      const c = t[k];
+      if (!isObj(c) || !["calibrated", "calibrated-clamped", "zip-rule"].includes(c.method) || typeof c.share !== "number" || c.share < 0 || c.share > 1 || !(c.target2021 === null || isCount(c.target2021))) fail("estimation.tourismShoreShare." + k + " needs {method, share in [0, 1], target2021}");
+      if (c.method === "zip-rule" && c.target2021 !== null) fail("estimation.tourismShoreShare." + k + " used the ZIP rule although a 2021 target exists");
+    }
+  } else if ("estimation" in snap) fail("estimation is only for a county with a marine economy topic");
 
   if (!isObj(snap.topics)) fail("topics is required");
   const topicIds = schema.topics.map((t) => t.id);
