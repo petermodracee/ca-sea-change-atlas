@@ -834,11 +834,10 @@ legend{
   .cp{--paper:#fff;--paper-2:#fff;--ink:#000;--ink-soft:#333;--line:#bbb;--teal:#134F45;--teal-text:#134F45;--rust:#7C331D;--rust-text:#7C331D;}
   .cp .share,.cp .cp-section,.cp .cp-gap{break-inside:avoid;}
   .cp-toc,.no-print{display:none !important;}
-  .cp-bar,.cp-sec-headline,.cp-bar-natural-0{fill:#134F45;}
-  .cp-bar-s1,.cp-sec-neutral-0{fill:#DCC79A;}
-  .cp-bar-s2,.cp-sec-neutral-1,.cp-bar-neutral{fill:#555;}
-  .cp-bar-s3,.cp-bar-natural-1{fill:#7C331D;}
-  .cp-bar-s4{fill:#1B3A4B;}
+  /* Mark fills used to be hard-coded here (e.g. .cp-bar-natural-1 as rust) while the legend swatches
+     read var(--ramp-2), so print bars and their legends disagreed. Print marks now take the very same
+     var() rules as the screen and the swatches; the .cp/.cpp scopes above and below only redefine the
+     light values of those variables. */
   .cp .share-track,.cp .share-arc,.cp .cp-bar,.cp [class*="cp-sec-"],.cp [class*="cp-bar-natural-"],.cp .cp-bar-neutral,.cp .cp-bar-withheld{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
 @media (max-width:600px){
@@ -1248,7 +1247,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
    ================================================================================ */
 .print-only{display:none;}
 .cpp{
-  --paper:#fff;--paper-2:#fff;--ink:#000;--ink-soft:#333;--line:#bbb;--grid-line:#ccc;
+  --paper:#fff;--paper-2:#fff;--ink:#000;--ink-soft:#333;--line:#bdbdbd;--grid-line:#ccc;
   --teal:#134F45;--teal-text:#134F45;--rust:#7C331D;--rust-text:#7C331D;--sand-deep:#DCC79A;--navy-2:#1B3A4B;
   --ramp-0:#6DB3A4;--ramp-1:#4A9A8B;--ramp-2:#2C8070;--ramp-3:#1F6A5D;--ramp-4:#134F45;--onfill-headline:#fff;
   color:#000;background:#fff;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:10.5pt;line-height:1.4;
@@ -1302,16 +1301,15 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp .cpd-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:3pt 12pt;margin:4pt 0;padding:0;list-style:none;font-size:9pt;color:#000;}
 .cpp .cpd-legend li{display:inline-flex;align-items:center;gap:4pt;white-space:normal;}
 .cpp .cpd-swatch{width:10pt;height:10pt;border:1px solid #000;flex:none;}
-.cpp .cpd-legend .cp-bar-s0{background:#134F45;} .cpp .cpd-legend .cp-bar-s1{background:#DCC79A;} .cpp .cpd-legend .cp-bar-s2{background:#555;}
+/* Legend swatches and marks both read the same var() rules as the screen (the .cpp scope only supplies
+   light values), so they cannot drift. The exceptions are the greyscale pairs below, each written next
+   to its twin: a rust series is a hatch and a navy series a dot pattern, in the bar AND its swatch. */
 .cpp .cpd-legend .cp-bar-s3{background:repeating-linear-gradient(45deg,#7C331D 0 2.5pt,#F3EFE0 2.5pt 4.5pt);}
+.cpp .cp-bar-s3{fill:url(#cpp-hatch);}
 .cpp .cpd-legend .cp-bar-s4{background:radial-gradient(circle,#F3EFE0 1.2pt,#1B3A4B 1.4pt) 0 0/4pt 4pt;}
-.cpp .cpd-legend .cpd-dot-0{background:#134F45;border-radius:50%;} .cpp .cpd-legend .cpd-dot-1{background:#DCC79A;border-radius:50%;}
-.cpp .cpd-legend .cpd-dot-2{background:#fff;border:2px solid #000;border-radius:50%;}
-.cpp .cpd-legend .cpd-ramp-0{background:#6DB3A4;} .cpp .cpd-legend .cpd-ramp-1{background:#4A9A8B;} .cpp .cpd-legend .cpd-ramp-2{background:#2C8070;}
-.cpp .cpd-legend .cpd-ramp-3{background:#1F6A5D;} .cpp .cpd-legend .cpd-ramp-4{background:#134F45;}
-.cpp .cp-bar-s3{fill:url(#cpp-hatch);} .cpp .cp-bar-s4{fill:url(#cpp-dots);}
-/* The alternating neutral sectors carry dark icons, so both stay light; a sector is named by its icon and the legend. */
-.cpp .cp-sec-neutral-0{fill:#DCC79A;} .cpp .cp-sec-neutral-1{fill:#BDBDBD;}
+.cpp .cp-bar-s4{fill:url(#cpp-dots);}
+.cpp .cpd-legend .cpd-dot-0,.cpp .cpd-legend .cpd-dot-1,.cpp .cpd-legend .cpd-dot-2{border-radius:50%;}
+.cpp .cpd-legend .cpd-dot-2{background:#fff;border:2px solid #000;}
 /* The 11-row wages plot plus its data table is taller than a page (707pt vs 662pt usable), so it would split; cap the plot so the section fits. */
 .cpp .cpd-chart-dotplot svg{max-height:3.3in;}
 .cpp .cpd-dot-2{fill:#fff;stroke:#000;stroke-width:4;}
@@ -1319,7 +1317,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp [hidden]{display:revert;}
 .cpp svg [hidden]{display:inline;}
 .cpp .cpd-col:not(.cpd-col-active){fill:revert-layer;opacity:1;}
-.cpp .cpd-col.cpd-ramp-0{fill:#6DB3A4;} .cpp .cpd-col.cpd-ramp-1{fill:#4A9A8B;} .cpp .cpd-col.cpd-ramp-2{fill:#2C8070;} .cpp .cpd-col.cpd-ramp-3{fill:#1F6A5D;} .cpp .cpd-col.cpd-ramp-4{fill:#134F45;}
+.cpp .cpd-col.cpd-ramp-0{fill:var(--ramp-0);} .cpp .cpd-col.cpd-ramp-1{fill:var(--ramp-1);} .cpp .cpd-col.cpd-ramp-2{fill:var(--ramp-2);} .cpp .cpd-col.cpd-ramp-3{fill:var(--ramp-3);} .cpp .cpd-col.cpd-ramp-4{fill:var(--ramp-4);}
 .cpp .cpd-col-extra{opacity:1;}
 /* Five labels per group collide at paper width; every exact figure is in the data table printed under the chart. */
 .cpp .cpd-col-chart .cpd-vlabel[data-cpd-collabel]{display:none;}

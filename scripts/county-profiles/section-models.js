@@ -25,10 +25,12 @@ const sum = (xs) => xs.reduce((a, b) => a + b, 0);
 const PARTIAL_MARK = "*";
 const SECTOR_MEASURES = [
   { key: "establishments", label: "Establishments", fmt: num },
-  { key: "wages", label: "Wages", fmt: usdWords },
+  { key: "wages", label: "Wages", fmt: usdWords, print: usdCompact },
   { key: "employment", label: "Employment", fmt: num },
-  { key: "gdp", label: "GDP", fmt: usdWords },
+  { key: "gdp", label: "GDP", fmt: usdWords, print: usdCompact },
 ];
+// `print` is what the printed data table shows: the same abbreviation as the big-number callouts
+// ("$2.81B"), so a dollar amount reads one way on paper. The screen keeps `fmt`.
 
 // Value cell -> display text; a suppressed cell has no text.
 const cellText = (v, fmt) => (isSuppressed(v) ? null : fmt(v));
@@ -237,7 +239,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         segments: data.sectors.map((s) => {
           const v = s[m.key];
           const suppressed = isSuppressed(v);
-          return { label: s.label, value: suppressed ? 0 : v, suppressed, text: suppressed ? "withheld" : m.fmt(v), isHeadline: s.label === top.label, icon: sectorIconFor(s.label) };
+          return { label: s.label, value: suppressed ? 0 : v, suppressed, text: suppressed ? "withheld" : m.fmt(v), printText: suppressed ? "withheld" : (m.print || m.fmt)(v), isHeadline: s.label === top.label, icon: sectorIconFor(s.label) };
         }),
       }));
       const partial = SECTOR_MEASURES.some((m) => data.sectors.some((s) => isSuppressed(s[m.key])));
