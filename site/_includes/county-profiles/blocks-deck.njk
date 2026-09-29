@@ -14,11 +14,11 @@
 {% endmacro %}
 
 {#- The sources line at the foot of a panel. -#}
-{% macro sources(keys, sources) %}
+{% macro sources(keys, sources, short) %}
 <div class="cpd-sources"><b>Sources</b>
 {%- for key in keys %}
 {%- set s = sources[key] %}
-<span><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a> <span class="cpd-vintage">({{ s.inline }})</span></span>
+<span>{% if short %}<span class="cpp-srcname">{{ s.label }}</span>{% else %}<a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a>{% endif %} <span class="cpd-vintage">({{ s.inline }})</span></span>
 {%- endfor %}
 </div>
 {% endmacro %}
@@ -164,12 +164,14 @@
     {%- endfor %}
     </svg>
 </div>
-<ul class="cpd-legend" aria-hidden="true">{% for name in legend %}{% set seg0 = g.rows[0].segments[loop.index0] %}<li><span class="cpd-legend-icon{{ ' cpd-legend-icon-headline' if seg0.isHeadline else '' }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="18" height="18" aria-hidden="true">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}</span>{{ name }}</li>{% endfor %}</ul>
+{%- set legendHtml %}<ul class="cpd-legend{{ ' cpp-key' if print else '' }}" aria-hidden="true">{% for name in legend %}{% set seg0 = g.rows[0].segments[loop.index0] %}<li><span class="cpd-legend-icon{{ ' cpd-legend-icon-headline' if seg0.isHeadline else '' }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="18" height="18" aria-hidden="true">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}</span>{{ name }}</li>{% endfor %}</ul>{% endset %}
+{%- if not print %}{{ legendHtml | safe }}{% endif %}
 <h4 class="sr-only">{{ title }} — data table</h4>
-<table class="{{ 'sr-only cpp-rot' if print else 'sr-only' }}">
-<thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
+<table class="{{ 'sr-only cpp-icons' if print else 'sr-only' }}">
+<thead><tr><th scope="col"></th>{% for name in legend %}{% if print %}{% set seg0 = g.rows[0].segments[loop.index0] %}<th scope="col" class="cpp-iconhead" title="{{ name }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="17" height="17" aria-hidden="true" class="cpp-headicon{{ ' cpp-headicon-headline' if seg0.isHeadline else '' }}">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}<span class="cpp-vh">{{ name }}</span></th>{% else %}<th scope="col">{{ name }}</th>{% endif %}{% endfor %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for seg in row.segments %}<td>{% if seg.suppressed %}withheld{% else %}{{ seg.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
 </table>
+{%- if print %}{{ legendHtml | safe }}{% endif %}
 {% endmacro %}
 
 {#- Vertical grouped columns: SLR People at Risk, one column per increment. Dense: styled tooltip on

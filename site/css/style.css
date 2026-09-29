@@ -1349,16 +1349,25 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp table.sr-only th:first-child{text-align:left;font-weight:600;width:24%;}
 .cpp table.sr-only caption{caption-side:top;text-align:left !important;font-size:8pt;color:#333;padding-bottom:2pt;}
 .cpp .cpp-low{display:block;font-size:7.5pt;color:#444;font-weight:400;}
-/* Many sector columns: rotate the headers so names read whole instead of breaking mid-word. */
-.cpp table.cpp-rot thead th:not(:first-child){writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;white-space:nowrap;vertical-align:bottom;height:1.55in;width:auto;padding:2pt 1pt;font-size:8pt;font-weight:600;}
-.cpp table.cpp-rot th:first-child{width:13%;}
-.cpp table.cpp-rot td{overflow-wrap:normal;font-size:7.5pt;padding-inline:1pt;}
+/* Many sector columns: the header is the sector's icon (its name is in the legend below the table, once). */
+.cpp table.cpp-icons thead th:not(:first-child){text-align:center;vertical-align:bottom;padding:2pt 1pt;}
+.cpp .cpp-headicon{fill:currentColor;color:#333;display:inline-block;vertical-align:middle;}
+.cpp .cpp-headicon-headline{color:#134F45;}
+.cpp .cpp-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+.cpp table.cpp-icons th:first-child{width:13%;}
+.cpp table.cpp-icons td{overflow-wrap:normal;font-size:7.5pt;padding-inline:1pt;}
+/* The one icon-and-name key, left aligned, in columns. */
+.cpp .cpd-legend.cpp-key{display:grid;grid-template-columns:repeat(3,1fr);justify-content:start;justify-items:start;gap:3pt 14pt;margin:6pt 0 2pt;font-size:8.5pt;}
+.cpp .cpd-legend.cpp-key li{align-items:center;}
+.cpp .cpd-legend-icon{width:14pt;height:14pt;}
+.cpp .cpd-legend-icon svg{width:12pt;height:12pt;}
+.cpp .cpp-srcname{font-weight:500;}
 .cpp .cpp-figtable caption{caption-side:top;text-align:left;font-size:8pt;color:#333;padding-bottom:2pt;}
 .cpp .cpp-horizons{margin-bottom:8pt;}
 .cpp .cpp-horizons .cpd-col-chart{max-height:2.6in;}
 .cpp h4.sr-only{position:static;width:auto;height:auto;margin:6pt 0 0;overflow:visible;clip:auto;white-space:normal;font-size:8pt;font-weight:600;color:#333;}
 /* Paper cannot be clicked: content links show their destination. Nav/decorative links carry none. */
-.cpp .cpd-sources a[href^="http"]::after{content:" <" attr(href) ">";font-size:7.5pt;color:#333;overflow-wrap:anywhere;}
+/* Per-section sources are name and vintage only; the full URLs are in the topic's closing Data, methods and citation table. */
 
 /* /print/ page: the same block shown on screen as a paper preview. */
 .cpp-preview{max-width:8.5in;margin:24px auto 60px;padding:.6in;box-shadow:0 0 0 1px #ccc;}
