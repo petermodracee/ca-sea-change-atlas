@@ -362,7 +362,7 @@ The Phase 3 gate. Phase 2 reconciled Orange County's flood and sea level rise fi
 *One value per tooltip (the real cause of the hover bug).* The shared tooltip is bound per mark and always was: the mouse handler resolves `ev.target.closest("[data-tip]")` and shows that one attribute. What showed "everything" was the attribute itself. The Phase 2 fix for the Flooded Facilities tooltip ("every segment now carries the same tooltip, one category per line") gave every segment of a bar, and both parts of a People at Risk column, a tooltip listing all categories, so on exactly the two slides with a low-lying series a hover read as the whole bar or column. Each segment now carries only its own value ("Schools at 4 ft: additional low-lying 4"). The first fix-up attempt changed the SVG accessible name, which was not the cause; that change is harmless and kept. Verified by simulating a hover on every visible mark of both slides (23 and 7 marks: exactly one visible tooltip each, equal to the mark's own `data-tip`, one line) and by a real mouse hover in the browser.
 
 ### Fix-up round after Phase 3
-*Marine economy stays on ENOW 2021 (Open ENOW has no counties).* The request was to switch county marine data to Open ENOW for newer years. NOAA's API serves Open ENOW (2001 to 2024) for California and the coastal U.S. only: every county query, Orange County's for example, returns an empty list, and NOAA's own introduction to Open ENOW says it has "no county-level reporting" by design. Mixing Open ENOW's 2024 state and national comparators with a 2021 county figure would put three dots in different years on one wage row and make the county-to-state comparison meaningless, so the marine topic stays on ENOW 2021 for all three geographies, and the choice is left to the maintainer.
+*Marine economy stays on ENOW 2021 (Open ENOW has no counties).* Superseded in Phase 7 (below): the county marine economy is now estimated from public QCEW using Open ENOW's method. The request was to switch county marine data to Open ENOW for newer years. NOAA's API serves Open ENOW (2001 to 2024) for California and the coastal U.S. only: every county query, Orange County's for example, returns an empty list, and NOAA's own introduction to Open ENOW says it has "no county-level reporting" by design. Mixing Open ENOW's 2024 state and national comparators with a 2021 county figure would put three dots in different years on one wage row and make the county-to-state comparison meaningless, so the marine topic stays on ENOW 2021 for all three geographies, and the choice is left to the maintainer.
 
 *The delta counties get a sea level rise topic.* Sacramento, San Joaquin and Yolo now have flood hazard, sea level rise and marine economy, still no total economy. The tier rule no longer withholds SLR from the delta tier; `no-slr-extent` remains the flood-only tier's rule and the section-level reason if NOAA's data has no polygon in a county that should have some. Their SLR is read from NOAA's Delta inundation file (the pipeline already read all seven regional files). Total economy's *Coastal Jobs Are Vulnerable* needs the total economy and stays out of the delta tier.
 
@@ -378,6 +378,318 @@ The footer carries data-as-of, snapshot, method version and the dated URL, and n
 *Refactor.* The inside of a section's panel moved to `section-body.njk`, included by the deck slide and by the print block. The built HTML of every existing page is unchanged apart from the added print block, the landing page's Print controls and a body class.
 
 *No NOAA-style sidebar callout in print.* NOAA's print view sets the headline figure in a tinted box beside the section's prose. We keep the callout inline, above the visual. Tried as a CSS-only experiment on Contra Costa (a grid with the figure wrapper set to `display: contents`, so nothing was built): our callouts are one line, and boxed into a narrow column they grow from about 125–150pt to 360–465pt per topic, because the box ends up taller than the prose it sits beside. Sections grew 6–11% in total, sea level rise went from 6 pages to 7 and the other topics stayed put. NOAA's shorter print comes from elsewhere: pie charts, no printed data tables, one-line sources and no closing About page. The printed data tables stay (exact figures matter and thin segments can't be labelled), and per-section sources print name and vintage only, with URLs in the closing citation table. Revisit only if the callout is made shorter than its prose.
+
+### Phase 7: marine and total economy from public QCEW
+
+**Why, and a correction to the spec.** The original ENOW county figures stop at 2021 and were built from confidential BLS establishment-level microdata that NOAA can no longer use, so they cannot be reproduced. The spec's Phase 3 and Phase 7 paragraphs are partly stale: Open ENOW state figures were never a stand-in that shipped (the marine topic stayed on ENOW 2021, see "Fix-up round after Phase 3"), and the original recipe cannot be rebuilt from public data. NOAA's public workaround, [Open ENOW](https://coast.noaa.gov/data/digitalcoast/pdf/enow-introducing-open.pdf) (March 2026), uses public QCEW, an imputation ladder for withheld cells, Census ZIP Code Business Patterns for the shoreline share of tourism and recreation, and BEA GDP by industry, and publishes California and the coastal U.S. only ("no county-level reporting"). Phase 7 re-implements that documented method at county level, stopping before the state roll-up. The county figures are therefore our estimates, and noisier than NOAA's state ones (the tables below measure how much).
+
+**Reachability (stop-and-report point 2).** BLS (`data.bls.gov`), the Census Bureau (`www2.census.gov`, `tigerweb.geo.census.gov`), BEA (`apps.bea.gov`) and NOAA (`coast.noaa.gov`) all answered from the development machine on 2026-09-29. **Not verified:** that the Actions runner can reach them, and BLS in particular, which is the source most likely to treat a cloud address differently. The pipeline sends a descriptive User-Agent (`CASCA-county-profiles/1.0 (California Sea Change Atlas; site and repository URLs)`). The first dispatch of the workflow is the test. The dataset page the brief named (`coast.noaa.gov/data/datasets/datasets/open-enow.html`) returns 404; the dataset is at `coast.noaa.gov/digitalcoast/data/openenow.html` (a redirect), and its API is `coast.noaa.gov/enow/api/v1/openEnow` (California `geoid=06000`, "All Coastal States" `00000`, 2001 to 2024).
+
+**What "national" means.** The comparator called the national one is the API's "All Coastal States", the sum of the coastal portions of the 30 shoreline states, not the whole United States. That is the same footprint as the original ENOW's coastal-U.S. series and the chart's existing "Coastal U.S." label, so the label stays. Open ENOW's employment, wages and establishments run to 2024, its GDP to 2023; QCEW's newest year is 2025.
+
+**QCEW route and years.** The per-area API (`data.bls.gov/cew/data/api/<year>/a/area/<fips>.csv`) has full industry detail only from 2014 (earlier years return a stub), so every year is read from the bulk "annual by area" zips (`.../files/<year>/csv/<year>_annual_by_area.zip`, about 120 MB each; the counties and California are extracted, the raw CSVs kept in the gitignored cache and the zip deleted). Years 2012 to 2025 are read. NAICS vintages: the 2012 annual file already uses NAICS 2012 (722511 and 311710 are present, 722110 and 311711 are not), matching the year windows in Open ENOW's code tables; codes that Open ENOW lists for 2001 to 2011 or 2001 to 2016 are kept in the definitions with their windows and are simply inert before 2012 or after their window. Series for a code are therefore not joined across a vintage change (211111 and 211120, 532292 and 532284, 445220 and 445250 are separate series), and earlier years than 2012 are not estimated. A published ownership row with no entry in a county-year is a true zero; QCEW publishes establishment counts even for withheld rows.
+
+**Definitions, and every difference from the original ENOW.**
+
+| | Original ENOW | This estimate (Open ENOW's definitions) |
+|---|---|---|
+| Data | Confidential BLS establishment microdata | Public QCEW county-industry-ownership rows, imputed where withheld |
+| Extra NAICS codes | | 493190 (inside 4931, marine transportation), and 713110, 721199, 721214 and 722410 (tourism and recreation) |
+| Code length | 6-digit codes | 4- and 5-digit codes where every industry under the code is in one sector (4883, 4931, 48311, 33661, 11251, 11411): avoids withheld cells |
+| Ownership | Not stated | All ownerships (federal, state, local, private); withheld rows are estimated one ownership at a time |
+| Tourism and recreation | Establishments in shore-adjacent ZIP codes, from microdata | Hotels, restaurants and similar codes weighted by the county's share of jobs in shoreline-adjacent ZIP codes from ZIP Code Business Patterns (below) |
+| GDP | BEA-based, from microdata | County wages times California's BEA-GDP-to-QCEW-wages ratio per industry (below) |
+| Employment | Fractional (apportioned), e.g. 40,023.583 | Annual average employment as published, or imputed |
+| Years | 2005 to 2021 | 2012 to 2025 (QCEW); GDP one year behind |
+
+Which tourism codes are weighted by the ZIP share is our call, since neither the Open ENOW document nor NOAA's FAQ says: the "partly ocean-related" codes (restaurants and bars 722, lodging 721, amusement 713110 and 713990, recreation instruction 611620, nature parks and zoos 712, recreational goods rental 532284, other scenic transportation 487990) are weighted; marinas, boat dealers, scenic water tours and sporting goods manufacturing count in full. NOAA's FAQ says only hotels and restaurants are restricted to shore-adjacent ZIPs; testing that narrower rule was not done, and the broader one reproduces California (below).
+
+**Shoreline-adjacent ZIP codes (stop-and-report point 1).** (a) ZIP Code Business Patterns 2023 is the newest vintage (2024 returns 404). The detail file gives establishments by ZIP, 6-digit NAICS and nine employment-size classes; a size class with too few establishments is written `N` (withheld), and the totals file gives employment only as noised values or ranges. So a code's employment in a ZIP is estimated from the size classes (class midpoints; establishments in withheld classes are given the code's statewide average size), and a ZIP is assigned wholly to the county ZBP names for it. The share is computed once (2023) and applied to every QCEW year. (b) NOAA does not publish its shoreline-adjacent ZIP list: checked in the Open ENOW document, the ENOW FAQ, the crosswalk and county list PDFs and the Digital Coast data page. It is therefore derived: a California ZCTA is shoreline-adjacent if it lies within a set distance of the Census coastline or of the boundary of a Census tidal water area (TIGER areal hydrography, bay, estuary and ocean). The coastline file alone was tried first and is wrong for this purpose: it has the open coast but not the interior shores of San Francisco Bay (Oakland's ZCTA measured 11.6 km from it), which put the Bay counties 40 to 80 percent under the original ENOW. The distance is calibrated so that California tourism and recreation jobs match Open ENOW's, then tested where it was not fitted, against the original ENOW's 2021 county values:
+
+| distance to coast | ZIPs | CA jobs 2019 vs Open ENOW | CA jobs 2023 vs Open ENOW | 2021 county median diff vs original ENOW | median abs | mean abs |
+|---|---|---|---|---|---|---|
+| 0 m | 215 | -27.2% | -27.2% | -15.0% | 15.0% | 19.6% |
+| 250 m | 253 | -13.2% | -13.7% | -2.5% | 7.0% | 13.5% |
+| 500 m | 259 | -11.8% | -12.2% | -2.5% | 7.0% | 12.0% |
+| 1000 m | 287 | 0.4% | -0.6% | 4.0% | 7.0% | 12.4% |
+| 2000 m | 328 | 13.9% | 12.6% | 11.2% | 11.8% | 17.0% |
+| 3000 m | 372 | 26.0% | 24.8% | 19.1% | 19.1% | 25.0% |
+| 5000 m | 436 | 41.0% | 40.1% | 28.0% | 28.0% | 43.9% |
+| 8000 m | 526 | 63.7% | 63.4% | 31.7% | 31.7% | 69.3% |
+
+1,000 m is used (287 ZIPs of the 1,802 in the state; California within 1% of Open ENOW in 2019 and 2023). The county-level 2021 test is out of sample: the median county is 7% off and the mean 12%. This is a defensible share, not NOAA's list, and the About page says it is derived. Nothing was fabricated and the sector needed no fallback, so the previously shipped figures were not kept.
+
+**The imputation ladder.** Open ENOW's order of preference is implemented as written, with these deviations, all recorded: (1) the unit is a QCEW row (county, ownership, code, year), not a whole county-code cell, so a published private row is kept when the local-government row beside it is withheld; (2) the "parent" of a code is the code with its last digit dropped, and a 3-digit code's parent is its 2-digit sector (the ladder's 5-digit and 4-digit levels, generalised to Open ENOW's 4- and 5-digit codes), and a withheld parent for the row's ownership falls back to the parent summed over ownerships when every one of those rows is published; (3) step 5 (a broader parent in another year) originally found nothing for 821 of 14,742 county-code-year cells across all 27 counties (5.6%), almost all tiny cells of one to three establishments in small counties; it now also looks at later years and then at higher parents (never the all-industry total), leaving 12 of 11,496 rows unresolved in the 23 marine counties (0.1%) and none in the 2025 headline year, so no snapshot figure is currently withheld or partial. Every county-code-year-ownership row's state (published, or which step) is in `.cache/enow-cells-<fips>.json` on every run. Of the 2025 rows, 423 of 833 marine county-code-ownership rows are published as they stand, 242 are estimated by step 2 (California-scaled), 30 by step 3, 17 by step 4 and 121 by step 5; none needed step 1 (the newest year has no later value to interpolate to) and none is unresolved.
+
+**Plausibility check.** Where a published parent exists, an estimated row must not push the parent's children above it (published siblings plus estimated rows, same county, ownership and year, employment and wages checked separately). Across the 23 marine counties and 2012 to 2025 there were 367 (201 on employment and 166 on wages; 328 under a 5-digit parent and 39 under a 3-digit one) violations. Each is handled the same way: the estimated rows under that parent are scaled down together to the room the parent leaves (never below zero), and the event is logged (`capToParents` in `impute.js`). In total the cap removed about 9,000 estimated job-years across all years and counties.
+
+**GDP.** Sector GDP is the county's wages times California's ratio of BEA GDP (SAGDP2, current dollars, millions) to QCEW wages for the same industry and year, as Open ENOW describes, computed at the row level. BEA's private-industry lines exclude government, so private rows use the private ratio (BEA line over QCEW private wages of the line's NAICS codes) and government-owned rows use BEA's government ratio (Government and government enterprises over all government wages). The marine sectors use the other reading, all-ownership wages in the denominator for every row (the literal reading of Open ENOW's text), because it fits Open ENOW's California GDP better: tourism and recreation GDP is +2.0% off in 2023 against +6.8% with the ownership split, and every other sector is within about a point either way. The total economy keeps the ownership split, because its Public administration sector has no BEA line to divide by. GDP runs one year behind: BEA publishes the broad sectors for 2025 but the detailed industries only to 2024, so marine GDP is 2024 (with the county's 2024 wages) and total economy GDP, which uses sector lines, is 2025. Each has its own source entry and a one-line note on the slide. Mapping of marine NAICS codes to BEA lines (the finest line that contains the code):
+
+| NAICS code(s) | BEA SAGDP2 line |
+|---|---|
+| 11251, 11411 | 113-115, Forestry, fishing, and related activities |
+| 311710 (311711, 311712 before 2012) | 311-312, Food and beverage and tobacco products |
+| 424460 | 42, Wholesale trade |
+| 445250 (445220), 441222 | 44-45, Retail trade |
+| 237990 | 23, Construction |
+| 334511 | 334, Computer and electronic products |
+| 48311, 4883 | 483, Water transportation |
+| 4931 | 493, Warehousing and storage |
+| 211111, 211112, 211120, 211130 | 211, Oil and gas extraction |
+| 212321, 212322 | 212, Mining (except oil and gas) |
+| 213111, 213112 | 213, Support activities for mining |
+| 541360 | 5412-5414 and 5416-5419, Other professional, scientific and technical services |
+| 33661 | 3364-3466 and 3369, Other transportation equipment (BEA's own line label) |
+| 339920 | 339, Miscellaneous manufacturing |
+| 487210, 487990 | 487-488 and 492, Other transportation and support activities |
+| 532284 (532292) | 532-533, Rental and leasing services |
+| 611620 | 61, Educational services |
+| 712130, 712190 | 711-712, Arts, entertainment and museums |
+| 713110, 713930, 713990 | 713, Amusements, gambling and recreation |
+| 721110, 721191, 721199, 721211, 721214 | 721, Accommodation |
+| 722xxx | 722, Food services and drinking places |
+
+Several lines are broader than the marine codes in them (fishing shares BEA's line with forestry; seafood processing with all food manufacturing), which is how Open ENOW's ratio approach works too; a marine industry's real GDP per wage dollar can differ from its BEA line's. GDP is the noisiest of the four measures (sum check below).
+
+**Estimated share threshold.** `ESTIMATED_SHARE_THRESHOLD` is 0.25: a figure is marked "estimated" when a quarter or more of its value is imputed. Reasoning: a figure's likely error is roughly its imputed share times the median imputation error (6 to 27% by step, backtest below), so a quarter imputed is a figure a few percent uncertain, and marking below that would mark nearly every figure without telling the reader anything. It is one named constant, and the snapshot stores the share either way, so it can be tuned without a recompute. The distribution across the 27 snapshots:
+
+- Estimated state: threshold 0.25 (scripts/county-profiles/estimated.js). 571 economy figures carry provenance; 314 reach the threshold and are marked, 257 do not.
+- imputed share, quantiles: 10% 0.0159, 25% 0.0864, median 0.3466, 75% 1, 90% 1; ladder step used (weakest): {"1":9,"2":139,"3":41,"4":30,"5":352}
+- at other thresholds, figures marked: 0.05 -> 480; 0.1 -> 407; 0.25 -> 314; 0.5 -> 260; 0.75 -> 231
+
+
+**Total economy.** All-industry county totals from QCEW, the eleven sectors as groups of 2-digit NAICS sectors, GDP by the same method, self-employed workers from Census Nonemployer Statistics 2023 (unchanged). GDP is allocated by NAICS sector, private wages at the private ratio and government-owned wages at the government ratio, so schools and hospitals run by government stay under Education and health services, as in the employment chart. A BEA-classification variant (all government in Public administration) was tried and dropped: it matched NOAA's Education and health services GDP better (10.7% median difference against 66%) but made Public administration several times NOAA's, and disagrees with the employment chart. Jobs, wages and establishments match NOAA's Total Economy (Coastal) series exactly in 2023 (the series is public QCEW), which is a check that the new totals are right, not independent validation.
+
+**Vintages, and where they look misleading.** Every source shows its own newest year in the sources table and the About slide; the headline year is QCEW's. Places where two years meet, each stated on its slide: (a) GDP against jobs, wages and establishments (2024 against 2025 for marine); (b) the marine wages chart, whose comparators end in 2024, so its county dot is 2024 while the other slides are 2025; the total economy wages chart is 2023 for the same reason (the choice between using the county's newest year and matching the comparators' year was made for matching, so a dot is never compared with a dot from another year; the cost is a slide whose year differs from its neighbours'); (c) Total Jobs adds employed (2025) and self-employed at their own year (2023 total economy; 2021 marine, NOAA's series ends there), and the marine total mixes four years, which is the most misleading number on the pages and is labelled; (d) marine jobs as a share of total jobs uses one year (QCEW's) for both.
+
+**Comparison with what shipped, and what moved.** Marine jobs are 2025 estimates against Phase 3's 2021 ENOW, so they include four more years of change and the five extra NAICS codes, and are not comparable to it as a trend. Definitions and the county figures changed for every county with a marine topic; the counties, tiers, topics and reason codes did not. All 54 snapshot files (27 dated, 27 latest) have identical flood hazard, sea level rise, gauge and identity content before and after (`analysis/diff-hazard.js`).
+
+**Validation.** Results only; a poor result ships and is reported. Reproduce with `node scripts/county-profiles/analysis/economy-validation.js`.
+
+*1. Imputation backtest.* Published county-code-ownership-year rows (2012 to 2025) were hidden one at a time, the ladder run on the rest of the data, and the estimate compared with the truth. Each step is run alone on every row it can estimate; "as run" is the first step that applies. A parent with one child is identical to that child and QCEW would withhold it too, so identical ancestors are hidden with the row. The backtest is an optimistic measure of the real thing: withheld cells are withheld because one or few employers dominate them, which published cells are not.
+
+By ladder step (each step run alone on every row it can estimate; "as run" is the first step that applies):
+
+|  | n | median abs % error (employment) | mean | 90th percentile | employment-weighted | median abs % error (wages) | median signed error (employment) |
+|---|---|---|---|---|---|---|---|
+| step 1 (interpolated) | 4656 | 5.2% | 12.1% | 27.2% | 4.8% | 5.8% | -0.3% |
+| step 2 (state-scaled) | 3852 | 6.4% | 14.9% | 31.7% | 2.8% | 6.8% | 0.4% |
+| step 3 (establishment-scaled) | 5863 | 7.7% | 15.9% | 35.1% | 6.4% | 9.5% | 0.0% |
+| step 4 (parent average, same year) | 1935 | 17.9% | 46.6% | 78.8% | 17.2% | 26.0% | 1.9% |
+| step 5 (parent average, earlier year) | 5910 | 26.6% | 82.1% | 199.4% | 21.8% | 30.5% | 5.4% |
+| as run (ladder order) | 5912 | 5.7% | 14.6% | 29.7% | 4.5% | 6.3% | -0.1% |
+
+By sector (as run):
+
+|  | n | median abs % error (employment) | mean | 90th percentile | employment-weighted | median abs % error (wages) | median signed error (employment) |
+|---|---|---|---|---|---|---|---|
+| Living Resources | 475 | 7.1% | 22.4% | 41.7% | 6.6% | 10.1% | -0.2% |
+| Marine Construction | 246 | 10.1% | 21.7% | 44.8% | 10.7% | 11.7% | -0.6% |
+| Marine Transportation | 656 | 6.5% | 17.7% | 29.7% | 6.1% | 6.1% | -0.4% |
+| Offshore Mineral Resources | 316 | 10.5% | 27.3% | 62.1% | 14.6% | 12.9% | 0.0% |
+| Ship and Boat Building | 75 | 8.0% | 13.5% | 30.7% | 3.6% | 7.9% | 1.3% |
+| Tourism and Recreation | 4144 | 5.0% | 11.8% | 26.7% | 4.3% | 5.4% | -0.1% |
+
+Worst cases with at least 20 true jobs (as run):
+
+| county | code | ownership | year | true jobs | estimated | step | error |
+|---|---|---|---|---|---|---|---|
+| Los Angeles | 213111 | 5 | 2016 | 49 | 333 | 1 | 579.2% |
+| Santa Clara | 237990 | 5 | 2021 | 40 | 232 | 1 | 478.7% |
+| Santa Clara | 713110 | 5 | 2020 | 323 | 1,518 | 1 | 369.8% |
+| Humboldt | 311710 | 5 | 2025 | 34 | 144 | 2 | 322.4% |
+| Contra Costa | 713110 | 5 | 2020 | 44 | 182 | 1 | 312.9% |
+| San Luis Obispo | 4931 | 5 | 2012 | 34 | 127 | 2 | 273.1% |
+| Santa Cruz | 339920 | 5 | 2014 | 27 | 92 | 1 | 240.7% |
+| Solano | 237990 | 5 | 2012 | 94 | 280 | 3 | 197.9% |
+
+Rows tested: 5912 published county-code-ownership-year rows with positive employment (23 counties, 2012 to 2025).
+
+*2. Sum check.* Our 23 county estimates summed by sector and year against Open ENOW's California figures. The five non-tourism sectors' jobs and wages agree within a few percent in most years (offshore minerals swings by up to 10% because of its few large cells); establishments agree to the unit except ship and boat building (about 20% below Open ENOW every year, cause not found: QCEW counts for 33661 are published, so the difference is in how Open ENOW counts them) and tourism (4 to 6% below, ZIP-weighted). GDP is the noisiest (Living resources 10 to 17% low, offshore minerals 19 to 30% low in most years, tourism 1 to 5% high); 2024 marine transportation GDP is 20% high, where our BEA line is real 2024 data and Open ENOW's 2024 GDP is not yet a full-year figure.
+
+Employment (ours minus Open ENOW, as % of Open ENOW; California):
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Living Resources | -8.2% | -8.2% | -7.5% | -5.4% | -6.3% | -6.4% | -5.4% | -4.7% | -5.4% | -6.2% |
+| Marine Construction | +0.4% | +0.6% | +0.8% | +0.4% | +0.6% | +0.6% | +0.7% | +0.3% | +0.4% | +0.3% |
+| Marine Transportation | -1.8% | -1.4% | -1.2% | -0.8% | -0.7% | -0.2% | -0.2% | -0.4% | -0.4% | +0.1% |
+| Offshore Mineral Resources | +7.7% | +9.7% | -8.3% | -3.4% | -1.5% | -0.4% | +2.5% | -0.1% | +2.9% | +4.4% |
+| Ship and Boat Building | -4.0% | -5.5% | -6.0% | -3.3% | -4.3% | -4.0% | -6.0% | -7.0% | -7.3% | -5.6% |
+| Tourism and Recreation | -1.7% | -1.6% | -0.2% | -0.7% | +0.4% | +0.3% | +3.1% | -2.0% | -0.6% | -0.8% |
+
+Wages (ours minus Open ENOW, as % of Open ENOW; California):
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Living Resources | -9.8% | -10.0% | -7.7% | -4.5% | -5.8% | -6.2% | -4.3% | -3.7% | -4.3% | -4.9% |
+| Marine Construction | +0.3% | +0.5% | +0.5% | +0.2% | +0.4% | +0.4% | +0.5% | -0.3% | -0.2% | -0.3% |
+| Marine Transportation | -0.5% | -0.7% | -1.0% | -1.0% | -0.6% | -0.1% | +0.1% | -0.5% | -0.3% | +0.1% |
+| Offshore Mineral Resources | +9.2% | +16.2% | -14.0% | -11.5% | -9.6% | -4.9% | -1.7% | -3.7% | -2.5% | -3.0% |
+| Ship and Boat Building | +0.3% | -2.4% | -2.1% | +2.2% | +1.0% | +1.5% | -1.7% | -2.0% | -2.0% | -0.1% |
+| Tourism and Recreation | +1.0% | +1.0% | +2.3% | +1.8% | +2.7% | +2.7% | +5.8% | +0.3% | +1.6% | +1.2% |
+
+Establishments (ours minus Open ENOW, as % of Open ENOW; California):
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Living Resources | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.2% |
+| Marine Construction | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.4% |
+| Marine Transportation | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.1% |
+| Offshore Mineral Resources | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | -0.8% |
+| Ship and Boat Building | -25.7% | -20.9% | -21.4% | -21.3% | -22.5% | -21.3% | -19.7% | -18.5% | -21.1% | -21.8% |
+| Tourism and Recreation | -6.4% | -6.4% | -4.9% | -5.1% | -4.1% | -3.2% | -0.2% | -5.6% | -4.7% | -4.6% |
+
+GDP (ours minus Open ENOW, as % of Open ENOW; California):
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Living Resources | -13.5% | -11.7% | -11.8% | -9.6% | -11.1% | -15.0% | -12.9% | -16.6% | -17.3% | -2.3% |
+| Marine Construction | -4.4% | -4.8% | -5.4% | -4.6% | -4.5% | -4.3% | -4.1% | -4.6% | -4.5% | -0.2% |
+| Marine Transportation | +3.4% | +0.9% | -2.5% | -0.3% | -2.0% | -5.7% | -0.4% | +2.8% | +1.4% | +20.4% |
+| Offshore Mineral Resources | -13.5% | -2.5% | -29.7% | -27.7% | -23.2% | -21.5% | -18.7% | -21.4% | -19.6% | -8.9% |
+| Ship and Boat Building | +0.3% | -2.3% | -2.0% | +2.3% | +1.0% | +1.6% | -1.7% | -2.0% | -2.0% | -0.0% |
+| Tourism and Recreation | +0.7% | +0.9% | +2.6% | +2.0% | +2.3% | +3.3% | +5.3% | +0.9% | +2.0% | +2.8% |
+
+*3. 2021 against the original ENOW.* Our 2021 county-by-sector figures against the original ENOW's 2021 county values. Differences from definitions are removable and are removed in the second table; differences from method (public rather than confidential data) are what is left. Where less than 10% of our county figure is imputed the difference is small (Living resources 2.6%, offshore minerals 4.6% median; the third table); where more is imputed it is large (38% to 105% median): the imputed county figures overshoot the confidential ones, which is consistent with the backtest's positive median error at step 5 and with withheld cells being the concentrated ones. Marine transportation's establishment counts match exactly once 493190 is removed (median 0.0%), so all of that gap is definition; its employment gap is imputation.
+
+Employment, county by sector, 2021 (ours against the original ENOW; cells the original withholds or reports as zero are skipped):
+
+| sector | counties | median difference (signed) | median abs | mean abs | 90th percentile abs |
+|---|---|---|---|---|---|
+| Living Resources | 19 | 17.1% | 17.1% | 125.8% | 719.1% |
+| Marine Construction | 18 | 0.0% | 0.0% | 0.8% | 0.9% |
+| Marine Transportation | 22 | 30.7% | 30.7% | 593.8% | 147.2% |
+| Offshore Mineral Resources | 9 | 21.5% | 21.5% | 56.8% | 195.0% |
+| Ship and Boat Building | 3 | 0.0% | 0.0% | 28.9% | 86.6% |
+| Tourism and Recreation | 19 | 4.0% | 7.0% | 12.4% | 26.3% |
+
+Wages, county by sector, 2021 (ours against the original ENOW; cells the original withholds or reports as zero are skipped):
+
+| sector | counties | median difference (signed) | median abs | mean abs | 90th percentile abs |
+|---|---|---|---|---|---|
+| Living Resources | 19 | 13.4% | 13.4% | 185.5% | 903.4% |
+| Marine Construction | 18 | 0.0% | 0.0% | 0.2% | 0.4% |
+| Marine Transportation | 22 | 33.7% | 33.7% | 1307.1% | 180.2% |
+| Offshore Mineral Resources | 9 | 21.9% | 21.9% | 53.1% | 214.5% |
+| Ship and Boat Building | 3 | 0.0% | 0.0% | 37.7% | 113.2% |
+| Tourism and Recreation | 19 | 3.9% | 7.5% | 12.3% | 29.8% |
+
+Establishments, county by sector, 2021 (ours against the original ENOW; cells the original withholds or reports as zero are skipped):
+
+| sector | counties | median difference (signed) | median abs | mean abs | 90th percentile abs |
+|---|---|---|---|---|---|
+| Living Resources | 19 | 0.0% | 0.0% | 0.2% | 1.3% |
+| Marine Construction | 18 | 0.0% | 0.0% | 0.0% | 0.0% |
+| Marine Transportation | 22 | 10.6% | 10.6% | 10.2% | 19.0% |
+| Offshore Mineral Resources | 9 | 0.0% | 0.0% | 0.0% | 0.0% |
+| Ship and Boat Building | 3 | 0.0% | 0.0% | 0.0% | 0.0% |
+| Tourism and Recreation | 19 | 0.5% | 8.2% | 10.8% | 18.5% |
+
+GDP, county by sector, 2021 (ours against the original ENOW; cells the original withholds or reports as zero are skipped):
+
+| sector | counties | median difference (signed) | median abs | mean abs | 90th percentile abs |
+|---|---|---|---|---|---|
+| Living Resources | 19 | 11.9% | 13.5% | 192.2% | 1284.1% |
+| Marine Construction | 18 | 5.5% | 5.5% | 5.8% | 6.0% |
+| Marine Transportation | 22 | 68.2% | 68.2% | 1584.2% | 216.7% |
+| Offshore Mineral Resources | 9 | 19.9% | 19.9% | 144.1% | 1041.8% |
+| Ship and Boat Building | 3 | 5.2% | 5.2% | 44.9% | 124.2% |
+| Tourism and Recreation | 19 | 4.2% | 7.7% | 12.9% | 32.6% |
+
+Definition-adjusted (our figures with Open ENOW's extra NAICS codes removed: 713110, 721199, 721214 and 722410 dropped from tourism and recreation, and the published 493190 subtracted from marine transportation; withheld 493190 rows cannot be subtracted):
+
+| sector | measure | counties | median difference | median abs | mean abs |
+|---|---|---|---|---|---|
+| Tourism and Recreation | employment | 19 | 2.4% | 6.3% | 11.1% |
+| Tourism and Recreation | establishments | 19 | -3.8% | 9.2% | 11.1% |
+| Marine Transportation | employment | 22 | 30.7% | 30.7% | 592.5% |
+| Marine Transportation | establishments | 22 | 0.0% | 0.0% | 1.6% |
+
+The same employment comparison split by how much of our county figure was imputed (below or at least 10%):
+
+| sector | counties, imputed < 10% | median difference | counties, imputed >= 10% | median difference |
+|---|---|---|---|---|
+| Living Resources | 8 | 2.6% | 11 | 38.4% |
+| Marine Transportation | 12 | 15.5% | 10 | 105.0% |
+| Offshore Mineral Resources | 3 | 4.6% | 6 | 67.8% |
+| Tourism and Recreation | 14 | 5.3% | 5 | -0.5% |
+
+By county, ocean-economy employment (sum of the six sectors), 2021:
+
+| county | original ENOW | ours | difference |
+|---|---|---|---|
+| Alameda | 38,262 | 39,298 | +2.7% |
+| Contra Costa | 14,170 | 12,975 | -8.4% |
+| Del Norte | 923 | 912 | -1.2% |
+| Humboldt | 4,012 | 4,085 | +1.8% |
+| Los Angeles | 108,272 | 119,757 | +10.6% |
+| Marin | 9,599 | 9,546 | -0.6% |
+| Mendocino | 1,981 | 2,194 | +10.8% |
+| Monterey | 13,505 | 14,087 | +4.3% |
+| Napa | 616 | 639 | +3.8% |
+| Orange | 49,393 | 51,180 | +3.6% |
+| San Diego | 101,428 | 98,296 | -3.1% |
+| San Francisco | 36,997 | 39,996 | +8.1% |
+| San Luis Obispo | 8,825 | 11,046 | +25.2% |
+| San Mateo | 24,904 | 23,775 | -4.5% |
+| Santa Barbara | 16,279 | 19,245 | +18.2% |
+| Santa Clara | 6,197 | 3,649 | -41.1% |
+| Santa Cruz | 8,914 | 9,876 | +10.8% |
+| Solano | 5,529 | 5,819 | +5.2% |
+| Sonoma | 5,469 | 6,367 | +16.4% |
+| Ventura | 16,284 | 14,659 | -10.0% |
+| Sacramento | 6,452 | 6,804 | +5.4% |
+| San Joaquin | 27,506 | 30,597 | +11.2% |
+| Yolo | 3,659 | 4,151 | +13.5% |
+
+*4. Total economy.* Against NOAA's Total Economy (Coastal) series for 2023 (which is what Phase 3 shipped), and the change to the new headline year:
+
+Ours (QCEW, 2023) against NOAA Total Economy (Coastal), 2023, county totals, 20 full-tier counties:
+
+|  | counties | median difference | median abs | 90th percentile abs | max abs |
+|---|---|---|---|---|---|
+| Establishments | 20 | 0.0% | 0.0% | 0.0% | 0.0% |
+| Jobs | 20 | 0.0% | 0.0% | 0.0% | 0.0% |
+| Wages | 20 | -0.0% | 0.0% | 0.0% | 0.0% |
+| GDP | 20 | -7.1% | 7.1% | 13.4% | 18.9% |
+
+By sector, employment, and wages, and GDP (median abs difference across counties; NOAA cells withheld or zero are skipped):
+
+| sector | counties | employment: median difference | median abs | wages: median abs | GDP: median abs |
+|---|---|---|---|---|---|
+| Construction | 20 | 0.0% | 0.0% | 0.0% | 1.9% |
+| Financial activities | 20 | 0.0% | 0.0% | 0.0% | 13.6% |
+| Education and health services | 20 | 0.0% | 0.0% | 0.0% | 65.9% |
+| Information | 20 | 0.0% | 0.0% | 0.0% | 9.3% |
+| Leisure and hospitality | 20 | 0.0% | 0.0% | 0.0% | 6.9% |
+| Manufacturing | 20 | 0.0% | 0.0% | 0.0% | 9.6% |
+| Natural resources and mining | 20 | 0.0% | 0.0% | 0.0% | 8.2% |
+| Other services | 20 | 0.0% | 0.0% | 0.0% | 23.6% |
+| Professional and business services | 20 | 0.0% | 0.0% | 0.0% | 5.4% |
+| Public administration | 20 | 0.0% | 0.0% | 0.0% | 119.5% |
+| Trade, transportation, and utilities | 20 | 0.0% | 0.0% | 0.0% | 2.3% |
+
+Ours (QCEW, 2023) against what Phase 3 shipped (NOAA's 2023 series):
+
+|  | counties | median difference | median abs | 90th percentile abs | max abs |
+|---|---|---|---|---|---|
+| Establishments | 20 | 0.0% | 0.0% | 0.0% | 0.0% |
+| Jobs | 20 | 0.0% | 0.0% | 0.0% | 0.0% |
+| Wages | 20 | -0.0% | 0.0% | 0.0% | 0.0% |
+| GDP | 20 | -7.1% | 7.1% | 13.4% | 18.9% |
+
+Change from what Phase 3 shipped (2023) to the new headline year:
+
+|  | median change in jobs | median change in wages |
+|---|---|---|
+| all 20 counties | 0.7% | 8.4% |
+
+**Pre-publication reset of the archive.** Nothing has been published, so the existing `2026-09-24` snapshots were regenerated in place rather than minting a new dated snapshot (`run.js --economy-only --reset-archive`, which keeps the snapshot date and overwrites both the dated file and `latest/`). This is a deliberate exception to "a published dated snapshot is never edited" and applies only because the snapshot has never been published; the archive holds one real snapshot at launch. `check-archive.js` compares dated files against git (HEAD by default, which is what the workflow uses), so committing the regenerated files resets its baseline and it passes; run against the previous branch (`--base origin/feat/county-profiles-phase-6`) it correctly reports the rewrite. `method` stays 1.
+
+**Runtime and memory.** A cold run of the whole economy pipeline for all 27 counties (`run.js all --economy-only --refresh` with the economy cache emptied) took 1,610 s (27 minutes) of wall time with a peak working set of 778 MB on the development machine, of which nearly all is the 14 annual BLS zips (about 120 MB each, 35 s each in one run and about 2 minutes each in this one) and one minute is the ZIP-to-coast distance calculation; the ladder, GDP and section builds for all 27 counties take about 5 s once the data are cached. Against the workflow's 350-minute and 14 GB budget that is about 8% of the time and 6% of the memory added to a run that recomputes any county, and it is paid on every such run, because the runner keeps no cache and the QCEW year files are needed whole however few counties are recomputed. `--economy-only` is not used by the workflow.
+
+**Not done.** The About page has a marked spot for the plain-language explanation and the backtest quote; neither is written. The ZBP share is one vintage applied to every year. QCEW years before 2012 are not estimated. A 2025 GDP is not produced for the marine industries because BEA has not published the detailed lines. The Actions runner's access to BLS and the workflow's end-to-end run are untested.
 
 ## Behavior
 

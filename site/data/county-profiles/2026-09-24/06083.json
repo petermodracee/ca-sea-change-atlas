@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-24T11:26:20Z",
+  "generated": "2026-09-29T10:07:40Z",
   "gauge": {
     "id": "santa-barbara",
     "name": "Santa Barbara",
@@ -167,16 +167,6 @@
       "retrieved": "2026-09-24",
       "verified": "2026-09-24"
     },
-    "enow": {
-      "label": "NOAA Economics: National Ocean Watch (ENOW)",
-      "url": "https://coast.noaa.gov/digitalcoast/data/enow.html",
-      "vintage": {
-        "kind": "year",
-        "year": 2021
-      },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
-    },
     "enow-self": {
       "label": "NOAA ENOW self-employed workers",
       "url": "https://coast.noaa.gov/digitalcoast/data/enow-nes.html",
@@ -184,28 +174,18 @@
         "kind": "year",
         "year": 2021
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
     },
     "coastal-economy": {
-      "label": "NOAA Total Economy (Coastal)",
+      "label": "NOAA Total Economy (Coastal), coastal California and coastal U.S.",
       "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
       "vintage": {
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
-    },
-    "coastal-economy-marine-base": {
-      "label": "NOAA Total Economy (Coastal), same year as ENOW",
-      "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
-      "vintage": {
-        "kind": "year",
-        "year": 2021
-      },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
     },
     "nes": {
       "label": "Census Nonemployer Statistics",
@@ -214,8 +194,78 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
+    },
+    "qcew": {
+      "label": "BLS Quarterly Census of Employment and Wages (annual averages)",
+      "url": "https://www.bls.gov/cew/",
+      "vintage": {
+        "kind": "year",
+        "year": 2025
+      },
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
+    },
+    "qcew-wages": {
+      "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
+      "url": "https://www.bls.gov/cew/",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
+      },
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
+    },
+    "bea-marine": {
+      "label": "BEA GDP by state and industry (SAGDP2), California",
+      "url": "https://www.bea.gov/data/gdp/gdp-industry",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
+      },
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
+    },
+    "zbp": {
+      "label": "Census ZIP Code Business Patterns and shoreline-adjacent ZIP codes",
+      "url": "https://www.census.gov/programs-surveys/cbp/data/datasets.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2023
+      },
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
+    },
+    "open-enow": {
+      "label": "NOAA Open ENOW (California and coastal U.S.)",
+      "url": "https://coast.noaa.gov/digitalcoast/data/openenow.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
+      },
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
+    },
+    "qcew-total-wages": {
+      "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
+      "url": "https://www.bls.gov/cew/",
+      "vintage": {
+        "kind": "year",
+        "year": 2023
+      },
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
+    },
+    "bea-total": {
+      "label": "BEA GDP by state and industry (SAGDP2), California",
+      "url": "https://www.bea.gov/data/gdp/gdp-industry",
+      "vintage": {
+        "kind": "year",
+        "year": 2025
+      },
+      "retrieved": "2026-09-29",
+      "verified": "2026-09-29"
     }
   },
   "topics": {
@@ -696,14 +746,17 @@
             "present": true
           },
           "sources": [
-            "coastal-economy"
+            "qcew",
+            "bea-total"
           ],
           "data": {
-            "establishments": 16765,
-            "jobs": 215839,
-            "wages": 14206742528,
-            "gdp": 36506206208,
-            "denominator": 18002892
+            "establishments": 17730,
+            "jobs": 214947,
+            "wages": 15704814634,
+            "gdp": 37272487331,
+            "denominator": 18210243,
+            "year": 2025,
+            "gdpYear": 2025
           }
         },
         "diversity": {
@@ -715,88 +768,91 @@
             "present": true
           },
           "sources": [
-            "coastal-economy"
+            "qcew",
+            "bea-total"
           ],
           "data": {
             "sectors": [
               {
                 "label": "Construction",
-                "establishments": 1354,
-                "wages": 691184320,
-                "employment": 9912,
-                "gdp": 1347706624
+                "establishments": 1412,
+                "wages": 783992196,
+                "employment": 10241,
+                "gdp": 1468987541
               },
               {
                 "label": "Financial activities",
-                "establishments": 1396,
-                "wages": 633673984,
-                "employment": 6959,
-                "gdp": 4333155328
+                "establishments": 1385,
+                "wages": 667770619,
+                "employment": 6562,
+                "gdp": 5789176825
               },
               {
                 "label": "Education and health services",
-                "establishments": 5020,
-                "wages": 3423142400,
-                "employment": 49643,
-                "gdp": 3393084160
+                "establishments": 5749,
+                "wages": 3929105881,
+                "employment": 53093,
+                "gdp": 6533778836
               },
               {
                 "label": "Information",
-                "establishments": 233,
-                "wages": 603839616,
-                "employment": 4412,
-                "gdp": 1945626624
+                "establishments": 211,
+                "wages": 652782801,
+                "employment": 3785,
+                "gdp": 1809880701
               },
               {
                 "label": "Leisure and hospitality",
-                "establishments": 1513,
-                "wages": 1121314304,
-                "employment": 31831,
-                "gdp": 2607081728
+                "establishments": 1548,
+                "wages": 1212816848,
+                "employment": 31628,
+                "gdp": 2593268279
               },
               {
                 "label": "Manufacturing",
-                "establishments": 591,
-                "wages": 1160478848,
-                "employment": 12653,
-                "gdp": 2995151872
+                "establishments": 595,
+                "wages": 1385165105,
+                "employment": 12142,
+                "gdp": 3322349297
               },
               {
                 "label": "Natural resources and mining",
-                "establishments": 613,
-                "wages": 1233566976,
-                "employment": 29581,
-                "gdp": 3676648448
+                "establishments": 589,
+                "wages": 1305952729,
+                "employment": 29689,
+                "gdp": 3740507219
               },
               {
                 "label": "Other services",
-                "establishments": 1255,
-                "wages": 351727200,
-                "employment": 7002,
-                "gdp": 1136120320
+                "establishments": 1309,
+                "wages": 391264801,
+                "employment": 7163,
+                "gdp": 952266584
               },
               {
                 "label": "Professional and business services",
-                "establishments": 2485,
-                "wages": 2505679360,
-                "employment": 26563,
-                "gdp": 4513005568
+                "establishments": 2609,
+                "wages": 2693737939,
+                "employment": 23880,
+                "gdp": 4348245915
               },
               {
                 "label": "Public administration",
                 "establishments": 108,
-                "wages": 861012352,
-                "employment": 8586,
-                "gdp": 714940608
+                "wages": 1007527068,
+                "employment": 8821,
+                "gdp": 1803807226
               },
               {
                 "label": "Trade, transportation, and utilities",
-                "establishments": 2175,
-                "wages": 1618826496,
-                "employment": 28670,
-                "gdp": 4686685696
+                "establishments": 2150,
+                "wages": 1670224149,
+                "employment": 27928,
+                "gdp": 4910218909
               }
-            ]
+            ],
+            "year": 2025,
+            "gdpYear": 2025
           }
         },
         "jobs-at-risk": {
@@ -833,6 +889,7 @@
             "present": true
           },
           "sources": [
+            "qcew-total-wages",
             "coastal-economy"
           ],
           "data": {
@@ -887,7 +944,7 @@
               },
               {
                 "label": "Professional and business services",
-                "county": 94330,
+                "county": 94333,
                 "coastalState": 129224,
                 "coastalUS": 111600
               },
@@ -903,7 +960,8 @@
                 "coastalState": 72890,
                 "coastalUS": 63631
               }
-            ]
+            ],
+            "year": 2023
           }
         },
         "total-jobs": {
@@ -915,14 +973,14 @@
             "present": true
           },
           "sources": [
-            "coastal-economy",
+            "qcew",
             "nes"
           ],
           "data": {
-            "employed": 215839,
+            "employed": 214947,
             "selfEmployed": 34724,
             "total": {
-              "value": 250563,
+              "value": 249671,
               "partial": false
             },
             "sectors": [
@@ -970,7 +1028,9 @@
                 "label": "Trade, transportation, and utilities",
                 "selfEmployed": 5201
               }
-            ]
+            ],
+            "employedYear": 2025,
+            "selfEmployedYear": 2023
           }
         }
       }
@@ -988,15 +1048,36 @@
             "present": true
           },
           "sources": [
-            "enow",
-            "coastal-economy-marine-base"
+            "qcew",
+            "bea-marine",
+            "zbp"
           ],
           "data": {
-            "establishments": 869,
-            "jobs": 16279,
-            "wages": 717771172,
-            "gdp": 1658779706,
-            "denominator": 209589
+            "establishments": 1054,
+            "jobs": {
+              "value": 20942,
+              "est": {
+                "share": 0.1475,
+                "step": 5
+              }
+            },
+            "wages": {
+              "value": 906015683,
+              "est": {
+                "share": 0.2361,
+                "step": 5
+              }
+            },
+            "gdp": {
+              "value": 1895899533,
+              "est": {
+                "share": 0.2217,
+                "step": 5
+              }
+            },
+            "denominator": 214947,
+            "year": 2025,
+            "gdpYear": 2024
           }
         },
         "diversity": {
@@ -1008,61 +1089,153 @@
             "present": true
           },
           "sources": [
-            "enow"
+            "qcew",
+            "bea-marine",
+            "zbp"
           ],
           "data": {
             "sectors": [
               {
                 "label": "Living resources",
-                "establishments": 11,
-                "wages": 3729296,
-                "employment": 93,
-                "gdp": 11765435
+                "establishments": 16,
+                "wages": {
+                  "value": 6918964,
+                  "est": {
+                    "share": 0.2301,
+                    "step": 5
+                  }
+                },
+                "employment": {
+                  "value": 143,
+                  "est": {
+                    "share": 0.2391,
+                    "step": 5
+                  }
+                },
+                "gdp": {
+                  "value": 18976640,
+                  "est": {
+                    "share": 0.1957,
+                    "step": 5
+                  }
+                }
               },
               {
                 "label": "Marine construction",
-                "establishments": 4,
-                "wages": 422197,
-                "employment": 7,
-                "gdp": 743075
+                "establishments": 1,
+                "wages": {
+                  "value": 520213,
+                  "est": {
+                    "share": 1,
+                    "step": 2
+                  }
+                },
+                "employment": {
+                  "value": 8,
+                  "est": {
+                    "share": 1,
+                    "step": 2
+                  }
+                },
+                "gdp": {
+                  "value": 885587,
+                  "est": {
+                    "share": 1,
+                    "step": 2
+                  }
+                }
               },
               {
                 "label": "Marine transportation",
                 "establishments": 32,
-                "wages": 784301,
-                "employment": 16,
-                "gdp": 1212262
+                "wages": {
+                  "value": 128938620,
+                  "est": {
+                    "share": 0.8481,
+                    "step": 4
+                  }
+                },
+                "employment": {
+                  "value": 1041,
+                  "est": {
+                    "share": 0.7165,
+                    "step": 4
+                  }
+                },
+                "gdp": {
+                  "value": 287666809,
+                  "est": {
+                    "share": 0.821,
+                    "step": 4
+                  }
+                }
               },
               {
                 "label": "Offshore mineral resources",
-                "establishments": 27,
-                "wages": 24078168,
-                "employment": 222,
-                "gdp": 248563360
+                "establishments": 24,
+                "wages": {
+                  "value": 58836118,
+                  "est": {
+                    "share": 0.7547,
+                    "step": 5
+                  }
+                },
+                "employment": {
+                  "value": 558,
+                  "est": {
+                    "share": 0.7921,
+                    "step": 5
+                  }
+                },
+                "gdp": {
+                  "value": 184620320,
+                  "est": {
+                    "share": 0.49,
+                    "step": 5
+                  }
+                }
               },
               {
                 "label": "Ship and boat building",
-                "establishments": {
-                  "suppressed": true
-                },
-                "wages": {
-                  "suppressed": true
-                },
-                "employment": {
-                  "suppressed": true
-                },
+                "establishments": 3,
+                "wages": 2356535,
+                "employment": 22,
                 "gdp": {
-                  "suppressed": true
+                  "value": 6047064,
+                  "est": {
+                    "share": 1,
+                    "step": 1
+                  }
                 }
               },
               {
                 "label": "Tourism and recreation",
-                "establishments": 780,
-                "wages": 455318694,
-                "employment": 13716,
-                "gdp": 922941449
+                "establishments": 978,
+                "wages": {
+                  "value": 708445234,
+                  "est": {
+                    "share": 0.0819,
+                    "step": 5
+                  }
+                },
+                "employment": {
+                  "value": 19170,
+                  "est": {
+                    "share": 0.097,
+                    "step": 5
+                  }
+                },
+                "gdp": {
+                  "value": 1397703113,
+                  "est": {
+                    "share": 0.0778,
+                    "step": 5
+                  }
+                }
               }
-            ]
+            ],
+            "year": 2025,
+            "gdpYear": 2024
           }
         },
         "wages": {
@@ -1074,49 +1247,86 @@
             "present": true
           },
           "sources": [
-            "enow"
+            "qcew-wages",
+            "open-enow",
+            "zbp"
           ],
           "data": {
             "items": [
               {
                 "label": "Living resources",
-                "county": 40100,
-                "coastalState": 61857,
-                "coastalUS": 56542
+                "county": {
+                  "value": 47715,
+                  "est": {
+                    "share": 0.2399,
+                    "step": 5
+                  }
+                },
+                "coastalState": 64138,
+                "coastalUS": 59563
               },
               {
                 "label": "Marine construction",
-                "county": 60314,
-                "coastalState": 126700,
-                "coastalUS": 91700
+                "county": {
+                  "value": 61809,
+                  "est": {
+                    "share": 1,
+                    "step": 2
+                  }
+                },
+                "coastalState": 135639,
+                "coastalUS": 102260
               },
               {
                 "label": "Marine transportation",
-                "county": 49019,
-                "coastalState": 88563,
-                "coastalUS": 67614
+                "county": {
+                  "value": 114540,
+                  "est": {
+                    "share": 0.821,
+                    "step": 4
+                  }
+                },
+                "coastalState": 93343,
+                "coastalUS": 72991
               },
               {
                 "label": "Offshore mineral resources",
-                "county": 108460,
-                "coastalState": 99038,
-                "coastalUS": 159405
+                "county": {
+                  "value": 114542,
+                  "est": {
+                    "share": 0.49,
+                    "step": 5
+                  }
+                },
+                "coastalState": 134731,
+                "coastalUS": 193706
               },
               {
                 "label": "Ship and boat building",
                 "county": {
-                  "suppressed": true
+                  "value": 108001,
+                  "est": {
+                    "share": 1,
+                    "step": 1
+                  }
                 },
-                "coastalState": 74698,
-                "coastalUS": 74435
+                "coastalState": 89401,
+                "coastalUS": 82170
               },
               {
                 "label": "Tourism and recreation",
-                "county": 33195,
-                "coastalState": 34207,
-                "coastalUS": 30884
+                "county": {
+                  "value": 35418,
+                  "est": {
+                    "share": 0.0936,
+                    "step": 5
+                  }
+                },
+                "coastalState": 37578,
+                "coastalUS": 35063
               }
-            ]
+            ],
+            "year": 2024
           }
         },
         "total-jobs": {
@@ -1128,14 +1338,21 @@
             "present": true
           },
           "sources": [
-            "enow",
+            "qcew",
+            "zbp",
             "enow-self"
           ],
           "data": {
-            "employed": 16279,
+            "employed": {
+              "value": 20942,
+              "est": {
+                "share": 0.1475,
+                "step": 5
+              }
+            },
             "selfEmployed": 398,
             "total": {
-              "value": 16677,
+              "value": 21340,
               "partial": false
             },
             "sectors": [
@@ -1163,7 +1380,9 @@
                 "label": "Tourism and recreation",
                 "selfEmployed": 117
               }
-            ]
+            ],
+            "employedYear": 2025,
+            "selfEmployedYear": 2021
           }
         }
       }

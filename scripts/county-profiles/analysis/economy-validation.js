@@ -51,7 +51,7 @@ async function load() {
 
 function figures(L, fips, Y, opts = {}) {
   const shares = opts.shares === undefined ? L.shoreRes.shares : opts.shares;
-  const g = E.makeGdp(L.ctx, L.gdp, opts.gdpMode || "ownership");
+  const g = E.makeGdp(L.ctx, L.gdp, opts.gdpMode || "all");
   const lines = [...new Set(Object.values(D.MARINE_CODES).flat().filter((c) => c.from <= Y && Y <= c.to).map((c) => c.bea))];
   const gy = g.yearFor(lines, Y);
   return E.marineSectors(L.ctx, L.ests[fips], fips, Y, shares, gy === Y ? { ratio: g.ratio, year: Y } : null, opts);

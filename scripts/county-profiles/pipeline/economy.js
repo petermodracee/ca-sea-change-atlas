@@ -16,8 +16,9 @@ const MARINE_SECTOR_ORDER = ["Living Resources", "Marine Construction", "Marine 
 // California's ratio of BEA GDP (SAGDP2, current dollars) to QCEW wages for the same industry and year.
 // BEA's private lines exclude government, so a private line's wage base is private (ownership 5) wages and
 // government-owned rows use the government ratio (BEA "Government" GDP over all-industry government wages).
-// `mode: "all"` uses total (all-ownership) wages for every row instead: the variant Open ENOW's own text
-// would describe, kept for the comparison in docs/DECISIONS.md.
+// `mode: "all"` uses total (all-ownership) wages for every row instead, which is what Open ENOW's text
+// describes and fits its California GDP better; the marine sectors use it, the total economy the split
+// (its sector 92 has no BEA line to divide by).
 
 function stateWages(ctx, code, owns, Y) {
   let w = 0;

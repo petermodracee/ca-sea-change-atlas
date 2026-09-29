@@ -19,9 +19,11 @@ async function loadEconomyInputs(fipsList, spine, opts) {
   const ca = await fetchOpenEnow("06000", opts);
   const us = await fetchOpenEnow("00000", opts);
   const ctx = imp.makeContext(qcew.value);
-  const g = E.makeGdp(ctx, gdp);
+  // Marine: county wages times the state ratio of GDP to all-ownership wages (Open ENOW's text, and the closer fit
+  // to its California GDP). Total economy: private and government wages at their own ratios (docs/DECISIONS.md).
+  const g = E.makeGdp(ctx, gdp), gMarine = E.makeGdp(ctx, gdp, "all");
   loaded = {
-    ctx, g, shares: zbp.value.shares,
+    ctx, g, gMarine, shares: zbp.value.shares,
     openEnow: { ca: ca.value, us: us.value },
     meta: {
       qcewYear: qcew.value.last,
@@ -36,12 +38,12 @@ async function loadEconomyInputs(fipsList, spine, opts) {
 // {marine, total} for one county, or null for a topic the tier does not have. `noaa` is the NOAA Total
 // Economy (Coastal) comparator set ({year, state, nation}) the total-economy wages chart uses.
 function economyFor(inputs, entry, tierTopics, noaa) {
-  const { ctx, g, shares, openEnow } = inputs;
+  const { ctx, g, gMarine, shares, openEnow } = inputs;
   const out = { marine: null, total: null, meta: inputs.meta, estimate: null };
   if (tierTopics["marine-economy"].available) {
     const est = imp.estimateCounty(ctx, entry.fips);
     out.estimate = est;
-    out.marine = marineSections({ ctx, est, shares, g, fips: entry.fips, openEnow });
+    out.marine = marineSections({ ctx, est, shares, g: gMarine, fips: entry.fips, openEnow });
   }
   if (tierTopics["total-economy"].available) out.total = totalSections({ ctx, fips: entry.fips, g, noaa });
   return out;
