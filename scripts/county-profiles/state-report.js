@@ -128,7 +128,7 @@ if (base) {
   const bad = JSON.parse(JSON.stringify(real));
   bad.topics.flood.sections["people-at-risk"].reason = "no-nfhl-coverage";
   check("a reason on an available section", bad, false);
-  console.log("Synthetic checks run: " + (forced.length + 10 + 2 + WITHHOLD_REASONS.length + 1) + " (each section-level reason forced onto " + base.name + ", two that must be rejected, six for the estimated state and two for the withheld state)");
+  console.log("Synthetic checks run: " + (forced.length + 10 + 2 + WITHHOLD_REASONS.length + 1) + " (each section-level reason forced onto " + base.name + ", the malformed and out-of-place cases that must be rejected, the estimated state with its weakShare, and every withheld reason)");
 }
 
 console.log("Reason codes and where each is used:");
