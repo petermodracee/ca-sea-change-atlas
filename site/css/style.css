@@ -1323,8 +1323,10 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp .cpd-col-extra{opacity:1;}
 /* Five labels per group collide at paper width; every exact figure is in the data table printed under the chart. */
 .cpp .cpd-col-chart .cpd-vlabel[data-cpd-collabel]{display:none;}
-.cpp .share-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8pt;}
-.cpp .share-ring{max-width:1.5in;}
+/* Centred within the print content width, however many rings there are (the deck panel's 4-column grid left two or three rings hugging the left edge). */
+.cpp .share-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10pt 26pt;}
+.cpp .share-row .share{flex:0 0 1.75in;}
+.cpp .share-ring{max-width:1.6in;}
 .cpp .share-label{font-size:9.5pt;} .cpp .share-detail{font-size:8.5pt;color:#333;}
 .cpp .cp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(1.3in,1fr));gap:10pt;}
 .cpp .cp-stats dd{font-size:18pt;} .cpp .cp-stats dt{font-size:8pt;}
@@ -1345,6 +1347,15 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp table.sr-only{position:static;width:100%;height:auto;margin:3pt 0 0;overflow:visible;clip:auto;white-space:normal;border-collapse:collapse;font-size:8pt;table-layout:fixed;overflow-wrap:anywhere;}
 .cpp table.sr-only th,.cpp table.sr-only td{border-bottom:1px solid #ddd;padding:1.5pt 4pt;text-align:right;font-weight:400;}
 .cpp table.sr-only th:first-child{text-align:left;font-weight:600;width:24%;}
+.cpp table.sr-only caption{caption-side:top;text-align:left !important;font-size:8pt;color:#333;padding-bottom:2pt;}
+.cpp .cpp-low{display:block;font-size:7.5pt;color:#444;font-weight:400;}
+/* Many sector columns: rotate the headers so names read whole instead of breaking mid-word. */
+.cpp table.cpp-rot thead th:not(:first-child){writing-mode:vertical-rl;transform:rotate(180deg);text-align:left;white-space:nowrap;vertical-align:bottom;height:1.55in;width:auto;padding:2pt 1pt;font-size:8pt;font-weight:600;}
+.cpp table.cpp-rot th:first-child{width:13%;}
+.cpp table.cpp-rot td{overflow-wrap:normal;font-size:7.5pt;padding-inline:1pt;}
+.cpp .cpp-figtable caption{caption-side:top;text-align:left;font-size:8pt;color:#333;padding-bottom:2pt;}
+.cpp .cpp-horizons{margin-bottom:8pt;}
+.cpp .cpp-horizons .cpd-col-chart{max-height:2.6in;}
 .cpp h4.sr-only{position:static;width:auto;height:auto;margin:6pt 0 0;overflow:visible;clip:auto;white-space:normal;font-size:8pt;font-weight:600;color:#333;}
 /* Paper cannot be clicked: content links show their destination. Nav/decorative links carry none. */
 .cpp .cpd-sources a[href^="http"]::after{content:" <" attr(href) ">";font-size:7.5pt;color:#333;overflow-wrap:anywhere;}

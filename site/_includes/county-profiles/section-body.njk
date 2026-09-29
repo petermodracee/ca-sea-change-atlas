@@ -34,8 +34,8 @@
 {%- elif def.id == "people-at-risk" %}<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Population inside floodplain</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Population outside floodplain</li></ul>{% endif %}
 {%- elif v.type == "bars" %}{{ bars(cid, v.items, v.format, v.series, def.title) }}
 {%- elif v.type == "stacked" %}{{ stackedBars(cid, v.rows, v.format, v.legend, def.caption or def.title, v.segClasses, v.opts) }}
-{%- elif v.type == "stacked100" %}{{ stacked100Bars(cid, v.measures, v.legend, def.caption or def.title, v.headline) }}
-{%- elif v.type == "columns" %}{{ columns(cid, v.items, countyProfiles.incrementLabels, def.caption or def.title, none if printMode else (countyProfiles.increments if def.id == "people-at-risk" else none)) }}
+{%- elif v.type == "stacked100" %}{{ stacked100Bars(cid, v.measures, v.legend, def.caption or def.title, v.headline, printMode) }}
+{%- elif v.type == "columns" %}{{ columns(cid, v.items, countyProfiles.incrementLabels, def.caption or def.title, none if printMode else (countyProfiles.increments if def.id == "people-at-risk" else none), printMode) }}
 {%- elif v.type == "facilities-stack" %}{{ facilitiesStack(cid, v.items, def.caption or def.title, countyProfiles.increments, printMode) }}
 {%- elif v.type == "dots" %}{{ dots(cid, v.items, v.series, def.caption or def.title) }}
 {%- elif v.type == "timing" %}{{ curves(cid, county, opcGaugeProjections, countyProfiles.increments, printMode) }}
