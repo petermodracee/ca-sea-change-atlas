@@ -240,7 +240,10 @@ function economyMethod() {
   const c = counties.find((x) => x.profile && x.tier === "full");
   if (!c) return null;
   const year = (key) => { const s = c.profile.sources[key]; return s && s.vintage ? s.vintage.year : null; };
+  // The counties whose tourism and recreation is withheld for want of a calibration anchor, read from the snapshots.
+  const noAnchorCounties = counties.filter((x) => x.profile && x.profile.estimation && x.profile.estimation.tourismShoreShare.jobs.method === "zip-rule").map((x) => x.name);
   return {
+    noAnchorCounties,
     qcew: year("qcew"), qcewWages: year("qcew-wages"), beaMarine: year("bea-marine"), beaTotal: year("bea-total"), zbp: year("zbp"),
     openEnow: year("open-enow"), enowSelf: year("enow-self"), coastalEconomy: year("coastal-economy"), nes: year("nes"), totalWages: year("qcew-total-wages"),
     thresholdPercent: Math.round(ESTIMATED_SHARE_THRESHOLD * 100), shoreMetres: SHORE_TOLERANCE_M, withholdPercent: Math.round(WITHHOLD_WEAK_SHARE * 100),

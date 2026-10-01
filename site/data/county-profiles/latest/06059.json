@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T23:11:05Z",
+  "generated": "2026-10-01T05:59:01Z",
   "gauge": {
     "id": "los-angeles",
     "name": "Los Angeles",
@@ -174,8 +174,8 @@
         "kind": "year",
         "year": 2021
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "coastal-economy": {
       "label": "NOAA Total Economy (Coastal), coastal California and coastal U.S.",
@@ -184,8 +184,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "nes": {
       "label": "Census Nonemployer Statistics",
@@ -194,8 +194,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "qcew": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages)",
@@ -204,8 +204,8 @@
         "kind": "year",
         "year": 2025
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "qcew-wages": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
@@ -214,8 +214,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "bea-marine": {
       "label": "BEA GDP by state and industry (SAGDP2), California",
@@ -224,8 +224,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "zbp": {
       "label": "Census ZIP Code Business Patterns and shoreline-adjacent ZIP codes",
@@ -234,8 +234,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "open-enow": {
       "label": "NOAA Open ENOW (California and coastal U.S.)",
@@ -244,8 +244,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "qcew-total-wages": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
@@ -254,8 +254,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "bea-total": {
       "label": "BEA GDP by state and industry (SAGDP2), California",
@@ -264,8 +264,8 @@
         "kind": "year",
         "year": 2025
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     }
   },
   "topics": {

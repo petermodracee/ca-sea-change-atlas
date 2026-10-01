@@ -70,7 +70,7 @@ for (const c of spine.counties) {
 
 const count = (list) => Object.fromEntries(CATS.map((c) => [c, list.filter((x) => x.cat === c).length]));
 const cols = [["before (old rule, " + ref + ")", before], ["rule off", runs["off"]], ["0.10", runs["0.1"]], ["**0.25 (shipped)**", runs["0.25"]], ["0.50", runs["0.5"]], ["0.75", runs["0.75"]]];
-const label = { published: "published (plain number)", unmarked: "estimated, not marked (< 0.25 imputed)", marked: "estimated, marked ≈ (>= 0.25 imputed)", "withheld-rule": "withheld by the rule", "withheld-structural": "withheld, Public administration GDP" };
+const label = { published: "published (plain number)", unmarked: "estimated, not marked (< 0.25 imputed)", marked: "estimated, marked ≈ (>= 0.25 imputed)", "withheld-rule": "withheld by the rule", "withheld-structural": "withheld, Public administration GDP", "withheld-nodata": "withheld, no data", "withheld-noanchor": "withheld, tourism with no calibration anchor" };
 const counts = cols.map(([, l]) => count(l));
 let out = "| | " + cols.map((c) => c[0]).join(" | ") + " |\n|---|" + cols.map(() => "---").join("|") + "|\n";
 for (const c of CATS) out += "| " + label[c] + " | " + counts.map((n) => n[c]).join(" | ") + " |\n";

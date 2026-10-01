@@ -11,17 +11,18 @@
 //   withheld    {suppressed: true}: not shown. "by rule" (the withholding rule in estimated.js) or "structural"
 //               (Public administration's GDP: no defensible BEA ratio, withheld in every county), or "no-data" (nothing to
 //               impute from; none among the figures counted). The reason is stored next to `suppressed` in the snapshot.
+//             "no-anchor" is tourism and recreation in a county with no calibration anchor (reason no-calibration-anchor).
 // published + unmarked + marked + withheld by rule + withheld structural = figures. `partial` (a total that leaves a
 // withheld figure out) is a flag on a figure, not a category.
 
 const { ESTIMATED_SHARE_THRESHOLD } = require("./estimated");
 
-const CATS = ["published", "unmarked", "marked", "withheld-rule", "withheld-structural", "withheld-nodata"];
+const CATS = ["published", "unmarked", "marked", "withheld-rule", "withheld-structural", "withheld-nodata", "withheld-noanchor"];
 const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 
 function category(cell, structural) {
   if (isObj(cell) && cell.suppressed === true) // Snapshots written before the reason field existed (the `structural` argument) are classified by position.
-    return cell.reason === "gdp-unreproducible" || (!cell.reason && structural) ? "withheld-structural" : cell.reason === "no-data" ? "withheld-nodata" : "withheld-rule";
+    return cell.reason === "no-calibration-anchor" ? "withheld-noanchor" : cell.reason === "gdp-unreproducible" || (!cell.reason && structural) ? "withheld-structural" : cell.reason === "no-data" ? "withheld-nodata" : "withheld-rule";
   if (isObj(cell) && cell.est) return cell.est.share >= ESTIMATED_SHARE_THRESHOLD ? "marked" : "unmarked";
   return "published";
 }

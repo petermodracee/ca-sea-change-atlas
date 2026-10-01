@@ -5,7 +5,7 @@
   "tier": "delta",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T23:16:49Z",
+  "generated": "2026-10-01T06:04:45Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -174,8 +174,8 @@
         "kind": "year",
         "year": 2021
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "qcew": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages)",
@@ -184,8 +184,8 @@
         "kind": "year",
         "year": 2025
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "qcew-wages": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
@@ -194,8 +194,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "bea-marine": {
       "label": "BEA GDP by state and industry (SAGDP2), California",
@@ -204,8 +204,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "zbp": {
       "label": "Census ZIP Code Business Patterns and shoreline-adjacent ZIP codes",
@@ -214,8 +214,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "open-enow": {
       "label": "NOAA Open ENOW (California and coastal U.S.)",
@@ -224,8 +224,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     }
   },
   "topics": {
@@ -716,30 +716,36 @@
             "zbp"
           ],
           "data": {
-            "establishments": 161,
+            "establishments": {
+              "value": 137,
+              "partial": true
+            },
             "jobs": {
-              "value": 9513,
+              "value": 9166,
               "est": {
-                "share": 0.0612,
+                "share": 0.0389,
                 "step": 5,
-                "weakShare": 0.0112
-              }
+                "weakShare": 0.0071
+              },
+              "partial": true
             },
             "wages": {
-              "value": 658280508,
+              "value": 637528668,
               "est": {
-                "share": 0.0752,
+                "share": 0.055,
                 "step": 5,
-                "weakShare": 0.0149
-              }
+                "weakShare": 0.0115
+              },
+              "partial": true
             },
             "gdp": {
-              "value": 886046249,
+              "value": 839417446,
               "est": {
-                "share": 0.0681,
+                "share": 0.0468,
                 "step": 5,
-                "weakShare": 0.014
-              }
+                "weakShare": 0.0097
+              },
+              "partial": true
             },
             "denominator": 733061,
             "year": 2025,
@@ -861,30 +867,21 @@
               },
               {
                 "label": "Tourism and recreation",
-                "establishments": 24,
+                "establishments": {
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
+                },
                 "wages": {
-                  "value": 20751840,
-                  "est": {
-                    "share": 0.695,
-                    "step": 5,
-                    "weakShare": 0.1187
-                  }
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
                 },
                 "employment": {
-                  "value": 347,
-                  "est": {
-                    "share": 0.6512,
-                    "step": 5,
-                    "weakShare": 0.1199
-                  }
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
                 },
                 "gdp": {
-                  "value": 46628803,
-                  "est": {
-                    "share": 0.6958,
-                    "step": 5,
-                    "weakShare": 0.1406
-                  }
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
                 }
               }
             ],
@@ -955,12 +952,8 @@
               {
                 "label": "Tourism and recreation",
                 "county": {
-                  "value": 58449,
-                  "est": {
-                    "share": 0.6958,
-                    "step": 5,
-                    "weakShare": 0.1462
-                  }
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
                 },
                 "coastalState": 37578,
                 "coastalUS": 35063
@@ -987,12 +980,13 @@
           ],
           "data": {
             "employed": {
-              "value": 9513,
+              "value": 9166,
               "est": {
-                "share": 0.0612,
+                "share": 0.0389,
                 "step": 5,
-                "weakShare": 0.0112
-              }
+                "weakShare": 0.0071
+              },
+              "partial": true
             },
             "employedYear": 2025,
             "selfEmployed": 136,

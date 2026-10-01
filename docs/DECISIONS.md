@@ -1138,6 +1138,197 @@ Left out because the original withholds the sector in that county: Alameda Ship 
 
 **Runtime and memory (re-measured).** The same cold run of the whole economy pipeline for all 27 counties (`run.js all --economy-only --refresh` with the QCEW cache emptied) took 1352 s (23 minutes) with a peak working set of 801 MB (follow-up 2: 1,336 s and 803 MB; review round: 1,305 s and 804 MB; first round: 1,610 s and 778 MB): unchanged, as expected, since this round adds fields and a note and no computation. The backtests run separately and on demand in about 3 seconds each and are not part of the build or the workflow.
 
+### Phase 7 follow-up 4: a California-level check, and tourism withheld where it has no calibration anchor
+
+**1. The California-level three-way check (analysis only; no figure changed).** (`node scripts/county-profiles/analysis/economy-validation.js threeway`, on demand.) For every year where the original ENOW and Open ENOW overlap (2015 to 2021), every sector, and jobs, wages and establishments: Open ENOW's California figure; the original ENOW's own California figure; the original's county figures summed; our 23-county sum. The original's county series is read from the same Quick Report API the pipeline already uses (`oceanEconomy?geotype=ENOW&geoid=<fips>`, geoid `06000` for the state).
+
+**Verdict: case (A).** Open ENOW itself runs above the sum of the original's published county cells in the non-tourism sectors, so the gap we measured in follow-up 3 is built into the comparison, not into our county build; our 23-county sums track Open ENOW. The evidence, 2021 jobs:
+
+- **Open ENOW tracks the original's own California figure** (jobs): living resources -0.1%, marine construction -1.3%, marine transportation +1.8%, offshore mineral resources -8.0%, ship and boat building 0.0%, tourism and recreation +1.7% (the 1.7% NOAA reports). So Open ENOW is not the outlier; the original's California total is.
+- **The original's county cells do not add up to its own California figure.** Summed over all 23 counties it covers, they fall short of its California figure by 16% (living resources), 6% (marine construction), 9% (marine transportation), 48% (offshore minerals) and 18% (ship and boat building); tourism adds up exactly. The shortfall is mostly confidential cells: the original publishes "SUP" for 4, 5, 1, 13 and 15 of the 23 county cells in those five sectors (a withheld cell is missing from the sum, so the sum is a lower bound). One part is not explained by SUP: marine transportation has a single SUP cell (Del Norte), yet the county sum is 12.9k jobs (9%) below the original's California figure. We cannot say where those jobs sit; they may be in the original's counties outside its 23 (the original has a California row but publishes county rows only for the 23) or in confidential cells it does not flag.
+- **Our 23-county sum tracks Open ENOW, not the county sum**: -5.4%, +0.7%, -0.2%, +2.5%, -6.0% and -0.7% (jobs), and the wages and establishments tables agree to the same order. Our establishments equal Open ENOW's exactly in four of six sectors (Open ENOW's California establishment count for those sectors is our county sum; ship and boat building's is statewide NAICS 33661, which is why ours is 19.7% lower there: it counts only the 23 shown counties).
+- Therefore **ours against the original's county sum is high (+12.0%, +5.6%, +12.3%, +81.5%, +14.3% for the five sectors) for the same reason Open ENOW is** (+18.4%, +4.9%, +12.5%, +77.0%, +21.6%): the denominator is short. The out-of-sample comparison of follow-up 3 (our county figures above the original's in all 23 counties, median +27.1%) compares against those published cells, which are the same short denominator plus the cells the original withholds.
+- Ruled out: **coverage** (the original covers exactly the 23 counties we show: identical sets; no county in one and not the other); **NAICS codes, ownerships and year/vintage** (the Open ENOW comparison uses the same years and its own definitions; ours differ from Open ENOW only by a few points, and by the ladder as measured in follow-up 3); **units** (jobs, dollars and counts match in order of magnitude in every cell; wages follow jobs); **double counting** (ours against Open ENOW is within -6% to +2.5% for jobs in every sector; a double count would put it far above); **imputed cells inflating the sum** (the ladder's jobs-weighted bias is about -1%, follow-up 3).
+- Earlier years: the original's county series for ship and boat building is tiny in 2015 and in 2017 to 2020 (almost every county cell withheld or zero), so the percentages there (+1,600% to +8,000%) are an artefact of the original's withholding, not a finding; marine transportation's gap closes from +36% (2015) to +12.5% (2021). Tourism and recreation, anchored to the original's 2021 county figures, runs -7% to -3% against Open ENOW before 2021 (the county shares are held at their 2021 value).
+- Where we differ from the original after allowing for the withheld cells: our non-tourism sectors against the original's own county total minus its tourism row (a derived total that includes the withheld cells) are within a median +0.9% across the 23 counties, 17 of 23 within 10% (the large gaps are Humboldt -28%, Mendocino +41% and Santa Cruz +60%).
+
+**What NOAA's documentation says about geographic scope** (read 2026-09-30). NOAA's ENOW frequent-questions document (<https://coast.noaa.gov/data/digitalcoast/pdf/enow-faq.pdf>, May 2025) says: "For some industrial classes, only those establishments located in shore-adjacent zip codes are included in the sector totals", giving hotels and restaurants as the example; a business is included when "the establishment is either associated with an industry whose definition explicitly ties the activity to the ocean, or located in an industry which is partially related to the ocean and located in a shore-adjacent zip code". The sector and industry definitions (<https://oceaneconomics.org/methods_faqs/sectors.html>) say other industries "are defined as ocean only if their locations are also 'near shore'" and that shipbuilding and marine passenger and freight transportation are defined as ocean "regardless of location". So the original's non-tourism sectors are **not** uniformly shoreline-ZIP-scoped: shipbuilding and marine transportation use all establishments in their codes, and a subset of codes in the other sectors (the page marks them in green italics) is restricted to shoreline ZIP codes. The text we could retrieve does not carry that per-industry marking, so we could not confirm which of the non-tourism codes are restricted; our pipeline uses the per-code `shore` flags in `enow-def.js`, which follow Open ENOW's published definitions. This is not verified against NOAA's own list of restricted codes.
+
+**The tables** (all years, all three measures; "SUP" cells are missing from the original sums):
+
+The original ENOW covers 23 California counties (the API returns rows for them in 2021; the other 35 return nothing). We show 23: the same set, so the two county coverages are identical. Original cells it withholds ("SUP") are missing from its sums, which are then lower bounds.
+
+**Jobs, 2021, California** (Open ENOW; the original ENOW's own California figure; the original's counties summed over all it covers and over the 23 we show; ours):
+
+| sector | Open ENOW | original, California | original, sum of counties covered | original, sum of the 23 shown | SUP cells | ours, 23 counties | Open ENOW vs original (sum) | ours vs original (sum of the 23) | ours vs Open ENOW |
+|---|---|---|---|---|---|---|---|---|---|
+| Living Resources | 8,647 | 8,653 | 7,305 | 7,305 | 4 | 8,184 | +18.4% | +12.0% | -5.4% |
+| Marine Construction | 8,601 | 8,716 | 8,203 | 8,203 | 5 | 8,663 | +4.9% | +5.6% | +0.7% |
+| Marine Transportation | 138,438 | 135,926 | 123,057 | 123,057 | 1 | 138,153 | +12.5% | +12.3% | -0.2% |
+| Offshore Mineral Resources | 5,127 | 5,571 | 2,896 | 2,896 | 13 | 5,255 | +77.0% | +81.5% | +2.5% |
+| Ship and Boat Building | 9,322 | 9,321 | 7,663 | 7,663 | 15 | 8,762 | +21.6% | +14.3% | -6.0% |
+| Tourism and Recreation | 348,987 | 343,138 | 343,138 | 343,138 | 0 | 346,546 | +1.7% | +1.0% | -0.7% |
+
+**Wages, 2021, California** (Open ENOW; the original ENOW's own California figure; the original's counties summed over all it covers and over the 23 we show; ours):
+
+| sector | Open ENOW | original, California | original, sum of counties covered | original, sum of the 23 shown | SUP cells | ours, 23 counties | Open ENOW vs original (sum) | ours vs original (sum of the 23) | ours vs Open ENOW |
+|---|---|---|---|---|---|---|---|---|---|
+| Living Resources | 535,929,928 | 535,240,166 | 460,477,467 | 460,477,467 | 4 | 513,067,648 | +16.4% | +11.4% | -4.3% |
+| Marine Construction | 1,092,045,004 | 1,104,369,857 | 1,033,920,449 | 1,033,920,449 | 5 | 1,096,960,425 | +5.6% | +6.1% | +0.5% |
+| Marine Transportation | 12,051,274,591 | 12,037,969,440 | 10,671,975,854 | 10,671,975,854 | 1 | 12,062,455,110 | +12.9% | +13.0% | +0.1% |
+| Offshore Mineral Resources | 526,759,571 | 551,767,826 | 286,152,513 | 286,152,513 | 13 | 517,705,896 | +84.1% | +80.9% | -1.7% |
+| Ship and Boat Building | 696,152,800 | 696,227,013 | 569,378,021 | 569,378,021 | 15 | 684,250,473 | +22.3% | +20.2% | -1.7% |
+| Tourism and Recreation | 11,268,387,432 | 11,737,762,084 | 11,737,762,084 | 11,737,762,084 | 0 | 11,245,465,068 | -4.0% | -4.2% | -0.2% |
+
+**Establishments, 2021, California** (Open ENOW; the original ENOW's own California figure; the original's counties summed over all it covers and over the 23 we show; ours):
+
+| sector | Open ENOW | original, California | original, sum of counties covered | original, sum of the 23 shown | SUP cells | ours, 23 counties | Open ENOW vs original (sum) | ours vs original (sum of the 23) | ours vs Open ENOW |
+|---|---|---|---|---|---|---|---|---|---|
+| Living Resources | 838 | 1,042 | 831 | 831 | 4 | 838 | +0.8% | +0.8% | +0.0% |
+| Marine Construction | 290 | 308 | 276 | 276 | 5 | 290 | +5.1% | +5.1% | +0.0% |
+| Marine Transportation | 2,071 | 2,063 | 1,876 | 1,876 | 1 | 2,071 | +10.4% | +10.4% | +0.0% |
+| Offshore Mineral Resources | 390 | 435 | 292 | 292 | 13 | 390 | +33.6% | +33.6% | +0.0% |
+| Ship and Boat Building | 152 | 160 | 78 | 78 | 15 | 122 | +94.9% | +56.4% | -19.7% |
+| Tourism and Recreation | 21,842 | 22,046 | 22,046 | 22,046 | 0 | 22,284 | -0.9% | +1.1% | +2.0% |
+
+**Jobs: Open ENOW against the original's county sum (all covered), by sector and year (signed):**
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 |
+|---|---|---|---|---|---|---|---|
+| Living Resources | +229.5% | +25.6% | +23.0% | +19.5% | +20.5% | +22.3% | +18.4% |
+| Marine Construction | +5.0% | +2.7% | +6.1% | +5.9% | +9.4% | +3.6% | +4.9% |
+| Marine Transportation | +36.4% | +19.3% | +18.1% | +14.9% | +13.7% | +13.0% | +12.5% |
+| Offshore Mineral Resources | +128.5% | +92.1% | +90.2% | +96.7% | +81.7% | +92.4% | +77.0% |
+| Ship and Boat Building | +1766.8% | +12.7% | +1608.2% | +4824.4% | +8008.9% | +4816.5% | +21.6% |
+| Tourism and Recreation | +3.5% | +3.7% | +3.1% | +3.9% | +3.1% | +4.0% | +1.7% |
+
+**Jobs: our 23-county sum against the original's county sum (the 23 shown), by sector and year (signed):**
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 |
+|---|---|---|---|---|---|---|---|
+| Living Resources | +202.4% | +15.3% | +13.8% | +13.0% | +12.9% | +14.4% | +12.0% |
+| Marine Construction | +5.3% | +3.3% | +6.9% | +6.4% | +10.0% | +4.2% | +5.6% |
+| Marine Transportation | +33.9% | +17.6% | +16.7% | +14.1% | +13.0% | +12.8% | +12.3% |
+| Offshore Mineral Resources | +146.0% | +110.6% | +74.4% | +90.0% | +79.1% | +91.6% | +81.5% |
+| Ship and Boat Building | +1691.9% | +6.5% | +1505.3% | +4659.8% | +7662.7% | +4620.4% | +14.3% |
+| Tourism and Recreation | -3.5% | -3.2% | -2.5% | -2.1% | -1.8% | +0.6% | +1.0% |
+
+**Jobs: our 23-county sum against Open ENOW, by sector and year (signed):**
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 |
+|---|---|---|---|---|---|---|---|
+| Living Resources | -8.2% | -8.2% | -7.5% | -5.4% | -6.3% | -6.4% | -5.4% |
+| Marine Construction | +0.4% | +0.6% | +0.8% | +0.4% | +0.6% | +0.6% | +0.7% |
+| Marine Transportation | -1.8% | -1.4% | -1.2% | -0.8% | -0.7% | -0.2% | -0.2% |
+| Offshore Mineral Resources | +7.7% | +9.7% | -8.3% | -3.4% | -1.5% | -0.4% | +2.5% |
+| Ship and Boat Building | -4.0% | -5.5% | -6.0% | -3.3% | -4.3% | -4.0% | -6.0% |
+| Tourism and Recreation | -6.8% | -6.6% | -5.5% | -5.8% | -4.8% | -3.3% | -0.7% |
+
+**Wages: Open ENOW against the original's county sum (all covered), by sector and year (signed):**
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 |
+|---|---|---|---|---|---|---|---|
+| Living Resources | +340.8% | +27.8% | +25.5% | +21.1% | +21.9% | +23.3% | +16.4% |
+| Marine Construction | +4.5% | +2.6% | +5.5% | +5.1% | +8.2% | +3.1% | +5.6% |
+| Marine Transportation | +41.0% | +17.5% | +18.3% | +14.8% | +13.6% | +14.0% | +12.9% |
+| Offshore Mineral Resources | +170.6% | +112.9% | +95.7% | +115.6% | +101.8% | +107.8% | +84.1% |
+| Ship and Boat Building | +1721.3% | +12.6% | +1587.7% | +5410.9% | +8348.5% | +5898.2% | +22.3% |
+| Tourism and Recreation | -2.8% | -1.8% | -2.5% | -2.2% | -3.4% | -1.7% | -4.0% |
+
+**Wages: our 23-county sum against the original's county sum (the 23 shown), by sector and year (signed):**
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 |
+|---|---|---|---|---|---|---|---|
+| Living Resources | +297.6% | +15.1% | +15.9% | +15.6% | +14.9% | +15.6% | +11.4% |
+| Marine Construction | +4.9% | +3.0% | +6.0% | +5.3% | +8.6% | +3.6% | +6.1% |
+| Marine Transportation | +40.2% | +16.7% | +17.2% | +13.7% | +13.0% | +13.8% | +13.0% |
+| Offshore Mineral Resources | +195.5% | +147.3% | +68.3% | +90.9% | +82.4% | +97.6% | +80.9% |
+| Ship and Boat Building | +1725.8% | +9.9% | +1552.8% | +5534.6% | +8429.7% | +5988.4% | +20.2% |
+| Tourism and Recreation | -8.7% | -7.9% | -7.6% | -7.5% | -8.0% | -4.5% | -4.2% |
+
+**Wages: our 23-county sum against Open ENOW, by sector and year (signed):**
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 |
+|---|---|---|---|---|---|---|---|
+| Living Resources | -9.8% | -10.0% | -7.7% | -4.5% | -5.8% | -6.2% | -4.3% |
+| Marine Construction | +0.3% | +0.5% | +0.5% | +0.2% | +0.4% | +0.4% | +0.5% |
+| Marine Transportation | -0.5% | -0.7% | -1.0% | -1.0% | -0.6% | -0.1% | +0.1% |
+| Offshore Mineral Resources | +9.2% | +16.2% | -14.0% | -11.5% | -9.6% | -4.9% | -1.7% |
+| Ship and Boat Building | +0.3% | -2.4% | -2.1% | +2.2% | +1.0% | +1.5% | -1.7% |
+| Tourism and Recreation | -6.1% | -6.2% | -5.2% | -5.5% | -4.7% | -2.8% | -0.2% |
+
+**Establishments: Open ENOW against the original's county sum (all covered), by sector and year (signed):**
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 |
+|---|---|---|---|---|---|---|---|
+| Living Resources | +110.1% | +5.0% | +6.6% | +5.2% | +3.6% | +3.5% | +0.8% |
+| Marine Construction | +7.5% | +6.8% | +13.2% | +15.0% | +13.6% | +10.5% | +5.1% |
+| Marine Transportation | +12.9% | +12.4% | +12.0% | +12.7% | +13.4% | +12.6% | +10.4% |
+| Offshore Mineral Resources | +16.2% | +10.9% | +18.7% | +35.1% | +21.4% | +9.2% | +33.6% |
+| Ship and Boat Building | +465.0% | +88.5% | +330.8% | +481.0% | +823.1% | +513.0% | +94.9% |
+| Tourism and Recreation | +5.7% | +5.5% | +6.0% | +4.9% | +4.0% | +2.5% | -0.9% |
+
+**Establishments: our 23-county sum against the original's county sum (the 23 shown), by sector and year (signed):**
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 |
+|---|---|---|---|---|---|---|---|
+| Living Resources | +110.1% | +5.0% | +6.6% | +5.2% | +3.6% | +3.5% | +0.8% |
+| Marine Construction | +7.5% | +6.8% | +13.2% | +15.0% | +13.6% | +10.5% | +5.1% |
+| Marine Transportation | +12.9% | +12.4% | +12.0% | +12.7% | +13.4% | +12.6% | +10.4% |
+| Offshore Mineral Resources | +16.2% | +10.9% | +18.7% | +35.1% | +21.4% | +9.2% | +33.6% |
+| Ship and Boat Building | +320.0% | +49.2% | +238.5% | +357.1% | +615.4% | +382.6% | +56.4% |
+| Tourism and Recreation | +1.3% | +1.2% | +3.1% | +1.7% | +2.0% | +1.4% | +1.1% |
+
+**Establishments: our 23-county sum against Open ENOW, by sector and year (signed):**
+
+| sector | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 |
+|---|---|---|---|---|---|---|---|
+| Living Resources | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% |
+| Marine Construction | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% |
+| Marine Transportation | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% |
+| Offshore Mineral Resources | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% | +0.0% |
+| Ship and Boat Building | -25.7% | -20.9% | -21.4% | -21.3% | -22.5% | -21.3% | -19.7% |
+| Tourism and Recreation | -4.1% | -4.0% | -2.8% | -3.0% | -2.0% | -1.0% | +2.0% |
+
+
+
+
+**2. Tourism and recreation withheld where it has no calibration anchor.** The four counties whose tourism could not be calibrated (the original's 2021 county figure is withheld or zero: Napa, Sacramento, San Joaquin, Yolo) no longer show tourism and recreation. The measured result of follow-up 3 was that the ZIP rule alone puts tourism where the original has none (San Joaquin 3,033 jobs against an original zero), so it is withheld rather than shown.
+
+- *Trigger, data-driven.* `marineSections` flags the tourism sector when the county's calibration method (`estimation.tourismShoreShare.jobs.method`) is `zip-rule`, that is, when there is no usable original 2021 figure for the county. No county is named in code; the About page's county list is read from the snapshots. Withheld in every measure: establishments, wages, employment, GDP and the average wage on the wages chart.
+- *Reason.* The existing withheld state, with the new reason **`no-calibration-anchor`** in `WITHHOLD_REASONS` (validator, `state-report.js`, `docs/COUNTY-PROFILES.md`, `figure-slots.js` category `withheld-noanchor`). `state-report.js` also checks the two directions of the rule: a county with calibration method `zip-rule` must have tourism withheld with this reason in every measure, and a calibrated county must not.
+- *Totals.* Every total tourism feeds (marine jobs, wages, establishments, GDP, the Total Jobs employed tile) leaves it out and is marked partial (a floor). The sector-share chart is shares of the partial total; callouts are dropped when an input is partly withheld (as before), so none states a figure whose parts are withheld.
+- *Kept.* The ZIP-rule code and `zipRuleJobsShare` stay in `estimation.tourismShoreShare` with the calibration provenance. No imputation logic, definition, threshold (0.25 for both) or any other figure changed.
+
+*Before and after, latest snapshot (2025 jobs, wages and establishments; 2024 GDP; the share is tourism's share of the county's marine total before; `*` is a partial total):*
+
+| county | marine jobs | marine wages | establishments | GDP |
+|---|---|---|---|---|
+| Napa | 790 → 769* (tourism 21, 2.7%) | $55.9M → $55.1M* (tourism $0.8M, 1.5%) | 45 → 42* (3, 6.7%) | $64.1M → $62.8M* ($1.3M, 2.0%) |
+| Sacramento | 9,513 → 9,166* (347, 3.6%) | $658M → $638M* ($20.8M, 3.2%) | 161 → 137* (24, 14.9%) | $886M → $839M* ($46.6M, 5.3%) |
+| San Joaquin | 32,643 → 29,055* (3,588, 11.0%) | $2,057M → $1,951M* ($106M, 5.2%) | 370 → 139* (231, 62.4%) | $2,875M → $2,669M* ($207M, 7.2%) |
+| Yolo | 3,744 → 3,744* (tourism already withheld by the rule, so unchanged) | $257M → $257M* (likewise) | 62 → 60* (2, 3.2%) | $360M → $360M* (likewise) |
+
+Yolo's tourism jobs, wages and GDP were already withheld by the weak-step rule in follow-up 2, so only its establishments change; the totals were already partial.
+
+*Snapshot diff against the previous commit* (every leaf of all 54 files): the only differences are (a) the tourism sector's figures in these four counties (suppressed, reason `no-calibration-anchor`, in the sector chart, accessible table and the wages chart), (b) the totals they feed (value lower, `partial: true`, and the `est` shares and `weakShare` of those totals recomputed over what remains) and the Total Jobs employed tile, and (c) the `generated` date and each source's `retrieved` and `verified` dates (re-stamped because the runtime measurement re-fetched every source; the figures from the re-fetch are identical to the run before it). Nothing in the other 23 counties, nothing under `estimation`, and no flood-hazard or sea-level-rise field changed (`diff-hazard.js`: 54 snapshots identical).
+
+*Count table, regenerated (`state-report.js`; 1,953 figures, one definition in `figure-slots.js`):*
+
+| | before (follow-up 3) | now |
+|---|---|---|
+| published (plain number) | 1,415 | 1,415 |
+| estimated, not marked | 230 | 222 |
+| estimated, marked ≈ | 195 | 187 |
+| withheld by the weak-step rule | 93 | 89 |
+| withheld, Public administration GDP | 20 | 20 |
+| withheld, tourism and recreation with no calibration anchor | 0 | 20 |
+| partial totals (a flag, not a category) | 66 | 73 |
+
+The 20 are the four counties' five tourism slots each (establishments, wages, employment, GDP, average wage); they came from the 8 unmarked, 8 marked and 4 withheld-by-rule figures above (Yolo's four, already withheld, move from the rule to the new reason). The seven added partial totals are the totals that were not already partial.
+
+**Runtime and memory (re-measured).** The same cold run of the whole economy pipeline for all 27 counties (`run.js all --economy-only --refresh`, QCEW cache emptied) took 779 s (13 minutes) with a peak working set of 793 MB (follow-up 3: 1,352 s and 801 MB): memory unchanged; the shorter wall time is download speed on the day, since this round adds a flag and no computation.
+
 ## Behavior
 
 ### Nominatim: submit only

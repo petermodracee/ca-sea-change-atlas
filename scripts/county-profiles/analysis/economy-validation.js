@@ -25,7 +25,7 @@ const D = require(P + "enow-def");
 const { fetchShoreShares, computeShares } = require(P + "zbp");
 const { fetchGdp } = require(P + "bea");
 const { fetchOpenEnow } = require(P + "open-enow");
-const { cachePath } = require(P + "http");
+const { cachePath, cachedJson, getJson } = require(P + "http");
 
 const args = process.argv.slice(2);
 const want = (n) => !args.filter((a) => !a.startsWith("--")).length || args.includes(n);
@@ -321,6 +321,73 @@ function outOfSampleTables(r) {
   return out;
 }
 
+// --- three-way check at the California level ------------------------------------------------------------
+// Open ENOW's California figure, the original ENOW's county figures summed (all the California counties it covers,
+// and the 23 we show), the original ENOW's own California figure, and our 23-county sum: for every year where the
+// original and Open ENOW overlap (2015 to 2021), every sector, jobs, wages and establishments. The original's
+// county series comes from the same Quick Report API the pipeline already uses (oceanEconomy, geotype ENOW).
+const ORIG_API = "https://coast.noaa.gov/enow/api/v1/oceanEconomy?geotype=ENOW&geoid=";
+const MEASURES = [["employment", "emp", "jobs"], ["wages", "wages", "wages"], ["establishments", "estabs", "establishments"]];
+async function originalEnow(years) {
+  const fipsAll = [];
+  for (let n = 1; n <= 115; n += 2) fipsAll.push("06" + String(n).padStart(3, "0"));
+  const get = async (fips, y) => (await cachedJson("orig-enow-" + fips + "-" + y + ".json", () => getJson(ORIG_API + fips + "&year=" + y), {})).value;
+  const covered = [];
+  for (const f of fipsAll) if ((await get(f, 2021)).length) covered.push(f);
+  const out = { covered, counties: {}, state: {} };
+  for (const y of years) {
+    out.state[y] = await get("06000", y);
+    for (const f of covered) (out.counties[f] = out.counties[f] || {})[y] = await get(f, y);
+  }
+  return out;
+}
+async function threeWay(L) {
+  const years = []; for (let y = 2015; y <= 2021; y++) if (L.caOpen.byYear[y]) years.push(y);
+  const O = await originalEnow(years);
+  const shown = L.marineCounties.map((c) => c.fips);
+  const num = (v) => (v === "SUP" || v === null || v === undefined ? null : Number(v));
+  const res = { covered: O.covered, shown, years, rows: {}, sup: {} };
+  for (const y of years) {
+    const ours = {};
+    for (const f of shown) { const s2 = figures(L, f, y); for (const [sec, v] of Object.entries(s2)) { const a = (ours[sec] = ours[sec] || { emp: 0, wages: 0, estabs: 0 }); a.emp += v.emp; a.wages += v.wages; a.estabs += v.estabs; } }
+    for (const sec of E.MARINE_SECTOR_ORDER) {
+      for (const [ok, mk] of MEASURES) {
+        const oe = L.caOpen.byYear[y].find((r) => r.sector === sec)[ok];
+        const st = num((O.state[y].find((r) => r.sector === sec) || {})[ok]);
+        let a = 0, b = 0, sup = 0;
+        for (const f of O.covered) {
+          const r = (O.counties[f][y] || []).find((x) => x.sector === sec);
+          const v = r ? num(r[ok]) : null;
+          if (v === null) { sup++; continue; }
+          a += v; if (shown.includes(f)) b += v;
+        }
+        (res.rows[y] = res.rows[y] || {})[sec + "|" + ok] = { openEnow: oe, origState: st, origAll: a, origShown: b, ours: ours[sec][mk], sup };
+      }
+    }
+  }
+  return res;
+}
+function threeWayTables(r) {
+  const sg = (x) => (x === null || !Number.isFinite(x) ? "n/a" : (x >= 0 ? "+" : "") + (x * 100).toFixed(1) + "%");
+  const d = (a, b) => (b ? a / b - 1 : null);
+  const secs = E.MARINE_SECTOR_ORDER;
+  let out = "The original ENOW covers " + r.covered.length + " California counties (the API returns rows for them in 2021; the other " + (58 - r.covered.length) + " return nothing). We show " + r.shown.length + ": " + (r.covered.length === r.shown.length && r.covered.every((f) => r.shown.includes(f)) ? "the same set, so the two county coverages are identical" : "a different set (covered not shown: " + r.covered.filter((f) => !r.shown.includes(f)).join(", ") + "; shown not covered: " + r.shown.filter((f) => !r.covered.includes(f)).join(", ") + ")") + ". Original cells it withholds (\"SUP\") are missing from its sums, which are then lower bounds.\n\n";
+  for (const [ok, mk, label] of MEASURES) {
+    const y = 2021;
+    out += "**" + label[0].toUpperCase() + label.slice(1) + ", 2021, California** (Open ENOW; the original ENOW's own California figure; the original's counties summed over all it covers and over the 23 we show; ours):\n\n";
+    out += table(["sector", "Open ENOW", "original, California", "original, sum of counties covered", "original, sum of the 23 shown", "SUP cells", "ours, 23 counties", "Open ENOW vs original (sum)", "ours vs original (sum of the 23)", "ours vs Open ENOW"], secs.map((sec) => { const x = r.rows[y][sec + "|" + ok]; return [sec, f0(x.openEnow), f0(x.origState), f0(x.origAll), f0(x.origShown), String(x.sup), f0(x.ours), sg(d(x.openEnow, x.origAll)), sg(d(x.ours, x.origShown)), sg(d(x.ours, x.openEnow))]; }));
+    out += "\n";
+  }
+  for (const [ok, mk, label] of MEASURES) {
+    for (const [title, f] of [["Open ENOW against the original's county sum (all covered)", (x) => d(x.openEnow, x.origAll)], ["our 23-county sum against the original's county sum (the 23 shown)", (x) => d(x.ours, x.origShown)], ["our 23-county sum against Open ENOW", (x) => d(x.ours, x.openEnow)]]) {
+      out += "**" + label[0].toUpperCase() + label.slice(1) + ": " + title + ", by sector and year (signed):**\n\n";
+      out += table(["sector", ...r.years.map(String)], secs.map((sec) => [sec, ...r.years.map((y) => sg(f(r.rows[y][sec + "|" + ok])))]));
+      out += "\n";
+    }
+  }
+  return out;
+}
+
 // --- 4. total economy -----------------------------------------------------------------------------------
 // Our all-industry QCEW totals and eleven sectors for 2023 against NOAA's Total Economy (Coastal) series for
 // 2023 (the series' newest year), and against what Phase 3 shipped (which was that NOAA series). `shipped` is
@@ -403,10 +470,11 @@ async function main() {
   if (want("backtest")) console.log("## Imputation backtest\n\n" + backtest(L));
   if (want("sum")) { const r = sumCheck(L); console.log("## Sum check against Open ENOW California\n" + sumCheckTables(r)); }
   if (want("total")) { const dirArg = args.find((a) => a.startsWith("--shipped=")); console.log("## Total economy\n\n" + totalTables(totalEconomy(L, dirArg ? dirArg.slice(10) : null))); }
+  if (want("threeway")) console.log("## Three-way check at the California level\n\n" + threeWayTables(await threeWay(L)));
   if (want("oos")) console.log("## Out-of-sample 2021 comparison\n\n" + outOfSampleTables(outOfSample2021(L)));
   if (want("mt")) console.log("## Marine transportation\n\n" + marineTransportationTables(marineTransportation(L)));
   if (want("enow2021")) { console.log("## 2021 against original ENOW\n" + enow2021Tables(enow2021(L))); }
 }
 
-module.exports = { outOfSample2021, outOfSampleTables, orig2021, totalEconomy, totalTables, load, figures, sumCheck, sumCheckTables, enow2021, enow2021Tables, backtest, median, mean, pctl, f1, f0, table };
+module.exports = { threeWay, threeWayTables, outOfSample2021, outOfSampleTables, orig2021, totalEconomy, totalTables, load, figures, sumCheck, sumCheckTables, enow2021, enow2021Tables, backtest, median, mean, pctl, f1, f0, table };
 if (require.main === module) main().catch((e) => { console.error(e); process.exit(1); });

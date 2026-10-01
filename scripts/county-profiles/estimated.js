@@ -21,8 +21,9 @@ const isWithheldByRule = (weakShare) => weakShare >= WITHHOLD_WEAK_SHARE;
 // Why a figure is withheld ({suppressed: true, reason}): the closed vocabulary. weak-share: withheld by the rule above;
 // no-data: the source withholds it and there is nothing to estimate it from; gdp-unreproducible: Public
 // administration's GDP (BEA's government GDP includes schools and hospitals that QCEW counts elsewhere, so no
-// defensible ratio exists).
-const WITHHOLD_REASONS = ["weak-share", "no-data", "gdp-unreproducible"];
+// defensible ratio exists); no-calibration-anchor: tourism and recreation in a county whose shoreline share could not
+// be calibrated to the original ENOW's 2021 county figure (withheld or zero there), so only the unanchored ZIP rule is left.
+const WITHHOLD_REASONS = ["weak-share", "no-data", "gdp-unreproducible", "no-calibration-anchor"];
 const withheldCell = (reason) => ({ suppressed: true, reason });
 
 const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);

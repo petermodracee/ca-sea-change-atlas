@@ -5,7 +5,7 @@
   "tier": "full",
   "snapshot": "2026-09-24",
   "method": 1,
-  "generated": "2026-09-29T23:10:32Z",
+  "generated": "2026-10-01T05:58:27Z",
   "gauge": {
     "id": "port-chicago",
     "name": "Port Chicago",
@@ -174,8 +174,8 @@
         "kind": "year",
         "year": 2021
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "coastal-economy": {
       "label": "NOAA Total Economy (Coastal), coastal California and coastal U.S.",
@@ -184,8 +184,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "nes": {
       "label": "Census Nonemployer Statistics",
@@ -194,8 +194,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "qcew": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages)",
@@ -204,8 +204,8 @@
         "kind": "year",
         "year": 2025
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "qcew-wages": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
@@ -214,8 +214,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "bea-marine": {
       "label": "BEA GDP by state and industry (SAGDP2), California",
@@ -224,8 +224,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "zbp": {
       "label": "Census ZIP Code Business Patterns and shoreline-adjacent ZIP codes",
@@ -234,8 +234,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "open-enow": {
       "label": "NOAA Open ENOW (California and coastal U.S.)",
@@ -244,8 +244,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "qcew-total-wages": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
@@ -254,8 +254,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     },
     "bea-total": {
       "label": "BEA GDP by state and industry (SAGDP2), California",
@@ -264,8 +264,8 @@
         "kind": "year",
         "year": 2025
       },
-      "retrieved": "2026-09-29",
-      "verified": "2026-09-29"
+      "retrieved": "2026-10-01",
+      "verified": "2026-10-01"
     }
   },
   "topics": {
@@ -1055,32 +1055,20 @@
             "zbp"
           ],
           "data": {
-            "establishments": 45,
+            "establishments": {
+              "value": 42,
+              "partial": true
+            },
             "jobs": {
-              "value": 790,
-              "est": {
-                "share": 0.027,
-                "step": 5,
-                "weakShare": 0
-              },
+              "value": 769,
               "partial": true
             },
             "wages": {
-              "value": 55907340,
-              "est": {
-                "share": 0.0146,
-                "step": 5,
-                "weakShare": 0
-              },
+              "value": 55091990,
               "partial": true
             },
             "gdp": {
-              "value": 64124016,
-              "est": {
-                "share": 0.0171,
-                "step": 5,
-                "weakShare": 0
-              },
+              "value": 62818855,
               "partial": true
             },
             "denominator": 79072,
@@ -1158,30 +1146,21 @@
               },
               {
                 "label": "Tourism and recreation",
-                "establishments": 3,
+                "establishments": {
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
+                },
                 "wages": {
-                  "value": 815350,
-                  "est": {
-                    "share": 1,
-                    "step": 5,
-                    "weakShare": 0
-                  }
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
                 },
                 "employment": {
-                  "value": 21,
-                  "est": {
-                    "share": 1,
-                    "step": 5,
-                    "weakShare": 0
-                  }
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
                 },
                 "gdp": {
-                  "value": 1305161,
-                  "est": {
-                    "share": 1,
-                    "step": 5,
-                    "weakShare": 0
-                  }
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
                 }
               }
             ],
@@ -1237,12 +1216,8 @@
               {
                 "label": "Tourism and recreation",
                 "county": {
-                  "value": 38220,
-                  "est": {
-                    "share": 1,
-                    "step": 5,
-                    "weakShare": 0
-                  }
+                  "suppressed": true,
+                  "reason": "no-calibration-anchor"
                 },
                 "coastalState": 37578,
                 "coastalUS": 35063
@@ -1269,12 +1244,7 @@
           ],
           "data": {
             "employed": {
-              "value": 790,
-              "est": {
-                "share": 0.027,
-                "step": 5,
-                "weakShare": 0
-              },
+              "value": 769,
               "partial": true
             },
             "employedYear": 2025,

@@ -21,9 +21,12 @@ const sum = (a, f) => a.reduce((s, x) => s + f(x), 0);
 // Withholding (estimated.js): a sector figure is withheld when the share of it imputed at the weak ladder steps
 // (4 and 5) reaches the threshold. `vk` names the value ("emp" or "wages") and WEAK the part imputed weakly.
 const WEAK = { emp: "empWeak", wages: "wagesWeak" };
-const withheld = (s, vk) => s[vk] > 0 && isWithheldByRule(s[WEAK[vk]] / s[vk]);
+// A sector flagged `noAnchor` (tourism and recreation in a county whose shoreline share could not be calibrated) is
+// withheld outright, every measure, whatever its imputed share.
+const withheld = (s, vk) => Boolean(s.noAnchor) || (s[vk] > 0 && isWithheldByRule(s[WEAK[vk]] / s[vk]));
+const whyCell = (s) => withheldCell(s.noAnchor ? "no-calibration-anchor" : "weak-share");
 const weakOf = (s, vk) => (s[vk] > 0 ? s[WEAK[vk]] / s[vk] : 0);
-const secFig = (s, vk, ik) => (withheld(s, vk) ? withheldCell("weak-share") : E.fig(s[vk], s[vk] > 0 ? s[ik] / s[vk] : 0, s.step, { unresolved: s.unresolved, weakShare: weakOf(s, vk) }));
+const secFig = (s, vk, ik) => (withheld(s, vk) ? whyCell(s) : E.fig(s[vk], s[vk] > 0 ? s[ik] / s[vk] : 0, s.step, { unresolved: s.unresolved, weakShare: weakOf(s, vk) }));
 // A total over sectors: withheld sectors are left out and the total is marked partial (a floor); the total is
 // itself withheld if the part of what is left that was imputed weakly reaches the threshold.
 function totalFig(list, vk, ik) {
@@ -37,13 +40,14 @@ function totalFig(list, vk, ik) {
 }
 // Provenance of an average wage (wages / jobs): withheld if either part is, else the larger of the two shares.
 function avgWageFig(s) {
+  if (s.noAnchor) return whyCell(s);
   if (!(s.emp > 0)) return null;
-  if (withheld(s, "emp") || withheld(s, "wages")) return withheldCell("weak-share");
+  if (withheld(s, "emp") || withheld(s, "wages")) return whyCell(s);
   const share = Math.max(s.empImp / s.emp, s.wages > 0 ? s.wagesImp / s.wages : 0);
   return E.fig(s.wages / s.emp, share, s.step, { unresolved: s.unresolved, weakShare: Math.max(weakOf(s, "emp"), weakOf(s, "wages")) });
 }
 // GDP: the wages' provenance. `gdp` null means no ratio exists (Public administration): withheld.
-const gdpSecFig = (s) => (s.gdp === null ? withheldCell("gdp-unreproducible") : withheld(s, "wages") ? withheldCell("weak-share") : E.fig(s.gdp, s.wages > 0 ? s.wagesImp / s.wages : 0, s.step, { unresolved: s.unresolved, weakShare: weakOf(s, "wages") }));
+const gdpSecFig = (s) => (s.gdp === null ? withheldCell("gdp-unreproducible") : withheld(s, "wages") ? whyCell(s) : E.fig(s.gdp, s.wages > 0 ? s.wagesImp / s.wages : 0, s.step, { unresolved: s.unresolved, weakShare: weakOf(s, "wages") }));
 function gdpTotalFig(list) {
   const kept = list.filter((s) => s.gdp !== null && !withheld(s, "wages"));
   const value = sum(kept, (s) => s.gdp), w = sum(kept, (s) => s.wages);
@@ -61,12 +65,17 @@ function marineSections(input) {
   const gy = g.yearFor(lines, Y);
   const secY = E.marineSectors(ctx, est, fips, Y, shares, null);
   const secG = E.marineSectors(ctx, est, fips, gy, shares, { ratio: g.ratio, year: gy });
+  // Tourism and recreation is withheld where its shoreline share has no calibration anchor (the original ENOW's 2021
+  // county figure is withheld or zero, so only the ZIP rule is left). The county set comes from the calibration.
+  const noAnchor = calibration.jobs.method === "zip-rule";
+  const TOUR = "Tourism and Recreation";
   const list = E.MARINE_SECTOR_ORDER;
+  if (noAnchor) { secY[TOUR].noAnchor = true; secG[TOUR].noAnchor = true; }
   const total = E.countyTotal(ctx, fips, Y);
   const all = list.map((k) => secY[k]);
   const allG = list.map((k) => secG[k]);
   const measuring = {
-    establishments: E.fig(sum(all, (x) => x.estabs), 0, 0),
+    establishments: E.fig(sum(all.filter((x) => !x.noAnchor), (x) => x.estabs), 0, 0, { unresolved: all.filter((x) => x.noAnchor).length }),
     jobs: totalFig(all, "emp", "empImp"),
     wages: totalFig(all, "wages", "wagesImp"),
     gdp: gdpTotalFig(allG),
@@ -77,7 +86,7 @@ function marineSections(input) {
   const diversity = {
     sectors: list.map((k) => ({
       label: labels[k],
-      establishments: E.fig(secY[k].estabs, 0, 0),
+      establishments: secY[k].noAnchor ? whyCell(secY[k]) : E.fig(secY[k].estabs, 0, 0),
       wages: secFig(secY[k], "wages", "wagesImp"),
       employment: secFig(secY[k], "emp", "empImp"),
       gdp: gdpSecFig(secG[k]),
@@ -89,10 +98,11 @@ function marineSections(input) {
   // the coastal U.S. for that same year.
   const Yw = Math.min(Y, openEnow.ca.years[openEnow.ca.years.length - 1]);
   const secW = E.marineSectors(ctx, est, fips, Yw, shares, null);
+  if (noAnchor) secW[TOUR].noAnchor = true;
   const items = [], noJobs = [];
   for (const k of list) {
     const s = secW[k];
-    if (!(s.emp > 0)) { noJobs.push(labels[k]); continue; }
+    if (!(s.emp > 0) && !s.noAnchor) { noJobs.push(labels[k]); continue; }
     const rowOf = (series) => series.byYear[Yw].find((r) => r.sector === k);
     const avg = (r) => (r && r.employment > 0 ? round(r.wages / r.employment) : null);
     const st = avg(rowOf(openEnow.ca)), us = avg(rowOf(openEnow.us));

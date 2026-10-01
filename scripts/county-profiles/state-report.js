@@ -45,6 +45,18 @@ for (const c of spine.counties) {
       if (f.cat === "marked" || f.cat === "unmarked") { estShares.push(f.cell.est.share); estSteps[f.cell.est.step] = (estSteps[f.cell.est.step] || 0) + 1; }
     }
   }
+  // Tourism and recreation is withheld with reason no-calibration-anchor in exactly the counties whose calibration
+  // method is the ZIP rule (no usable original ENOW 2021 figure), in every measure; and nowhere else.
+  const mt = snap.topics["marine-economy"];
+  if (mt.available) {
+    const anchorless = snap.estimation.tourismShoreShare.jobs.method === "zip-rule";
+    const tour = mt.sections.diversity.data.sectors.find((x) => x.label === "Tourism and recreation");
+    for (const k of ["establishments", "wages", "employment", "gdp"]) {
+      const isNA = tour[k] && tour[k].suppressed === true && tour[k].reason === "no-calibration-anchor";
+      if (isNA !== anchorless) problems.push(c.name + ": tourism " + k + (anchorless ? " is not withheld although it has no calibration anchor" : " is withheld as no-calibration-anchor although it is calibrated"));
+    }
+    if (anchorless) figs.anchorless = (figs.anchorless || []).concat(c.name);
+  }
   for (const t of schema.topics) {
     const topic = snap.topics[t.id];
     const rule = schema.tiers[c.tier].topics[t.id];
@@ -134,7 +146,8 @@ if (base) {
 console.log("Reason codes and where each is used:");
 for (const r of reasons) console.log("  " + r + ": " + (where[r].length ? where[r].length + " (" + [...new Set(where[r].map((w) => w.replace(/^\S+( \S+)*? (?=\S+\/|\S+ \(topic\))/, "")))].slice(0, 4).join("; ") + ")" : "not used by any live county"));
 console.log("Value-level states: " + JSON.stringify(values));
-console.log("Economy figures (definition in scripts/county-profiles/figure-slots.js): " + figs.figures + " = " + figs.published + " published + " + figs.unmarked + " estimated, not marked + " + figs.marked + " estimated, marked ≈ + " + figs["withheld-rule"] + " withheld by the rule + " + figs["withheld-structural"] + " withheld (Public administration GDP). Partial totals (a flag, not a category): " + figs.partial + ".");
+console.log("Counties with tourism withheld for lack of a calibration anchor: " + ((figs.anchorless || []).join(", ") || "none") + ".");
+console.log("Economy figures (definition in scripts/county-profiles/figure-slots.js): " + figs.figures + " = " + figs.published + " published + " + figs.unmarked + " estimated, not marked + " + figs.marked + " estimated, marked ≈ + " + figs["withheld-rule"] + " withheld by the rule + " + figs["withheld-structural"] + " withheld (Public administration GDP) + " + figs["withheld-noanchor"] + " withheld (tourism and recreation, no calibration anchor). Partial totals (a flag, not a category): " + figs.partial + ".");
 if (estShares.length) {
   const sorted = estShares.slice().sort((a, b) => a - b), q = (p) => sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))];
   console.log("Estimated state: marker threshold " + ESTIMATED_SHARE_THRESHOLD + "; withholding threshold " + WITHHOLD_WEAK_SHARE + " of the value imputed at ladder steps 4 and 5 (scripts/county-profiles/estimated.js).");
