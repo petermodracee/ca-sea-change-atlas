@@ -13,7 +13,7 @@
 const { pct, num, usd, usdWords, compact } = require("./format.js");
 const usdCompact = (n) => compact(n, true, 2); // the big stat numbers: two decimals
 const { sectorIconFor } = require("./sector-icons.js");
-const { cellValue: cv, cellEst, isEstimatedCell, isPartialCell, ESTIMATED_SHARE_THRESHOLD } = require("./estimated.js");
+const { cellValue: cv, cellEst, isEstimatedCell, isPartialCell, ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE, WITHHOLD_REASONS } = require("./estimated.js");
 
 // A callout share is built with pc() so that, if it happens to equal a number the chart labels,
 // the callout can be restated at two decimals instead of failing the build over a coincidence.
@@ -33,10 +33,62 @@ const SECTOR_MEASURES = [
 // `print` is what the printed data table shows: the same abbreviation as the big-number callouts
 // ("$2.81B"), so a dollar amount reads one way on paper. The screen keeps `fmt`.
 
+const WEAK_PCT = Math.round(WITHHOLD_WEAK_SHARE * 100);
+const EST_PCT = Math.round(ESTIMATED_SHARE_THRESHOLD * 100);
+
+// One footnote per withheld-figure reason, chosen by the figure's own `reason` (estimated.js vocabulary), so a
+// footnote appears only for a reason that applies to a figure on the slide. `cells` is [{name, reason}].
+// Every wording is a function of (names, is/are, it/them, county); each says what is true for that reason only.
+const WITHHELD_WORDING = {
+  "weak-share": (n, be, it) => n + " " + be + " withheld: the public data hides " + it + ", and " + WEAK_PCT + "% or more of an estimate would rest on the two weakest methods, which our own test found unreliable.",
+  "no-data": (n, be, it) => n + " " + be + " withheld: the public data hides " + it + " and there is nothing to estimate " + it + " from.",
+  "gdp-unreproducible": (n, be, it) => n + " " + be + " withheld in every county: we could not reproduce NOAA’s ratio for " + it + ".",
+  "no-calibration-anchor": (n, be, it, C) => n + " " + be + " withheld in " + C + ": its shoreline share could not be calibrated to NOAA’s original 2021 county figure, which is withheld or zero there.",
+};
+const PARTIAL_TOTAL_SENTENCE = " Totals leave it out and are marked incomplete (*).";
+if (WITHHOLD_REASONS.some((r) => !WITHHELD_WORDING[r]) || Object.keys(WITHHELD_WORDING).some((r) => !WITHHOLD_REASONS.includes(r))) throw new Error("withheld footnote wording does not match the reason vocabulary");
+function withheldNotes(cells, C, totals) {
+  const byReason = new Map();
+  cells.forEach((c) => {
+    if (!WITHHELD_WORDING[c.reason]) throw new Error("withheld figure " + c.name + " has no known reason: " + c.reason);
+    if (!byReason.has(c.reason)) byReason.set(c.reason, []);
+    if (!byReason.get(c.reason).includes(c.name)) byReason.get(c.reason).push(c.name);
+  });
+  return WITHHOLD_REASONS.filter((r) => byReason.has(r)).map((r) => {
+    const names = byReason.get(r);
+    const one = names.length === 1;
+    const sentence = WITHHELD_WORDING[r](names.join("; "), one ? "is" : "are", one ? "it" : "them", C);
+    return "* " + sentence + (totals && (r === "gdp-unreproducible" || r === "no-calibration-anchor") ? PARTIAL_TOTAL_SENTENCE : "");
+  });
+}
+
+// GDP is modeled for every sector, so the slides that show it say how, and which year it is for.
+const GDP_MODEL = "is modeled from wages (all ownerships) and California’s GDP-to-wages ratio.";
+const gdpYearNote = (year, gdpYear) => {
+  const gap = year - gdpYear;
+  const when = gdpYear === year ? "Establishments, jobs, wages and GDP are for " + year + ". GDP " : "Establishments, jobs and wages are for " + year + ". GDP is for " + gdpYear + ", " + (gap === 1 ? "a year" : gap + " years") + " behind, and ";
+  return { text: when + GDP_MODEL, anchor: "economy-method", label: "How GDP is modeled" };
+};
+
+// Sector caveats that depend on what is inside a county's figure, keyed by county and sector (the snapshots carry no
+// per-industry rows, so this cannot be derived from them). The mechanism is general and is stated in the About page's
+// sector definitions; the figure is the traced one (docs/DECISIONS.md, "Santa Barbara marine transportation").
+const SECTOR_CAVEATS = [
+  { topicId: "marine-economy", county: "Santa Barbara", sector: "Marine transportation", text: "Santa Barbara’s marine transportation is dominated by navigation instruments manufacturing (NAICS 334511, about 1,500 jobs in 2021). The sector definition includes it, but its products are not all maritime." },
+];
+const caveatsFor = (topicId, county, sectors) => SECTOR_CAVEATS.filter((c) => c.topicId === topicId && c.county === county && sectors.includes(c.sector)).map((c) => c.text);
+
+// Tourism and recreation counts only activity in shoreline ZIP codes; stated wherever its figure is shown.
+const tourismNote = (estimation, county) => {
+  const t = estimation && estimation.tourismShoreShare && estimation.tourismShoreShare.jobs;
+  if (!t || t.method === "zip-rule") return null;
+  return { text: "Tourism and recreation counts only shoreline ZIP-code activity. Each county’s share is calibrated to NOAA’s original 2021 figure and held constant, so 2021 agrees with NOAA by construction." + (t.method === "calibrated-clamped" ? " " + county + "’s share is capped at 100%." : ""), anchor: "economy-method", label: "How shares are set" };
+};
+
 // Value cell -> display text; a suppressed cell has no text. A cell may carry provenance ({value, est}).
 const cellText = (v, fmt) => (isSuppressed(v) ? null : fmt(cv(v)));
 
-function buildSectionModel({ county, topicId, def, data, increments }) {
+function buildSectionModel({ county, topicId, def, data, increments, estimation, headlineYear }) {
   const C = county + " County";
   const shown = [];
   const show = (...s) => s.forEach((x) => { if (x !== null && x !== undefined) shown.push(String(x)); });
@@ -47,7 +99,7 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   // (ocean-connected plus low-lying) counts, drawn with the connected part solid and the additional
   // low-lying part dashed. The explanation lives on the County Profiles about page, not on the section.
   let hasLow = false;
-  let footnote = null; // overrides the generic "one or more values are withheld" text when set
+  const footnotes = []; // withheld-figure footnotes, one per reason (withheldNotes)
   // The estimated state: every figure drawn from this section that is marked "≈" (imputed share at or
   // above ESTIMATED_SHARE_THRESHOLD) is registered here, so the section can explain the mark once.
   const marks = [];
@@ -222,10 +274,14 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       ].map((s) => {
         const text = cellText(s.v, s.fmt);
         show(text);
-        return { label: s.label, text: text === null ? null : text + (isPartialCell(s.v) ? "*" : ""), suppressed: text === null, est: mark(s.v) };
+        return { label: s.label, text: text === null ? null : text + (isPartialCell(s.v) ? "*" : ""), suppressed: text === null, est: mark(s.v), reason: isSuppressed(s.v) ? s.v.reason : null };
       });
-      if (data.year) notes.push(data.gdpYear && data.gdpYear !== data.year ? "Establishments, jobs and wages are for " + data.year + "; GDP is for " + data.gdpYear + ", the newest year BEA publishes for these industries." : "All figures are for " + data.year + ".");
-      if (topicId === "total-economy" && isPartialCell(data.gdp)) notes.push("GDP leaves out Public administration, whose GDP is withheld in every county: BEA’s government GDP includes schools and hospitals that QCEW counts under other sectors, so no defensible GDP-to-wages ratio exists for it.");
+      if (data.year) notes.push(gdpYearNote(data.year, data.gdpYear || data.year));
+      footnotes.push(...withheldNotes(items.filter((i) => i.suppressed).map((i) => ({ name: i.label, reason: i.reason })), C, false));
+      // A starred total leaves out something withheld: Public administration's GDP (total economy) or a withheld sector (marine economy).
+      const gdpStar = topicId === "total-economy" && isPartialCell(data.gdp);
+      if (gdpStar) footnotes.push("* GDP leaves out Public administration, which is withheld in every county because we could not reproduce NOAA’s ratio for it.");
+      if ([data.establishments, data.jobs, data.wages, data.gdp].some((v, k) => isPartialCell(v) && !(gdpStar && k === 3))) footnotes.push("* Incomplete: leaves out a withheld sector (see the sector chart).");
       visual = { type: "stats", items, partial: [data.establishments, data.jobs, data.wages, data.gdp].some((v) => isSuppressed(v) || isPartialCell(v)) };
       // A callout never states a figure whose parts are withheld: a jobs total that leaves a sector out is a floor, so
       // its share of all jobs is not stated.
@@ -255,7 +311,9 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
           return { label: s.label, value: val, suppressed, est, text: suppressed ? "withheld" : (est ? "≈ " : "") + m.fmt(val), printText: suppressed ? "withheld" : (est ? "≈ " : "") + (m.print || m.fmt)(val), isHeadline: Boolean(top) && s.label === top.label, icon: sectorIconFor(s.label) };
         }),
       }));
-      if (data.year && data.gdpYear && data.gdpYear !== data.year) notes.push("Establishments, employment and wages are for " + data.year + "; GDP is for " + data.gdpYear + ", the newest year BEA publishes for these industries.");
+      if (data.year) notes.push(gdpYearNote(data.year, data.gdpYear || data.year));
+      if (topicId === "marine-economy") { const t = tourismNote(estimation, county); if (t && !data.sectors.some((s) => s.label === "Tourism and recreation" && isSuppressed(s.employment))) notes.push(t); }
+      notes.push(...caveatsFor(topicId, county, data.sectors.filter((s) => !isSuppressed(s.employment)).map((s) => s.label)));
       const partial = SECTOR_MEASURES.some((m) => data.sectors.some((s) => isSuppressed(s[m.key]) || isPartialCell(s[m.key])));
       visual = { type: "stacked100", legend: data.sectors.map((s) => s.label), measures, partial, headline: top ? top.label : null };
       // One denominator rule, everywhere: a share is always of the sectors actually known for that
@@ -278,21 +336,23 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         est: isEstimatedCell(top.employment),
       };
       if (withheld) {
-        // Say which measures are withheld for each sector, and why for Public administration's GDP.
-        const parts = data.sectors.map((s) => {
-          const ms = SECTOR_MEASURES.filter((m) => isSuppressed(s[m.key])).map((m) => (m.key === "gdp" ? "GDP" : m.label.toLowerCase()));
-          return ms.length ? (ms.length === SECTOR_MEASURES.length - 1 && !isSuppressed(s.establishments) ? s.label + " (" + ms.join(", ") + ")" : ms.length === 1 ? s.label + "’s " + ms[0] : s.label + " (" + ms.join(", ") + ")") : null;
-        }).filter(Boolean);
-        const paGdp = topicId === "total-economy" && data.sectors.some((s) => s.label === "Public administration" && isSuppressed(s.gdp));
-        footnote = "* Withheld, because the source does not publish it and the estimate that could stand in for it is too uncertain to show: " + parts.join("; ") + ". Shares shown are of the remaining sectors."
-          + (paGdp ? " Public administration’s GDP is withheld in every county: BEA’s government GDP includes schools and hospitals that QCEW counts under other sectors, so no defensible GDP-to-wages ratio exists for it, and the GDP total leaves it out." : "");
+        // One footnote per reason, naming each withheld sector and measure under its own reason.
+        const cells = [];
+        data.sectors.forEach((s) => {
+          const byReason = new Map();
+          SECTOR_MEASURES.forEach((m) => { if (isSuppressed(s[m.key])) { const r = s[m.key].reason; if (!byReason.has(r)) byReason.set(r, []); byReason.get(r).push(m.key === "gdp" ? "GDP" : m.label.toLowerCase()); } });
+          byReason.forEach((ms, reason) => cells.push({ reason, name: reason === "no-calibration-anchor" ? s.label : ms.length === 1 ? s.label + " " + ms[0] : s.label + " (" + ms.join(", ") + ")" }));
+        });
+        footnotes.push(...withheldNotes(cells, C, true), "Shares exclude withheld sectors.");
       }
       break;
     }
 
     case "sector-wages": {
       // As with sector-measures, no per-sector value is drawn as chart text.
-      const series = ["County", "Coastal California", "Coastal U.S."];
+      // Marine: Open ENOW's "All Coastal States" series, the coastal portions of 30 states (not the whole country).
+      const marine = topicId === "marine-economy";
+      const series = ["County", "Coastal California", marine ? "All Coastal States" : "Coastal U.S."];
       const keys = ["county", "coastalState", "coastalUS"];
       const items = data.items.map((i) => ({
         label: i.label,
@@ -302,7 +362,8 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
           return { value: isSuppressed(i[k]) ? null : cv(i[k]), text: est ? "≈ " + text : text, suppressed: isSuppressed(i[k]), est };
         }),
       }));
-      if (data.year) notes.push("All three series are for " + data.year + ", the newest year the comparison series covers, so the county's dot is for " + data.year + " rather than the headline year of the other slides.");
+      if (data.year) notes.push("Wages are for " + data.year + (headlineYear && headlineYear !== data.year ? " (other slides: " + headlineYear + ")" : "") + ", the newest year the comparison covers." + (marine ? " All Coastal States means the coastal portions of 30 states, not the whole country." : ""));
+      notes.push(...caveatsFor(topicId, county, data.items.filter((i) => !isSuppressed(i.county)).map((i) => i.label)));
       const partial = data.items.some((i) => keys.some((k) => isSuppressed(i[k])));
       visual = { type: "dots", items, series, partial };
       const present = data.items.filter((i) => !isSuppressed(i.county));
@@ -319,7 +380,9 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
       // A sector the county has no jobs in (data.noJobs) is simply not a row: the slide says nothing
       // about it, and /county-profiles/about/#sectors-not-shown explains it once for every county.
       // A withheld value is different (the publisher would not say), so it keeps its footnote.
-      if (partial) footnote = "* One or more average wages are withheld: the source does not publish them and the estimate that could stand in for them is too uncertain to show.";
+      const cells = [];
+      data.items.forEach((i) => keys.forEach((k, n) => { if (isSuppressed(i[k])) cells.push({ reason: i[k].reason, name: k === "county" ? i.label : i.label + " (" + series[n] + ")" }); }));
+      footnotes.push(...withheldNotes(cells, C, false));
       break;
     }
 
@@ -336,7 +399,9 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
         return { label: p.label, text: text === null ? null : text + (isPartialCell(p.v) ? "*" : ""), suppressed: text === null, est: p === undefined ? false : mark(p.v) };
       });
       visual = { type: "stats", pair: true, items: pairItems, partial: pairItems.some((i) => i.suppressed) || isPartialCell(data.employed) };
-      notes.push(data.employedYear === data.selfEmployedYear ? "Both counts are for " + data.employedYear + "." : "Employed workers are for " + data.employedYear + " and self-employed workers for " + data.selfEmployedYear + ", the newest year each source publishes. They describe different years, so they are not added.");
+      footnotes.push(...withheldNotes([[data.employed, "Employed workers"], [data.selfEmployed, "Self-employed workers"]].filter(([v]) => isSuppressed(v)).map(([v, name]) => ({ reason: v.reason, name })), C, false));
+      const selfSource = topicId === "marine-economy" ? "NOAA ENOW" : "Census Nonemployer Statistics";
+      notes.push("Employed workers: BLS QCEW, " + data.employedYear + ". Self-employed workers: " + selfSource + ", " + data.selfEmployedYear + ", the newest year it covers. They are separate counts and are not added.");
       const present = data.sectors.filter((s) => !isSuppressed(s.selfEmployed)).sort((a, b) => b.selfEmployed - a.selfEmployed);
       const withheld = data.sectors.some((s) => isSuppressed(s.selfEmployed));
       callout = withheld ? null : {
@@ -381,8 +446,8 @@ function buildSectionModel({ county, topicId, def, data, increments }) {
   const partial = Boolean((visual && visual.partial) || (callout && callout.partial));
   // `estimated` is set when any figure on this section carries the "≈" mark: the template then prints the
   // one-line explanation, and the callout's figure gets the mark when what it is built from is estimated.
-  const estimated = marks.length || (callout && callout.est) ? { count: marks.length, maxShare: marks.length ? Math.max(...marks) : null } : null;
-  return { visual, callout, partial, footnote, estimated, notes };
+  const estimated = marks.length || (callout && callout.est) ? { count: marks.length, maxShare: marks.length ? Math.max(...marks) : null, thresholdPercent: EST_PCT } : null;
+  return { visual, callout, partial, footnotes, estimated, notes };
 }
 
 module.exports = { buildSectionModel };

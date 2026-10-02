@@ -1329,6 +1329,96 @@ The 20 are the four counties' five tourism slots each (establishments, wages, em
 
 **Runtime and memory (re-measured).** The same cold run of the whole economy pipeline for all 27 counties (`run.js all --economy-only --refresh`, QCEW cache emptied) took 779 s (13 minutes) with a peak working set of 793 MB (follow-up 3: 1,352 s and 801 MB): memory unchanged; the shorter wall time is download speed on the day, since this round adds a flag and no computation.
 
+### Phase 7 follow-up 5: footnote and notes pass (wording only)
+
+**No data changed.** Snapshots are byte-identical to commit 115655d (`git diff 115655d -- site/data` is empty) and `diff-hazard.js` reports 54 files identical. Footnotes are not stored in the snapshots: they are built at render time in `scripts/county-profiles/section-models.js` (`withheldNotes`, `gdpYearNote`, `tourismNote`, `SECTOR_CAVEATS`) and `site/_includes/county-profiles/section-body.njk`. `model.footnote` (one string) became `model.footnotes` (one string per reason); notes may now carry a link (`{text, anchor, label}`).
+
+**How a footnote is chosen.** Each withheld figure's own `reason` picks the wording, so a footnote shows only for a reason present on that slide (`withheldNotes` throws on a missing or unknown reason, and at load if the wording table and `WITHHOLD_REASONS` disagree). Checked over all 172 economy sections in the snapshots: the reasons present in each section's data equal the reasons its footnotes state (weak-share 30 sections, gdp-unreproducible 40, no-calibration-anchor 8; `no-data` occurs in no shipped snapshot, so it was checked with a synthetic figure). The first (stats) slide has no sector data, so a starred total says "Incomplete: leaves out a withheld sector (see the sector chart)" and the sector chart gives the reasons.
+
+**Judgment calls.**
+- Santa Barbara marine transportation is keyed to county and sector (`SECTOR_CAVEATS`), not derived: the snapshots carry no per-industry rows, so the mechanism cannot be detected from them. The general statement (navigation instruments, NAICS 334511, in the marine transportation definition) is in the About page's definitions bullet. The slide note cites "about 1,500 jobs in 2021", the year it was traced (follow-up 2); the 2025 split was **not** traced (displayed 2025 marine transportation employment is 1,041, ≈, step 4).
+- The "All Coastal States (the coastal portions of 30 states)" wording is applied to the marine wages slide only. The total economy slide keeps "Coastal U.S.": that series comes from NOAA's Total Economy (Coastal), and its state footprint is not documented here.
+- GDP accuracy figures (Education and health within about 1%, other sectors roughly 1% to 10%, Other services 25%) are on the About page only, with the caveat that they are medians over the 20 total economy counties against NOAA's 2023 series; slides carry the model and the year lag and link there.
+- The tourism note is on the marine sector slide only (not repeated on the first and wages slides), to avoid repeating one note in the print block.
+- The marine economy print blocks gained words (required new content: GDP model, tourism calibration, comparator definition, Santa Barbara caveat); the total economy blocks lost words. Print page counts across San Francisco, Humboldt, Napa, San Joaquin, Yolo (delta), Santa Barbara and Del Norte: unchanged or fewer (Del Norte marine 5 to 4). Footnote and note words in the print blocks, summed over the 12 county-topics measured: 3,049 before, 2,999 after.
+
+**Data-side wording not fixed (needs regenerated snapshots).** The snapshot source labels "NOAA Open ENOW (California and coastal U.S.)" and "NOAA Total Economy (Coastal), coastal California and coastal U.S." appear in each page's sources lines and table. Vintages in every sources block match the slide years.
+
+#### Inventory of user-facing economy strings (before this round)
+
+| String | Words before | Status |
+|---|---|---|
+| section-body.njk: withheld footnote (generic, one text for every reason) | 24 | changed |
+| footnote, reason weak-share | 32 | changed |
+| footnote, reason no-data | 4 | changed |
+| footnote, reason gdp-unreproducible (diversity slide) | 36 | changed |
+| footnote, reason gdp-unreproducible (first slide) | 33 | changed |
+| footnote, reason no-calibration-anchor | 4 | changed |
+| first slide, marine total starred | 32 | changed |
+| wages slide withheld footnote | 28 | changed |
+| estimated (≈) footnote | 28 | changed |
+| note: years, first slide (years differ) | 19 | changed |
+| note: years, first slide (years equal) | 5 | changed |
+| note: years, sector slide | 23 | changed |
+| note: wages years | 29 | changed |
+| wages series label (marine) | 2 | changed |
+| note: wages comparator (marine, new) | 0 | changed |
+| note: Total Jobs | 32 | changed |
+| note: tourism (marine sector slide, new) | 0 | changed |
+| note: Santa Barbara marine transportation (marine sector and wages slides, new) | 0 | changed |
+| sector slide: denominator rule | 7 | changed |
+| deck.njk: JSON note on the data slide | 62 | changed |
+| About: Withheld values, zeros and gaps | 35 | changed |
+| About: marine definitions bullet | 0 | changed |
+| About: GDP bullet | 33 | changed |
+| About: tourism bullet | 30 | changed |
+| About: estimated paragraph | 17 | changed |
+| About: intended use (new h3, “What these figures are for”) | 0 | changed |
+| credits.json: NOAA Open ENOW note | 11 | changed |
+| sr-only “Estimated: ” and “(estimated)” in chart descriptions; “withheld” cell and tooltip text (section-body.njk, blocks-deck.njk, template-helpers.mjs) | n/a | unchanged: short, true, the screen-reader cue for ≈ and withheld |
+| callout captions (section-models.js) | n/a | unchanged: they describe the figure drawn; no stale claims |
+| “This topic omits jobs at risk …” (deck.njk, print-topic.njk) | n/a | unchanged: about jobs at risk, not an economy figure |
+| print footer and Sources lines and table (print-frame.njk, blocks-deck.njk sources macro) | n/a | unchanged: labels and vintages come from the snapshots; every vintage checked against each snapshot’s sources block and the slide years (all match) |
+| About: Economy data years | n/a | unchanged: every year is a template variable read from a snapshot’s sources block |
+| About: Withheld values and the imputation ladder; Differences from NOAA’s published ENOW | n/a | unchanged: checked against DECISIONS.md, true |
+| countyProfileSchema.json: intro and prose of the economy sections | n/a | unchanged: NOAA’s original wording, not a description of our figures |
+| Snapshot source labels “NOAA Open ENOW (California and coastal U.S.)” and “NOAA Total Economy (Coastal), coastal California and coastal U.S.” | n/a | unchanged (data): listed in the PR; fixing them needs regenerated snapshots |
+
+#### Before and after
+
+| Key | Old | New | Words old | Words new | Reason |
+|---|---|---|---|---|---|
+| section-body.njk: withheld footnote (generic, one text for every reason) | * {labels} is/are withheld: the source does not publish it/them, and the estimate that could stand in for it/them is too uncertain to show. | one footnote per reason (next four rows) | 24 | 7 | One text covered four reasons and was only true for some. |
+| footnote, reason weak-share | * Withheld, because the source does not publish it and the estimate that could stand in for it is too uncertain to show: {sector (measures)}. Shares shown are of the remaining sectors. | * {names} is/are withheld: the public data hides it, and 25% or more of an estimate would rest on the two weakest methods, which our own test found unreliable. | 32 | 29 | Says what the rule is; 25% is WITHHOLD_WEAK_SHARE. |
+| footnote, reason no-data | (the same generic text) | * {names} is/are withheld: the public data hides it and there is nothing to estimate it from. | 4 | 17 | Own wording. No figure in the shipped snapshots has this reason; checked with a synthetic case. |
+| footnote, reason gdp-unreproducible (diversity slide) | Public administration’s GDP is withheld in every county: BEA’s government GDP includes schools and hospitals that QCEW counts under other sectors, so no defensible GDP-to-wages ratio exists for it, and the GDP total leaves it out. | * Public administration GDP is withheld in every county: we could not reproduce NOAA’s ratio for it. Totals leave it out and are marked incomplete (*). | 36 | 26 | The old text stated a cause as established; the verified fact is that no ratio we tried reproduced NOAA’s. |
+| footnote, reason gdp-unreproducible (first slide) | GDP leaves out Public administration, whose GDP is withheld in every county: BEA’s government GDP includes schools and hospitals that QCEW counts under other sectors, so no defensible GDP-to-wages ratio exists for it. | * GDP leaves out Public administration, which is withheld in every county because we could not reproduce NOAA’s ratio for it. | 33 | 21 | Same. |
+| footnote, reason no-calibration-anchor | (the same generic text) | * Tourism and recreation is withheld in {County}: its shoreline share could not be calibrated to NOAA’s original 2021 county figure, which is withheld or zero there. Totals leave it out and are marked incomplete (*). | 4 | 36 | The generic text said the estimate was too uncertain, which is not why. |
+| first slide, marine total starred | * One or more values are withheld (the source does not publish them and the estimate that could stand in for them is too uncertain to show), so this figure is incomplete. | * Incomplete: leaves out a withheld sector (see the sector chart). | 32 | 11 | This slide has no sector data; the sector chart gives each reason. |
+| wages slide withheld footnote | * One or more average wages are withheld: the source does not publish them and the estimate that could stand in for them is too uncertain to show. | one footnote per reason, naming the sectors | 28 | 7 | Reason-specific. |
+| estimated (≈) footnote | Figures marked ≈ are partly estimated: BLS withholds some employers’ data for confidentiality, and the gap is filled from other years or wider industries. How estimates are made. | Figures marked ≈ (and hatched segments or dashed rings) are estimates: 25% or more of the value was filled in from other values rather than published. The mark is not colour alone. Detail: the JSON est fields and Data, methods and citation. How estimates are made. | 28 | 46 | States the threshold, that it is an estimate, where the detail is, and that colour is not the only cue. 25% is ESTIMATED_SHARE_THRESHOLD. |
+| note: years, first slide (years differ) | Establishments, jobs and wages are for 2025; GDP is for 2024, the newest year BEA publishes for these industries. | Establishments, jobs and wages are for 2025. GDP is for 2024, a year behind, and is modeled from wages (all ownerships) and California’s GDP-to-wages ratio. How GDP is modeled. | 19 | 29 | States the GDP model and lag (the gap is computed, not hardcoded). |
+| note: years, first slide (years equal) | All figures are for 2025. | Establishments, jobs, wages and GDP are for 2025. GDP is modeled from wages (all ownerships) and California’s GDP-to-wages ratio. How GDP is modeled. | 5 | 23 | GDP is modeled in every year. |
+| note: years, sector slide | Establishments, employment and wages are for 2025; GDP is for 2024, the newest year BEA publishes for these industries. (none when years equal) | same text as the first slide, also when years are equal | 23 | 11 | GDP is shown, so the model is stated. |
+| note: wages years | All three series are for 2024, the newest year the comparison series covers, so the county’s dot is for 2024 rather than the headline year of the other slides. | Wages are for 2024 (other slides: 2025), the newest year the comparison covers. | 29 | 13 | Gives both years; the headline year is read from the snapshot. |
+| wages series label (marine) | Coastal U.S. | All Coastal States | 2 | 3 | Open ENOW’s series is the coastal portions of 30 states, not national. |
+| note: wages comparator (marine, new) |  | All Coastal States means the coastal portions of 30 states, not the whole country. | 0 | 14 | Required wording. |
+| note: Total Jobs | Employed workers are for 2025 and self-employed workers for 2021, the newest year each source publishes. They describe different years, so they are not added. (equal years: Both counts are for X.) | Employed workers: BLS QCEW, 2025. Self-employed workers: NOAA ENOW, 2021, the newest year it covers. They are separate counts and are not added. (total economy: Census Nonemployer Statistics, 2024) | 32 | 29 | Names each source with its year; one wording for equal and unequal years; no note implies a sum. |
+| note: tourism (marine sector slide, new) |  | Tourism and recreation counts only shoreline ZIP-code activity. Each county’s share is calibrated to NOAA’s original 2021 figure and held constant, so 2021 agrees with NOAA by construction. (Del Norte: its share is capped at 100%.) How shares are set. | 0 | 40 | Required; the cap sentence is read from the calibration method, not from a county name. |
+| note: Santa Barbara marine transportation (marine sector and wages slides, new) |  | Santa Barbara’s marine transportation is dominated by navigation instruments manufacturing (NAICS 334511, about 1,500 jobs in 2021). The sector definition includes it, but its products are not all maritime. | 0 | 29 | Keyed to county and sector (SECTOR_CAVEATS in section-models.js) because the snapshots carry no per-industry rows, so the mechanism cannot be detected. The general statement is in About. Shown only when the figure is shown. |
+| sector slide: denominator rule | Shares shown are of the remaining sectors. | Shares exclude withheld sectors. | 7 | 4 | Shorter, same meaning. |
+| deck.njk: JSON note on the data slide | In the JSON download, a figure with an est object was partly imputed (share: the imputed fraction; weakShare: the part imputed at the two weakest steps of the ladder; step: the weakest step used), and "suppressed": true marks a withheld figure, with a reason. To keep only published figures, leave out any figure that has an est object or a suppressed flag. | same content, reworded as shorter sentences | 62 | 6 | Marginal; no change in meaning. |
+| About: Withheld values, zeros and gaps | Withheld is a figure this page does not show: the source does not publish it and the estimate that could stand in for it is too uncertain, or there is nothing to estimate it from. | Withheld is a figure this page does not show, for one of four reasons that the slide’s footnote and the JSON reason field give (weak methods, nothing to estimate from, GDP ratio not reproduced, tourism share not calibrated). | 35 | 38 | Matches the four-reason vocabulary. |
+| About: marine definitions bullet |  | + Some codes cover products that are not all maritime: marine transportation includes navigation instruments manufacturing (NAICS 334511), which can make up most of a county’s marine transportation jobs (Santa Barbara, about 1,500 jobs in 2021). | 0 | 36 | The generic mechanism, in one place. |
+| About: GDP bullet | a sector’s GDP is the county’s wages … times California’s ratio … with wages of all ownerships in the ratio. Public administration’s GDP is withheld … so no defensible ratio exists for it | modeled, not reported; all-ownership wages; marine GDP runs a year behind; against NOAA’s 2023 county figures Education and health matches within about 1% (median county), other sectors roughly 1% to 10%, Other services 25%; Public administration withheld (no ratio we tried reproduces NOAA’s) | 33 | 43 | Figures from DECISIONS.md (review round, total economy table): medians 0.8%, 1.2% to 10.4%, 24.6%. |
+| About: tourism bullet | tourism and recreation is anchored to the original ENOW’s 2021 county figures … Where the original’s figure is withheld or zero there is nothing to anchor to, and … withheld | each county’s share is calibrated to the original’s 2021 county figure, held for other years, capped at 100% (counties read from the snapshots); agrees with the original in 2021 by construction, which is not a measure of accuracy; withheld where there is nothing to calibrate to | 30 | 46 | Item 7; the capped counties come from the snapshots. |
+| About: estimated paragraph | The two parent-average steps of the ladder (4 and 5) are much less accurate than the others | … were much less accurate in our own test (median error about 18% and 27%, against 5% to 8% for steps 1 to 3) | 17 | 24 | Numbers from the backtest table (17.9%, 26.6%; 5.2% to 7.7%). |
+| About: intended use (new h3, “What these figures are for”) |  | The county economy figures describe the approximate size and mix of each sector. They are not exact counts. They are built on a different basis from NOAA’s original county series, whose county figures add up to less than its own California totals in the five sectors other than tourism (by 6% to 48%, because it withholds cells) … The imputation test … is a best case: the cells that are actually withheld are the concentrated ones … | 0 | 77 | Item 10; 6% to 48% is from follow-up 4. |
+| credits.json: NOAA Open ENOW note | …the California and coastal U.S. values on the marine wages chart | …the California and All Coastal States (the coastal portions of 30 states) values … | 11 | 14 | Comparator naming. |
+
+Word totals of the quoted texts: 526 before, 679 after, over 27 changed strings (rows with an elided old or new text are approximate, and new rows have no old text, so the totals are not a like-for-like measure).
+
+
 ## Behavior
 
 ### Nominatim: submit only

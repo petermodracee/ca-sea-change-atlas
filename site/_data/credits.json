@@ -206,7 +206,7 @@
         {
           "name": "NOAA Open ENOW",
           "url": "https://coast.noaa.gov/digitalcoast/data/openenow.html",
-          "note": "County Profiles: the method (sector and NAICS definitions, the imputation ladder, the GDP approach) that the county marine economy estimates follow, and the California and coastal U.S. values on the marine wages chart, read through NOAA's data API.",
+          "note": "County Profiles: the method (sector and NAICS definitions, the imputation ladder, the GDP approach) that the county marine economy estimates follow, and the California and All Coastal States (the coastal portions of 30 states) values on the marine wages chart, read through NOAA's data API.",
           "licenses": [
             "pd-us"
           ]

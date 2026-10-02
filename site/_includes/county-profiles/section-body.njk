@@ -18,11 +18,8 @@
 {%- if not (v and v.type == "stat-pair") %}
 {%- for p in def.prose %}{% if not loop.first %}<p class="cpd-note">{{ p }}</p>{% endif %}{% endfor %}
 {%- endif %}
-{#- Named per stat, not a generic disclaimer: the footnote says which value(s) are withheld. A
-    section can instead set its own model.footnote (e.g. Diverse Economies' denominator rule),
-    which always wins over this generic computation. -#}
-{%- set withheldLabels = [] %}
-{%- if v and v.type == "stats" %}{% for it in v.items %}{% if it.suppressed %}{% set _ = withheldLabels.push(it.label) %}{% endif %}{% endfor %}{% endif %}
+{#- Withheld figures are explained by model.footnotes (section-models.js), one footnote per reason, each naming
+    the figures it covers. -#}
 {%- if v %}
 {%- if v.type == "rings" %}
 {%- set basis = "" if def.id == "natural-features" else topic.basis %}
@@ -49,14 +46,12 @@
 {%- for p in def.prose %}{% if not loop.first %}<p class="cpd-footnote">{{ p }}</p>{% endif %}{% endfor %}
 {%- endif %}
 {%- for n in model.notes %}
-<p class="cpd-footnote">{{ n }}</p>
+<p class="cpd-footnote">{% if n.text %}{{ n.text }} <a href="{{ ('/county-profiles/about/#' ~ n.anchor) | url }}">{{ n.label }}</a>.{% else %}{{ n }}{% endif %}</p>
+{%- endfor %}
+{%- for f in model.footnotes %}
+<p class="cpd-footnote">{{ f }}</p>
 {%- endfor %}
 {%- if model.estimated %}
-<p class="cpd-footnote cpd-est-note"><span class="cp-est-mark" aria-hidden="true">≈</span> <strong>Estimated.</strong> {% if v and v.type == "stacked100" %}Hatched segments and figures marked ≈ are{% elif v and v.type == "dots" %}Dots ringed with dashes and figures marked ≈ are{% else %}Figures marked ≈ are{% endif %} partly estimated: BLS withholds some employers' data for confidentiality, and the gap is filled from other years or wider industries. <a href="{{ '/county-profiles/about/#estimated' | url }}">How estimates are made</a>.</p>
-{%- endif %}
-{%- if model.footnote %}
-<p class="cpd-footnote">{{ model.footnote }}</p>
-{%- elif model.partial %}
-<p class="cpd-footnote">{% if withheldLabels.length %}* {{ withheldLabels | join(" and ") }} {{ "is" if withheldLabels.length == 1 else "are" }} withheld: the source does not publish {{ "it" if withheldLabels.length == 1 else "them" }}, and the estimate that could stand in for {{ "it" if withheldLabels.length == 1 else "them" }} is too uncertain to show.{% else %}* One or more values are withheld (the source does not publish them and the estimate that could stand in for them is too uncertain to show), so this figure is incomplete.{% endif %}</p>
+<p class="cpd-footnote cpd-est-note"><span class="cp-est-mark" aria-hidden="true">≈</span> <strong>Estimated.</strong> Figures marked ≈{% if v and v.type == "stacked100" %} (and hatched segments){% elif v and v.type == "dots" %} (and dashed rings){% endif %} are estimates: {{ model.estimated.thresholdPercent }}% or more of the value was filled in from other values rather than published. The mark is not colour alone. Detail: the JSON <code>est</code> fields and Data, methods and citation. <a href="{{ '/county-profiles/about/#estimated' | url }}">How estimates are made</a>.</p>
 {%- endif %}
 {%- endif %}

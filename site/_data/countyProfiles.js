@@ -101,7 +101,8 @@ function buildTopicSections(profile, topicDef) {
     .map((def) => {
       const sec = topic.sections[def.id];
       if (!sec.use.ui) return null;
-      const model = sec.available ? buildSectionModel({ county: profile.county, topicId: topicDef.id, def, data: sec.data, increments }) : null;
+      const headlineYear = topic.sections.measuring && topic.sections.measuring.available ? topic.sections.measuring.data.year : null;
+      const model = sec.available ? buildSectionModel({ county: profile.county, topicId: topicDef.id, def, data: sec.data, increments, estimation: profile.estimation, headlineYear }) : null;
       return { def, sec, model };
     })
     .filter(Boolean);
@@ -242,8 +243,10 @@ function economyMethod() {
   const year = (key) => { const s = c.profile.sources[key]; return s && s.vintage ? s.vintage.year : null; };
   // The counties whose tourism and recreation is withheld for want of a calibration anchor, read from the snapshots.
   const noAnchorCounties = counties.filter((x) => x.profile && x.profile.estimation && x.profile.estimation.tourismShoreShare.jobs.method === "zip-rule").map((x) => x.name);
+  // The counties whose tourism share was capped at 100% by the calibration.
+  const clampedCounties = counties.filter((x) => x.profile && x.profile.estimation && x.profile.estimation.tourismShoreShare.jobs.method === "calibrated-clamped").map((x) => x.name);
   return {
-    noAnchorCounties,
+    noAnchorCounties, clampedCounties,
     qcew: year("qcew"), qcewWages: year("qcew-wages"), beaMarine: year("bea-marine"), beaTotal: year("bea-total"), zbp: year("zbp"),
     openEnow: year("open-enow"), enowSelf: year("enow-self"), coastalEconomy: year("coastal-economy"), nes: year("nes"), totalWages: year("qcew-total-wages"),
     thresholdPercent: Math.round(ESTIMATED_SHARE_THRESHOLD * 100), shoreMetres: SHORE_TOLERANCE_M, withholdPercent: Math.round(WITHHOLD_WEAK_SHARE * 100),
