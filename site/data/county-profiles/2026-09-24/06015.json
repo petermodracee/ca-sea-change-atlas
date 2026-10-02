@@ -238,7 +238,7 @@
       "verified": "2026-10-01"
     },
     "open-enow": {
-      "label": "NOAA Open ENOW (California and coastal U.S.)",
+      "label": "NOAA Open ENOW (California and All Coastal States)",
       "url": "https://coast.noaa.gov/digitalcoast/data/openenow.html",
       "vintage": {
         "kind": "year",

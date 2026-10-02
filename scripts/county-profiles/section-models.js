@@ -74,7 +74,7 @@ const gdpYearNote = (year, gdpYear) => {
 // per-industry rows, so this cannot be derived from them). The mechanism is general and is stated in the About page's
 // sector definitions; the figure is the traced one (docs/DECISIONS.md, "Santa Barbara marine transportation").
 const SECTOR_CAVEATS = [
-  { topicId: "marine-economy", county: "Santa Barbara", sector: "Marine transportation", text: "Santa Barbara’s marine transportation is dominated by navigation instruments manufacturing (NAICS 334511, about 1,500 jobs in 2021). The sector definition includes it, but its products are not all maritime." },
+  { topicId: "marine-economy", county: "Santa Barbara", sector: "Marine transportation", text: "Santa Barbara’s marine transportation is dominated by navigation instruments manufacturing (NAICS 334511). The sector definition includes it, but its products are not all maritime." },
 ];
 const caveatsFor = (topicId, county, sectors) => SECTOR_CAVEATS.filter((c) => c.topicId === topicId && c.county === county && sectors.includes(c.sector)).map((c) => c.text);
 

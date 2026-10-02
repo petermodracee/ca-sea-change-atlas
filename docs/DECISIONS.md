@@ -1336,13 +1336,13 @@ The 20 are the four counties' five tourism slots each (establishments, wages, em
 **How a footnote is chosen.** Each withheld figure's own `reason` picks the wording, so a footnote shows only for a reason present on that slide (`withheldNotes` throws on a missing or unknown reason, and at load if the wording table and `WITHHOLD_REASONS` disagree). Checked over all 172 economy sections in the snapshots: the reasons present in each section's data equal the reasons its footnotes state (weak-share 30 sections, gdp-unreproducible 40, no-calibration-anchor 8; `no-data` occurs in no shipped snapshot, so it was checked with a synthetic figure). The first (stats) slide has no sector data, so a starred total says "Incomplete: leaves out a withheld sector (see the sector chart)" and the sector chart gives the reasons.
 
 **Judgment calls.**
-- Santa Barbara marine transportation is keyed to county and sector (`SECTOR_CAVEATS`), not derived: the snapshots carry no per-industry rows, so the mechanism cannot be detected from them. The general statement (navigation instruments, NAICS 334511, in the marine transportation definition) is in the About page's definitions bullet. The slide note cites "about 1,500 jobs in 2021", the year it was traced (follow-up 2); the 2025 split was **not** traced (displayed 2025 marine transportation employment is 1,041, ≈, step 4).
+- Santa Barbara marine transportation is keyed to county and sector (`SECTOR_CAVEATS`), not derived: the snapshots carry no per-industry rows, so the mechanism cannot be detected from them. The general statement (navigation instruments, NAICS 334511, in the marine transportation definition) is in the About page's definitions bullet. The slide note originally cited "about 1,500 jobs in 2021", the year it was traced (follow-up 2); the 2025 split was **not** traced (displayed 2025 marine transportation employment is 1,041, ≈, step 4), so follow-up 6 removed the count and the year from the note and the About bullet.
 - The "All Coastal States (the coastal portions of 30 states)" wording is applied to the marine wages slide only. The total economy slide keeps "Coastal U.S.": that series comes from NOAA's Total Economy (Coastal), and its state footprint is not documented here.
 - GDP accuracy figures (Education and health within about 1%, other sectors roughly 1% to 10%, Other services 25%) are on the About page only, with the caveat that they are medians over the 20 total economy counties against NOAA's 2023 series; slides carry the model and the year lag and link there.
 - The tourism note is on the marine sector slide only (not repeated on the first and wages slides), to avoid repeating one note in the print block.
 - The marine economy print blocks gained words (required new content: GDP model, tourism calibration, comparator definition, Santa Barbara caveat); the total economy blocks lost words. Print page counts across San Francisco, Humboldt, Napa, San Joaquin, Yolo (delta), Santa Barbara and Del Norte: unchanged or fewer (Del Norte marine 5 to 4). Footnote and note words in the print blocks, summed over the 12 county-topics measured: 3,049 before, 2,999 after.
 
-**Data-side wording not fixed (needs regenerated snapshots).** The snapshot source labels "NOAA Open ENOW (California and coastal U.S.)" and "NOAA Total Economy (Coastal), coastal California and coastal U.S." appear in each page's sources lines and table. Vintages in every sources block match the slide years.
+**Data-side wording not fixed in follow-up 5 (the Open ENOW label was fixed in follow-up 6).** The snapshot source labels "NOAA Open ENOW (California and coastal U.S.)" and "NOAA Total Economy (Coastal), coastal California and coastal U.S." appear in each page's sources lines and table. Vintages in every sources block match the slide years.
 
 #### Inventory of user-facing economy strings (before this round)
 
@@ -1418,6 +1418,13 @@ The 20 are the four counties' five tourism slots each (establishments, wages, em
 
 Word totals of the quoted texts: 526 before, 679 after, over 27 changed strings (rows with an elided old or new text are approximate, and new rows have no old text, so the totals are not a like-for-like measure).
 
+
+### Phase 7 follow-up 6: Santa Barbara note and the Open ENOW source label
+
+- **Santa Barbara marine transportation note.** Removed "about 1,500 jobs in 2021" from the slide note (`SECTOR_CAVEATS` in `section-models.js`) and from the About page's definitions bullet. The slides show 2025 and only the 2021 split was traced, so a reader would take 1,500 as the figure on the page. The note now names the industry and NAICS code and says the sector definition includes it but its products are not all maritime. The 2021 trace stays in the follow-up 2 records above.
+- **Open ENOW source label.** "NOAA Open ENOW (California and coastal U.S.)" is now "NOAA Open ENOW (California and All Coastal States)": Open ENOW's comparator is the coastal portions of 30 states. Changed at its source (`economySources` in `pipeline/economy-topics.js`) and in `docs/COUNTY-PROFILES.md`.
+- **Total Economy label unchanged.** "NOAA Total Economy (Coastal), coastal California and coastal U.S." keeps NOAA's own wording, because the 30-state footprint is verified only for Open ENOW. That footprint stays on the PR's "not verified" list.
+- **Snapshots patched in place.** The label string was replaced by script in the 46 committed snapshot files (23 counties, `latest/` and `2026-09-24/`), not by a regenerate, so nothing was re-fetched and no `retrieved` or `verified` date, figure, state, threshold or provenance field changed. A regenerate would produce the same string. The dated files were edited because nothing is published yet (the pre-publication reset above); `latest/` and the dated copies stay identical in content, and `check-archive.js` against the PR base reports these as edits to files the stack already carries.
 
 ## Behavior
 

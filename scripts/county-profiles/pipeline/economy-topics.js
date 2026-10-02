@@ -63,7 +63,7 @@ function economySources({ S, eco, nes, meta }) {
     out["qcew-wages"] = { label: "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year", url: "https://www.bls.gov/cew/", vintage: vintageYear(m.wagesYear), retrieved: em.retrieved.qcew, verified: ver.qcew };
     out["bea-marine"] = { label: bea, url: "https://www.bea.gov/data/gdp/gdp-industry", vintage: vintageYear(m.gdpYear), retrieved: em.retrieved.bea, verified: ver.bea };
     out.zbp = { label: "Census ZIP Code Business Patterns and shoreline-adjacent ZIP codes", url: "https://www.census.gov/programs-surveys/cbp/data/datasets.html", vintage: vintageYear(em.zbpYear), retrieved: em.retrieved.zbp, verified: ver.zbp };
-    out["open-enow"] = { label: "NOAA Open ENOW (California and coastal U.S.)", url: "https://coast.noaa.gov/digitalcoast/data/openenow.html", vintage: vintageYear(em.openEnowYear), retrieved: em.retrieved.openEnow, verified: ver.openEnow };
+    out["open-enow"] = { label: "NOAA Open ENOW (California and All Coastal States)", url: "https://coast.noaa.gov/digitalcoast/data/openenow.html", vintage: vintageYear(em.openEnowYear), retrieved: em.retrieved.openEnow, verified: ver.openEnow };
     out["enow-self"] = { label: "NOAA ENOW self-employed workers", url: "https://coast.noaa.gov/digitalcoast/data/enow-nes.html", vintage: vintageYear(S.selfYear), retrieved: meta.enow.retrieved, verified: ver.enow };
   }
   if (eco.total) {
