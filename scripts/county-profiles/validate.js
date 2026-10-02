@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const opcReference = require("../../site/_data/opcGaugeProjections.json");
 const site = require("../../site/_data/site.js");
+const { WITHHOLD_REASONS } = require("./estimated");
 
 // A stale reference to the site's old GitHub Pages home (petermodracee.github.io/ca-sea-change-atlas/),
 // left over from before the seachangeatlas.org move. Every internal link and generated URL (canonical,
@@ -57,8 +58,20 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
   const isQty = (v) => typeof v === "number" && Number.isFinite(v) && v >= 0;
   const isCount = (v) => Number.isInteger(v) && v >= 0;
   const isStr = (v) => typeof v === "string" && v.length > 0;
-  const isSuppressed = (v) => isObj(v) && v.suppressed === true && Object.keys(v).length === 1;
+  // A withheld figure is {suppressed: true, reason}, the reason from the closed vocabulary in estimated.js.
+  const isSuppressed = (v) => {
+    if (!isObj(v) || v.suppressed !== true) return false;
+    if (!WITHHOLD_REASONS.includes(v.reason)) fail("a withheld figure needs a reason, one of " + WITHHOLD_REASONS.join(", ") + " (found " + JSON.stringify(v.reason) + ")");
+    return Object.keys(v).sort().join() === "reason,suppressed";
+  };
   const isDate = (v) => ISO_DATE.test(v || "");
+  // A figure with provenance: {value, est: {share, step}} (partly imputed), {value, partial: true} (a sum
+  // with a component nothing could estimate), or both. A published figure is a plain number.
+  const isFig = (v) => isObj(v) && isQty(v.value)
+    && Object.keys(v).every((k) => ["value", "est", "partial"].includes(k))
+    && (v.est !== undefined || v.partial !== undefined)
+    && (v.partial === undefined || v.partial === true)
+    && (v.est === undefined || (isObj(v.est) && Object.keys(v.est).sort().join() === "share,step,weakShare" && typeof v.est.share === "number" && v.est.share > 0 && v.est.share <= 1 && Number.isInteger(v.est.step) && v.est.step >= 1 && v.est.step <= 5 && typeof v.est.weakShare === "number" && v.est.weakShare >= 0 && v.est.weakShare <= v.est.share + 0.0002));
 
   const entry = spine.counties.find((c) => c.fips === snap.fips);
   if (!entry) fail("fips " + snap.fips + " is not in the county spine");
@@ -137,8 +150,8 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
     const suppressible = SUPPRESSIBLE_TOPICS.has(topicId);
     // A value that is a quantity, or {suppressed: true} where the topic allows it.
     const cell = (v, w) => {
-      if (suppressible && isSuppressed(v)) return;
-      if (!isQty(v)) fail(w + " must be a number >= 0" + (suppressible ? " or {\"suppressed\": true}" : "") + " (null is not zero; mark the section unavailable instead)");
+      if (suppressible && (isSuppressed(v) || isFig(v))) return;
+      if (!isQty(v)) fail(w + " must be a number >= 0" + (suppressible ? ", {\"suppressed\": true} or {value, est, partial}" : "") + " (null is not zero; mark the section unavailable instead)");
     };
     const share = (o, w) => {
       if (!isObj(o) || !isQty(o.count) || !isQty(o.total) || o.total <= 0) fail(w + " needs count >= 0 and total > 0");
@@ -242,16 +255,12 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
           if (data.noJobs.some((l) => data.items.some((it) => it.label === l))) fail(where + ".data.noJobs names a sector that is also in items");
         }
         break;
-      case "jobs-equation": {
+      case "jobs-pair": {
+        // Employed and self-employed are two separate figures with their own years; there is no total.
         cell(data.employed, where + ".data.employed");
         cell(data.selfEmployed, where + ".data.selfEmployed");
-        const t = data.total;
-        if (!isObj(t) || !isQty(t.value) || typeof t.partial !== "boolean") fail(where + ".data.total must be {value, partial}");
-        const parts = [data.employed, data.selfEmployed];
-        const anySuppressed = parts.some(isSuppressed);
-        if (t.partial !== anySuppressed) fail(where + ".data.total.partial must be true if and only if a component is suppressed");
-        const sum = parts.reduce((s, p) => s + (isSuppressed(p) ? 0 : p), 0);
-        if (t.value !== sum) fail(where + ".data.total.value must equal the sum of the components that are present (" + sum + ")");
+        for (const k of ["employedYear", "selfEmployedYear"]) if (!Number.isInteger(data[k]) || data[k] < 1990 || data[k] > 2100) fail(where + ".data." + k + " must be a four-digit year");
+        if ("total" in data) fail(where + ".data.total is not allowed: employed and self-employed are not added");
         if (!Array.isArray(data.sectors) || !data.sectors.length) fail(where + ".data.sectors must be a non-empty array");
         data.sectors.forEach((s, i) => {
           if (!isStr(s.label)) fail(where + ".data.sectors[" + i + "].label is required");
@@ -273,6 +282,20 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
       if (!isQty(data[field])) fail(where + ".data." + field + " must be a number >= 0");
     }
   }
+
+  // Provenance of the estimated tourism shoreline share (Phase 7): required for a county with a marine topic.
+  const marineOn = schema.tiers[snap.tier].topics["marine-economy"].available;
+  if (marineOn) {
+    const th = isObj(snap.estimation) && snap.estimation.thresholds;
+    if (!isObj(th) || Object.keys(th).sort().join() !== "marker,withholdWeakShare" || ![th.marker, th.withholdWeakShare].every((x) => typeof x === "number" && x > 0 && x <= 1)) fail("estimation.thresholds must be {marker, withholdWeakShare}, numbers in (0, 1]");
+    const t = isObj(snap.estimation) && snap.estimation.tourismShoreShare;
+    if (!isObj(t)) fail("estimation.tourismShoreShare is required when the marine economy topic is available");
+    for (const k of ["jobs", "establishments"]) {
+      const c = t[k];
+      if (!isObj(c) || !["calibrated", "calibrated-clamped", "zip-rule"].includes(c.method) || typeof c.share !== "number" || c.share < 0 || c.share > 1 || !(c.target2021 === null || isCount(c.target2021))) fail("estimation.tourismShoreShare." + k + " needs {method, share in [0, 1], target2021}");
+      if (c.method === "zip-rule" && c.target2021 !== null) fail("estimation.tourismShoreShare." + k + " used the ZIP rule although a 2021 target exists");
+    }
+  } else if ("estimation" in snap) fail("estimation is only for a county with a marine economy topic");
 
   if (!isObj(snap.topics)) fail("topics is required");
   const topicIds = schema.topics.map((t) => t.id);

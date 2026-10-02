@@ -11,10 +11,12 @@
 //
 // Three value states stay apart: zero is a number, a withheld figure is {suppressed: true} (ENOW
 // writes "SUP"), and an unavailable section carries a reason. A total that has a withheld component
-// is {value, partial: true}.
+// is {value, partial: true}. A fourth value state (Phase 7) is `estimated`: an economy figure with imputed
+// components carries {value, est: {share, step}} (see scripts/county-profiles/estimated.js).
 
 const { projectionsFor } = require("../timing");
 const reference = require("../../../site/_data/opcGaugeProjections.json");
+const { buildEconomyTopics } = require("./economy-topics");
 
 const USE = { ui: true, pdf: true, present: true };
 const METHOD = 1; // Still in development: stays 1 until the tool is fully published (see docs/COUNTY-PROFILES.md).
@@ -22,81 +24,13 @@ const METHOD = 1; // Still in development: stays 1 until the tool is fully publi
 const round = (n) => Math.round(n);
 const round1 = (n) => Math.round(n * 10) / 10;
 
-const SUPPRESSED = { suppressed: true };
-const isSup = (v) => v === "SUP" || v === null || v === undefined || v === -9999 || v === "-9999";
-// A published quantity, or a withheld marker; `rounder` is the rounding the figure is stored at.
-const qty = (v, rounder = round) => (isSup(v) ? { ...SUPPRESSED } : rounder(Number(v)));
-const isSuppressedCell = (v) => v !== null && typeof v === "object" && v.suppressed === true;
-
-// The eleven sectors of the total economy: display label, the name in the data API (which cuts the
-// longest one short), and the Nonemployer Statistics 2-digit NAICS codes that make it up. NES
-// publishes no 55 (management) and no public administration: those have no nonemployers.
-const TOTAL_SECTORS = [
-  { label: "Construction", api: "Construction", naics: ["23"] },
-  { label: "Financial activities", api: "Financial Activities", naics: ["52", "53"] },
-  { label: "Education and health services", api: "Education and Health Services", naics: ["61", "62"] },
-  { label: "Information", api: "Information", naics: ["51"] },
-  { label: "Leisure and hospitality", api: "Leisure and Hospitality", naics: ["71", "72"] },
-  { label: "Manufacturing", api: "Manufacturing", naics: ["31-33"] },
-  { label: "Natural resources and mining", api: "Natural Resources and Mining", naics: ["11", "21"] },
-  { label: "Other services", api: "Other Services", naics: ["81"] },
-  { label: "Professional and business services", api: "Professional and Business Services", naics: ["54", "56"] },
-  { label: "Public administration", api: "Public Administration", naics: [] },
-  { label: "Trade, transportation, and utilities", api: "Trade, Transportation, and Utilitie", naics: ["22", "42", "44-45", "48-49"] },
-];
-const MARINE_SECTORS = [
-  { label: "Living resources", api: "Living Resources" },
-  { label: "Marine construction", api: "Marine Construction" },
-  { label: "Marine transportation", api: "Marine Transportation" },
-  { label: "Offshore mineral resources", api: "Offshore Mineral Resources" },
-  { label: "Ship and boat building", api: "Ship and Boat Building" },
-  { label: "Tourism and recreation", api: "Tourism and Recreation" },
-];
-
-const rowOf = (rows, api) => {
-  const hit = rows.find((r) => r.sector.startsWith(api.slice(0, 20)));
-  if (!hit) throw new Error("the economy data has no row for " + api);
-  return hit;
-};
-
-// Average wage per job for one sector row: a figure, a withheld marker, or NO_JOBS when the sector
-// has no jobs there (a real zero: there is nobody to average over, so no dot is drawn).
-const NO_JOBS = Symbol("no jobs");
-function avgWage(row) {
-  if (isSup(row.wages) || isSup(row.employment)) return { ...SUPPRESSED };
-  const jobs = Number(row.employment);
-  return jobs > 0 ? round(Number(row.wages) / jobs) : NO_JOBS;
-}
-
-// Sector-wages section data: one row per sector with a dot each for the county, the coastal state
-// and the coastal U.S. A sector the county has no jobs in is left out and named in `noJobs`.
-function wagesData(sectors, county, state, nation) {
-  const items = [], noJobs = [];
-  for (const s of sectors) {
-    const c = avgWage(rowOf(county, s.api));
-    if (c === NO_JOBS) { noJobs.push(s.label); continue; }
-    const st = avgWage(rowOf(state, s.api)), us = avgWage(rowOf(nation, s.api));
-    if (st === NO_JOBS || us === NO_JOBS) throw new Error("the coastal state or U.S. series has no jobs in " + s.label);
-    items.push({ label: s.label, county: c, coastalState: st, coastalUS: us });
-  }
-  return noJobs.length ? { items, noJobs } : { items };
-}
-
-// Total-jobs equation: employed + self-employed. The total is the sum of the components that are
-// present, and is partial when either is withheld.
-function jobsEquation(employed, selfEmployed, sectors) {
-  const parts = [employed, selfEmployed];
-  const value = parts.reduce((s, p) => s + (isSuppressedCell(p) ? 0 : p), 0);
-  return { employed, selfEmployed, total: { value, partial: parts.some(isSuppressedCell) }, sectors };
-}
-
 function pruneSources(sources, topics) {
   const cited = new Set();
   for (const t of Object.values(topics)) for (const s of Object.values(t.sections)) for (const k of s.sources) cited.add(k);
   return Object.fromEntries(Object.entries(sources).filter(([k]) => cited.has(k)));
 }
 
-function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, nes, nfhlCovered, slrHasExtent, snapshotDate, generated, gaps }) {
+function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, nes, nfhlCovered, slrHasExtent, snapshotDate, generated, gaps }) {
   const inc = schema.increments;
   const r = results;
   const has = (topic) => schema.tiers[entry.tier].topics[topic].available;
@@ -122,13 +56,6 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, nes, n
     ccap: { label: "NOAA C-CAP regional land cover", url: "https://coast.noaa.gov/digitalcoast/data/ccapregional.html", vintage: { kind: "period", start: "1996-01-01", end: "2016-12-31" }, retrieved: meta.ccap.retrieved, verified: meta.verified.ccap },
     opc: { label: "California OPC State Sea Level Rise Guidance, Appendix F", url: "https://www.oceansciencetrust.org/in-practice/2024slrguidance", vintage: vintageYear(2024), retrieved: snapshotDate, verified: snapshotDate },
   };
-  if (S) {
-    sources.enow = { label: "NOAA Economics: National Ocean Watch (ENOW)", url: "https://coast.noaa.gov/digitalcoast/data/enow.html", vintage: vintageYear(S.oceanYear), retrieved: meta.enow.retrieved, verified: meta.verified.enow };
-    sources["enow-self"] = { label: "NOAA ENOW self-employed workers", url: "https://coast.noaa.gov/digitalcoast/data/enow-nes.html", vintage: vintageYear(S.selfYear), retrieved: meta.enow.retrieved, verified: meta.verified.enow };
-    sources["coastal-economy"] = { label: "NOAA Total Economy (Coastal)", url: "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html", vintage: vintageYear(S.totalYear), retrieved: meta.enow.retrieved, verified: meta.verified.coastalEconomy };
-    sources["coastal-economy-marine-base"] = { label: "NOAA Total Economy (Coastal), same year as ENOW", url: "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html", vintage: vintageYear(S.baseYear), retrieved: meta.enow.retrieved, verified: meta.verified.coastalEconomy };
-  }
-  if (nes) sources.nes = { label: "Census Nonemployer Statistics", url: "https://www.census.gov/programs-surveys/nonemployer-statistics.html", vintage: vintageYear(nes.value.year), retrieved: meta.nes.retrieved, verified: meta.verified.nes };
 
   // --- flood hazard ---------------------------------------------------------------------------------
   const noNfhl = () => noteGap("flood", "no-nfhl-coverage");
@@ -195,69 +122,19 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, nes, n
     };
   }
 
-  // --- total economy (full tier only) ------------------------------------------------------------------
-  let totalEconomy = {};
-  if (has("total-economy")) {
-    if (!S.coastal.length) throw new Error(entry.name + ": the tier says shore-adjacent, but the Total Economy (Coastal) data has no rows for it");
-    const county = S.coastal, total = rowOf(county, "Total, all industries");
-    const sectorRows = TOTAL_SECTORS.map((s) => ({ s, row: rowOf(county, s.api) }));
-    const nesRow = nes ? nes.value.counties[entry.fips] : null;
-    const nesCell = (code) => {
-      const c = nesRow[code];
-      return c === undefined ? 0 : c.suppressed ? { ...SUPPRESSED } : c.estab;
-    };
-    const nesSector = (s) => {
-      const cells = s.naics.map(nesCell);
-      return cells.some(isSuppressedCell) ? { ...SUPPRESSED } : cells.reduce((a, b) => a + b, 0);
-    };
-    totalEconomy = {
-      measuring: section(["coastal-economy"], {
-        establishments: qty(total.establishments), jobs: qty(total.employment), wages: qty(total.wages), gdp: qty(total.gdp),
-        denominator: round(rowOf(S.californiaAll, "Total, all industries").employment),
-      }),
-      diversity: section(["coastal-economy"], {
-        sectors: sectorRows.map(({ s, row }) => ({ label: s.label, establishments: qty(row.establishments), wages: qty(row.wages), employment: qty(row.employment), gdp: qty(row.gdp) })),
-      }),
-      "jobs-at-risk": section(["lodes", "tiger", "nfhl", "slr"], {
-        sfha: { count: round(r.jobs.sfha), total: round(r.jobs.total) },
-        // The combined (ocean-connected plus low-lying) count, the same series the sea level rise
-        // sections draw, so the two topics cannot disagree.
-        slr6: { count: round(r.jobs.slrWithLow[at6]), total: round(r.jobs.total) },
-      }),
-      wages: section(["coastal-economy"], wagesData(TOTAL_SECTORS, county, S.coastalState, S.coastalNation)),
-      "total-jobs": !nesRow || !Object.keys(nesRow).length ? noteGap("total-economy/total-jobs", "source-geography") : section(["coastal-economy", "nes"], jobsEquation(
-        qty(total.employment),
-        nesRow["00"] ? nesCell("00") : { ...SUPPRESSED },
-        TOTAL_SECTORS.map((s) => ({ label: s.label, selfEmployed: nesSector(s) })),
-      )),
-    };
-    if (!nfhlCovered) totalEconomy["jobs-at-risk"] = noteGap("total-economy/jobs-at-risk", "no-nfhl-coverage");
-    else if (!slrHasExtent) totalEconomy["jobs-at-risk"] = noteGap("total-economy/jobs-at-risk", "no-slr-extent");
-  }
-
-  // --- marine economy (full and delta tiers) ----------------------------------------------------------
-  let marine = {};
-  if (has("marine-economy")) {
-    if (!S.ocean.length) throw new Error(entry.name + ": the tier says it is in ENOW, but ENOW has no rows for it");
-    const county = S.ocean, all = rowOf(county, "Ocean Economy");
-    const self = S.self, selfAll = rowOf(self, "Ocean Economy");
-    const base = rowOf(S.base, "Total, all industries");
-    marine = {
-      measuring: section(["enow", "coastal-economy-marine-base"], {
-        establishments: qty(all.establishments), jobs: qty(all.employment), wages: qty(all.wages), gdp: qty(all.gdp),
-        denominator: round(base.employment),
-      }),
-      diversity: section(["enow"], {
-        sectors: MARINE_SECTORS.map((s) => { const row = rowOf(county, s.api); return { label: s.label, establishments: qty(row.establishments), wages: qty(row.wages), employment: qty(row.employment), gdp: qty(row.gdp) }; }),
-      }),
-      wages: section(["enow"], wagesData(MARINE_SECTORS, county, S.oceanState, S.oceanNation)),
-      "total-jobs": section(["enow", "enow-self"], jobsEquation(
-        qty(all.employment),
-        qty(selfAll.employment),
-        MARINE_SECTORS.map((s) => ({ label: s.label, selfEmployed: qty(rowOf(self, s.api).employment) })),
-      )),
-    };
-  }
+  // --- total and marine economy: public QCEW, see economy-topics.js -------------------------------------
+  const jobsAtRiskTotal = has("total-economy")
+    ? !nfhlCovered ? noteGap("total-economy/jobs-at-risk", "no-nfhl-coverage") : !slrHasExtent ? noteGap("total-economy/jobs-at-risk", "no-slr-extent")
+    : section(["lodes", "tiger", "nfhl", "slr"], {
+      sfha: { count: round(r.jobs.sfha), total: round(r.jobs.total) },
+      // The combined (ocean-connected plus low-lying) count, the same series the sea level rise
+      // sections draw, so the two topics cannot disagree.
+      slr6: { count: round(r.jobs.slrWithLow[at6]), total: round(r.jobs.total) },
+    }) : null;
+  const economy = buildEconomyTopics({ entry, has, S, eco, nes, meta, jobsAtRiskTotal, gaps, use: USE });
+  const { totalEconomy, marine } = economy;
+  const estimation = economy.estimation;
+  Object.assign(sources, economy.sources);
 
   const topicSections = { flood, slr, "total-economy": totalEconomy, "marine-economy": marine };
   const topics = {};
@@ -278,6 +155,7 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, nes, n
     geometry: null,
     sources: pruneSources(sources, topics),
     topics,
+    ...(estimation ? { estimation } : {}),
   };
 }
 
@@ -288,4 +166,4 @@ function gaugeBlock(entry, spine) {
   return { id: entry.gauge, name: spine.gauges[entry.gauge].name, projections: projectionsFor(reference, entry.gauge) };
 }
 
-module.exports = { buildSnapshot, gaugeBlock, METHOD };
+module.exports = { buildSnapshot, gaugeBlock, pruneSources, METHOD, USE };

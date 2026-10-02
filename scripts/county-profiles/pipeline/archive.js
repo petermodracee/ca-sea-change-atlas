@@ -55,4 +55,15 @@ function commitCounty(fresh, { dataDir = DATA, today }) {
   return { action: prev ? "minted" : "created", snapshot: today, previous: prev ? prev.snapshot : null };
 }
 
-module.exports = { DATA, DATED, contentOf, sameContent, datedDirs, commitCounty, readJson };
+// Pre-publication reset (docs/DECISIONS.md, "Phase 7 rewrote the 2026-09-24 snapshots in place"): overwrite the
+// dated snapshot and latest/ with a fresh build, keeping the snapshot date. Only for a snapshot that has
+// never been published; run.js needs --reset-archive to call it, and check-archive.js's git baseline has to be
+// moved to match. Never used by the scheduled workflow.
+function resetCounty(fresh, { dataDir = DATA, date }) {
+  const next = { ...fresh, snapshot: date };
+  write(path.join(dataDir, date, fresh.fips + ".json"), next);
+  write(path.join(dataDir, "latest", fresh.fips + ".json"), next);
+  return { action: "reset", snapshot: date };
+}
+
+module.exports = { resetCounty, DATA, DATED, contentOf, sameContent, datedDirs, commitCounty, readJson };

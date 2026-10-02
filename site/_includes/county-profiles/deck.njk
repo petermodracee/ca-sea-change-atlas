@@ -96,6 +96,9 @@
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
 {%- endif %}
 </dl>
+{%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
+<p class="cpd-note">In the JSON download, a figure with an <code>est</code> object was partly imputed: <code>share</code> is the imputed fraction, <code>weakShare</code> the part imputed at the two weakest steps (4 and 5), <code>step</code> the weakest step used. <code>"suppressed": true</code> marks a withheld figure, with a <code>reason</code>. To keep only published figures, drop any figure with an <code>est</code> object or a <code>suppressed</code> flag.</p>
+{%- endif %}
 {%- if topic.id == "marine-economy" %}
 <p class="cpd-note">This topic omits jobs at risk: no open source isolates marine jobs by location. <a href="{{ '/county-profiles/about/' | url }}#marine-jobs">Why, on the methodology page</a>.</p>
 {%- endif %}

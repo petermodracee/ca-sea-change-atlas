@@ -18,7 +18,12 @@ const { cachePath, cachedJson, getJson, request, readMeta, writeMeta, today } = 
 
 const API = "https://coast.noaa.gov/enow/api/v1/";
 const NES_BASE = "https://www2.census.gov/programs-surveys/nonemployer-statistics/datasets/";
-const ENDPOINTS = { enow: API + "oceanEconomy/years", coastalEconomy: API + "coastalEconomy/years", nes: NES_BASE + "2023/historical-datasets/nonemp23co.zip" };
+const ENDPOINTS = {
+  enow: API + "oceanEconomy/years", coastalEconomy: API + "coastalEconomy/years", nes: NES_BASE + "2023/historical-datasets/nonemp23co.zip",
+  // Phase 7: public QCEW, BEA GDP by industry, Census ZIP Code Business Patterns, NOAA Open ENOW.
+  qcew: "https://data.bls.gov/cew/data/api/2024/a/area/06000.csv", bea: "https://apps.bea.gov/regional/zip/SAGDP.zip",
+  zbp: "https://www2.census.gov/programs-surveys/cbp/datasets/", openEnow: API + "openEnow/years",
+};
 
 const CALIFORNIA = "06000";
 const COASTAL_US = "00000";

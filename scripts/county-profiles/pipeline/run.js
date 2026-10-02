@@ -10,6 +10,10 @@
 // all         every county in the spine, in spine order. The national ACS files, the LODES state file and
 //             the Census nonemployer file are read once for the whole list.
 // --refresh   ignore the download cache and re-fetch every source
+// --economy-only  rebuild only the marine and total economy topics from the existing latest/ snapshot (flood
+//             hazard and sea level rise are carried over untouched); for an economy source or method change
+// --reset-archive  overwrite the dated snapshot and latest/ in place, keeping the snapshot date. For a snapshot
+//             that has never been published (docs/DECISIONS.md, Phase 7); never used by the workflow
 //
 // Raw downloads live in scripts/county-profiles/.cache/ (gitignored). A full diagnostics report,
 // including the sensitivity figures and everything the reconciliation in docs/DECISIONS.md cites,
@@ -20,10 +24,12 @@ const fs = require("fs");
 const path = require("path");
 const S = require("./sources");
 const { compute } = require("./intersect");
-const { buildSnapshot } = require("./snapshot");
+const { buildSnapshot, pruneSources, USE } = require("./snapshot");
+const { buildEconomyTopics } = require("./economy-topics");
+const { loadEconomyInputs, economyFor } = require("./economy-run");
 const { validateSnapshot } = require("../validate");
 const { today, cachePath } = require("./http");
-const { commitCounty } = require("./archive");
+const { commitCounty, resetCounty, readJson, DATA } = require("./archive");
 const { recordComputed } = require("./gate");
 
 const ROOT = path.join(__dirname, "..", "..", "..");
@@ -59,6 +65,49 @@ async function verifyAll(log) {
 
 const outcomes = [];
 
+// The economy figures for one county: the public-QCEW inputs are loaded once per run.
+async function buildEco(entry, fipsList, tierTopics, econ, opts) {
+  if (!tierTopics["marine-economy"].available && !tierTopics["total-economy"].available) return null;
+  const inputs = await loadEconomyInputs(fipsList, spine, opts);
+  return economyFor(inputs, entry, tierTopics, { year: econ.value.totalYear, state: econ.value.coastalState, nation: econ.value.coastalNation }, econ);
+}
+
+// --economy-only: rebuild the marine and total economy topics of an existing snapshot (and their sources),
+// leaving every other topic exactly as it is.
+async function economyOnly(entry, fipsList, opts) {
+  const fips = entry.fips;
+  const tierTopics = schema.tiers[entry.tier].topics;
+  const log = (m) => console.error("[" + fips + " " + entry.name + "] " + m);
+  const file = path.join(DATA, "latest", fips + ".json");
+  const prev = readJson(file);
+  log("economy (NOAA comparators, self-employed, public QCEW, ZBP, BEA, Open ENOW)");
+  const econ = await S.fetchEconomy(fips, opts);
+  const inEnow = econ.value.ocean.length > 0, shore = econ.value.coastal.length > 0;
+  const expect = { full: [true, true], delta: [true, false], "flood-only": [false, false] }[entry.tier];
+  if (inEnow !== expect[0] || shore !== expect[1]) throw new Error(entry.name + ": tier " + entry.tier + " disagrees with the ENOW footprint");
+  const wantsTotal = tierTopics["total-economy"].available, wantsMarine = tierTopics["marine-economy"].available;
+  const nes = wantsTotal ? await S.fetchNonemployer(fipsList, opts) : null;
+  const eco = await buildEco(entry, fipsList, tierTopics, econ, opts);
+  const verified = await verifyAll(log);
+  const meta = { verified, enow: { retrieved: econ.fetched }, nes: { retrieved: nes ? nes.fetched : null } };
+  const gaps = [];
+  const has = (t) => tierTopics[t].available;
+  const carried = wantsTotal ? prev.topics["total-economy"].sections["jobs-at-risk"] : null;
+  const economy = buildEconomyTopics({ entry, has, S: wantsMarine || wantsTotal ? econ.value : null, eco, nes, meta, jobsAtRiskTotal: carried, gaps, use: USE });
+  const topics = JSON.parse(JSON.stringify(prev.topics));
+  if (wantsTotal) topics["total-economy"].sections = economy.totalEconomy;
+  if (wantsMarine) topics["marine-economy"].sections = economy.marine;
+  const snap = { ...prev, generated: new Date().toISOString().replace(/\.\d+Z$/, "Z"), topics };
+  delete snap.estimation;
+  if (economy.estimation) snap.estimation = economy.estimation;
+  snap.sources = pruneSources({ ...prev.sources, ...economy.sources }, topics);
+  validateSnapshot(snap, { schema, spine, file: fips + ".json", fixture: false });
+  const outcome = process.argv.includes("--reset-archive") ? resetCounty(snap, { date: prev.snapshot }) : commitCounty(snap, { today: today() });
+  outcomes.push({ fips, county: entry.name, ...outcome });
+  if (eco && eco.estimate) fs.writeFileSync(cachePath("enow-cells-" + fips + ".json"), JSON.stringify(eco.estimate.cells));
+  log("latest/" + fips + ".json economy rebuilt (" + outcome.action + ")" + (gaps.length ? " (gaps: " + gaps.join("; ") + ")" : ""));
+}
+
 async function runCounty(entry, fipsList, opts) {
   const fips = entry.fips;
   const tierTopics = schema.tiers[entry.tier].topics;
@@ -87,6 +136,8 @@ async function runCounty(entry, fipsList, opts) {
     throw new Error(entry.name + ": tier " + entry.tier + " expects ENOW=" + expect[0] + ", shore-adjacent=" + expect[1] + ", but the data says ENOW=" + inEnow + ", shore-adjacent=" + shore);
   }
   const nes = wantsTotal ? await S.fetchNonemployer(fipsList, opts) : null;
+  log("economy (public QCEW, ZBP, BEA, Open ENOW)");
+  const eco = await buildEco(entry, fipsList, tierTopics, econ, opts);
 
   const asOf = claims.value.map((c) => c.asOfDate).filter(Boolean).sort().pop();
   const periods = nfipPeriods(new Date(asOf).getUTCFullYear());
@@ -126,16 +177,19 @@ async function runCounty(entry, fipsList, opts) {
 
   const gaps = [];
   const snap = buildSnapshot({
-    entry, schema, spine, results, meta, ccap, econ: wantsMarine || wantsTotal ? econ : null, nes,
+    entry, schema, spine, results, meta, ccap, econ: wantsMarine || wantsTotal ? econ : null, eco, nes,
     nfhlCovered: nfhl.value.dfirms.length > 0, slrHasExtent: slr ? slr.value.regions.length > 0 : false,
     snapshotDate: today(), generated: new Date().toISOString().replace(/\.\d+Z$/, "Z"), gaps,
   });
 
   validateSnapshot(snap, { schema, spine, file: fips + ".json", fixture: false });
   // Snapshot-on-change: latest/ always updates; a dated snapshot is minted only if the content differs.
-  const outcome = commitCounty(snap, { today: today() });
+  const outcome = process.argv.includes("--reset-archive") && fs.existsSync(path.join(DATA, "latest", fips + ".json"))
+    ? resetCounty(snap, { date: readJson(path.join(DATA, "latest", fips + ".json")).snapshot })
+    : commitCounty(snap, { today: today() });
   recordComputed(fips, nfhl.value);
   outcomes.push({ fips, county: entry.name, ...outcome });
+  if (eco && eco.estimate) fs.writeFileSync(cachePath("enow-cells-" + fips + ".json"), JSON.stringify(eco.estimate.cells));
   const { diag, ...rest } = results;
   fs.writeFileSync(cachePath("report-" + fips + ".json"), JSON.stringify({
     meta, results: { ...rest, diag }, gaps, computeSeconds,
@@ -158,7 +212,7 @@ async function main() {
   const failures = [];
   for (const fips of todo) {
     const entry = spine.counties.find((c) => c.fips === fips);
-    try { await runCounty(entry, all, opts); } catch (e) { console.error("[" + fips + " " + entry.name + "] FAILED: " + (e.stack || e)); failures.push(fips); if (todo.length === 1) throw e; }
+    try { await (process.argv.includes("--economy-only") ? economyOnly(entry, all, opts) : runCounty(entry, all, opts)); } catch (e) { console.error("[" + fips + " " + entry.name + "] FAILED: " + (e.stack || e)); failures.push(fips); if (todo.length === 1) throw e; }
   }
   // A per-run summary for the workflow: which counties minted a dated snapshot and which only refreshed.
   fs.writeFileSync(cachePath("run-outcomes.json"), JSON.stringify(outcomes, null, 2));

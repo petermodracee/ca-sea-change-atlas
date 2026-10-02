@@ -7,6 +7,8 @@ const { validateSnapshot } = require("../../scripts/county-profiles/validate.js"
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
 const { timingTable, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
+const { ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE } = require("../../scripts/county-profiles/estimated.js");
+const { SHORE_TOLERANCE_M } = require("../../scripts/county-profiles/pipeline/enow-def.js");
 
 // Everything the County Profiles pages need, derived from the spine, the schema, the OPC reference
 // table and the snapshot files. Validation and the assertions below run here, so a malformed
@@ -99,7 +101,8 @@ function buildTopicSections(profile, topicDef) {
     .map((def) => {
       const sec = topic.sections[def.id];
       if (!sec.use.ui) return null;
-      const model = sec.available ? buildSectionModel({ county: profile.county, topicId: topicDef.id, def, data: sec.data, increments }) : null;
+      const headlineYear = topic.sections.measuring && topic.sections.measuring.available ? topic.sections.measuring.data.year : null;
+      const model = sec.available ? buildSectionModel({ county: profile.county, topicId: topicDef.id, def, data: sec.data, increments, estimation: profile.estimation, headlineYear }) : null;
       return { def, sec, model };
     })
     .filter(Boolean);
@@ -232,7 +235,26 @@ return pages;
 const topicPages = topicPagesOf(counties);
 const snapshotTopicPages = topicPagesOf(archivedCounties);
 
+// What the About page states about the economy sources: each source's own year, read from a full-tier
+// snapshot (every county carries the same vintages), so the page cannot drift from the data.
+function economyMethod() {
+  const c = counties.find((x) => x.profile && x.tier === "full");
+  if (!c) return null;
+  const year = (key) => { const s = c.profile.sources[key]; return s && s.vintage ? s.vintage.year : null; };
+  // The counties whose tourism and recreation is withheld for want of a calibration anchor, read from the snapshots.
+  const noAnchorCounties = counties.filter((x) => x.profile && x.profile.estimation && x.profile.estimation.tourismShoreShare.jobs.method === "zip-rule").map((x) => x.name);
+  // The counties whose tourism share was capped at 100% by the calibration.
+  const clampedCounties = counties.filter((x) => x.profile && x.profile.estimation && x.profile.estimation.tourismShoreShare.jobs.method === "calibrated-clamped").map((x) => x.name);
+  return {
+    noAnchorCounties, clampedCounties,
+    qcew: year("qcew"), qcewWages: year("qcew-wages"), beaMarine: year("bea-marine"), beaTotal: year("bea-total"), zbp: year("zbp"),
+    openEnow: year("open-enow"), enowSelf: year("enow-self"), coastalEconomy: year("coastal-economy"), nes: year("nes"), totalWages: year("qcew-total-wages"),
+    thresholdPercent: Math.round(ESTIMATED_SHARE_THRESHOLD * 100), shoreMetres: SHORE_TOLERANCE_M, withholdPercent: Math.round(WITHHOLD_WEAK_SHARE * 100),
+  };
+}
+
 module.exports = {
+  economyMethod: economyMethod(),
   reasonsById: schema.reasons,
   counties,
   // One landing page per dated snapshot of each county, and one deck page per topic of each.
