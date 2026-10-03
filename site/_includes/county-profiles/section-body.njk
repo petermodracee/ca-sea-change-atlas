@@ -15,7 +15,7 @@
 {#- A sentence-only headline (Wages: the lowest-paying sector, named in bold at the start of the sentence). -#}
 <div class="cpd-bign cpd-bign-sentence"><p class="cpd-cap">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
 {%- else %}
-<div class="cpd-bign"><span class="cpd-fig">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ model.callout.figure }}</span><p class="cpd-cap">{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
+<div class="cpd-bign"><span class="cpd-fig">{% if model.callout.prefix %}<span class="cpd-fig-pre">{{ model.callout.prefix }} </span>{% endif %}{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ model.callout.figure }}</span><p class="cpd-cap">{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
 {%- endif %}
 {%- endif %}
 {%- set v = model.visual %}

@@ -948,6 +948,8 @@ body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
 /* A sentence-only headline (Wages): larger than a caption, sector name in bold at the start, wraps freely. */
 .cpd-bign.cpd-bign-sentence .cpd-cap{font-size:clamp(22px,min(2.3vw,4vh),36px);line-height:1.25;flex:1 1 100%;}
 .cpd-bign.cpd-bign-sentence .cpd-cap strong{font-weight:700;}
+/* "More than" above a floor headline (a partial total): small, in the sans, over the number. */
+.cpd-fig-pre{display:block;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:clamp(15px,min(1.35vw,2.6vh),21px);font-weight:500;letter-spacing:0;line-height:1.2;color:var(--ink-soft);margin-bottom:4px;}
 .cpd-bign .cpd-cap{margin:0;flex:1;min-width:0;font-size:clamp(17px,min(1.35vw,2.9vh),21px);line-height:1.4;color:var(--ink);}
 .cpd-note{margin:0;font-size:16px;color:var(--ink-soft);width:100%;}
 
@@ -1330,6 +1332,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp .cpd-bign{display:flex;align-items:center;gap:14pt;margin:0 0 8pt;}
 .cpp .cpd-bign .cpd-fig{font-family:'Spectral',Georgia,serif;font-size:30pt;font-weight:600;line-height:1;white-space:nowrap;}
 .cpp .cpd-bign.cpd-bign-sentence .cpd-cap{font-size:14pt;line-height:1.25;}
+.cpp .cpd-fig-pre{display:block;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:9.5pt;font-weight:500;line-height:1.2;margin-bottom:2pt;}
 .cpp .cpd-bign .cpd-cap{font-size:10.5pt;margin:0;flex:1;}
 .cpp .cpd-bign-group{display:grid;grid-template-columns:1fr 1fr;gap:10pt 30pt;text-align:center;margin:6pt 0;}
 .cpp .cpd-bign-item .cpd-fig{font-family:'Spectral',Georgia,serif;font-size:26pt;font-weight:600;}

@@ -47,6 +47,8 @@ const withheldLine = (names) => listNames(names) + " withheld; not enough reliab
 // The § line is for figures withheld whole. Public administration's GDP (reason gdp-unreproducible) is one measure of a
 // sector whose jobs and wages are shown, so it is never described by that line: the star on GDP and "Excludes Public
 // administration." say it. Every caller passes its cells through here, so the line cannot describe that reason.
+// Round down to `digits` significant figures (never up, so a "More than" statement stays true).
+const floorSig = (n, digits) => { if (n < 10 ** digits) return Math.floor(n); const mag = 10 ** (Math.floor(Math.log10(n)) - digits + 1); return Math.floor(n / mag) * mag; };
 const wholeWithheld = (cells) => cells.filter((c) => c.reason !== "gdp-unreproducible");
 // Every withheld figure must carry a reason from the closed vocabulary, even though the slide does not state it.
 const checkReasons = (cells) => cells.forEach((c) => { if (!WITHHOLD_REASONS.includes(c.reason)) throw new Error("withheld figure " + c.name + " has no known reason: " + c.reason); });
@@ -82,7 +84,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
   let visual = null;
   let callout = null; // {figure, caption}
   // Why a section that normally has a headline has none (a closed list, so a headline cannot vanish unexplained):
-  // "withheld-part" (a figure whose parts are withheld is never stated as a share) or "too-few-sectors".
+  // "withheld-part" (a share of a total whose parts are withheld is not stated), "jobs-withheld" (the whole jobs total is withheld) or "too-few-sectors".
   let calloutSkip = null;
   // True for an SLR section whose data carries `countsWithLow`: its figures are then the combined
   // (ocean-connected plus low-lying) counts, drawn with the connected part solid and the additional
@@ -283,14 +285,21 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       if (gdpStar) keyItems.push({ glyph: MARK_INCOMPLETE, text: KEY_EXCLUDES(["Public administration"]).key });
       if (raw.some((v, k) => isPartialCell(v) && !(gdpStar && k === 3))) keyItems.push({ glyph: MARK_INCOMPLETE, text: KEY_INCOMPLETE.key });
       visual = { type: "stats", items, count: items.filter((i) => !i.suppressed).length, partial: raw.some((v) => isSuppressed(v) || isPartialCell(v)) };
-      // A callout never states a figure whose parts are withheld: a jobs total that leaves a sector out is a floor, so
-      // its share of all jobs is not stated.
-      if (isSuppressed(data.jobs) || isPartialCell(data.jobs)) calloutSkip = "withheld-part";
-      if (!isSuppressed(data.jobs) && !isPartialCell(data.jobs)) {
+      // A complete jobs total gives the exact share. A partial one (a withheld sector is left out) is a floor, because
+      // the withheld sectors only add jobs, so the headline says "More than" and never states a number it could
+      // overstate: the share rounded DOWN to one decimal, or, when that share is under 0.1%, the jobs total rounded
+      // DOWN to two significant figures. Only a wholly withheld total has no headline.
+      if (isSuppressed(data.jobs)) calloutSkip = "jobs-withheld";
+      else if (!isPartialCell(data.jobs)) {
         const p = pc(cv(data.jobs), data.denominator);
         callout = topicId === "marine-economy"
           ? { figure: p, caption: "of total employment in " + C + " is in the marine economy.", est: isEstimatedCell(data.jobs) }
           : { figure: p, caption: "of all employment in California is in " + C + ".", est: isEstimatedCell(data.jobs) };
+      } else {
+        const floorShare = Math.floor((cv(data.jobs) / data.denominator) * 1000) / 10;
+        callout = floorShare >= 0.1
+          ? { figure: floorShare.toFixed(1) + "%", prefix: "More than", floor: true, caption: (topicId === "marine-economy" ? "of total employment in " + C + " is" : "of all employment in California is in " + C + ".") + (topicId === "marine-economy" ? " in the marine economy." : ""), est: isEstimatedCell(data.jobs) }
+          : { figure: num(floorSig(cv(data.jobs), 2)), prefix: "More than", floor: true, caption: topicId === "marine-economy" ? "jobs in " + C + " are in the marine economy." : "jobs are in " + C + ".", est: isEstimatedCell(data.jobs) };
       }
       break;
     }
@@ -467,11 +476,11 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
     throw new Error("no headline for " + topicId + "/" + def.id + " (" + county + ") and no reason given: a section that normally has a callout lost it");
   }
   const isZeroFigure = callout && callout.figure && /^0(\.0+)?%?$/.test(callout.figure);
-  if (callout && callout.figure && !isZeroFigure && shown.includes(callout.figure) && ratios.has(callout.figure)) {
+  if (callout && callout.figure && !callout.floor && !isZeroFigure && shown.includes(callout.figure) && ratios.has(callout.figure)) {
     const [a, b] = ratios.get(callout.figure);
     if (!shown.includes(pct2(a, b))) callout = { ...callout, figure: pct2(a, b) };
   }
-  if (callout && callout.figure && !isZeroFigure && shown.includes(callout.figure)) {
+  if (callout && callout.figure && !callout.floor && !isZeroFigure && shown.includes(callout.figure)) {
     throw new Error("callout for " + topicId + "/" + def.id + " (" + county + ") repeats a figure its chart already shows: " + callout.figure);
   }
 
