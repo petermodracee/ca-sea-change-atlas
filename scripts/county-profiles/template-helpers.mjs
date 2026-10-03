@@ -222,11 +222,12 @@ export function stackedBars(rows, format, opts = {}) {
 // invented width, and the real sectors scale to fill the full 100% among themselves. That
 // denominator (present sectors only) is the same one the callout above uses, so the two numbers
 // can't disagree. Row labels sit in a left column, like the other bar charts.
-const BAR_H_100 = 44;
+const BAR_H_100 = 40;
 const ICON_SIZE = 30;
 export function stacked100Bars(measures) {
-  const plotW = 820, rowGap = 28, top = 8, labelGap = 20;
-  const plotX = labelColumnWidth(measures.map((m) => m.label)) + labelGap;
+  const plotW = 820, rowGap = 22, top = 8, labelGap = 20;
+  // A label may carry marks (year, incomplete: a glyph or two after the name); they take room in the column.
+  const plotX = labelColumnWidth(measures.map((m) => m.label + " ".repeat((m.marks || []).length + 1))) + labelGap;
   const rows = measures.map((m, i) => {
     const y0 = top + i * (BAR_H_100 + rowGap);
     const barY = y0;
@@ -264,7 +265,7 @@ export function stacked100Bars(measures) {
       cxPct += pct;
       return seg;
     });
-    return { label: m.label, labelY: y0 + BAR_H_100 / 2 + 7, barY, segments: segs };
+    return { label: m.label, marks: m.marks || [], srLabel: m.srLabel || m.label, labelY: y0 + BAR_H_100 / 2 + 7, barY, segments: segs };
   });
   const height = top + measures.length * (BAR_H_100 + rowGap) - rowGap;
   return { width: plotX + plotW, height, plotX, plotW, barH: BAR_H_100, rows };
@@ -360,13 +361,13 @@ function wrapTwoLines(label, maxChars) {
 // fixed-width left column — not sized to the longest label, which left short names stranded in
 // empty space — with longer names balanced over two lines to fit it; a thin line spans the row's
 // real (non-suppressed) values with a dot at each, so the spread reads at a glance.
-const DOT_LABEL_W = 262, DOT_LABEL_CHARS = 22, DOT_LABEL_LINE_H = 22;
+const DOT_LABEL_W = 262, DOT_LABEL_CHARS = 22, DOT_LABEL_LINE_H = 20;
 export function dotPlot(items, seriesLabels) {
   // rowH is deliberately tighter than the other bar-style charts' row spacing: at up to 11 sectors,
   // the full row height made this chart run taller than the panel at 1400px and clip at the bottom.
   // .cpd-chart-dotplot's own max-height in style.css is the other half of that fix. It still has to
   // hold a two-line label. mr leaves room for half the last x-axis label, which is centred on it.
-  const W = 1040, rowH = 46, top = 14, mr = 40, labelGap = 22;
+  const W = 1040, rowH = 41, top = 12, mr = 40, labelGap = 22;
   const labelW = DOT_LABEL_W;
   const plotL = labelW + labelGap, plotR = W - mr;
   const domainMax = max(items, (it) => max(it.values, (v) => (v.suppressed ? 0 : v.value))) || 1;
@@ -378,6 +379,7 @@ export function dotPlot(items, seriesLabels) {
     const lines = wrapTwoLines(it.label, DOT_LABEL_CHARS);
     return {
       label: it.label,
+      marked: !!it.marked,
       labelX: labelW,
       // First line's offset from cy, so one line or two sit centred on the row (dominant-baseline
       // middle on the <text>).

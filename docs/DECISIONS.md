@@ -1426,6 +1426,227 @@ Word totals of the quoted texts: 526 before, 679 after, over 27 changed strings 
 - **Total Economy label unchanged.** "NOAA Total Economy (Coastal), coastal California and coastal U.S." keeps NOAA's own wording, because the 30-state footprint is verified only for Open ENOW. That footprint stays on the PR's "not verified" list.
 - **Snapshots patched in place.** The label string was replaced by script in the 46 committed snapshot files (23 counties, `latest/` and `2026-09-24/`), not by a regenerate, so nothing was re-fetched and no `retrieved` or `verified` date, figure, state, threshold or provenance field changed. A regenerate would produce the same string. The dated files were edited because nothing is published yet (the pre-publication reset above); `latest/` and the dated copies stay identical in content, and `check-archive.js` against the PR base reports these as edits to files the stack already carries.
 
+### Text, legend and layout pass (PR #32, stacked on #31)
+
+A site-wide pass over slide text, chart headers, legends, footnotes and layout, for all four County Profiles topics, the About page, the data and citation slide and print. **No data changed:** snapshots are byte-identical to a49e5a9 (`git diff a49e5a9 -- site/data/county-profiles` is empty), `diff-hazard.js` reports 54 files identical, `state-report.js` and `check-archive.js` pass, `method` stays 1, footnote IDs and keys, the `reason` vocabulary (`weak-share`, `no-data`, `gdp-unreproducible`, `no-calibration-anchor`) and the JSON structure are unchanged. The About page's plain-language slot (`data-author-slot="economy-plain-language"`) is untouched.
+
+**Where the code is.** Strings: `scripts/county-profiles/section-models.js` (callouts, marks, keys, withheld lines) and `site/data/countyProfileSchema.json` (chart captions, the second prose paragraph some slides carried). Markup: `site/_includes/county-profiles/section-body.njk` (callout, tiles, notes, key line) and `blocks-deck.njk` (legends, label marks, the timing headers). Layout: the `cpd-` rules in `site/css/style.css`. Tools added under `scripts/county-profiles/analysis/`: `fit-report.js` (display target), `footnote-words.js`, `emdash-scan.js`, `slide-text.js`. All four take `SITE_DIR` (a built site) so they can run against any build.
+
+**How a symbol works now.** A mark is a printable glyph on a *label* (a tile's label, a chart row's label, a legend entry), never on a figure. The slide's one-line key explains each symbol it uses once, and the key also carries the `≈` line. A screen reader gets the meaning in words: the label carries visually hidden text ("Jobs (2025 figure; some sectors withheld)"), and a key line is a full sentence without the glyph. The set:
+
+| Symbol | Meaning | Where |
+|---|---|---|
+| † | Figures for the headline year (2025) | Marine economy tiles and sector chart labels. Shown only where the years differ, so the total economy (all 2025) carries none |
+| ‡ | Figures for the year before (2024): marine GDP | Marine economy |
+| * | A total that leaves something out. Marine: "Some sectors withheld, see the sector chart." Total economy: "Excludes Public administration." (on the GDP label) | Tiles, the GDP row label, the Total Jobs tile |
+| § | A sector with a withheld figure, in the sector legend, with the one line "[sector] withheld; not enough reliable data." | Sector charts |
+| ≈ | An estimate. "≈ and hatched segments are estimates." ("dashed rings" on the dot plot, "≈ marks estimates." on tiles) | Everywhere a figure is estimated |
+
+All five are in a text key on the slide, survive a greyscale print and do not depend on colour. `†` and `‡` are also used for the 2050 / 2100 range notes on the timing slide and in the About page's horizons section; each key is local to its own slide, so they do not meet, but it is a reuse (see "Needs Peter's call" in the PR).
+
+#### What each removed statement became
+
+Nothing a person citing a figure needs was deleted. Every removed slide statement is on the About page (factual methods section, with an anchor) or on the slide's "Data, methods and citation" part, except the one sentence the brief asked to delete outright.
+
+| Slide string (before) | Destination (after) |
+|---|---|
+| "Establishments, jobs, wages and GDP are for 2025." (total economy, three slides) | The year is each source's vintage in the Sources row. About `#economy-years` |
+| "GDP is modeled from wages (all ownerships) and California's GDP-to-wages ratio. How GDP is modeled." (both topics) | About `#gdp-model` (no link from the slide) |
+| "GDP is for 2024, a year behind, and is modeled from..." (marine, three slides) | Symbols † and ‡ on the labels and the key "2025 figures. 2024 figures."; the model on About `#gdp-model`; the year lag on About `#economy-years` |
+| "* GDP leaves out Public administration, which is withheld in every county because we could not reproduce NOAA's ratio for it." | Slide: "* Excludes Public administration." on the GDP label. The reason: About `#public-administration` and `#withheld-reasons` |
+| "* Incomplete: leaves out a withheld sector (see the sector chart)." | Key line "* Some sectors withheld, see the sector chart." (symbol on the label, not the figure) |
+| "Tourism and recreation counts only shoreline ZIP-code activity. Each county's share is calibrated to NOAA's original 2021 figure and held constant, so 2021 agrees with NOAA by construction." (and "<county>'s share is capped at 100%") | About `#tourism-calibration`, which keeps the shoreline-ZIP rule, "agrees with the original in 2021 by construction, which is not a measure of accuracy", and the capped counties |
+| "* [sector] (wages, employment, GDP) is withheld: the public data hides it, and 25% or more of an estimate would rest on the two weakest methods..." (one footnote per reason: `weak-share`, `no-data`, `gdp-unreproducible`, `no-calibration-anchor`) | Slide: § in the legend and one line, "[sector] withheld; not enough reliable data." The four reasons, one entry each with its JSON `reason` code: About `#withheld-reasons` |
+| " Totals leave it out and are marked incomplete (*)." | About `#withheld-reasons` (closing paragraph) |
+| "≈ Estimated. Figures marked ≈ (and hatched segments) are estimates: 25% or more of the value was filled in from other values rather than published. The mark is not colour alone. Detail: the JSON est fields and Data, methods and citation. How estimates are made." | Slide: "≈ and hatched segments are estimates." The 25% threshold, the `est` fields (`share`, `weakShare`, `step`) and the mark not being colour alone: About `#estimated` and the data and citation slide (its JSON note now states the threshold and links to `#estimated` and `#withheld-reasons`); the print data block has an "Estimates" row |
+| "Wages are for 2023 (other slides: 2025), the newest year the comparison covers." | Checked first: the slide's Sources row lists the comparison sources with their own vintages ("wages comparison year (2023)", "NOAA Total Economy (Coastal)... (2023)"; marine 2024), so the year is visible and the note is gone. About `#economy-years` states the comparison year |
+| "Employed workers: BLS QCEW, 2025. Self-employed workers: Census Nonemployer Statistics, 2024, the newest year it covers. They are separate counts and are not added." | Checked first: each tile's label carries its own year ("Employed workers, 2025", "Self-employed workers, 2024"; marine self-employed 2021) and the Sources row lists both sources and vintages. "Separate counts, not added": About `#economy-years` |
+| "This counts jobs, not businesses: a different measure from the business counts NOAA's original snapshots reported." (flood and sea level rise jobs at risk, total economy jobs at risk; screen, print, accessible text) | Removed outright, as instructed. The measure is still stated by every label ("jobs"); why business sections became job sections is in `docs/COUNTY-PROFILES.md` |
+| Gauge name repeated in the timing table caption and the 2050 / 2100 subtitle | Named once in the header; see the duplication audit |
+
+#### Duplication audit
+
+Every chart on every topic was read for a header, subtitle, axis label, legend and caption that say the same thing. Anything carrying a unit, a year or the "withheld", "estimated" or "incomplete" meaning was kept somewhere.
+
+| Slide | Duplicated | Kept |
+|---|---|---|
+| Flood, Homes at Risk | The chart title was the slide heading ("Homes at Risk"), and the callout already says who paid | The callout (NFIP, claims, since year). The chart title now names the measure: "NFIP payouts by five-year period." |
+| Flood, Critical Facilities | Title "inside and outside the floodplain, by type" and the legend "Inside / Outside the floodplain" | The legend. Title: "Critical facilities, by type." |
+| Flood, Natural features | "1996–2016" in both the chart title and the first legend entry | The title. Legend: "Development added", "Already developed in 1996". Also fixed a `<ul>` nested inside a `<p>` |
+| Flood, People at Risk | None found | |
+| Sea level rise, Flooded Facilities | "by type" in the title, and the axis title "Number of facilities of each type" | The axis title. Title: "Facilities exposed at each increment of sea level rise." |
+| Sea level rise, Jobs | Title "Jobs in areas exposed at each increment..." and axis title "Jobs in exposed areas" | The title (unit and measure). Axis title removed; "Total jobs" above the end labels stays |
+| Sea level rise, Land cover | "in square miles" in the title, and the axis title "Square miles inundated" | The axis title (the unit sits where the scale is). The title ends at "...sea level rise." |
+| Sea level rise, People at Risk | None found (title, slider label and legend say different things) | |
+| Sea level rise, When is the time to act | The gauge was named in the chart header, the table caption and the 2050 / 2100 subtitle, and the header's "Year each increment is reached" was wrong for the 2050 / 2100 view | The gauge once, in the shared header "Projections at the X gauge, by scenario". Each view then says only what is new: Chart "Feet above 2000, by year", Table "Year each increment is reached", 2050 / 2100 "Feet above 2000, in 2050 and 2100". The table caption appears only for a county with more than one timing table (none today); the table has an `aria-label`. The chart's `<title>` still names the tide gauge, for assistive technology only |
+| Total and marine, sector charts | The title listed "Establishments, wages, employment and GDP... each as a share of the county total", which are the four row labels | The row labels. Title: "Share of the county total, by sector." (the unit) |
+| Total and marine, tiles and sector charts | The year in a footnote, and again in each Sources row | The Sources row (each source's vintage); a symbol marks the one year that differs |
+| Total economy, Wages | The year note, and the Sources row's "wages comparison year (2023)" | The Sources row |
+| Total and marine, Total Jobs | The year in the tile label, in a note and in the Sources row | The tile label and the Sources row |
+| Total and marine, Wages callout | The ratio headline and its own sentence said the same number | Superseded in the revision round: the headline is now the lowest-paying sector's name and no ratio remains |
+| Marine, Wages | "All Coastal States" in the legend and in the Sources label | The legend, and one sentence saying what it means (30 coastal states) |
+
+#### Every changed string
+
+`xxx` is the county name; numbers and formatting are as the data gives them.
+
+| # | Where | Before | After |
+|---|---|---|---|
+| 1 | Flood, critical facilities callout | of xxx County's critical facilities, across all types, are in the floodplain. | of the critical facilities in xxx County falls within the FEMA 100-year floodplain. |
+| 2 | Flood, jobs at risk callout | (### jobs) of all jobs in xxx County are in the floodplain. | of all ### jobs in xxx County are in the FEMA 100-year floodplain. |
+| 3 | Flood, natural features callout | (N square miles) of the land in xxx County's floodplain is still natural: wetland, forest or open space. | (N square miles) of the designated 100-year floodplain are natural features. (1 reads "1 square mile") |
+| 4 | Flood, jobs; SLR, jobs; total economy, jobs at risk | "This counts jobs, not businesses: ..." | removed |
+| 5 | Flood, Homes at Risk chart title | Homes at Risk | NFIP payouts by five-year period. |
+| 6 | Flood, Critical Facilities chart title | Critical facilities inside and outside the floodplain, by type. | Critical facilities, by type. |
+| 7 | Flood, natural features legend | Development added, 1996–2016 | Development added |
+| 8 | SLR, Flooded Facilities chart title | ...increment of sea level rise, by type. | ...increment of sea level rise. |
+| 9 | SLR, Jobs axis title | Jobs in exposed areas | removed |
+| 10 | SLR, Land cover chart title | ...increment of sea level rise, in square miles. | ...increment of sea level rise. |
+| 11 | SLR, timing header | Year each increment is reached at the X gauge, by scenario | Projections at the X gauge, by scenario |
+| 12 | SLR, timing views | 2050 / 2100: "Projected rise at the X gauge in 2050 and 2100, in feet above 2000". Table caption: "Based on projections for the X tide gauge." | Chart "Feet above 2000, by year"; Table "Year each increment is reached"; 2050 / 2100 "Feet above 2000, in 2050 and 2100"; caption only when there is more than one table |
+| 13 | Print, timing | "Projected rise at the X gauge in 2050 and 2100, in feet above 2000" and "Year each increment is reached at the X gauge, by scenario" | "Projections at the X gauge, by scenario", then "Feet above 2000, in 2050 and 2100" and "Year each increment is reached" |
+| 14 | Sector charts, chart title | Establishments, wages, employment and GDP by sector, each as a share of the county total. | Share of the county total, by sector. |
+| 15 | Tiles (both economy topics) | "16,978*" (mark on the figure) | "Jobs†*" (marks on the label), figure "16,978" |
+| 16 | Total economy, tiles and sector chart | GDP row labelled "GDP", footnote about Public administration | "GDP*", key "* Excludes Public administration." |
+| 17 | Marine, tiles and sector chart | Two footnote lines (years and GDP model; incomplete) | Marks † ‡ * on the labels, key "† 2025 figures. ‡ 2024 figures. * Some sectors withheld, see the sector chart." |
+| 18 | Sector chart legends | Centred, ragged flow | Left-aligned grid in sector order (as in print), with § on a withheld sector |
+| 19 | Withheld sectors, all slides | One footnote per reason, each naming sector and measures | § in the legend (sector charts) and "[sector] withheld; not enough reliable data." |
+| 20 | Estimate note | "≈ Estimated. Figures marked ≈ (and hatched segments) are estimates: 25% or more of the value was filled in..." | "≈ and hatched segments are estimates." / "≈ and dashed rings are estimates." / "≈ marks estimates." |
+| 21 | Total and marine, Wages callout | [Sector] pays the most on average in xxx County's economy, that many times the lowest-paying sector's wage. (with an em dash) | Revised again (revision round, below): the sector name in the headline slot, with "**[Sector]** has the lowest average wage per job in xxx County." |
+| 22 | Total economy, Wages | Wages are for 2023 (other slides: 2025), the newest year the comparison covers. | removed (Sources row) |
+| 23 | Total economy, Coastal jobs | Jobs in the floodplain / Jobs under 6 ft of sea level rise | Potential jobs affected by current flooding / Potential jobs affected by future flooding |
+| 24 | Total Jobs, both topics | self-employed professional and business services workers in xxx County, more than any other sector. | the phrase "self-employed ... workers" in bold; "tied for the most of any sector" if two sectors tie |
+| 25 | Total Jobs, both topics | Employed workers: BLS QCEW, 2025. Self-employed workers: ... They are separate counts and are not added. | removed (tile labels and Sources row) |
+| 26 | Marine, sector chart | Tourism calibration note | removed (About `#tourism-calibration`) |
+| 27 | Chart data-table headings and tooltips | "<title> — data table"; "2 ft — Wetlands: ..." | "<title>: data table" (trailing full stop dropped); "2 ft, Wetlands: ..." |
+| 28 | County Profiles page titles | "X — Y — CA Sea Change Atlas" | "X \| Y \| CA Sea Change Atlas" |
+| 29 | Landing, snapshot list | "— current", "— you are here" | "(current)", "(you are here)" |
+| 30 | Land cover "Other" | Drawn dark (`--ink-soft`), the strongest mark on the chart | The muted sand (`--sand-deep`), outlined; wetlands dark teal, upland mid teal |
+
+#### Judgment calls (made without Peter, one line each)
+
+- **"Not enough reliable data"** (with "reliable", as asked): for some withheld values the data exists but is too uncertain to show. One wording for all four reasons; the reason is on About `#withheld-reasons` and in the JSON.
+- **`gdp-unreproducible` is shown by the asterisk only.** Public administration's jobs and wages are shown and only its GDP is withheld, so "GDP*" with "* Excludes Public administration." says it and no § line or legend mark ever describes that reason (second revision round; code: `wholeWithheld()`).
+- **Withheld wording on slides with no sector legend** (wages, tiles, Total Jobs): the same line without a symbol, since there is no legend entry to mark.
+- **Several withheld sectors** are listed with commas and "and" in one line; a sector name that itself contains "and" (Tourism and recreation) is told apart by the § on its legend entry.
+- **The wages callout** was a ratio in the first version and is now the lowest-paying sector's name (revision round, below); the ratio and every mention of it are gone.
+- **"falls" with a plural noun** ("0% of the critical facilities in xxx County falls within...") is NOAA's phrasing and reads correctly for 0%, 100% and every value between, taking the percentage as the subject. "(1 square mile)" is singular; no other number needed a change.
+- **Total Jobs sentence** with a tie: "tied for the most of any sector" instead of "more than any other sector".
+- **Layout follows viewport height.** Panel padding, gaps, headline size and the left column's heading and prose scale with `vh` through `clamp()` (a 1280 × 650 page gets the tight end, a 1080-tall page the old values), instead of a media query. Chart geometry was tightened a little: sector bars 44 to 40 units with 22 between (was 28), dot plot rows 46 to 41 units, label type 21 to 20 px. Note and Sources type went from 14 to 12.5 px (line height 1.3, padding 12 to 7 px); contrast is unchanged (the same `--ink-soft`, about 6:1 on the panel in light and well above 4.5:1 in dark).
+- **Tiles:** four across while the panel is at least 520 px wide, a balanced 2 × 2 below that (a three-tile row stays three across, so no tile is ever alone), type fluid in the panel's width.
+- **"Other" in the land cover chart:** the muted sand used for "outside the floodplain" and "not yet exposed", with a 1 px `--ink-soft` outline so it keeps 3:1 against the panel (the fill alone is about 1.4:1, as for the other muted segments). Wetlands are the darkest, upland mid, other the lightest: separable in greyscale (checked in print) and in dark mode.
+- **Print:** page counts for San Francisco, Humboldt, Napa and Santa Barbara are unchanged, not reduced (see below). The print data block gained one short "Estimates" row (threshold, and where the detail is), and print source-table rows lost 1 pt of padding so the marine block still fits on its page. The print sector table's row labels carry the mark glyph, with the words as hidden text.
+- **Accessibility fixes found by axe:** a hidden `<h4>` before each chart table (it skipped a heading level) is now an `<h3>`, and each chart table's empty corner header now holds hidden text ("Category"). Both were there before this pass.
+- **Em dashes:** removed from every County Profiles string (titles, tooltips, table headings, landing list, new strings). Not touched: other site pages (home, compare, tools, licenses; the About page in the author's voice), code comments, and the two developer-facing schema fields (`callouts`, `chartStyle`). `emdash-scan.js` over the built `county-profiles/` pages finds none.
+
+#### Display-target report (1280 × 650 and larger)
+
+`scripts/county-profiles/analysis/fit-report.js` loads every slide of Santa Barbara, San Francisco and Humboldt (all four topics) at 1280 × 650, 1366 × 768, 1440 × 900 and 1920 × 1080, with the deck's own layout, and reports a slide taller than its viewport (it would need the deck to scroll), wider than it, or with an inner scrollbar or clipped content. The timing slide is also checked in its Table and 2050 / 2100 views. It needs `playwright-core` on `NODE_PATH` (not a project dependency) and an installed Chrome or Edge, and downloads nothing. 1280 × 650 stands for the stated 1280 × 800 CSS pixels less browser chrome.
+
+**Before (a49e5a9): 64 problems over 252 slide checks** (each line is one slide, with the worst overshoot over the three counties):
+
+**1280 × 650: 14 slides**
+
+- flood-hazard#people-at-risk: taller than the viewport by up to 62 px (3 of 3 counties)
+- flood-hazard#critical-facilities: taller than the viewport by up to 29 px (3 of 3 counties)
+- flood-hazard#natural-features: taller than the viewport by up to 156 px (3 of 3 counties)
+- flood-hazard#about: taller than the viewport by up to 13 px (3 of 3 counties)
+- sea-level-rise#people-at-risk: taller than the viewport by up to 36 px (3 of 3 counties)
+- sea-level-rise#jobs-at-risk: taller than the viewport by up to 122 px (3 of 3 counties)
+- sea-level-rise#natural-landscapes: taller than the viewport by up to 18 px (3 of 3 counties)
+- sea-level-rise#about: taller than the viewport by up to 48 px (3 of 3 counties)
+- sea-level-rise#when-to-act/table: inner scroll in .cpd-pane (14px hidden) (3 of 3 counties)
+- total-economy#diversity: taller than the viewport by up to 279 px (3 of 3 counties)
+- total-economy#wages: taller than the viewport by up to 196 px (3 of 3 counties)
+- total-economy#about: taller than the viewport by up to 156 px (3 of 3 counties)
+- marine-economy#diversity: taller than the viewport by up to 391 px (3 of 3 counties)
+- marine-economy#wages: taller than the viewport by up to 232 px (3 of 3 counties)
+
+**1366 × 768: 7 slides**
+
+- flood-hazard#natural-features: taller than the viewport by up to 43 px (3 of 3 counties)
+- sea-level-rise#jobs-at-risk: taller than the viewport by up to 28 px (3 of 3 counties)
+- total-economy#diversity: taller than the viewport by up to 154 px (3 of 3 counties)
+- total-economy#wages: taller than the viewport by up to 118 px (3 of 3 counties)
+- total-economy#about: taller than the viewport by up to 3 px (3 of 3 counties)
+- marine-economy#diversity: taller than the viewport by up to 218 px (3 of 3 counties)
+- marine-economy#wages: taller than the viewport by up to 130 px (2 of 3 counties)
+
+**1440 × 900: 1 slides**
+
+- marine-economy#diversity: taller than the viewport by up to 97 px (2 of 3 counties)
+
+**1920 × 1080: none**
+
+
+**After: 0 problems over 252 slide checks.** The same run over all 27 county directories (every county that has the topic; 1,296 slide checks): 0 problems.
+
+What fixed it, in order of effect: the chart and legend rows (sector charts: a 3-column legend grid and shorter bars), the notes (1,502 to 306 words over these 12 pages), the Sources row (smaller and tighter), height-driven padding and gaps, the headline and left column scaling with viewport height, the timing table (no inner scroll, tighter rows), and the data slide's sources table (5 px row padding, 12.5 px type).
+
+#### Footnote words, before and after
+
+Words in each slide's notes (footnotes, the key line, the second prose paragraph some slides carried; the About slide and the print block excluded), summed per page:
+
+| Page | Before | After |
+|---|---|---|
+| santa-barbara/flood-hazard | 16 | 0 |
+| santa-barbara/sea-level-rise | 16 | 0 |
+| santa-barbara/total-economy | 152 | 12 |
+| santa-barbara/marine-economy | 363 | 123 |
+| san-francisco/flood-hazard | 16 | 0 |
+| san-francisco/sea-level-rise | 16 | 0 |
+| san-francisco/total-economy | 152 | 12 |
+| san-francisco/marine-economy | 229 | 69 |
+| humboldt/flood-hazard | 16 | 0 |
+| humboldt/sea-level-rise | 16 | 0 |
+| humboldt/total-economy | 152 | 12 |
+| humboldt/marine-economy | 358 | 78 |
+| **Total** | **1502** | **306** |
+
+Sources rows are 1,155 words before and after (the same sources; only their type size and spacing changed). Print blocks are not in these counts; their page counts are unchanged.
+
+#### Verification
+
+`npm run build` (with the canonical-host and stale-host checks), `state-report.js` (all five availability states), `check-archive.js` on HEAD, `diff-hazard.js` (54 files identical), `audit-print-colors.js` (San Francisco, Humboldt, Napa, Santa Barbara, Orange, Yolo: legend swatches match their marks, including the recoloured "Other"), greyscale print of Santa Barbara marine diversity and land cover checked, print PDF page counts compared before and after (San Francisco, Humboldt, Napa and Santa Barbara, per topic: flood hazard 5, sea level rise 6, total economy 6, marine economy 4; full profile 22; Yolo and San Joaquin full profile 16 and Del Norte 22; all unchanged, none reduced: the marine block gained its § and key lines and lost its tourism and GDP notes, a net wash on paper), axe-core (light and dark, 1280 × 650, 4 counties × 4 topics: no violations; before this pass the same two minor findings on every page, now fixed), the em dash scan and the removed-sentence scan.
+
+### Text pass, revision round (PR #32)
+
+Same branch and PR. Snapshots are still byte-identical to a49e5a9 (`git diff a49e5a9 -- site/data/county-profiles` is empty); `diff-hazard.js` finds 54 files identical.
+
+1. **Wages headline (total and marine).** Revised in the second revision round: the headline is now the sentence alone, with the lowest-paying sector in bold at its start; the separate big name row is gone. Lowest among sectors whose county wage is shown, ties to the alphabetically first name, an estimated lowest wage carries ≈, fewer than two shown sectors gives no callout, no ratio anywhere.
+2. **Total Jobs tiles.** Employed and self-employed are the same size (the common tile size, the smaller of the two sizes the first tile used to switch between), in two equal columns, top-aligned; in print the first tile no longer takes 24 pt. The headline callout is unchanged.
+3. **Withheld symbol on every sector label.** Audit of every chart: sector charts (Diversity, both topics): § on the legend entry of every sector with a figure withheld whole (Public administration is not marked: only its GDP is withheld, which the asterisk on GDP covers; second revision round); Wages dot plot (both topics): § on the row label of a sector with any withheld value, with the note "§ [sectors] withheld; not enough reliable data." starting with the same symbol; accessible tables: the column or row header says "(some figures withheld)"; print sector table headers carry § too. Not applicable, because there is no sector label to mark: the stat tiles (a withheld tile is not drawn; a plain line, no sector), Total Jobs (same), and the flood and sea level rise charts (nothing is withheld there).
+4. **Data and citation slide (total and marine).** The closing text is "Some figures are estimated with NOAA's Open ENOW method, and some are withheld." followed by the links "How estimates are made" and "Why figures are withheld" (print: the same sentence with both addresses). The JSON field explanation (`est`, `share`, `weakShare`, `step`, `suppressed`, `reason`, `partial`) moved to the About page's factual section, `#json-fields`, linked from the JSON download link on every deck ("what the fields mean"). "This topic omits jobs at risk" is gone from this section on screen and in print; it is on the About page at `#marine-jobs`. Nothing there compares with the NOAA tool.
+5. **Every topic's data slide.** The "Every figure on this page comes from one dated snapshot..." block is deleted (screen and print). "Vintage" is gone from all user-facing County Profiles text: the sources table column is "Period covered", an unpublished one reads "(period not published)", and page descriptions say "the year each figure covers". JSON field names are unchanged.
+6. **Re-run.** Display target for Santa Barbara, San Francisco and Humboldt: 0 problems over 252 checks; all 27 county directories: 0 problems over 1,952 slide checks (the earlier all-county figure of 1,296 undercounted, because pages that failed to load were skipped silently; `fit-report.js` now fails on a built page that does not load). axe-core (light and dark, 4 counties × 4 topics): no violations. Print-colour audit: San Francisco, Humboldt, Napa, Santa Barbara, Orange and Yolo match. Print page counts dropped for the first time: total economy 6 to 5 pages and the full profile 22 to 21 for all four counties (the Data section lost two blocks); other topics unchanged. Note words (12 pages): 333, against 1,502 before the text pass.
+7. **Server note.** The maintainer's `eleventy --serve --port 8000` against `_site/` is left alone. Verification builds go to a separate directory (`npx eleventy --output=<dir>`) and the dev scripts read `SITE_DIR`; one line saying so is in `AGENTS.md`.
+
+#### Total Economy (Coastal) comparators: which geography is pulled (report only, nothing changed)
+
+The "Coastal California" and "Coastal U.S." comparators on the total economy Wages slide come from NOAA's Digital Coast API behind the Quick Report tool, endpoint `coastaleconomy` (`scripts/county-profiles/pipeline/econ.js`, `shared()`):
+
+| Label | Request (`econ.js`) | What NOAA calls it | Response `geoName`, 2023 total employment |
+|---|---|---|---|
+| Coastal California | `geotype=StateCoastal`, `geoid=06000` (line 52) | Coastal Shoreline Portion of States: the aggregate of California's shoreline counties | "California", 12,662,997 |
+| Coastal U.S. | `geotype=ShorelineCounties`, `geoid=00000` (line 53) | Coastal Shoreline Counties: the 452 counties directly adjacent to the open ocean, major estuaries and the Great Lakes | "Coastal US", 59,488,928 |
+| (not a label) all of California, the denominator of "share of California's employment" | `geotype=CoastalStates`, `geoid=06000` (line 55) | Coastal States (whole states) | "California", 18,002,892 |
+
+The county's own row is also from `ShorelineCounties` (line 69), so the county and both comparators are shoreline-county series. The geography selector is the request parameter `geotype`; the response carries `geoid`, `geoName`, `year`, `sector`, `establishments`, `employment`, `wages` and `gdp` (no geography column), and `economy-sections.js` (lines 158 to 160) reads the sector rows of `state` and `nation` into `coastalState` and `coastalUS`. The watershed series (`WatershedCounties`) is used only as a fallback for a county's base year (line 75), never for a comparator; whole coastal states are not used for any comparator. Checked live against the API on 2026-10-02 (the build's cache is not in this checkout): `StateCoastal` answers for 30 states (the Great Lakes states Illinois, Indiana, Michigan, Minnesota, New York, Ohio, Pennsylvania and Wisconsin included, Alaska not); their 2023 employment sums to 58.70 million against 59.49 million for "Coastal US", a gap of 0.78 million that I did not trace (Alaska's shoreline boroughs are one possibility, unconfirmed). NOAA's definitions are on the data page (coast.noaa.gov/digitalcoast/data/coastaleconomy.html, which lists the five geographies) and in the Coastal County Definitions PDF it links (May 2024).
+
+**Proposed wording** (applied in the second revision round, item 5): the source label became "NOAA Total Economy (Coastal), shoreline counties of California and of the U.S."; the legend labels "Coastal California" and "Coastal U.S." were kept. Not applied: the sentence "Shoreline counties are the counties directly adjacent to the ocean, major estuaries and the Great Lakes." on the Wages slide. The existing "All Coastal States (30 states)" label is Open ENOW's series, a different dataset; its Great Lakes coverage is unchecked. The gap of 0.78 million jobs was traced in the second revision round (Puerto Rico and the U.S. Virgin Islands).
+
+### Text pass, second revision round (PR #32)
+
+Snapshots differ from the starting commit a49e5a9 only in the one source label of item 5 (`git diff a49e5a9 -- site/data/county-profiles` shows 40 changed lines, all that label); `diff-hazard.js` finds 54 files identical; `state-report.js` and `check-archive.js` pass.
+
+1. **Coastal Jobs labels and numbers (shared grid).** The two stat-pair items now sit in one grid: row 1 holds both labels, bottom-aligned in a row sized for two lines (`min-height: 2.7em`); row 2 holds both numbers, so they share a baseline however the labels wrap. Checked at 1280 × 650, 1366 × 768, 1920 × 1080 and (to force wrapping) 1100 and 1000 wide, for San Luis Obispo (longest county name), Los Angeles (longest numbers) and San Francisco: label bottoms and number tops are equal in every case and the slide fits. The labels carry no county name, so the longest county name only matters in the page header.
+2. **Wages (total and marine).** The big sector-name row is gone. The headline is the sentence alone, with the sector name in bold at its start ("**[Sector]** has the lowest average wage per job in [County] County."), set larger than a caption (22 to 36 px by viewport) and free to wrap. An estimated lowest wage still gets the leading ≈ mark. There is no figure any more, so the print and screen-reader text are the sentence only, and nothing on the data and citation slide repeated it. The longest sector names ("Trade, transportation, and utilities", "Professional and business services", "Offshore mineral resources") with San Luis Obispo County were injected into the real slide at 1280 × 650, 1366 × 768 and 1920 × 1080: two lines (three at 1366 × 768 for the long total economy names) and the slide fits each time.
+3. **Marine economy "If you can't measure it" headline.** *Not a regression; the callout guard.* The headline ("N% of total employment in X County is in the marine economy") is built only when the jobs total is neither withheld nor partial. Marine jobs is a partial total whenever any sector is withheld. The guard is the same code at a49e5a9 (`section-models.js`, the `stats` case: `!isSuppressed(data.jobs) && !isPartialCell(data.jobs)`), and a build of the starting commit gives the same result: the headline is present for every county in both builds except the same 16 marine decks, with no difference between the two builds for any of the 43 county-topic pages checked. The 16 marine counties with no headline are Contra Costa, Del Norte, Humboldt, Marin, Mendocino, Monterey, Napa, Sacramento, San Francisco, San Joaquin, Santa Barbara, Santa Clara, Santa Cruz, Solano, Ventura and Yolo; the seven with one (including Los Angeles) have no withheld sector. All 20 total economy decks have a headline. **Proposed fix, not applied:** show the headline from the sum of the known sectors as a floor, "at least N% of total employment in X County is in the marine economy", with the incomplete asterisk on it and the existing key line "* Some sectors withheld, see the sector chart." The floor can sit far below the truth where the withheld sector is large (tourism and recreation in Napa, Sacramento, San Joaquin and Yolo), so whether to publish a floor is your call. **The check:** `buildSectionModel` now returns `calloutSkip`, a closed list of reasons (`withheld-part`, `too-few-sectors`), and throws at build time if any section that normally has a headline (every kind but the timing chart and the stat pair) has none and gives no reason. Shown by negative test: with the reason removed, the marine measuring section for a county with a partial jobs total throws "no headline for marine-economy/measuring (T) and no reason given".
+4. **Public administration.** The "§ Public administration withheld; not enough reliable data." line is gone from the total economy diversity slide. What stays: "GDP*" and "* Excludes Public administration." The § is for sectors whose figures are withheld whole; Public administration's jobs and wages are shown. The code now passes every list of withheld cells through `wholeWithheld()`, which drops reason `gdp-unreproducible`, so no § line, legend mark or note can describe that reason (the accessible chart description still says "GDP ... Public administration withheld" for the GDP row, which is accurate). The About page's symbol key and withheld-reasons text say the same.
+5. **Comparator label (own commit, label only).** "NOAA Total Economy (Coastal), coastal California and coastal U.S." became "NOAA Total Economy (Coastal), shoreline counties of California and of the U.S." in `economy-topics.js` and, by string replacement with no re-fetch, in the 40 snapshot files (`latest/` and `2026-09-24/`, 20 counties each). Proof: the commit changes 41 lines (40 + 1), `git diff --word-diff` shows only "coastal ... coastal" becoming "shoreline counties of ... of the", and against a49e5a9 the only differing snapshot lines are the 40 label lines. The legend labels "Coastal California" and "Coastal U.S." are unchanged. About `#total-economy-comparators` gives the definition: California's shoreline counties; the U.S. coastal shoreline counties, NOAA's 452 counties adjacent to the ocean, major estuaries and the Great Lakes; not watershed counties and not whole states.
+6. **The employment gap (report only).** *Territories explain it exactly.* Querying `coastaleconomy` with `geotype=StateCoastal`: Puerto Rico (geoid 72000) has 748,279 jobs in 2023 and the U.S. Virgin Islands (78000) 35,839; American Samoa, Guam and the Northern Mariana Islands (60000, 66000, 69000) return nothing. 58,704,810 (the 30 states and DC) + 748,279 + 35,839 = **59,488,928**, equal to "Coastal US" to the job. `ShorelineCounties` also answers for county-level geoids in Puerto Rico (72127, San Juan) and the Virgin Islands (78010, St. Croix) but not for Alaska (02013, 02020) or the other territories. So "Coastal U.S." includes Puerto Rico and the U.S. Virgin Islands and excludes Alaska, American Samoa, Guam and the Northern Mariana Islands. NOAA's definition document (May 2024) lists 452 shoreline counties and county equivalents, including 25 in Alaska, 45 in Puerto Rico, 3 in the Virgin Islands, 3 in American Samoa, 1 in Guam and 4 in the Northern Marianas (parsed from its county table; asterisks per state), so the series carries about 419 of NOAA's 452, a derived count not checked county by county. **Proposed About wording (not applied):** "Coastal U.S. is NOAA's Total Economy (Coastal) aggregate of shoreline counties in 29 states and the District of Columbia (the Great Lakes states included), Puerto Rico and the U.S. Virgin Islands. NOAA defines 452 shoreline counties; the series has no data for the shoreline counties of Alaska, American Samoa, Guam and the Northern Mariana Islands." The item 5 About paragraph says only what NOAA defines, so it stays accurate until you choose that wording.
+7. **Re-run.** Display target, all 27 county directories: 0 problems over 1,952 slide checks at 1280 × 650, 1366 × 768, 1440 × 900 and 1920 × 1080 (the data slide's source table rows lost 1 px of padding to absorb the longer JSON link line). axe-core (light and dark, Santa Barbara, San Francisco, Humboldt, Napa, all topics): no violations. Print-colour audit: San Francisco, Humboldt, Napa, Santa Barbara, Orange and Yolo match. Print pages unchanged from the first revision (total economy 5, marine economy 4, full profile 21). `diff-hazard.js`: 54 files identical.
+
 ## Behavior
 
 ### Nominatim: submit only

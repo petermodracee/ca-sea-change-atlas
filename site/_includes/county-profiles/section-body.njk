@@ -4,12 +4,19 @@
     switch, every increment shown). -#}
 {%- from "county-profiles/blocks-deck.njk" import gap, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves -%}
 {%- from "county-profiles/share-ring.njk" import shareRing -%}
+{#- Marks on a label (never on a figure): the glyph is for the eye only, and the words are for a screen reader. -#}
+{%- macro marksHtml(marks) %}{% for m in marks %}<span class="cp-mark" aria-hidden="true">{{ m.glyph }}</span>{% endfor %}{% if marks.length %}<span class="sr-only"> ({% for m in marks %}{{ m.sr }}{% if not loop.last %}; {% endif %}{% endfor %})</span>{% endif %}{% endmacro -%}
 {%- set cid = uid ~ ("-p" if printMode else "") -%}
 {%- if not sec.available %}
 {{ gap(sec.reason, reasons, def.title) }}
 {%- else %}
 {%- if model.callout %}
-<div class="cpd-bign"><span class="cpd-fig">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ model.callout.figure }}</span><p class="cpd-cap">{{ model.callout.caption }}</p></div>
+{%- if model.callout.figure === null %}
+{#- A sentence-only headline (Wages: the lowest-paying sector, named in bold at the start of the sentence). -#}
+<div class="cpd-bign cpd-bign-sentence"><p class="cpd-cap">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
+{%- else %}
+<div class="cpd-bign"><span class="cpd-fig">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ model.callout.figure }}</span><p class="cpd-cap">{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
+{%- endif %}
 {%- endif %}
 {%- set v = model.visual %}
 {#- A stat-pair slide has no big number of its own — its two stats ARE the slide's content, so they
@@ -26,18 +33,18 @@
 {%- if def.id == "natural-features" %}<p class="cpd-chart-title">Development added, 1996–2016, as a share of land developed by 2016</p>
 {%- elif def.id == "people-at-risk" %}<p class="cpd-chart-title">Share of population at risk</p>{% endif %}
 <div class="share-row">{% for it in v.items %}{{ shareRing(cid ~ "-" ~ loop.index, it.label, it.label, it.count, it.total, it.unit, basis, it.showCounts) }}{% endfor %}</div>
-{%- if def.id == "natural-features" %}<p class="cpd-chart-title"><ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Development added, 1996–2016</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Already developed in 1996</li></ul></p>
+{%- if def.id == "natural-features" %}<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Development added</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Already developed in 1996</li></ul>
 {%- elif def.id == "people-at-risk" %}<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Population inside floodplain</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Population outside floodplain</li></ul>{% endif %}
-{%- elif v.type == "bars" %}{{ bars(cid, v.items, v.format, v.series, def.title) }}
+{%- elif v.type == "bars" %}{{ bars(cid, v.items, v.format, v.series, def.caption or def.title) }}
 {%- elif v.type == "stacked" %}{{ stackedBars(cid, v.rows, v.format, v.legend, def.caption or def.title, v.segClasses, v.opts) }}
-{%- elif v.type == "stacked100" %}{{ stacked100Bars(cid, v.measures, v.legend, def.caption or def.title, v.headline, printMode) }}
+{%- elif v.type == "stacked100" %}{{ stacked100Bars(cid, v.measures, v.legend, def.caption or def.title, v.headline, printMode, v.withheldMark) }}
 {%- elif v.type == "columns" %}{{ columns(cid, v.items, countyProfiles.incrementLabels, def.caption or def.title, none if printMode else (countyProfiles.increments if def.id == "people-at-risk" else none), printMode) }}
 {%- elif v.type == "facilities-stack" %}{{ facilitiesStack(cid, v.items, def.caption or def.title, countyProfiles.increments, printMode) }}
-{%- elif v.type == "dots" %}{{ dots(cid, v.items, v.series, def.caption or def.title) }}
+{%- elif v.type == "dots" %}{{ dots(cid, v.items, v.series, def.caption or def.title, v.withheldMark) }}
 {%- elif v.type == "timing" %}{{ curves(cid, county, opcGaugeProjections, countyProfiles.increments, printMode) }}
 {%- elif v.type == "stats" %}
 {#- A withheld stat isn't drawn at all — it's named in the footnote instead of taking a slot here. -#}
-<dl class="cp-stats{{ ' cp-stats-pair' if v.pair else '' }}">{% for it in v.items %}{% if not it.suppressed %}<div><dt>{{ it.label }}</dt><dd>{% if it.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ it.text }}</dd></div>{% endif %}{% endfor %}</dl>
+<dl class="cp-stats{{ ' cp-stats-pair' if v.pair else '' }}" data-n="{{ v.count }}" style="--cp-cols:{{ v.count }}">{% for it in v.items %}{% if not it.suppressed %}<div><dt>{{ it.label }}{{ marksHtml(it.marks) }}</dt><dd>{% if it.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ it.text }}</dd></div>{% endif %}{% endfor %}</dl>
 {%- elif v.type == "stat-pair" %}
 <div class="cpd-bign-group">{% for it in v.items %}<div class="cpd-bign-item"><p class="cpd-cap">{{ it.label }}</p><span class="cpd-fig">{{ it.text }}</span></div>{% endfor %}</div>
 {%- endif %}
@@ -45,13 +52,22 @@
 {%- if v and v.type == "stat-pair" %}
 {%- for p in def.prose %}{% if not loop.first %}<p class="cpd-footnote">{{ p }}</p>{% endif %}{% endfor %}
 {%- endif %}
+{%- if model.notes.length or model.footnotes.length or model.keys.length or model.estimated %}
+<div class="cpd-notes">
 {%- for n in model.notes %}
-<p class="cpd-footnote">{% if n.text %}{{ n.text }} <a href="{{ ('/county-profiles/about/#' ~ n.anchor) | url }}">{{ n.label }}</a>.{% else %}{{ n }}{% endif %}</p>
+<p class="cpd-footnote">{{ n }}</p>
 {%- endfor %}
 {%- for f in model.footnotes %}
 <p class="cpd-footnote">{{ f }}</p>
 {%- endfor %}
-{%- if model.estimated %}
-<p class="cpd-footnote cpd-est-note"><span class="cp-est-mark" aria-hidden="true">≈</span> <strong>Estimated.</strong> Figures marked ≈{% if v and v.type == "stacked100" %} (and hatched segments){% elif v and v.type == "dots" %} (and dashed rings){% endif %} are estimates: {{ model.estimated.thresholdPercent }}% or more of the value was filled in from other values rather than published. The mark is not colour alone. Detail: the JSON <code>est</code> fields and Data, methods and citation. <a href="{{ '/county-profiles/about/#estimated' | url }}">How estimates are made</a>.</p>
+{#- One key line: every symbol the slide uses, each once. ≈ is marked as the estimate sign, with words for a screen reader. -#}
+{%- if model.keys.length or model.estimated %}
+<p class="cpd-footnote cpd-key">
+{%- for k in model.keys %}<span class="cpd-key-item"><span class="cp-mark" aria-hidden="true">{{ k.glyph }}</span> {{ k.text }}</span>{% endfor %}
+{%- if model.estimated %}<span class="cpd-key-item cpd-est-note"><span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">The approximately-equals sign</span>{% if v and v.type == "stacked100" %} and hatched segments are estimates.{% elif v and v.type == "dots" %} and dashed rings are estimates.{% else %} marks estimates.{% endif %}</span>{% endif %}
+</p>
 {%- endif %}
+</div>
+{%- endif %}
+
 {%- endif %}
