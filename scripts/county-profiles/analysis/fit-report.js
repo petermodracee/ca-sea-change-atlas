@@ -15,7 +15,7 @@ const arg = (k, d) => { const i = process.argv.indexOf("--" + k); return i > 0 ?
 const counties = arg("counties", "santa-barbara,san-francisco,humboldt").split(",");
 const out = arg("out", null);
 const TOPICS = ["flood-hazard", "sea-level-rise", "total-economy", "marine-economy"];
-const VIEWPORTS = [[1280, 650], [1366, 768], [1440, 900], [1920, 1080]];
+const VIEWPORTS = [[1280, 650], [1280, 800], [1366, 768], [1440, 900], [1920, 1080]];
 const ROOT = path.resolve(process.env.SITE_DIR || path.join(__dirname, "../../../_site"));
 const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".json": "application/json", ".png": "image/png", ".woff2": "font/woff2" };
 

@@ -391,19 +391,29 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       notes.push(...caveatsFor(topicId, county, data.items.filter((i) => !isSuppressed(i.county)).map((i) => i.label)));
       const partial = data.items.some((i) => keys.some((k) => isSuppressed(i[k])));
       visual = { type: "dots", items, series, partial };
-      // The headline is the lowest-paying sector's name, in the big slot, and the sentence says so. The lowest is taken
-      // among the sectors whose county wage is shown (a withheld one cannot be ranked); equal wages are broken by
-      // sector name, so the same data always gives the same sector. A lowest wage that is itself estimated carries
-      // the estimate mark. With fewer than two shown sectors there is nothing to be the lowest of, so no callout.
+      // The headline names the lowest-paying sector, as a sentence with the name in bold. Which ranking it may use is
+      // decided by what is shown:
+      //  1. every sector's county wage shown (published or estimated): rank by county wage, "...in [County] County.";
+      //  2. any sector's county wage withheld (any reason): a withheld sector cannot be ranked, so the county sentence
+      //     would be wrong; rank by the Coastal California comparator across all sectors, "...in coastal California.";
+      //     a sector with no comparator value is left out of that ranking;
+      //  3. no sector has a comparator value either: no ranking is stated, only how many sectors show a wage.
+      // Equal values are broken by sector name, so the same data always gives the same sector, in both forms. The
+      // headline never carries the estimate mark. A county with fewer than two sectors has nothing to rank.
+      const lowestOf = (rows, key) => rows.slice().sort((x, y) => cv(x[key]) - cv(y[key]) || x.label.localeCompare(y.label))[0];
       const present = data.items.filter((i) => !isSuppressed(i.county));
-      const lowest = present.slice().sort((x, y) => cv(x.county) - cv(y.county) || x.label.localeCompare(y.label))[0];
-      if (present.length < 2) calloutSkip = "too-few-sectors";
-      callout = present.length < 2 ? null : {
-        figure: null,
-        caption: lowest.label + " has the lowest average wage per job in " + C + ".",
-        parts: [{ t: lowest.label, b: true }, { t: " has the lowest average wage per job in " + C + "." }],
-        est: isEstimatedCell(lowest.county),
-      };
+      const sentence = (name, where) => ({ caption: name + " has the lowest average wage per job in " + where + ".", parts: [{ t: name, b: true }, { t: " has the lowest average wage per job in " + where + "." }] });
+      if (data.items.length < 2) { calloutSkip = "too-few-sectors"; }
+      else if (present.length === data.items.length) {
+        callout = { figure: null, ...sentence(lowestOf(present, "county").label, C) };
+      } else {
+        const withComparator = data.items.filter((i) => !isSuppressed(i.coastalState));
+        if (withComparator.length) callout = { figure: null, ...sentence(lowestOf(withComparator, "coastalState").label, "coastal California") };
+        else {
+          const fallback = "Average wages are shown for " + present.length + " of " + data.items.length + " sectors in " + C + ".";
+          callout = { figure: null, caption: fallback, parts: [{ t: fallback }] };
+        }
+      }
       // A sector the county has no jobs in (data.noJobs) is simply not a row: the slide says nothing
       // about it, and /county-profiles/about/#sectors-not-shown explains it once for every county.
       // A withheld value is different (the publisher would not say), so it keeps its footnote.
