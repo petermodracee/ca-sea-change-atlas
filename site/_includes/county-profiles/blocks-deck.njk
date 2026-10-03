@@ -172,7 +172,7 @@
 {%- if not print %}{{ legendHtml | safe }}{% endif %}
 <h3 class="sr-only">{{ title | replace(r/\.$/, '') }}: data table</h3>
 <table class="{{ 'sr-only cpp-icons' if print else 'sr-only' }}">
-<thead><tr><th scope="col"><span class="sr-only">Category</span></th>{% for name in legend %}{% if print %}{% set seg0 = g.rows[0].segments[loop.index0] %}<th scope="col" class="cpp-iconhead" title="{{ name }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="17" height="17" aria-hidden="true" class="cpp-headicon{{ ' cpp-headicon-headline' if seg0.isHeadline else '' }}">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}<span class="cpp-vh">{{ name }}</span></th>{% else %}<th scope="col">{{ name }}</th>{% endif %}{% endfor %}</tr></thead>
+<thead><tr><th scope="col"><span class="sr-only">Category</span></th>{% for name in legend %}{% if print %}{% set seg0 = g.rows[0].segments[loop.index0] %}<th scope="col" class="cpp-iconhead" title="{{ name }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="17" height="17" aria-hidden="true" class="cpp-headicon{{ ' cpp-headicon-headline' if seg0.isHeadline else '' }}">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}<span class="cpp-vh">{{ name }}</span>{% if withheldMark and name in withheldMark.sectors %}<span class="cp-mark" aria-hidden="true">{{ withheldMark.glyph }}</span><span class="sr-only"> (some figures withheld)</span>{% endif %}</th>{% else %}<th scope="col">{{ name }}{% if withheldMark and name in withheldMark.sectors %}<span class="sr-only"> (some figures withheld)</span>{% endif %}</th>{% endif %}{% endfor %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}{% for m in row.marks %}<span class="cp-mark" aria-hidden="true">{{ m.glyph }}</span>{% endfor %}{% if row.marks.length %}<span class="sr-only"> ({% for m in row.marks %}{{ m.sr }}{% if not loop.last %}; {% endif %}{% endfor %})</span>{% endif %}</th>{% for seg in row.segments %}<td>{% if seg.suppressed %}withheld{% elif print %}{{ seg.printText or seg.text }}{% else %}{{ seg.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
 </table>
 {%- if print %}{{ legendHtml | safe }}{% endif %}
@@ -277,18 +277,18 @@
     than stacked above each row, with a vertical gridline at each x-axis tick and a horizontal one
     along each row, carrying the eye from a sector's name to its dots. Dense: styled tooltip per
     dot. -#}
-{% macro dots(uid, items, series, title) %}
+{% macro dots(uid, items, series, title, withheldMark) %}
 {%- set g = items | dotPlot(series) %}
 <p class="cpd-chart-title">{{ title }}</p>
 <div class="cpd-chart cpd-chart-dotplot" data-cpd-tips><svg viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
-<desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}: {% for d in row.dots %}{{ series[loop.index0] }} {% if d.suppressed %}withheld{% else %}{{ d.text }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+<desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}{% if row.marked %} (some figures withheld){% endif %}: {% for d in row.dots %}{{ series[loop.index0] }} {% if d.suppressed %}withheld{% else %}{{ d.text }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
 {%- for t in g.ticks %}
 <line class="cpd-grid" x1="{{ t.x }}" x2="{{ t.x }}" y1="0" y2="{{ g.axisY }}"/>
 <text class="cpd-axis" x="{{ t.x }}" y="{{ g.axisY + 28 }}" text-anchor="middle">{{ t.label }}</text>
 {%- endfor %}
 {%- for row in g.rows %}
 <line class="cpd-grid" x1="{{ g.plotL }}" x2="{{ g.plotR }}" y1="{{ row.cy }}" y2="{{ row.cy }}"/>
-<text class="cpd-dotplot-label" x="{{ row.labelX }}" y="{{ row.cy }}" text-anchor="end">{% for ln in row.labelLines %}<tspan x="{{ row.labelX }}" dy="{{ ln.dy }}">{{ ln.text }}</tspan>{% endfor %}</text>
+<text class="cpd-dotplot-label" x="{{ row.labelX }}" y="{{ row.cy }}" text-anchor="end">{% for ln in row.labelLines %}<tspan x="{{ row.labelX }}" dy="{{ ln.dy }}">{{ ln.text }}</tspan>{% endfor %}{% if row.marked and withheldMark %}<tspan class="cp-label-mark" dx="3" aria-hidden="true">{{ withheldMark.glyph }}</tspan>{% endif %}</text>
 {%- if row.lineX1 != null %}<line class="cpd-dotplot-line" x1="{{ row.lineX1 }}" x2="{{ row.lineX2 }}" y1="{{ row.cy }}" y2="{{ row.cy }}"/>{% endif %}
 {%- for d in row.dots | reverse %}{% if not d.suppressed %}<circle class="cpd-dot-{{ d.s }}{{ ' cpd-dot-est' if d.est else '' }}" data-tip="{{ d.tip }}" cx="{{ d.cx }}" cy="{{ row.cy }}" r="10"/>{% endif %}{% endfor %}
 {%- endfor %}
@@ -298,7 +298,7 @@
 <h3 class="sr-only">{{ title | replace(r/\.$/, '') }}: data table</h3>
 <table class="sr-only">
 <thead><tr><th scope="col"><span class="sr-only">Category</span></th>{% for name in series %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
-<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for d in row.dots %}<td>{% if d.suppressed %}withheld{% else %}{{ d.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}{% if row.marked %}<span class="sr-only"> (some figures withheld)</span>{% endif %}</th>{% for d in row.dots %}<td>{% if d.suppressed %}withheld{% else %}{{ d.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
 </table>
 {% endmacro %}
 

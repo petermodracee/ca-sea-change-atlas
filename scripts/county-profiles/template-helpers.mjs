@@ -379,6 +379,7 @@ export function dotPlot(items, seriesLabels) {
     const lines = wrapTwoLines(it.label, DOT_LABEL_CHARS);
     return {
       label: it.label,
+      marked: !!it.marked,
       labelX: labelW,
       // First line's offset from cy, so one line or two sit centred on the row (dominant-baseline
       // middle on the <text>).

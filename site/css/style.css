@@ -744,8 +744,8 @@ legend{
 .cp-stats dt{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin:0 0 6px;overflow-wrap:anywhere;}
 .cp-stats dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:clamp(22px,4.4cqw,36px);font-weight:600;line-height:1.15;overflow-wrap:break-word;}
 @container cpdbody (max-width:519px){.cp-stats[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr));}}
-.cp-stats-pair{grid-template-columns:1.6fr 1fr;}
-.cp-stats-pair > div:first-child dd{font-size:clamp(30px,8cqw,56px);}
+/* Total Jobs: the two tiles are the same size and top-aligned, at the common (smaller) tile size. */
+.cp-stats-pair{grid-template-columns:1fr 1fr;align-items:start;}
 .cp-stats dd.cp-stat-unit{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;font-weight:400;color:var(--ink-soft);margin-top:2px;}
 @media (max-width:640px){.cp-stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
 
@@ -945,6 +945,15 @@ body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
 
 .cpd-bign{display:flex;align-items:center;gap:28px;width:100%;}
 .cpd-bign .cpd-fig{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:clamp(52px,min(6.6vw,11.5vh),108px);line-height:1;color:var(--ink);letter-spacing:-.02em;white-space:nowrap;}
+/* A name as the headline (Wages: the lowest-paying sector): the name takes the full row in the same serif, with the
+   sentence beneath it, and its size follows its length so even "Trade, transportation, and utilities" is one line at
+   1280 x 650 and at 1920 x 1080 (and wraps rather than clips if a panel is ever narrower). */
+.cpd-bign.cpd-bign-name{flex-direction:column;align-items:flex-start;gap:2px;}
+.cpd-bign.cpd-bign-name .cpd-cap{font-size:clamp(16px,min(1.3vw,2.6vh),20px);line-height:1.3;}
+.cpd-bign .cpd-fig.cpd-fig-name{white-space:normal;max-width:100%;line-height:1.08;letter-spacing:-.01em;text-wrap:balance;overflow-wrap:break-word;}
+.cpd-bign .cpd-fig-name-l{font-size:clamp(32px,min(4.2vw,6.4vh),80px);}
+.cpd-bign .cpd-fig-name-m{font-size:clamp(26px,min(3.4vw,5vh),60px);}
+.cpd-bign .cpd-fig-name-s{font-size:clamp(22px,min(2.6vw,4vh),50px);}
 .cpd-bign .cpd-cap{margin:0;flex:1;min-width:0;font-size:clamp(17px,min(1.35vw,2.9vh),21px);line-height:1.4;color:var(--ink);}
 .cpd-note{margin:0;font-size:16px;color:var(--ink-soft);width:100%;}
 
@@ -1322,6 +1331,8 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 /* Section body, at paper size: undo the deck's slide-scale type. */
 .cpp .cpd-bign{display:flex;align-items:center;gap:14pt;margin:0 0 8pt;}
 .cpp .cpd-bign .cpd-fig{font-family:'Spectral',Georgia,serif;font-size:30pt;font-weight:600;line-height:1;white-space:nowrap;}
+.cpp .cpd-bign.cpd-bign-name{flex-direction:column;align-items:flex-start;gap:3pt;}
+.cpp .cpd-bign .cpd-fig.cpd-fig-name{white-space:normal;font-size:18pt;line-height:1.08;}
 .cpp .cpd-bign .cpd-cap{font-size:10.5pt;margin:0;flex:1;}
 .cpp .cpd-bign-group{display:grid;grid-template-columns:1fr 1fr;gap:10pt 30pt;text-align:center;margin:6pt 0;}
 .cpp .cpd-bign-item .cpd-fig{font-family:'Spectral',Georgia,serif;font-size:26pt;font-weight:600;}
@@ -1362,7 +1373,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp .share-ring{max-width:1.6in;}
 .cpp .share-label{font-size:9.5pt;} .cpp .share-detail{font-size:8.5pt;color:#333;}
 .cpp .cp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(1.3in,1fr));gap:10pt;}
-.cpp .cp-stats dd{font-size:18pt;} .cpp .cp-stats-pair > div:first-child dd{font-size:24pt;} .cpp .cp-stats dt{font-size:8pt;}
+.cpp .cp-stats dd{font-size:18pt;} .cpp .cp-stats dt{font-size:8pt;}
 .cpp .cp-equation{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8pt 12pt;}
 .cpp .cp-eq-value{font-size:18pt;} .cpp .cp-eq-label{font-size:8pt;}
 .cpp .cpd-gap,.cpp .cpd-gap p{color:#000;}

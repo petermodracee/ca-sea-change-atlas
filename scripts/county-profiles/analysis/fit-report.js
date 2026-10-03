@@ -73,9 +73,10 @@ function measure() {
     lines.push("", "### " + w + " × " + h);
     for (const c of counties) for (const t of TOPICS) {
       const url = "http://localhost:" + port + "/county-profiles/county/" + c + "/" + t + "/";
-      // A county without this topic has no page (the server answers 404 with no body): skipped, not an error.
+      // A county without this topic has no built page: skipped. A page that is built but will not load is a problem.
+      if (!fs.existsSync(path.join(ROOT, "county-profiles/county", c, t, "index.html"))) continue;
       const r = await page.goto(url).catch(() => null);
-      if (!r || r.status() !== 200) continue;
+      if (!r || r.status() !== 200) { bad++; lines.push("- " + c + "/" + t + ": built page failed to load"); continue; }
       await page.waitForTimeout(150);
       const views = [{ name: "", fn: null }];
       const hasTiming = await page.$("[data-cpd-timing-view]");

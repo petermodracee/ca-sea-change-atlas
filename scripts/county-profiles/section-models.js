@@ -334,9 +334,9 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         caption: "of " + C + "’s " + whose + " works in " + top.label + ", its largest sector by employment.",
         est: isEstimatedCell(top.employment),
       };
-      // Key: the year marks, the GDP star, then one § line for every sector with a withheld figure. One wording for
-      // all reasons (the reason is on the About page and in the JSON). A sector whose only withheld figure is the
-      // GDP star's (Public administration's GDP) is covered by that star, not repeated here.
+      // Key: the year marks, the GDP star, then one § line for every sector with a withheld figure, on its legend
+      // label. One wording for all reasons (the reason is on the About page and in the JSON). Public administration's
+      // GDP is both: the star says what the total leaves out, the § marks the sector.
       if (years) keyItems.push({ glyph: years.main.glyph, text: years.main.key }, { glyph: years.gdp.glyph, text: years.gdp.key });
       if (excluded.length) keyItems.push({ glyph: MARK_INCOMPLETE, text: KEY_EXCLUDES(excluded).key });
       const markedSectors = [];
@@ -344,7 +344,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         const v = s[m.key];
         if (!isSuppressed(v)) return;
         checkReasons([{ name: s.label + " " + m.key, reason: v.reason }]);
-        if (v.reason !== "gdp-unreproducible" && !markedSectors.includes(s.label)) markedSectors.push(s.label);
+        if (!markedSectors.includes(s.label)) markedSectors.push(s.label);
       }));
       if (markedSectors.length) keyItems.push({ glyph: MARK_WITHHELD, text: withheldLine(markedSectors) });
       visual.withheldMark = markedSectors.length ? { glyph: MARK_WITHHELD, sectors: markedSectors } : null;
@@ -360,6 +360,8 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       const keys = ["county", "coastalState", "coastalUS"];
       const items = data.items.map((i) => ({
         label: i.label,
+        // A sector with any withheld value carries the withheld mark on its label (and the key says what it means).
+        marked: keys.some((k) => isSuppressed(i[k])),
         values: keys.map((k) => {
           const text = cellText(i[k], usd);
           const est = !isSuppressed(i[k]) && mark(i[k]);
@@ -371,19 +373,19 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       notes.push(...caveatsFor(topicId, county, data.items.filter((i) => !isSuppressed(i.county)).map((i) => i.label)));
       const partial = data.items.some((i) => keys.some((k) => isSuppressed(i[k])));
       visual = { type: "dots", items, series, partial };
+      // The headline is the lowest-paying sector's name, in the big slot, and the sentence says so. The lowest is taken
+      // among the sectors whose county wage is shown (a withheld one cannot be ranked); equal wages are broken by
+      // sector name, so the same data always gives the same sector. A lowest wage that is itself estimated carries
+      // the estimate mark. With fewer than two shown sectors there is nothing to be the lowest of, so no callout.
       const present = data.items.filter((i) => !isSuppressed(i.county));
-      const top = present.sort((a, b) => cv(b.county) - cv(a.county))[0];
-      const bottom = present.sort((a, b) => cv(a.county) - cv(b.county))[0];
-      const countyWithheld = data.items.some((i) => isSuppressed(i.county));
-      // The headline is how many times the lowest-paying sector's average wage the highest-paying one is, and the
-      // sentence says so with the same number. No callout when there is no pair to compare (one sector, or a lowest
-      // wage of zero); a ratio that rounds to 1.0 reads "about the same as", never "1.0 times".
-      const ratioN = top && present.length > 1 && cv(bottom.county) > 0 ? (cv(top.county) / cv(bottom.county)).toFixed(1) : null;
-      callout = countyWithheld || ratioN === null ? null : {
-        figure: ratioN + "×",
-        caption: top.label + " has the highest average wage in " + C + (ratioN === "1.0" ? ", about the same as the lowest-paying sector’s." : ", about " + ratioN + " times the lowest-paying sector’s."),
-        parts: [{ t: top.label, b: true }, { t: " has the highest average wage in " + C + (ratioN === "1.0" ? ", about the same as the lowest-paying sector’s." : ", about " + ratioN + " times the lowest-paying sector’s.") }],
-        est: isEstimatedCell(top.county) || isEstimatedCell(bottom.county),
+      const lowest = present.slice().sort((x, y) => cv(x.county) - cv(y.county) || x.label.localeCompare(y.label))[0];
+      callout = present.length < 2 ? null : {
+        figure: lowest.label,
+        asText: true,
+        figLen: lowest.label.length,
+        caption: lowest.label + " has the lowest average wage per job in " + C + ".",
+        parts: [{ t: lowest.label, b: true }, { t: " has the lowest average wage per job in " + C + "." }],
+        est: isEstimatedCell(lowest.county),
       };
       // A sector the county has no jobs in (data.noJobs) is simply not a row: the slide says nothing
       // about it, and /county-profiles/about/#sectors-not-shown explains it once for every county.
@@ -391,7 +393,8 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       const cells = [];
       data.items.forEach((i) => keys.forEach((k, n) => { if (isSuppressed(i[k])) cells.push({ reason: i[k].reason, name: k === "county" ? i.label : i.label + " (" + series[n] + ")" }); }));
       checkReasons(cells);
-      if (cells.length) footnotes.push(withheldLine(cells.map((c) => c.name)));
+      if (cells.length) keyItems.push({ glyph: MARK_WITHHELD, text: withheldLine(cells.map((c) => c.name)) });
+      visual.withheldMark = cells.length ? { glyph: MARK_WITHHELD } : null;
       break;
     }
 

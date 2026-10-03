@@ -47,23 +47,19 @@
 
 <section class="cpp-section cpp-about">
 <{{ sh }}>Data, methods and citation</{{ sh }}>
-<p class="cpp-prose">Every figure here comes from one dated snapshot. A source's vintage is the period it describes, which can be years before the snapshot date.</p>
 <dl class="cpp-facts">
 <dt>Snapshot</dt><dd>{{ profile.snapshot }}</dd>
 <dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ aboutUrl }}#methodology-changelog">{{ aboutUrl }}#methodology-changelog</a></dd>
 {%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
-<dt>Estimates</dt><dd>&#8776; means {{ countyProfiles.economyMethod.thresholdPercent }}% or more of a figure is imputed. Methods, and why figures are withheld: {{ aboutUrl }}#estimated</dd>
+<dt>Estimates</dt><dd>Some figures are estimated with NOAA's Open ENOW method, and some are withheld. How estimates are made: {{ aboutUrl }}#estimated. Why figures are withheld: {{ aboutUrl }}#withheld-reasons</dd>
 {%- endif %}
 {%- if topic.id == "slr" and county.gaugeName %}
 <dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix F)</dd>
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
 {%- endif %}
 </dl>
-{%- if topic.id == "marine-economy" %}
-<p class="cpp-note">This topic omits jobs at risk: no open source isolates marine jobs by location. See <a href="{{ aboutUrl }}#marine-jobs">{{ aboutUrl }}#marine-jobs</a></p>
-{%- endif %}
 <p class="cpp-cite"><b>Recommended citation.</b> California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile: {{ topic.label }}</em>. <a href="{{ permalink }}">{{ permalink }}</a></p>
-<table class="cpp-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Vintage</th><th scope="col">Retrieved</th></tr></thead>
+<table class="cpp-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Period covered</th><th scope="col">Retrieved</th></tr></thead>
 <tbody>
 {%- for s in sourcesUsed %}
 <tr><th scope="row">{{ s.label }}<br><a href="{{ s.url }}">{{ s.url }}</a></th><td>{{ s.vintage }}</td><td>{{ s.retrieved }}</td></tr>

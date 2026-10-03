@@ -11,7 +11,7 @@
 {{ gap(sec.reason, reasons, def.title) }}
 {%- else %}
 {%- if model.callout %}
-<div class="cpd-bign"><span class="cpd-fig">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ model.callout.figure }}</span><p class="cpd-cap">{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
+<div class="cpd-bign{{ ' cpd-bign-name' if model.callout.asText else '' }}"><span class="cpd-fig{{ (' cpd-fig-name cpd-fig-name-' ~ ('l' if model.callout.figLen <= 14 else ('m' if model.callout.figLen <= 24 else 's'))) if model.callout.asText else '' }}">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ model.callout.figure }}</span><p class="cpd-cap">{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
 {%- endif %}
 {%- set v = model.visual %}
 {#- A stat-pair slide has no big number of its own — its two stats ARE the slide's content, so they
@@ -35,7 +35,7 @@
 {%- elif v.type == "stacked100" %}{{ stacked100Bars(cid, v.measures, v.legend, def.caption or def.title, v.headline, printMode, v.withheldMark) }}
 {%- elif v.type == "columns" %}{{ columns(cid, v.items, countyProfiles.incrementLabels, def.caption or def.title, none if printMode else (countyProfiles.increments if def.id == "people-at-risk" else none), printMode) }}
 {%- elif v.type == "facilities-stack" %}{{ facilitiesStack(cid, v.items, def.caption or def.title, countyProfiles.increments, printMode) }}
-{%- elif v.type == "dots" %}{{ dots(cid, v.items, v.series, def.caption or def.title) }}
+{%- elif v.type == "dots" %}{{ dots(cid, v.items, v.series, def.caption or def.title, v.withheldMark) }}
 {%- elif v.type == "timing" %}{{ curves(cid, county, opcGaugeProjections, countyProfiles.increments, printMode) }}
 {%- elif v.type == "stats" %}
 {#- A withheld stat isn't drawn at all — it's named in the footnote instead of taking a slot here. -#}
