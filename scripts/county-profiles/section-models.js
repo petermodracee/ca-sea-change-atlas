@@ -298,8 +298,8 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       } else {
         const floorShare = Math.floor((cv(data.jobs) / data.denominator) * 1000) / 10;
         callout = floorShare >= 0.1
-          ? { figure: floorShare.toFixed(1) + "%", prefix: "More than", floor: true, caption: (topicId === "marine-economy" ? "of total employment in " + C + " is" : "of all employment in California is in " + C + ".") + (topicId === "marine-economy" ? " in the marine economy." : ""), est: isEstimatedCell(data.jobs) }
-          : { figure: num(floorSig(cv(data.jobs), 2)), prefix: "More than", floor: true, caption: topicId === "marine-economy" ? "jobs in " + C + " are in the marine economy." : "jobs are in " + C + ".", est: isEstimatedCell(data.jobs) };
+          ? { figure: floorShare.toFixed(1) + "%", prefix: "More than", floor: true, est: false, caption: (topicId === "marine-economy" ? "of total employment in " + C + " is" : "of all employment in California is in " + C + ".") + (topicId === "marine-economy" ? " in the marine economy." : "") }
+          : { figure: num(floorSig(cv(data.jobs), 2)), prefix: "More than", floor: true, est: false, caption: topicId === "marine-economy" ? "jobs in " + C + " are in the marine economy." : "jobs are in " + C + "." };
       }
       break;
     }
@@ -437,12 +437,16 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       const present = data.sectors.filter((s) => !isSuppressed(s.selfEmployed)).sort((a, b) => b.selfEmployed - a.selfEmployed);
       const withheld = data.sectors.some((s) => isSuppressed(s.selfEmployed));
       const tied = present.length > 1 && present[1].selfEmployed === present[0].selfEmployed;
-      const phrase = "self-employed " + (present[0] ? present[0].label.toLowerCase() : "") + " workers";
+      // "# [sector] workers in [County] County are self-employed, more than any other sector." The number is the
+      // headline figure; only the sector name is bold; a count of 1 reads "1 [sector] worker ... is self-employed".
+      const sector = present[0] ? present[0].label.toLowerCase() : "";
+      const one = present[0] && present[0].selfEmployed === 1;
+      const rest = (one ? " worker in " : " workers in ") + C + (one ? " is" : " are") + " self-employed" + (tied ? ", tied for the most of any sector." : ", more than any other sector.");
       if (withheld || !present.length) calloutSkip = "withheld-part";
       callout = withheld || !present.length ? null : {
         figure: num(present[0].selfEmployed),
-        caption: phrase + " in " + C + (tied ? ", tied for the most of any sector." : ", more than any other sector."),
-        parts: [{ t: phrase, b: true }, { t: " in " + C + (tied ? ", tied for the most of any sector." : ", more than any other sector.") }],
+        caption: sector + rest,
+        parts: [{ t: sector, b: true }, { t: rest }],
       };
       break;
     }

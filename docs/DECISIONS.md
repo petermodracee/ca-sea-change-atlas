@@ -1515,7 +1515,7 @@ Every chart on every topic was read for a header, subtitle, axis label, legend a
 | 21 | Total and marine, Wages callout | [Sector] pays the most on average in xxx County's economy, that many times the lowest-paying sector's wage. (with an em dash) | Revised again (revision round, below): the sector name in the headline slot, with "**[Sector]** has the lowest average wage per job in xxx County." |
 | 22 | Total economy, Wages | Wages are for 2023 (other slides: 2025), the newest year the comparison covers. | removed (Sources row) |
 | 23 | Total economy, Coastal jobs | Jobs in the floodplain / Jobs under 6 ft of sea level rise | Potential jobs affected by current flooding / Potential jobs affected by future flooding |
-| 24 | Total Jobs, both topics | self-employed professional and business services workers in xxx County, more than any other sector. | the phrase "self-employed ... workers" in bold; "tied for the most of any sector" if two sectors tie |
+| 24 | Total Jobs, both topics | self-employed professional and business services workers in xxx County, more than any other sector. | Revised in the fourth revision round: "# professional and business services workers in xxx County are self-employed, more than any other sector." (only the sector name bold; "1 ... worker in xxx County is self-employed"; "tied for the most of any sector" if two sectors tie) |
 | 25 | Total Jobs, both topics | Employed workers: BLS QCEW, 2025. Self-employed workers: ... They are separate counts and are not added. | removed (tile labels and Sources row) |
 | 26 | Marine, sector chart | Tourism calibration note | removed (About `#tourism-calibration`) |
 | 27 | Chart data-table headings and tooltips | "<title> — data table"; "2 ft — Wetlands: ..." | "<title>: data table" (trailing full stop dropped); "2 ft, Wetlands: ..." |
@@ -1656,7 +1656,7 @@ Snapshots are unchanged in this round (`git diff HEAD -- site/data` empty); agai
 - **Complete total:** the exact share, as before.
 - **Partial total, floor share at least 0.1%:** "More than N% of total employment in [County] County is in the marine economy." N is the partial total over the same denominator as the complete-case headline, rounded down to one decimal. The headline is the number "N%" with a small "More than" above it and the rest of the sentence beside it, so it reads as one sentence for a screen reader and in print.
 - **Otherwise:** "More than [J] jobs in [County] County are in the marine economy." J is the partial total rounded down to two significant figures (a total under 100 is shown as it is).
-- An estimated total keeps the ≈ mark on the number. The repeat-of-a-chart-figure guard does not apply to these floor headlines (they are deliberately rounded down).
+- The floor headline carries no ≈ mark (revised in the fourth revision round): "More than" already says the figure is not exact. An estimated figure keeps its ≈ everywhere else. The repeat-of-a-chart-figure guard does not apply to these floor headlines (they are deliberately rounded down).
 - Only a wholly withheld jobs total (reason `jobs-withheld`) has no headline; no shipped snapshot has one. The build check is unchanged in force: a section that normally has a headline must have one or give a `calloutSkip` reason, and with this change a marine "If you can't measure it" deck cannot lack a headline unless its whole jobs total is withheld. Verified over every built page: 0 of 43 economy first slides lack a headline (marine 23, total 20); 27 exact, 16 floor.
 - Nothing on the data and citation slide described the headline, so nothing there changed. The About page and `docs/COUNTY-PROFILES.md` now say that a headline from a partial total is a floor, and that the largest-sector headline and the Total Jobs sentence are still left out when a sector is withheld.
 
@@ -1665,7 +1665,7 @@ Snapshots are unchanged in this round (`git diff HEAD -- site/data` empty); agai
 | County | Headline | Jobs tile (the partial total) |
 |---|---|---|
 | Contra Costa | More than 4.6% | 17,516 |
-| Del Norte | More than ≈ 11.1% (estimated) | ≈ 932 |
+| Del Norte | More than 11.1% (no ≈ on the headline; the jobs tile keeps its ≈) | ≈ 932 |
 | Humboldt | More than 7.2% | 3,809 |
 | Marin | More than 9.7% | 10,741 |
 | Mendocino | More than 6.3% | 2,025 |
@@ -1684,6 +1684,14 @@ Snapshots are unchanged in this round (`git diff HEAD -- site/data` empty); agai
 Where tourism and recreation is the withheld sector (Napa, Sacramento, San Joaquin, Yolo and others) the floor is far below the likely truth; the statement is still true, and the asterisk and key on the tiles say sectors are withheld.
 
 **Re-run.** Display target, all 27 county directories: 0 problems over 1,952 slide checks at 1280 × 650, 1366 × 768, 1440 × 900 and 1920 × 1080. axe-core (light and dark, four counties, all topics): no violations. Print-colour audit: San Francisco, Humboldt, Napa, Santa Barbara, Orange and Yolo match. Print pages unchanged (marine economy 4, full profile 21). No em dashes.
+
+### Text pass, fourth revision round (PR #32)
+
+Snapshots unchanged (`git diff HEAD -- site/data` empty; against a49e5a9 only the 40 label lines of the second round differ); `diff-hazard.js` finds 54 files identical.
+
+1. **No ≈ on a "More than" headline.** The floor headline ("More than N%" or "More than J jobs") no longer carries the ≈ mark, in the markup or in the screen-reader text (no "Estimated:" is read before it). Del Norte is the one shipped case; its headline now reads "More than 11.1% of total employment in Del Norte County is in the marine economy." and its Jobs tile keeps its ≈. Estimated figures everywhere else keep ≈ (tiles, chart labels, the exact-share headline). Nothing on the data and citation slide ever described the headline's mark; the DECISIONS notes and `docs/COUNTY-PROFILES.md` that did now say a floor headline never carries it.
+2. **Total Jobs sentence (total economy and marine economy; the same code serves both).** "# self-employed [sector] workers in [County] County, more than any other sector." became "# [sector] workers in [County] County are self-employed, more than any other sector." The number stays the headline figure, only the sector name is bold (lowercase, as before), a count of 1 reads "1 [sector] worker in [County] County is self-employed, ...", and a tie still reads "..., tied for the most of any sector." The screen-reader text is the figure followed by that sentence; the print block uses the same markup. The old sentence appeared in the "Every changed string" table (row 24), now revised; nowhere else in the docs.
+3. **Re-run.** Display target, all 27 county directories: see below. axe-core, print-colour audit and `diff-hazard.js` repeated; results in the PR description.
 
 ## Behavior
 
