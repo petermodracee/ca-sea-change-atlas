@@ -738,11 +738,14 @@ legend{
 /* auto-fit, not a fixed 4 columns: a 2-item row (marine economy's jobs/marine-jobs stat pair) then
    spreads across the full panel width in 2 equal columns instead of sitting in the left half with
    two empty tracks to the right. */
-.cp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:28px 24px;margin:0;width:100%;}
-.cp-stats dt{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin:0 0 6px;}
-.cp-stats dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:clamp(22px,2.8vw,36px);font-weight:600;line-height:1.15;overflow-wrap:break-word;}
+/* The tiles never leave one alone on a row: one row of up to four while the panel is wide enough, else a balanced
+   2 x 2 (a 3-tile row stays 3 across). The type is fluid in the panel's own width (.cpd-panel-body is the container). */
+.cp-stats{display:grid;grid-template-columns:repeat(var(--cp-cols,4),minmax(0,1fr));gap:22px 16px;margin:0;width:100%;}
+.cp-stats dt{font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);margin:0 0 6px;overflow-wrap:anywhere;}
+.cp-stats dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:clamp(22px,4.4cqw,36px);font-weight:600;line-height:1.15;overflow-wrap:break-word;}
+@container cpdbody (max-width:519px){.cp-stats[data-n="4"]{grid-template-columns:repeat(2,minmax(0,1fr));}}
 .cp-stats-pair{grid-template-columns:1.6fr 1fr;}
-.cp-stats-pair > div:first-child dd{font-size:clamp(30px,4.2vw,56px);}
+.cp-stats-pair > div:first-child dd{font-size:clamp(30px,8cqw,56px);}
 .cp-stats dd.cp-stat-unit{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;font-weight:400;color:var(--ink-soft);margin-top:2px;}
 @media (max-width:640px){.cp-stats{grid-template-columns:repeat(2,minmax(0,1fr));}}
 
@@ -777,7 +780,9 @@ legend{
 /* Land cover: the natural classes (wetland, upland) carry the emphasis; "Other" is a muted neutral. */
 .cp-bar-natural-0{fill:var(--teal-text);}
 .cp-bar-natural-1{fill:var(--ramp-2);}
-.cp-bar-neutral{fill:var(--ink-soft);}
+/* The non-natural remainder is the muted colour (the same sand as the other "rest of it" segments), outlined so it
+   keeps 3:1 against the panel; darker teal wetlands and mid teal upland stand out from it in colour and in greyscale. */
+.cp-bar-neutral{fill:var(--sand-deep);stroke:var(--ink-soft);stroke-width:1;}
 /* Flooded Facilities' "not yet exposed" segment: the same muted colour as "Outside the floodplain"
    on the flood-hazard Critical Facilities chart (.cp-bar-s1), not the lighter --ink-soft used for
    land cover's "Other" — --ink-soft reads as a bright near-white in dark theme, which looked like
@@ -785,7 +790,7 @@ legend{
 .cp-bar-not-exposed{fill:var(--sand-deep);}
 .cp-legend .cp-bar-natural-0,.cpd-legend .cp-bar-natural-0{background:var(--teal-text);}
 .cp-legend .cp-bar-natural-1,.cpd-legend .cp-bar-natural-1{background:var(--ramp-2);}
-.cp-legend .cp-bar-neutral,.cpd-legend .cp-bar-neutral{background:var(--ink-soft);}
+.cp-legend .cp-bar-neutral,.cpd-legend .cp-bar-neutral{background:var(--sand-deep);box-shadow:inset 0 0 0 1px var(--ink-soft);}
 .cp-legend .cp-bar-not-exposed,.cpd-legend .cp-bar-not-exposed{background:var(--sand-deep);}
 .cp-grid{stroke:var(--grid-line);stroke-width:1;}
 .cp-tick,.cp-bar-label,.cp-bar-value,.cp-withheld{font-size:20px;fill:var(--ink-soft);font-family:'IBM Plex Sans',system-ui,sans-serif;}
@@ -926,20 +931,21 @@ body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
 .cpd-slide{min-height:100%;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);}
 .cpd-deck.is-snap .cpd-slide{scroll-snap-align:start;}
 
-.cpd-left{padding:48px 56px 48px 72px;display:flex;flex-direction:column;justify-content:center;gap:22px;}
+.cpd-left{padding:clamp(24px,5vh,48px) 56px clamp(24px,5vh,48px) 72px;display:flex;flex-direction:column;justify-content:center;gap:clamp(12px,2.2vh,22px);}
 .cpd-eyebrow{font-size:13.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin:0;}
 .cpd-left h1,.cpd-left h2{font-family:'Spectral',Georgia,serif;font-weight:600;color:var(--ink);margin:0;text-wrap:balance;letter-spacing:-.01em;}
 .cpd-left h1{font-size:clamp(48px,6.2vw,92px);line-height:1.02;}
-.cpd-left h2{font-size:clamp(38px,4vw,62px);line-height:1.06;}
-.cpd-prose{margin:0;max-width:44ch;color:var(--ink);font-size:clamp(19px,1.45vw,22px);line-height:1.5;}
+.cpd-left h2{font-size:clamp(34px,min(4vw,6.6vh),62px);line-height:1.06;}
+.cpd-prose{margin:0;max-width:44ch;color:var(--ink);font-size:clamp(17px,min(1.45vw,2.9vh),22px);line-height:1.45;}
 .cpd-meta{margin:0;font-size:16px;color:var(--ink-soft);}
 
-.cpd-panel{background:var(--paper-2);padding:44px 56px 28px;display:flex;flex-direction:column;gap:22px;min-width:0;}
-.cpd-panel-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px;min-width:0;}
+/* Vertical space follows the viewport height (clamped), so a slide fits one screen at 1280 x 650 and keeps its room on a tall one. */
+.cpd-panel{background:var(--paper-2);padding:clamp(18px,4vh,44px) 56px clamp(12px,2.4vh,28px);display:flex;flex-direction:column;gap:clamp(8px,1.8vh,22px);min-width:0;}
+.cpd-panel-body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(10px,2.4vh,26px);min-width:0;container:cpdbody / inline-size;}
 
 .cpd-bign{display:flex;align-items:center;gap:28px;width:100%;}
-.cpd-bign .cpd-fig{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:clamp(64px,6.6vw,108px);line-height:1;color:var(--ink);letter-spacing:-.02em;white-space:nowrap;}
-.cpd-bign .cpd-cap{margin:0;flex:1;min-width:0;font-size:clamp(18px,1.35vw,21px);line-height:1.5;color:var(--ink);}
+.cpd-bign .cpd-fig{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:clamp(52px,min(6.6vw,11.5vh),108px);line-height:1;color:var(--ink);letter-spacing:-.02em;white-space:nowrap;}
+.cpd-bign .cpd-cap{margin:0;flex:1;min-width:0;font-size:clamp(17px,min(1.35vw,2.9vh),21px);line-height:1.4;color:var(--ink);}
 .cpd-note{margin:0;font-size:16px;color:var(--ink-soft);width:100%;}
 
 /* A stat-pair slide (e.g. Jobs at Risk) has no big number of its own, so its two stats take
@@ -1023,8 +1029,8 @@ svg [hidden]{display:none;}
 .cpd-tooltip[hidden]{display:none;}
 [data-tip]{cursor:pointer;}
 
-.cpd-sources{border-top:1px solid var(--line);padding-top:12px;margin-top:2px;display:flex;align-items:baseline;gap:10px 20px;flex-wrap:wrap;font-size:14px;line-height:1.3;color:var(--ink-soft);width:100%;}
-.cpd-sources b{font-size:13px;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;font-weight:600;}
+.cpd-sources{border-top:1px solid var(--line);padding-top:7px;margin-top:0;display:flex;align-items:baseline;gap:2px 16px;flex-wrap:wrap;font-size:12.5px;line-height:1.3;color:var(--ink-soft);width:100%;}
+.cpd-sources b{font-size:11.5px;line-height:1.3;letter-spacing:.08em;text-transform:uppercase;font-weight:600;}
 .cpd-vintage{color:var(--ink-soft);}
 
 /* timing table */
@@ -1056,6 +1062,13 @@ svg [hidden]{display:none;}
 .cpd-legend .cpd-swatch-extra{background:transparent;border:1.5px dashed var(--ramp-2);box-sizing:border-box;}
 .cpd-tview{max-height:48vh;overflow:auto;}
 .cpd-tview td{font-size:17px;}
+/* The timing table is five short rows: it is never clipped or scrolled, so every increment shows at once. */
+.cpd-timing-stage .cpd-tview{max-height:none;overflow:visible;}
+.cpd-timing-stage .cp-timing-table th,.cpd-timing-stage .cp-timing-table td{padding:7px 14px;}
+/* Sector legend (economy diversity): left-aligned, in sector order, in a grid, as in print. */
+.cpd-legend.cpd-legend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));justify-content:start;justify-items:start;gap:3px 18px;font-size:13.5px;}
+.cpd-legend-grid li{align-items:center;line-height:1.2;}
+.cpd-chart-subtitle{font-size:13px;}
 
 /* about slide */
 .cpd-facts{margin:0;display:grid;grid-template-columns:max-content 1fr;gap:10px 22px;font-size:17px;}
@@ -1065,7 +1078,7 @@ svg [hidden]{display:none;}
 .cpd-cite{margin:5px 0 8px;font-size:18px;line-height:1.45;overflow-wrap:anywhere;}
 .cpd-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14.5px;}
 .cpd-srctable{width:100%;}
-.cpd-srctable th,.cpd-srctable td{text-align:left;padding:9px 12px 9px 0;line-height:1.3;}
+.cpd-srctable th,.cpd-srctable td{text-align:left;padding:5px 12px 5px 0;line-height:1.25;}
 /* The About slide is reference material, not a section: everything on it except the heading is
    smaller than the rest of the deck, and it can carry a long facts list and a sources table with as
    many rows as the topic has sources — tighten its vertical rhythm rather than shrinking type
@@ -1074,18 +1087,30 @@ svg [hidden]{display:none;}
    here, since the footer sits outside it as a separate flex child pinned to the panel's bottom. */
 #s-about .cpd-panel-body{gap:10px;justify-content:center;padding-top:6px;}
 #s-about .cpd-left{gap:8px;padding-top:44px;padding-bottom:20px;justify-content:center;}
-#s-about .cpd-panel{padding-top:22px;padding-bottom:0;gap:14px;}
+#s-about .cpd-panel{padding-top:clamp(12px,3vh,22px);padding-bottom:0;gap:clamp(6px,1.6vh,14px);}
+#s-about .cpd-citebox{padding:8px 14px;}
+#s-about .cpd-citebox .cpd-btn{padding:3px 10px;}
+#s-about .cpd-note{font-size:13.5px;line-height:1.4;}
+#s-about .site-footer-note{margin-top:4px;}
 #s-about .cpd-facts{gap:4px 22px;font-size:14px;}
 #s-about .cpd-prose{font-size:14.5px;max-width:48ch;}
 #s-about .cpd-eyebrow{font-size:12px;}
-#s-about .cpd-cite{font-size:14.5px;}
+#s-about .cpd-cite{font-size:13.5px;margin:3px 0 6px;}
 #s-about .cpd-chart-title{margin-bottom:2px !important;font-size:13px;}
 #s-about .cpd-left h2{font-size:clamp(30px,3.2vw,46px);}
-.cpd-srctable tbody th{font-weight:500;font-size:13.5px;}
-.cpd-srctable td{font-size:13.5px;color:var(--ink);}
+.cpd-srctable tbody th{font-weight:500;font-size:12.5px;}
+.cpd-srctable td{font-size:12.5px;color:var(--ink);}
 .cpd-srctable td.cpd-num{font-variant-numeric:tabular-nums;white-space:nowrap;}
 .cpd-srctable td.cpd-vintage-cell{color:var(--ink-soft);}
-.cpd-footnote{font-size:14px;color:var(--ink-soft);width:100%;margin:0;}
+.cpd-footnote{font-size:12.5px;line-height:1.35;color:var(--ink-soft);width:100%;margin:0;}
+/* The notes under a chart sit together, tight: footnotes, then one key line with every symbol the slide uses. */
+.cpd-notes{display:flex;flex-direction:column;gap:3px;width:100%;}
+.cpd-key{display:flex;flex-wrap:wrap;gap:1px 16px;}
+.cpd-key-item{display:inline;}
+/* A mark is a printable glyph on a label or in the key, never on a figure; words for a screen reader sit beside it. */
+.cp-mark,.cp-label-mark{font-family:'Spectral',Georgia,serif;font-weight:600;color:var(--ink);font-size:1.2em;line-height:1;}
+.cp-stats dt .cp-mark{font-size:15px;margin-left:1px;}
+.cp-label-mark{font-size:inherit;}
 
 /* The About slide closes with the site's own footer, same as an ordinary page, instead of a
    standalone link row — it reads as the end of the page, not the end of a deck. Only this one
@@ -1186,7 +1211,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 
 /* dot plot (wages). Its viewBox renders at barely over half scale in the panel, so the shared 1px
    gridline all but vanished here; 2px keeps it visible as a gridline. */
-.cpd-dotplot-label{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:21px;font-weight:500;fill:var(--ink);dominant-baseline:middle;}
+.cpd-dotplot-label{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:20px;font-weight:500;fill:var(--ink);dominant-baseline:middle;}
 .cpd-chart-dotplot .cpd-grid{stroke-width:2;}
 .cpd-dotplot-line{stroke:var(--line);stroke-width:3;}
 
@@ -1291,7 +1316,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp-gaps{margin:4pt 0 0;padding-left:14pt;font-size:9pt;}
 .cpp-code{font-size:8.5pt;}
 .cpp-srctable{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6pt;}
-.cpp-srctable th,.cpp-srctable td{text-align:left;padding:3pt 5pt;border-bottom:1px solid #ccc;vertical-align:top;font-weight:400;}
+.cpp-srctable th,.cpp-srctable td{text-align:left;padding:2pt 5pt;border-bottom:1px solid #ccc;vertical-align:top;font-weight:400;}
 .cpp-srctable thead th{font-weight:600;border-bottom:1.5px solid #000;}
 .cpp-srctable tbody th{font-weight:500;}
 /* Section body, at paper size: undo the deck's slide-scale type. */
@@ -1373,7 +1398,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp .cpp-figtable caption{caption-side:top;text-align:left;font-size:8pt;color:#333;padding-bottom:2pt;}
 .cpp .cpp-horizons{margin-bottom:8pt;}
 .cpp .cpp-horizons .cpd-col-chart{max-height:2.6in;}
-.cpp h4.sr-only{position:static;width:auto;height:auto;margin:6pt 0 0;overflow:visible;clip:auto;white-space:normal;font-size:8pt;font-weight:600;color:#333;}
+.cpp h3.sr-only,.cpp h4.sr-only{position:static;width:auto;height:auto;margin:6pt 0 0;overflow:visible;clip:auto;white-space:normal;font-size:8pt;font-weight:600;color:#333;}
 /* Paper cannot be clicked: content links show their destination. Nav/decorative links carry none. */
 /* Per-section sources are name and vintage only; the full URLs are in the topic's closing Data, methods and citation table. */
 

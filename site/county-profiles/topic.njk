@@ -11,7 +11,7 @@ bodyClass: cpd-page
 extraScripts:
   - /js/county-deck.js
 eleventyComputed:
-  title: "{{ entry.topic.label }} — {{ entry.county.name }} County profile — CA Sea Change Atlas"
+  title: "{{ entry.topic.label }} | {{ entry.county.name }} County profile | CA Sea Change Atlas"
   description: "{{ entry.topic.label }} exposure for {{ entry.county.name }} County, California, with the vintage of every figure."
 ---
 {%- set county = entry.county %}

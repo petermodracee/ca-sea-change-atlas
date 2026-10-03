@@ -51,6 +51,9 @@
 <dl class="cpp-facts">
 <dt>Snapshot</dt><dd>{{ profile.snapshot }}</dd>
 <dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ aboutUrl }}#methodology-changelog">{{ aboutUrl }}#methodology-changelog</a></dd>
+{%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
+<dt>Estimates</dt><dd>&#8776; means {{ countyProfiles.economyMethod.thresholdPercent }}% or more of a figure is imputed. Methods, and why figures are withheld: {{ aboutUrl }}#estimated</dd>
+{%- endif %}
 {%- if topic.id == "slr" and county.gaugeName %}
 <dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix F)</dd>
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>

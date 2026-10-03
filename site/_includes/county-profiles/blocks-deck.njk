@@ -71,9 +71,9 @@
 {%- endfor %}
 </svg></div>
 {%- if series.length %}<ul class="cpd-legend" aria-hidden="true">{% for name in series %}<li><span class="cpd-swatch cp-bar-s{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}</ul>{% endif %}
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h3 class="sr-only">{{ title | replace(r/\.$/, '') }}: data table</h3>
 <table class="sr-only">
-<thead><tr><th scope="col"></th>{% if series.length %}{% for name in series %}<th scope="col">{{ name }}</th>{% endfor %}{% else %}<th scope="col">Value</th>{% endif %}</tr></thead>
+<thead><tr><th scope="col"><span class="sr-only">Category</span></th>{% if series.length %}{% for name in series %}<th scope="col">{{ name }}</th>{% endfor %}{% else %}<th scope="col">Value</th>{% endif %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for b in row.bars %}<td>{{ b.tip }}</td>{% endfor %}</tr>{% endfor %}</tbody>
 </table>
 {% endmacro %}
@@ -106,7 +106,7 @@
                     {%- if seg.suppressed %}
                         <text class="cp-withheld" x="{{ seg.x + 2 }}" y="{{ row.midY }}">withheld</text>
                     {%- else %}
-                        <path class="cp-bar {{ segClasses[loop.index0] if segClasses else ('cp-bar-s' + loop.index0) }}" data-tip="{{ row.label }} — {{ legend[loop.index0] }}: {{ seg.text }}{% if row.keyTip %}&#10;{{ row.keyTip }}{% endif %}" transform="translate(0,{{ row.barY }})" d="{{ seg.path }}"/>
+                        <path class="cp-bar {{ segClasses[loop.index0] if segClasses else ('cp-bar-s' + loop.index0) }}" data-tip="{{ row.label }}, {{ legend[loop.index0] }}: {{ seg.text }}{% if row.keyTip %}&#10;{{ row.keyTip }}{% endif %}" transform="translate(0,{{ row.barY }})" d="{{ seg.path }}"/>
                     {%- endif %}
                 {%- endfor %}
                 <text class="cp-bar-value" x="{{ (row.segments | last).x + (row.segments | last).w + 10 }}" y="{{ row.midY }}">{{ row.keyLabel }}</text>
@@ -126,9 +126,9 @@
             {% endfor %}
         </ul>
     {% endif %}
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h3 class="sr-only">{{ title | replace(r/\.$/, '') }}: data table</h3>
 <table class="sr-only">
-<thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
+<thead><tr><th scope="col"><span class="sr-only">Category</span></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for seg in row.segments %}<td>{{ seg.text }}</td>{% endfor %}</tr>{% endfor %}</tbody>
 </table>
 {% endmacro %}
@@ -142,17 +142,17 @@
     exact figure for every segment. A withheld sector isn't drawn at all — there is no value to give
     it a width — and is named in the section's own footnote instead; the accessible table still
     lists it, as "withheld". -#}
-{% macro stacked100Bars(uid, measures, legend, title, headline, print) %}
+{% macro stacked100Bars(uid, measures, legend, title, headline, print, withheldMark) %}
 {%- set g = measures | stacked100Bars %}
 <p class="cpd-chart-title">{{ title }}</p>
 
 <div class="cpd-chart" data-cpd-tips>
     <svg class="cp-bars cp-bars-100" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
-    <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}, by sector: {% for seg in row.segments %}{{ legend[loop.index0] }} {% if seg.suppressed %}withheld{% else %}{{ seg.pctText }}{% if seg.est %} (estimated){% endif %}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+    <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.srLabel }}, by sector: {% for seg in row.segments %}{{ legend[loop.index0] }} {% if seg.suppressed %}withheld{% else %}{{ seg.pctText }}{% if seg.est %} (estimated){% endif %}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
     {#- Estimated segments get a diagonal hatch over their fill: a light and a dark stripe, so it reads on any fill and in greyscale. -#}
     <defs><pattern id="{{ uid }}-est" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="#fff" stroke-width="3" stroke-opacity=".8"/><line x1="4.5" y1="0" x2="4.5" y2="9" stroke="#000" stroke-width="1.2" stroke-opacity=".55"/></pattern></defs>
     {%- for row in g.rows %}
-        <text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}</text>
+        <text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}{% for m in row.marks %}<tspan class="cp-label-mark" dx="3" aria-hidden="true">{{ m.glyph }}</tspan>{% endfor %}</text>
         {%- for seg in row.segments %}
             {%- if not seg.suppressed %}
                 {%- set sc = 'cp-sec-headline' if seg.isHeadline else ('cp-sec-neutral-' + (loop.index0 % 2)) %}
@@ -167,12 +167,13 @@
     {%- endfor %}
     </svg>
 </div>
-{%- set legendHtml %}<ul class="cpd-legend{{ ' cpp-key' if print else '' }}" aria-hidden="true">{% for name in legend %}{% set seg0 = g.rows[0].segments[loop.index0] %}<li><span class="cpd-legend-icon{{ ' cpd-legend-icon-headline' if seg0.isHeadline else '' }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="18" height="18" aria-hidden="true">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}</span>{{ name }}</li>{% endfor %}</ul>{% endset %}
+{#- The sector legend is a left-aligned grid in sector order, the same on screen and in print. A sector with a withheld figure (not drawn in the bars) carries the withheld mark. -#}
+{%- set legendHtml %}<ul class="cpd-legend cpd-legend-grid{{ ' cpp-key' if print else '' }}" aria-hidden="true">{% for name in legend %}{% set seg0 = g.rows[0].segments[loop.index0] %}<li><span class="cpd-legend-icon{{ ' cpd-legend-icon-headline' if seg0.isHeadline else '' }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="18" height="18" aria-hidden="true">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}</span><span>{{ name }}{% if withheldMark and name in withheldMark.sectors %} <span class="cp-mark">{{ withheldMark.glyph }}</span>{% endif %}</span></li>{% endfor %}</ul>{% endset %}
 {%- if not print %}{{ legendHtml | safe }}{% endif %}
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h3 class="sr-only">{{ title | replace(r/\.$/, '') }}: data table</h3>
 <table class="{{ 'sr-only cpp-icons' if print else 'sr-only' }}">
-<thead><tr><th scope="col"></th>{% for name in legend %}{% if print %}{% set seg0 = g.rows[0].segments[loop.index0] %}<th scope="col" class="cpp-iconhead" title="{{ name }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="17" height="17" aria-hidden="true" class="cpp-headicon{{ ' cpp-headicon-headline' if seg0.isHeadline else '' }}">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}<span class="cpp-vh">{{ name }}</span></th>{% else %}<th scope="col">{{ name }}</th>{% endif %}{% endfor %}</tr></thead>
-<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for seg in row.segments %}<td>{% if seg.suppressed %}withheld{% elif print %}{{ seg.printText or seg.text }}{% else %}{{ seg.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
+<thead><tr><th scope="col"><span class="sr-only">Category</span></th>{% for name in legend %}{% if print %}{% set seg0 = g.rows[0].segments[loop.index0] %}<th scope="col" class="cpp-iconhead" title="{{ name }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="17" height="17" aria-hidden="true" class="cpp-headicon{{ ' cpp-headicon-headline' if seg0.isHeadline else '' }}">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}<span class="cpp-vh">{{ name }}</span></th>{% else %}<th scope="col">{{ name }}</th>{% endif %}{% endfor %}</tr></thead>
+<tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}{% for m in row.marks %}<span class="cp-mark" aria-hidden="true">{{ m.glyph }}</span>{% endfor %}{% if row.marks.length %}<span class="sr-only"> ({% for m in row.marks %}{{ m.sr }}{% if not loop.last %}; {% endif %}{% endfor %})</span>{% endif %}</th>{% for seg in row.segments %}<td>{% if seg.suppressed %}withheld{% elif print %}{{ seg.printText or seg.text }}{% else %}{{ seg.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
 </table>
 {%- if print %}{{ legendHtml | safe }}{% endif %}
 {% endmacro %}
@@ -215,10 +216,10 @@
 {%- if increments %}{{ incrementSlider(uid, increments, increments[0], 'data-cpd-col-incs', g.mt / g.width, (g.height - g.axisY) / g.width) }}{% endif %}
 </div>
 <ul class="cpd-legend" aria-hidden="true">{% for name in legend %}<li><span class="cpd-swatch cpd-ramp-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}{% if g.groups[0].cols[0].hasLow %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}</ul>
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h3 class="sr-only">{{ title | replace(r/\.$/, '') }}: data table</h3>
 <table class="sr-only">
 {%- if print and g.groups[0].cols[0].hasLow %}<caption>Each cell: exposure in ocean-connected areas; the figure in parentheses beneath includes isolated low-lying areas.</caption>{% endif %}
-<thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
+<thead><tr><th scope="col"><span class="sr-only">Category</span></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
 <tbody>{% for grp in g.groups %}{% if print and grp.cols[0].hasLow %}<tr><th scope="row">{{ grp.label }}</th>{% for c in grp.cols %}<td>{{ c.connText }}<span class="cpp-low">({{ c.text }})</span></td>{% endfor %}</tr>{% elif grp.cols[0].hasLow %}<tr><th scope="row">{{ grp.label }}, ocean-connected</th>{% for c in grp.cols %}<td>{{ c.connText }}</td>{% endfor %}</tr><tr><th scope="row">{{ grp.label }}, including low-lying areas</th>{% for c in grp.cols %}<td>{{ c.text }}</td>{% endfor %}</tr>{% else %}<tr><th scope="row">{{ grp.label }}</th>{% for c in grp.cols %}<td>{% if c.suppressed %}withheld{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>{% endif %}{% endfor %}</tbody>
 </table>
 {% endmacro %}
@@ -263,10 +264,10 @@
 </div>
 <ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch cp-bar-s0"></span>Exposed at the selected increment</li>{% if g.rows[0].states[0].lowLabel %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}<li><span class="cpd-swatch cp-bar-not-exposed"></span>Not yet exposed</li></ul>
 {%- endif %}
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h3 class="sr-only">{{ title | replace(r/\.$/, '') }}: data table</h3>
 <table class="{{ 'cpp-figtable' if print else 'sr-only' }}">
 {%- if print and g.rows[0].states[0].lowLabel %}<caption>Each cell: facilities exposed in ocean-connected areas; the figure in parentheses beneath includes isolated low-lying areas.</caption>{% endif %}
-<thead><tr><th scope="col"></th><th scope="col">Total</th>{% for ft in increments %}<th scope="col">{{ ft }} ft exposed</th>{% endfor %}</tr></thead>
+<thead><tr><th scope="col"><span class="sr-only">Category</span></th><th scope="col">Total</th>{% for ft in increments %}<th scope="col">{{ ft }} ft exposed</th>{% endfor %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.connLabel }}{% if print and st.lowLabel %}<span class="cpp-low">({{ st.lowLabel }})</span>{% endif %}</td>{% endfor %}</tr>{% if row.states[0].lowLabel and not print %}<tr><th scope="row">{{ row.label }}, including low-lying areas</th><td>{{ row.total }}</td>{% for st in row.states %}<td>{{ st.lowLabel }}</td>{% endfor %}</tr>{% endif %}{% endfor %}</tbody>
 </table>
 {% endmacro %}
@@ -294,9 +295,9 @@
 </svg>
 </div>
 <ul class="cpd-legend" aria-hidden="true">{% for name in series %}<li><span class="cpd-swatch cpd-dot-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}</ul>
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h3 class="sr-only">{{ title | replace(r/\.$/, '') }}: data table</h3>
 <table class="sr-only">
-<thead><tr><th scope="col"></th>{% for name in series %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
+<thead><tr><th scope="col"><span class="sr-only">Category</span></th>{% for name in series %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for d in row.dots %}<td>{% if d.suppressed %}withheld{% else %}{{ d.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
 </table>
 {% endmacro %}
@@ -315,7 +316,8 @@
 {%- if print %}
 <div class="cpp-horizons">
 {%- set hz = reference | horizonColumns(county.gauge) %}
-<p class="cpd-chart-subtitle">Projected rise at the {{ county.gaugeName }} gauge in 2050 and 2100, in feet above 2000</p>
+<p class="cpd-chart-title">Projections at the {{ county.gaugeName }} gauge, by scenario</p>
+<p class="cpd-chart-subtitle">Feet above 2000, in 2050 and 2100</p>
 <div class="cpd-chart" data-cpd-tips><svg class="cpd-col-chart" viewBox="0 0 {{ hz.width }} {{ hz.height }}" role="img" aria-labelledby="{{ uid }}-ht" aria-describedby="{{ uid }}-hd" preserveAspectRatio="xMidYMid meet">
 <title id="{{ uid }}-ht">Projected sea level rise at the {{ county.gaugeName }} tide gauge in 2050 and 2100, by scenario</title>
 <desc id="{{ uid }}-hd">Feet above 2000. {% for grp in hz.groups %}{{ grp.label }}: {% for c in grp.cols %}{{ hz.legend[loop.index0].label }} {{ c.text }} ft{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
@@ -338,10 +340,10 @@
 
 </div>
 <div class="cpp-timing">
-<p class="cpd-chart-title">Year each increment is reached at the {{ county.gaugeName }} gauge, by scenario</p>
+<p class="cpd-chart-subtitle">Year each increment is reached</p>
 {%- for t in county.timing %}
-<table class="cp-timing-table">
-<caption style="text-align:left;font-size:13px;color:var(--ink-soft);padding-bottom:6px">Based on projections for the {{ t.name }} tide gauge.</caption>
+<table class="cp-timing-table" aria-label="Year each increment is reached, by scenario">
+{%- if county.timing.length > 1 %}<caption>Based on projections for the {{ t.name }} tide gauge.</caption>{% endif %}
 <thead><tr><th scope="col">Sea level rise</th><th scope="col">Intermediate</th><th scope="col">Intermediate-High</th><th scope="col">High</th></tr></thead>
 <tbody>
 {%- for row in t.rows %}
@@ -352,7 +354,8 @@
 {%- endfor %}
 </div>
 {%- else %}
-<div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Year each increment is reached at the {{ county.gaugeName }} gauge, by scenario</p>
+{#- The gauge is named once, here. Each view then says only what is new: its measure and unit, or its years. -#}
+<div class="cpd-fighead cpd-fighead-centered"><p class="cpd-chart-title">Projections at the {{ county.gaugeName }} gauge, by scenario</p>
 <div class="cpd-view" role="group" aria-label="Show as" data-cpd-timing-view>
 <button type="button" aria-pressed="true" data-show="chart">Chart</button>
 <button type="button" aria-pressed="false" data-show="table">Table</button>
@@ -360,6 +363,7 @@
 </div></div>
 <div class="cpd-timing-stage">
 <div data-cpd-pane="chart" class="cpd-pane">
+<p class="cpd-chart-subtitle">Feet above 2000, by year</p>
 <div class="cpd-chart-row">
 <div class="cpd-chart"><svg viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-labelledby="{{ uid }}-t" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
 <title id="{{ uid }}-t">Projected sea level rise at the {{ county.gaugeName }} tide gauge, 2000 to 2150, by scenario</title>
@@ -406,7 +410,7 @@
 </div>
 <div data-cpd-pane="horizons" class="cpd-pane cpd-pane-hidden">
 {%- set hz = reference | horizonColumns(county.gauge) %}
-<p class="cpd-chart-subtitle">Projected rise at the {{ county.gaugeName }} gauge in 2050 and 2100, in feet above 2000</p>
+<p class="cpd-chart-subtitle">Feet above 2000, in 2050 and 2100</p>
 <div class="cpd-chart" data-cpd-tips><svg class="cpd-col-chart" viewBox="0 0 {{ hz.width }} {{ hz.height }}" role="img" aria-labelledby="{{ uid }}-ht" aria-describedby="{{ uid }}-hd" preserveAspectRatio="xMidYMid meet">
 <title id="{{ uid }}-ht">Projected sea level rise at the {{ county.gaugeName }} tide gauge in 2050 and 2100, by scenario</title>
 <desc id="{{ uid }}-hd">Feet above 2000. {% for grp in hz.groups %}{{ grp.label }}: {% for c in grp.cols %}{{ hz.legend[loop.index0].label }} {{ c.text }} ft{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
@@ -428,9 +432,10 @@
 {%- if hz.flags.above %}<p class="cpd-horizon-note">‡ Over {{ hz.flags.max }} ft, the highest level the map shows.</p>{% endif %}
 </div>
 <div data-cpd-pane="table" class="cpd-pane cpd-pane-hidden cpd-tview">
+<p class="cpd-chart-subtitle">Year each increment is reached</p>
 {%- for t in county.timing %}
-<table class="cp-timing-table">
-<caption style="text-align:left;font-size:13px;color:var(--ink-soft);padding-bottom:6px">Based on projections for the {{ t.name }} tide gauge.</caption>
+<table class="cp-timing-table" aria-label="Year each increment is reached, by scenario">
+{%- if county.timing.length > 1 %}<caption>Based on projections for the {{ t.name }} tide gauge.</caption>{% endif %}
 <thead><tr><th scope="col">Sea level rise</th><th scope="col">Intermediate</th><th scope="col">Intermediate-High</th><th scope="col">High</th></tr></thead>
 <tbody>
 {%- for row in t.rows %}
