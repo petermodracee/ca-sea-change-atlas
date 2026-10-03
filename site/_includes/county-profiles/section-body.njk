@@ -11,7 +11,12 @@
 {{ gap(sec.reason, reasons, def.title) }}
 {%- else %}
 {%- if model.callout %}
-<div class="cpd-bign{{ ' cpd-bign-name' if model.callout.asText else '' }}"><span class="cpd-fig{{ (' cpd-fig-name cpd-fig-name-' ~ ('l' if model.callout.figLen <= 14 else ('m' if model.callout.figLen <= 24 else 's'))) if model.callout.asText else '' }}">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ model.callout.figure }}</span><p class="cpd-cap">{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
+{%- if model.callout.figure === null %}
+{#- A sentence-only headline (Wages: the lowest-paying sector, named in bold at the start of the sentence). -#}
+<div class="cpd-bign cpd-bign-sentence"><p class="cpd-cap">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
+{%- else %}
+<div class="cpd-bign"><span class="cpd-fig">{% if model.callout.est %}<span class="cp-est-mark" aria-hidden="true">≈</span><span class="sr-only">Estimated: </span>{% endif %}{{ model.callout.figure }}</span><p class="cpd-cap">{% if model.callout.parts %}{% for part in model.callout.parts %}{% if part.b %}<strong>{{ part.t }}</strong>{% else %}{{ part.t }}{% endif %}{% endfor %}{% else %}{{ model.callout.caption }}{% endif %}</p></div>
+{%- endif %}
 {%- endif %}
 {%- set v = model.visual %}
 {#- A stat-pair slide has no big number of its own — its two stats ARE the slide's content, so they

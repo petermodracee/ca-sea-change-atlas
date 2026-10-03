@@ -44,6 +44,10 @@ const MARK_INCOMPLETE = "*";
 const MARK_WITHHELD = "§";
 const listNames = (names) => (names.length <= 2 ? names.join(" and ") : names.slice(0, -1).join(", ") + " and " + names[names.length - 1]);
 const withheldLine = (names) => listNames(names) + " withheld; not enough reliable data.";
+// The § line is for figures withheld whole. Public administration's GDP (reason gdp-unreproducible) is one measure of a
+// sector whose jobs and wages are shown, so it is never described by that line: the star on GDP and "Excludes Public
+// administration." say it. Every caller passes its cells through here, so the line cannot describe that reason.
+const wholeWithheld = (cells) => cells.filter((c) => c.reason !== "gdp-unreproducible");
 // Every withheld figure must carry a reason from the closed vocabulary, even though the slide does not state it.
 const checkReasons = (cells) => cells.forEach((c) => { if (!WITHHOLD_REASONS.includes(c.reason)) throw new Error("withheld figure " + c.name + " has no known reason: " + c.reason); });
 
@@ -77,6 +81,9 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
   const anySuppressed = (vals) => vals.some(isSuppressed);
   let visual = null;
   let callout = null; // {figure, caption}
+  // Why a section that normally has a headline has none (a closed list, so a headline cannot vanish unexplained):
+  // "withheld-part" (a figure whose parts are withheld is never stated as a share) or "too-few-sectors".
+  let calloutSkip = null;
   // True for an SLR section whose data carries `countsWithLow`: its figures are then the combined
   // (ocean-connected plus low-lying) counts, drawn with the connected part solid and the additional
   // low-lying part dashed. The explanation lives on the County Profiles about page, not on the section.
@@ -271,13 +278,14 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       });
       const withheldCells = items.filter((i) => i.suppressed).map((i) => ({ name: i.label, reason: i.reason }));
       checkReasons(withheldCells);
-      if (withheldCells.length) footnotes.push(withheldLine(withheldCells.map((c) => c.name)));
+      if (wholeWithheld(withheldCells).length) footnotes.push(withheldLine(wholeWithheld(withheldCells).map((c) => c.name)));
       if (years) keyItems.push({ glyph: years.main.glyph, text: years.main.key }, { glyph: years.gdp.glyph, text: years.gdp.key });
       if (gdpStar) keyItems.push({ glyph: MARK_INCOMPLETE, text: KEY_EXCLUDES(["Public administration"]).key });
       if (raw.some((v, k) => isPartialCell(v) && !(gdpStar && k === 3))) keyItems.push({ glyph: MARK_INCOMPLETE, text: KEY_INCOMPLETE.key });
       visual = { type: "stats", items, count: items.filter((i) => !i.suppressed).length, partial: raw.some((v) => isSuppressed(v) || isPartialCell(v)) };
       // A callout never states a figure whose parts are withheld: a jobs total that leaves a sector out is a floor, so
       // its share of all jobs is not stated.
+      if (isSuppressed(data.jobs) || isPartialCell(data.jobs)) calloutSkip = "withheld-part";
       if (!isSuppressed(data.jobs) && !isPartialCell(data.jobs)) {
         const p = pc(cv(data.jobs), data.denominator);
         callout = topicId === "marine-economy"
@@ -329,14 +337,15 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       // A callout never states a figure whose parts are withheld: with any sector's employment withheld the
       // largest sector's share of the workforce is a share of only part of it, so no callout is stated (the chart
       // still shows the shares of the sectors that are known, under the denominator rule above).
+      if (withheldEmployment || !top) calloutSkip = "withheld-part";
       callout = withheldEmployment || !top ? null : {
         figure: pc(cv(top.employment), totalEmployment),
         caption: "of " + C + "’s " + whose + " works in " + top.label + ", its largest sector by employment.",
         est: isEstimatedCell(top.employment),
       };
       // Key: the year marks, the GDP star, then one § line for every sector with a withheld figure, on its legend
-      // label. One wording for all reasons (the reason is on the About page and in the JSON). Public administration's
-      // GDP is both: the star says what the total leaves out, the § marks the sector.
+      // label. One wording for all reasons (the reason is on the About page and in the JSON), except that Public
+      // administration's withheld GDP (gdp-unreproducible) is the star's alone: its jobs and wages are shown.
       if (years) keyItems.push({ glyph: years.main.glyph, text: years.main.key }, { glyph: years.gdp.glyph, text: years.gdp.key });
       if (excluded.length) keyItems.push({ glyph: MARK_INCOMPLETE, text: KEY_EXCLUDES(excluded).key });
       const markedSectors = [];
@@ -344,7 +353,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         const v = s[m.key];
         if (!isSuppressed(v)) return;
         checkReasons([{ name: s.label + " " + m.key, reason: v.reason }]);
-        if (!markedSectors.includes(s.label)) markedSectors.push(s.label);
+        if (v.reason !== "gdp-unreproducible" && !markedSectors.includes(s.label)) markedSectors.push(s.label);
       }));
       if (markedSectors.length) keyItems.push({ glyph: MARK_WITHHELD, text: withheldLine(markedSectors) });
       visual.withheldMark = markedSectors.length ? { glyph: MARK_WITHHELD, sectors: markedSectors } : null;
@@ -379,10 +388,9 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       // the estimate mark. With fewer than two shown sectors there is nothing to be the lowest of, so no callout.
       const present = data.items.filter((i) => !isSuppressed(i.county));
       const lowest = present.slice().sort((x, y) => cv(x.county) - cv(y.county) || x.label.localeCompare(y.label))[0];
+      if (present.length < 2) calloutSkip = "too-few-sectors";
       callout = present.length < 2 ? null : {
-        figure: lowest.label,
-        asText: true,
-        figLen: lowest.label.length,
+        figure: null,
         caption: lowest.label + " has the lowest average wage per job in " + C + ".",
         parts: [{ t: lowest.label, b: true }, { t: " has the lowest average wage per job in " + C + "." }],
         est: isEstimatedCell(lowest.county),
@@ -393,8 +401,8 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       const cells = [];
       data.items.forEach((i) => keys.forEach((k, n) => { if (isSuppressed(i[k])) cells.push({ reason: i[k].reason, name: k === "county" ? i.label : i.label + " (" + series[n] + ")" }); }));
       checkReasons(cells);
-      if (cells.length) keyItems.push({ glyph: MARK_WITHHELD, text: withheldLine(cells.map((c) => c.name)) });
-      visual.withheldMark = cells.length ? { glyph: MARK_WITHHELD } : null;
+      if (wholeWithheld(cells).length) keyItems.push({ glyph: MARK_WITHHELD, text: withheldLine(wholeWithheld(cells).map((c) => c.name)) });
+      visual.withheldMark = wholeWithheld(cells).length ? { glyph: MARK_WITHHELD } : null;
       break;
     }
 
@@ -413,7 +421,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       visual = { type: "stats", pair: true, items: pairItems, count: pairItems.filter((i) => !i.suppressed).length, partial: pairItems.some((i) => i.suppressed) || isPartialCell(data.employed) };
       const pairWithheld = [[data.employed, "Employed workers"], [data.selfEmployed, "Self-employed workers"]].filter(([v]) => isSuppressed(v)).map(([v, name]) => ({ reason: v.reason, name }));
       checkReasons(pairWithheld);
-      if (pairWithheld.length) footnotes.push(withheldLine(pairWithheld.map((c) => c.name)));
+      if (wholeWithheld(pairWithheld).length) footnotes.push(withheldLine(wholeWithheld(pairWithheld).map((c) => c.name)));
       if (isPartialCell(data.employed)) keyItems.push({ glyph: MARK_INCOMPLETE, text: KEY_INCOMPLETE.key });
       // Each tile's label carries its own year, and the sources row gives each source and vintage; they are
       // separate counts, never added (About page, #economy-years).
@@ -421,6 +429,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       const withheld = data.sectors.some((s) => isSuppressed(s.selfEmployed));
       const tied = present.length > 1 && present[1].selfEmployed === present[0].selfEmployed;
       const phrase = "self-employed " + (present[0] ? present[0].label.toLowerCase() : "") + " workers";
+      if (withheld || !present.length) calloutSkip = "withheld-part";
       callout = withheld || !present.length ? null : {
         figure: num(present[0].selfEmployed),
         caption: phrase + " in " + C + (tied ? ", tied for the most of any sector." : ", more than any other sector."),
@@ -452,12 +461,17 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
   // bar and the callout all truthfully say 0, and forcing the callout to another figure would hide
   // the finding rather than avoid a repeat. The rule guards against a callout that merely restates a
   // chart's labelled number; a zero is the answer, stated wherever it applies.
-  const isZeroFigure = callout && /^0(\.0+)?%?$/.test(callout.figure);
-  if (callout && !isZeroFigure && shown.includes(callout.figure) && ratios.has(callout.figure)) {
+  // A section that normally has a headline must have one, or say in the closed list above why not. This fails the build
+  // when a headline disappears without a reason (timing and the stat pair never have one).
+  if (!callout && !calloutSkip && !["timing", "stat-pair"].includes(def.kind)) {
+    throw new Error("no headline for " + topicId + "/" + def.id + " (" + county + ") and no reason given: a section that normally has a callout lost it");
+  }
+  const isZeroFigure = callout && callout.figure && /^0(\.0+)?%?$/.test(callout.figure);
+  if (callout && callout.figure && !isZeroFigure && shown.includes(callout.figure) && ratios.has(callout.figure)) {
     const [a, b] = ratios.get(callout.figure);
     if (!shown.includes(pct2(a, b))) callout = { ...callout, figure: pct2(a, b) };
   }
-  if (callout && !isZeroFigure && shown.includes(callout.figure)) {
+  if (callout && callout.figure && !isZeroFigure && shown.includes(callout.figure)) {
     throw new Error("callout for " + topicId + "/" + def.id + " (" + county + ") repeats a figure its chart already shows: " + callout.figure);
   }
 
@@ -465,7 +479,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
   // `estimated` is set when any figure on this section carries the "≈" mark: the template then prints the
   // one-line explanation, and the callout's figure gets the mark when what it is built from is estimated.
   const estimated = marks.length || (callout && callout.est) ? { count: marks.length, maxShare: marks.length ? Math.max(...marks) : null, thresholdPercent: EST_PCT } : null;
-  return { visual, callout, partial, footnotes, estimated, notes, keys: keyItems };
+  return { visual, callout, calloutSkip, partial, footnotes, estimated, notes, keys: keyItems };
 }
 
 module.exports = { buildSectionModel };

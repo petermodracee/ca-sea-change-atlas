@@ -945,25 +945,23 @@ body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
 
 .cpd-bign{display:flex;align-items:center;gap:28px;width:100%;}
 .cpd-bign .cpd-fig{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:clamp(52px,min(6.6vw,11.5vh),108px);line-height:1;color:var(--ink);letter-spacing:-.02em;white-space:nowrap;}
-/* A name as the headline (Wages: the lowest-paying sector): the name takes the full row in the same serif, with the
-   sentence beneath it, and its size follows its length so even "Trade, transportation, and utilities" is one line at
-   1280 x 650 and at 1920 x 1080 (and wraps rather than clips if a panel is ever narrower). */
-.cpd-bign.cpd-bign-name{flex-direction:column;align-items:flex-start;gap:2px;}
-.cpd-bign.cpd-bign-name .cpd-cap{font-size:clamp(16px,min(1.3vw,2.6vh),20px);line-height:1.3;}
-.cpd-bign .cpd-fig.cpd-fig-name{white-space:normal;max-width:100%;line-height:1.08;letter-spacing:-.01em;text-wrap:balance;overflow-wrap:break-word;}
-.cpd-bign .cpd-fig-name-l{font-size:clamp(32px,min(4.2vw,6.4vh),80px);}
-.cpd-bign .cpd-fig-name-m{font-size:clamp(26px,min(3.4vw,5vh),60px);}
-.cpd-bign .cpd-fig-name-s{font-size:clamp(22px,min(2.6vw,4vh),50px);}
+/* A sentence-only headline (Wages): larger than a caption, sector name in bold at the start, wraps freely. */
+.cpd-bign.cpd-bign-sentence .cpd-cap{font-size:clamp(22px,min(2.3vw,4vh),36px);line-height:1.25;flex:1 1 100%;}
+.cpd-bign.cpd-bign-sentence .cpd-cap strong{font-weight:700;}
 .cpd-bign .cpd-cap{margin:0;flex:1;min-width:0;font-size:clamp(17px,min(1.35vw,2.9vh),21px);line-height:1.4;color:var(--ink);}
 .cpd-note{margin:0;font-size:16px;color:var(--ink-soft);width:100%;}
 
 /* A stat-pair slide (e.g. Jobs at Risk) has no big number of its own, so its two stats take
    .cpd-fig-scale sizing and sit centred as a group — they're the slide's whole content, not
    supporting figures underneath one. */
-.cpd-bign-group{display:grid;grid-template-columns:repeat(2,1fr);justify-items:center;gap:24px 64px;width:100%;text-align:center;}
-.cpd-bign-item{display:flex;flex-direction:column;align-items:center;gap:8px;}
+/* Coastal Jobs: one shared grid. Row 1 holds both labels, bottom-aligned in a row tall enough for two lines; row 2
+   holds both numbers, so they sit on one baseline however the labels wrap. The item wrappers drop out of the layout. */
+.cpd-bign-group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto;grid-auto-flow:column;justify-items:center;column-gap:48px;row-gap:8px;width:100%;text-align:center;}
+.cpd-bign-item{display:contents;}
+.cpd-bign-item .cpd-cap{align-self:end;min-height:2.7em;}
+.cpd-bign-item .cpd-fig{align-self:start;min-width:0;}
 .cpd-bign-item .cpd-fig{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:clamp(48px,5.2vw,84px);line-height:1;color:var(--ink);letter-spacing:-.02em;white-space:nowrap;}
-.cpd-bign-item .cpd-cap{margin:0;font-size:15px;color:var(--ink-soft);}
+.cpd-bign-item .cpd-cap{margin:0;font-size:15px;line-height:1.35;color:var(--ink-soft);}
 /* The stat-pair's explanatory prose (rendered as a footnote below the two big numbers, since there's
    no other note position on a slide with no big number of its own) reads centred like the row above
    it, not left-aligned against the panel. */
@@ -1087,7 +1085,7 @@ svg [hidden]{display:none;}
 .cpd-cite{margin:5px 0 8px;font-size:18px;line-height:1.45;overflow-wrap:anywhere;}
 .cpd-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:14.5px;}
 .cpd-srctable{width:100%;}
-.cpd-srctable th,.cpd-srctable td{text-align:left;padding:5px 12px 5px 0;line-height:1.25;}
+.cpd-srctable th,.cpd-srctable td{text-align:left;padding:4px 12px 4px 0;line-height:1.25;}
 /* The About slide is reference material, not a section: everything on it except the heading is
    smaller than the rest of the deck, and it can carry a long facts list and a sources table with as
    many rows as the topic has sources — tighten its vertical rhythm rather than shrinking type
@@ -1331,8 +1329,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 /* Section body, at paper size: undo the deck's slide-scale type. */
 .cpp .cpd-bign{display:flex;align-items:center;gap:14pt;margin:0 0 8pt;}
 .cpp .cpd-bign .cpd-fig{font-family:'Spectral',Georgia,serif;font-size:30pt;font-weight:600;line-height:1;white-space:nowrap;}
-.cpp .cpd-bign.cpd-bign-name{flex-direction:column;align-items:flex-start;gap:3pt;}
-.cpp .cpd-bign .cpd-fig.cpd-fig-name{white-space:normal;font-size:18pt;line-height:1.08;}
+.cpp .cpd-bign.cpd-bign-sentence .cpd-cap{font-size:14pt;line-height:1.25;}
 .cpp .cpd-bign .cpd-cap{font-size:10.5pt;margin:0;flex:1;}
 .cpp .cpd-bign-group{display:grid;grid-template-columns:1fr 1fr;gap:10pt 30pt;text-align:center;margin:6pt 0;}
 .cpp .cpd-bign-item .cpd-fig{font-family:'Spectral',Georgia,serif;font-size:26pt;font-weight:600;}
