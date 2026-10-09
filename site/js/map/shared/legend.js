@@ -46,7 +46,8 @@ export function renderGradientLegendBlock(item){
   title.textContent = item.label;
   const bar = document.createElement("div");
   bar.className = "legend-block-gradient";
-  const stops = Object.entries(item.gradient).map(([at, color]) => `${color} ${Number(at) * 100}%`);
+  // Object.entries lists integer-like keys ("1") before fractional ones ("0.2"), so order the stops by position.
+  const stops = Object.entries(item.gradient).sort(([a], [b]) => Number(a) - Number(b)).map(([at, color]) => `${color} ${Number(at) * 100}%`);
   bar.style.background = `linear-gradient(to right, ${stops.join(", ")})`;
   const ends = document.createElement("div");
   ends.className = "legend-block-gradient-labels";

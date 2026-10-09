@@ -27,17 +27,20 @@ function createHeatLayer(pane){
   const PaneHeatLayer = L.HeatLayer.extend({
     onAdd(map){
       L.HeatLayer.prototype.onAdd.call(this, map);
+      map.on("resize", this._reset, this); // a map that loaded at zero size (hidden tab) redraws once it has one
       this._canvas.setAttribute("aria-hidden", "true"); // a picture of density; the legend and status line carry the text
       map.getPane(this.options.pane).appendChild(this._canvas); // moves it out of the overlay pane
     },
     onRemove(map){
       this._canvas.remove();
       map.off("moveend", this._reset, this);
+      map.off("resize", this._reset, this);
       if(map.options.zoomAnimation) map.off("zoomanim", this._animateZoom, this);
     },
     _redraw(){
       this._frame = null;
-      if(this._map) L.HeatLayer.prototype._redraw.call(this);
+      // getImageData throws on a zero-size canvas (the map loaded in a hidden tab); the resize handler redraws later.
+      if(this._map && this._canvas.width > 0 && this._canvas.height > 0) L.HeatLayer.prototype._redraw.call(this);
     }
   });
   return new PaneHeatLayer([], { ...HEAT_OPTIONS, pane });

@@ -23,6 +23,21 @@ const SELECTED_STYLE = { halo: { color: "#fff", weight: 7.5, opacity: 0.9 }, lin
 
 const query = params => `${TIGERWEB_URL}/${COUNTY_LAYER_ID}/query?${new URLSearchParams({ f: "json", outSR: "4326", ...params })}`;
 
+/** Resolves once the map container has a non-zero size (it has none when the page loads in a hidden or background tab). */
+function whenSized(map){
+  const sized = () => { const size = map.getSize(); return size.x > 0 && size.y > 0; };
+  if(sized()) return Promise.resolve();
+  return new Promise(resolve => {
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize({ animate: false });
+      if(!sized()) return;
+      observer.disconnect();
+      resolve();
+    });
+    observer.observe(map.getContainer());
+  });
+}
+
 /** Planar area of a ring of [lng, lat] points (shoelace); only used to rank a county's parts against each other. */
 function ringArea(ring){
   let sum = 0;
@@ -122,6 +137,8 @@ export class CountyLayer extends BaseLayer {
     try{
       const features = await this.loadFeatures();
       if(token !== this.fitToken) return; // a newer choice superseded this one
+      await whenSized(this.map); // fitBounds on a zero-size map would pick the maximum zoom
+      if(token !== this.fitToken) return;
       const feature = features.find(f => f.properties.GEOID === fips);
       if(!feature) throw new Error("County not found");
       this.resultEl.textContent = "";

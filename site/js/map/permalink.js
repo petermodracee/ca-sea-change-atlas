@@ -117,6 +117,9 @@ export function initPermalink(map, getBasemap){
     clearTimeout(timer);
     timer = setTimeout(() => history.replaceState(null, "", buildHash(map, getBasemap)), WRITE_DELAY_MS);
   };
+  // The hash is read once at load, so a link pasted into an open map tab needs a reload. This module's own writes
+  // use history.replaceState, which doesn't fire hashchange, so it can't loop.
+  window.addEventListener("hashchange", () => location.reload());
   const panel = document.querySelector(".layer-panel");
   map.on("moveend baselayerchange", write);
   panel.addEventListener("change", write);
