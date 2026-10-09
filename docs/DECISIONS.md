@@ -69,6 +69,67 @@ A per-county baseline (auto-detected from the click) was tried on top of BCDC's 
 ### No cache headers from the flood servers
 BCDC's server sends no `Cache-Control` or `Expires` on tiles or GetFeatureInfo, and the other live sources are similarly unhelpful (checked from response headers). `shared/request-cache.js` keeps a per-session cache keyed by URL so a repeated tile or click doesn't repeat a roughly 450 ms server render. Cal-Adapt's tiles send a one-year `Cache-Control`, so they skip it.
 
+## Map: county boundaries and zoom-level overviews
+
+These were added so County Profiles can link into the map with a county and layers already set. Each service was tested directly in October 2026.
+
+### County boundaries: Census TIGERweb
+Candidates were tested in the order of the brief. **Census TIGERweb State_County MapServer** (`tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer`) passed all four requirements, so Caltrans' `CHboundary/County_Boundaries` (it exists and has a 58-feature layer 0) was not evaluated further.
+
+- **CORS:** responses echo the request `Origin` in `access-control-allow-origin` (checked with `http://localhost:8080` and `https://seachangeatlas.org`).
+- **Draws at county zoom:** the county layers are banded by display scale (layers 1, 3, 5, 7, 9, 11 and 13 are one set; further sets start at layers 19, 37 and 55, the last of which carries 2020 census counts; the first set is the one used), so a plain `dynamicMapLayer` would switch geometry by scale and could not highlight one county. `/query` ignores those bands, so the map instead fetches all 58 California counties once as GeoJSON from layer 7 with `maxAllowableOffset` 0.001 degrees (58 features, 334 KB, about 1 s) and draws them as vectors. Smaller offsets cost more (0.0003 degrees on layer 1 was 736 KB); layer 13 at 0.01 was 61 KB but too coarse for a county-scale view.
+- **Queryable by FIPS, with an extent:** `where=GEOID='06059'&returnExtentOnly=true&outSR=4326` returns Orange County as -118.148, 33.334 to -117.413, 33.948. The extent covers the county's offshore waters and islands (Los Angeles runs from 32.75 to 34.82 because it includes San Clemente Island).
+- **License:** Census Bureau data, public domain (17 U.S.C. §105). Its metadata states only "Source: U.S. Census Bureau".
+
+The fallback table of county centres and zooms was therefore not needed and does not exist. Select values are 5-digit FIPS (state 06 plus county), matching TIGERweb's `GEOID`.
+
+### Facility heat overview: leaflet.heat
+USGS Structures allows 2,000 records per request, supports `resultOffset` paging and returns JSON, GeoJSON and PBF. A box around Los Angeles County returned (counts, re-measured) 151 hospitals, 521 fire/EMS stations, 146 police stations and 3,157 schools. JSON paging with `orderByFields=OBJECTID` was stable (schools: 2,000 then 1,157). Asking for `outFields=` (empty) still returned a `name` attribute, so the request asks for `OBJECTID` only and the code ignores attributes.
+
+**Measured, Los Angeles County at its fitted zoom (8), desktop pane:** 7 requests (hospitals 1, fire/EMS 1, police 1, schools 4 pages), about 750 ms from first request to last response, 8,008 points in the padded view. A synchronous heat redraw of those points takes about 32 ms (it runs once per move, not per frame). Panning past the padded area refetches the same 7 requests; the old heat stays on screen until the new points replace it.
+
+Heat styling (radius 7, blur 9, `max` 2.2, `maxZoom` 11, minimum opacity 0.3) was tuned by eye on Los Angeles at zoom 8 and 10: with leaflet.heat's defaults the basin saturated at zoom 8. Every facility has the same weight, so schools dominate.
+
+**License correction:** the brief described leaflet.heat as MIT. Version 0.2.0's LICENSE file (and its bundled simpleheat) is BSD-2-Clause, copyright Vladimir Agafonkin; `credits.json` lists it as BSD-2-Clause. It is compatible with this project's license and needs only the notice kept.
+
+leaflet.heat 0.2.0 has no `pane` option and its `onRemove` assumes the canvas is a child of the overlay pane, so `facility-overview-layer.js` subclasses it to put the canvas in the group pane (needed for the group's opacity slider, Hide and bring-to-front) and to guard against a pending animation frame firing after removal.
+
+### FEMA overview below zoom 14: NOAA's tiled copy
+Real `/tile/z/y/x` requests were made against `CFEM_FEMAFloodZones` (decoding each PNG and counting non-transparent pixels), zoom 8 to 14:
+
+| Place | z9 | z10 | z11 | z12 |
+|---|---|---|---|---|
+| Orange coast (33.65, -117.95) | 3.3% | 7.8% | 11.8% | 6.1% |
+| Orange inland (33.80, -117.85) | 8.7% | 31.5% | 45.8% | 18.8% |
+| Los Angeles basin (34.00, -118.30) | 4.7% | 12.1% | 10.2% | 1.9% |
+| Los Angeles coast (33.77, -118.20) | 4.7% | 12.1% | 21.7% | 32.0% |
+| Lake County (39.00, -122.75) | 7.1% | 18.5% | 50.5% | 54.4% |
+
+It renders at county zoom (confirmed on screen too: Orange County at zoom 10 and Lake County at zoom 9 show real flood-zone polygons). It was not compared polygon by polygon with the live NFHL. Two things to know:
+
+- **Vintage:** the service has no date in its JSON or metadata XML (`CreaDate` 20230817 is the service's creation date). Its service description says the data are "a composite of best available National Flood Hazard Layer (NFHL) and digital Q3 data, as of April 2015", so the status line says April 2015, per NOAA.
+- **The same description says the service covers only Gulf of Mexico and Atlantic coastal counties.** That is stale text: tiles are plainly populated for California. The vintage claim could be just as stale for California, which is why the status line attributes it to NOAA rather than asserting it. Verify before relying on the date.
+
+Click-to-inspect stays on the live FEMA layer only (zoom 14 and up); the CFEM query is the stale county table described above. `cfemFemaToggle` in the CFEM group is unchanged. Not cached or copied.
+
+### NOAA sea level rise over the Delta
+Tile requests to `dc_slr/slr_2ft` and `slr_10ft`, same decoding method, with Fresno (Central Valley, far from the sea) as an empty control (0.0% opaque and a 190 B tile at zoom 10, at both heights; its zoom 13 tile could not be decoded):
+
+| Point | 2 ft, z10 | 2 ft, z13 | 10 ft, z10 | 10 ft, z13 |
+|---|---|---|---|---|
+| Sacramento, river city (38.58, -121.50) | 0.3% | 0.3% | 8.6% | 3.9% |
+| Sacramento County Delta, Isleton (38.16, -121.60) | 67.5% | 97.1% | 77.5% | 99.3% |
+| San Joaquin, Stockton (37.95, -121.32) | 56.3% | 40.5% | 73.6% | 94.7% |
+| San Joaquin Delta islands (37.85, -121.55) | 56.3% | 98.2% | 73.6% | 99.9% |
+| Yolo, West Sacramento (38.58, -121.55) | 0.3% | 3.8% | 8.6% | 22.0% |
+| Yolo Bypass (38.45, -121.60) | 24.4% | 1.8% | 45.0% | 88.0% |
+| Yolo, Clarksburg (38.42, -121.52) | 24.4% | 57.7% | 45.0% | 94.5% |
+
+Data is present over the Delta in all three counties, at both heights. The island tiles are nearly solid at zoom 13 (97 to 99.9%), while the city of Sacramento and West Sacramento are mostly clear at 2 ft. Whether the layer accounts for Delta levees was not checked, so those solid areas may be low-lying land that levees currently protect. County Profiles can offer NOAA SLR links for Sacramento, San Joaquin and Yolo, ideally with that caveat.
+
+### Link fixes found while testing
+`NoaaSlrLayer.init()` set the slider to 3 ft after the permalink had restored it, so `noaaSlrSlider` in a link was silently ignored. The override is gone; `site/map/index.njk`'s `value="6"` is the default. A link carrying only `countySelect` (no `map=`) fits that county, and a link with `map=` leaves the view alone.
+
 ## Practitioner-survey resources
 
 Four resources from the practitioner survey (Figure 19.3, 2023 CA Coastal Adaptation Needs Assessment) were scoped but never added or excluded. Each was checked against the live service, September 2026. Licensing for the comparison-only ones is in [`LICENSING.md`](LICENSING.md).

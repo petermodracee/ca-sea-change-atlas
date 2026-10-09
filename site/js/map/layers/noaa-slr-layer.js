@@ -69,7 +69,7 @@ export class NoaaSlrLayer extends BaseLayer {
     this.applySwatch('[data-swatch="noaa-slr"]', NOAA_SLR_COLOR, false);
     this.sliderEl.min = 0;
     this.sliderEl.max = NOAA_SLR_SCENARIOS.length - 1;
-    this.sliderEl.value = 6; // 3ft, matching the old dropdown's default
+    // No default is set here: index.njk's value="6" (3 ft) is the default, and a shared link may already have restored another value.
 
     this.toggleEl.addEventListener("change", () => this.refresh());
     this.sliderEl.addEventListener("input", () => this.refresh());

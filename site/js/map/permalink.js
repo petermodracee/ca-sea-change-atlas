@@ -10,7 +10,8 @@
  */
 
 // Controls whose value is restored: static in map.njk, so they exist (and are read by the layer modules) at init.
-const VALUE_CONTROL_IDS = ["floodLevel", "noaaSlrSlider", "eccSlider", "caladaptPeriod", "caladaptScenario", "consequenceSelect", "nasaSlrScenario", "nasaSlrYear", "geoPeopleSelect", "geoLandSelect"];
+// Exported so Node tooling (e.g. a County Profiles link check) can read this list instead of copying it; importing the module has no DOM side effects.
+export const VALUE_CONTROL_IDS = ["floodLevel", "noaaSlrSlider", "eccSlider", "caladaptPeriod", "caladaptScenario", "consequenceSelect", "nasaSlrScenario", "nasaSlrYear", "geoPeopleSelect", "geoLandSelect", "countySelect"];
 const WRITE_DELAY_MS = 300;
 // Layer toggles left out of links because the state they depend on isn't restorable (see header comment).
 const UNTRACKED_CHECKBOX_IDS = new Set(["cosmosToggle"]);

@@ -60,8 +60,8 @@ const CFEM_ATTRIBUTION = 'Hazard overlap: <a href="https://coast.noaa.gov/digita
 // tile-only topics, these get a live legend but no popup provider.
 const CFEM_HTF_URL = "https://coast.noaa.gov/arcgis/rest/services/FloodExposureMapper/CFEM_HighTideFlooding/MapServer";
 const CFEM_HTF_LAYER_ID = 0;
-const CFEM_FEMA_URL = "https://coast.noaa.gov/arcgis/rest/services/FloodExposureMapper/CFEM_FEMAFloodZones/MapServer";
-const CFEM_FEMA_LAYER_ID = 1;
+export const CFEM_FEMA_URL = "https://coast.noaa.gov/arcgis/rest/services/FloodExposureMapper/CFEM_FEMAFloodZones/MapServer";
+export const CFEM_FEMA_LAYER_ID = 1;
 const CFEM_TSUNAMI_URL = "https://coast.noaa.gov/arcgis/rest/services/FloodExposureMapper/CFEM_Tsunami/MapServer";
 const CFEM_TSUNAMI_LAYER_ID = 0;
 
