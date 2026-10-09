@@ -1,7 +1,9 @@
 import { BaseLayer } from "../base-layer.js";
 import { groupPane } from "../shared/panes.js";
 import { setSwatch } from "../shared/dom.js";
-import { fetchLegendItems, renderImageLegendBlock, renderSwatchLegendBlock } from "../shared/legend.js";
+import { tilePixel } from "../shared/tile-pixel.js";
+import { fetchLegendItems, renderGradientLegendBlock, renderImageLegendBlock, renderSwatchLegendBlock } from "../shared/legend.js";
+import { FacilityOverviewLayer, FACILITY_MARKER_MIN_ZOOM, FACILITY_HEAT_GRADIENT } from "./facility-overview-layer.js";
 
 // --- Geo / demographic info -------------------------------------------------
 // Context layers that aren't flood tools themselves, so any flood layer can be
@@ -79,7 +81,8 @@ const AADT_LABELS = ["Under 18,476", "18,476 - 48,500", "48,501 - 161,000", "161
 const TRUCK_BREAKS = [623, 2135, 5901];
 const TRUCK_LABELS = ["Under 623", "623 - 2,134", "2,135 - 5,900", "5,901 or more"];
 
-// Critical facilities are drawn as our own circle markers (the USGS service's built-in icons are ~10px).
+// Critical facilities are drawn as our own circle markers (the USGS service's built-in icons are ~10px) from
+// zoom FACILITY_MARKER_MIN_ZOOM; further out a density heat overview takes over (facility-overview-layer.js).
 const FACILITY_TYPES = [
   { layer: 49, label: "Hospitals / medical centers", color: "#D62839" },
   { layer: 51, label: "Fire / EMS stations", color: "#F28C28" },
@@ -257,21 +260,6 @@ function legendColors(url){
   return legendColorCache.get(url);
 }
 
-/** The {r, g, b, a} of one pixel of a cached map tile, or null if the tile can't be read (missing or cross-origin). */
-async function tilePixel(url, px, py){
-  try{
-    const res = await fetch(url);
-    if(!res.ok) return null;
-    const bitmap = await createImageBitmap(await res.blob());
-    const ctx = new OffscreenCanvas(256, 256).getContext("2d");
-    ctx.drawImage(bitmap, 0, 0, 256, 256);
-    const [r, g, b, a] = ctx.getImageData(px, py, 1, 1).data;
-    return { r, g, b, a };
-  }catch(err){
-    return null;
-  }
-}
-
 const LAYERS = [
   {
     id: "geoPopDensity", paneKey: "geoPeople", select: "geoPeopleSelect", swatch: "#B8C480", label: "Population density",
@@ -315,12 +303,24 @@ const LAYERS = [
   },
   {
     id: "geoFacilities", paneKey: "geoFacilities", swatch: "#D62839", label: "Critical facilities (hospitals, fire/EMS, police, schools)",
-    build: (map, pane) => L.layerGroup(FACILITY_TYPES.map(t => L.esri.featureLayer({
-      url: `${STRUCTURES_URL}/${t.layer}`, minZoom: 11, pane, attribution: USGS_ATTR,
-      pointToLayer: (f, latlng) => L.circleMarker(latlng, { pane, radius: 7, color: "#fff", weight: 1.5, fillColor: t.color, fillOpacity: 0.95 })
-    }))),
-    legend: () => renderSwatchLegendBlock({ label: "Critical facilities (USGS Structures)", colors: FACILITY_TYPES.map(t => t.color), labels: FACILITY_TYPES.map(t => t.label) }),
-    identify: { urls: [[`${STRUCTURES_URL}/49`, "Hospital / medical center"], [`${STRUCTURES_URL}/51`, "Fire / EMS station"],
+    build: (map, pane) => L.layerGroup([
+      new FacilityOverviewLayer({
+        pane, serviceUrl: STRUCTURES_URL, layerIds: FACILITY_TYPES.map(t => t.layer),
+        onStatus: text => { document.getElementById("geoFacilitiesResult").textContent = text; }
+      }),
+      ...FACILITY_TYPES.map(t => L.esri.featureLayer({
+        url: `${STRUCTURES_URL}/${t.layer}`, minZoom: FACILITY_MARKER_MIN_ZOOM, pane, attribution: USGS_ATTR,
+        pointToLayer: (f, latlng) => L.circleMarker(latlng, { pane, radius: 7, color: "#fff", weight: 1.5, fillColor: t.color, fillOpacity: 0.95 })
+      }))
+    ]),
+    legend(){
+      const block = document.createElement("div");
+      block.append(
+        renderGradientLegendBlock({ label: "Facility density, low to high; schools, hospitals, fire/EMS, police", gradient: FACILITY_HEAT_GRADIENT, low: "Low", high: "High" }),
+        renderSwatchLegendBlock({ label: "Critical facilities, zoomed in (USGS Structures)", colors: FACILITY_TYPES.map(t => t.color), labels: FACILITY_TYPES.map(t => t.label) }));
+      return block;
+    },
+    identify: { minZoom: FACILITY_MARKER_MIN_ZOOM, urls: [[`${STRUCTURES_URL}/49`, "Hospital / medical center"], [`${STRUCTURES_URL}/51`, "Fire / EMS station"],
       [`${STRUCTURES_URL}/53`, "Police station"], [`${STRUCTURES_URL}/58`, "School"]], nearby: "auto",
       title: "Critical facility (USGS Structures)", rows: (p, type) => [
       { label: "Name", value: field(p, "NAME") }, { label: "Type", value: type },
@@ -443,6 +443,7 @@ class GeoInfoLayer extends BaseLayer {
   async identify(latlng){
     if(!this.isEnabled()) return null;
     const spec = this.config.identify;
+    if(spec.minZoom && this.map.getZoom() < spec.minZoom) return null; // the heat overview isn't clickable
     const urls = spec.urls || [[spec.url, ""]];
     const radius = spec.nearby === "auto" ? this.pixelsToMeters(latlng, 10) : spec.nearby;
     const found = await Promise.all(urls.map(([url, type]) => this.queryOne(url, type, spec, latlng, radius)));

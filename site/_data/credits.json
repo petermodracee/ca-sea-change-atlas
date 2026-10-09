@@ -173,6 +173,14 @@
           ]
         },
         {
+          "name": "U.S. Census Bureau TIGERweb (State and County boundaries)",
+          "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+          "note": "County lines and the extent used by \"Zoom to county\", queried live. Census Bureau data are in the public domain.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
           "name": "USGS The National Map — Structures",
           "url": "https://www.usgs.gov/national-digital-trends/structures",
           "note": "Critical facilities: hospitals, fire/EMS, police, schools.",
@@ -282,6 +290,14 @@
           "name": "Leaflet",
           "url": "https://leafletjs.com/",
           "note": "Map library.",
+          "licenses": [
+            "bsd-2"
+          ]
+        },
+        {
+          "name": "leaflet.heat",
+          "url": "https://github.com/Leaflet/Leaflet.heat",
+          "note": "Draws the critical-facilities density overview (bundles the simpleheat canvas library, same license). Version 0.2.0.",
           "licenses": [
             "bsd-2"
           ]

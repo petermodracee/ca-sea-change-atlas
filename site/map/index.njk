@@ -26,11 +26,13 @@ footerAttribution: >
   <a href="https://oceanservice.noaa.gov/hazards/sealevelrise/sealevelrise-tech-report-sections.html" target="_blank" rel="noopener">Interagency Sea Level Rise Technical Report</a>
   data (CC BY 4.0), read live from
   <a href="https://zenodo.org/records/6067895" target="_blank" rel="noopener">Zenodo</a>.
+  County boundaries: live from the
+  <a href="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer" target="_blank" rel="noopener">U.S. Census Bureau's TIGERweb</a>.
   Geo / demographic info layers: live data from EPA, CDC/ATSDR, USGS, NOAA C-CAP, and Caltrans (credited on each layer and on the
   <a href="../about/licenses/">Licenses & sources</a> page).
   Flood zones: live effective-data-only layer from
   <a href="https://www.fema.gov/flood-maps/national-flood-hazard-layer" target="_blank" rel="noopener">FEMA's National Flood Hazard Layer</a> —
-  see the layer panel for the effective-vs-preliminary caveat.
+  see the layer panel for the effective-vs-preliminary caveat. Zoomed out, an overview from NOAA's older tiled copy of FEMA flood zones is shown instead.
   Base maps: data &copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors; default greyscale style by
   <a href="https://openfreemap.org/" target="_blank" rel="noopener">OpenFreeMap</a> &copy; <a href="https://openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>;
   optional Humanitarian (HOT / OpenStreetMap France) and Esri World Imagery tiles. Address search via
@@ -60,6 +62,81 @@ footerAttribution: >
 
 <div class="layer-group">
 <div class="layer-group-title collapsible-title">
+<button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="countyGroupBody">▾</button>
+<span>County boundaries</span>
+<button type="button" class="group-hide-btn" aria-label="Hide county boundaries">Hide</button>
+</div>
+<div class="layer-group-body" id="countyGroupBody">
+<div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="county" min="20" max="100" step="5" value="100" aria-label="County boundaries opacity"><span class="opacity-value">100%</span></label></div>
+<label class="layer-item"><input type="checkbox" id="countyToggle"><span class="swatch" data-swatch="county"></span>County boundaries <em>(legal, may include coastal water)</em></label>
+<label for="countySelect" class="scenario-label">Zoom to county</label>
+<select id="countySelect">
+<option value="">Choose a county</option>
+<option value="06001">Alameda</option>
+<option value="06003">Alpine</option>
+<option value="06005">Amador</option>
+<option value="06007">Butte</option>
+<option value="06009">Calaveras</option>
+<option value="06011">Colusa</option>
+<option value="06013">Contra Costa</option>
+<option value="06015">Del Norte</option>
+<option value="06017">El Dorado</option>
+<option value="06019">Fresno</option>
+<option value="06021">Glenn</option>
+<option value="06023">Humboldt</option>
+<option value="06025">Imperial</option>
+<option value="06027">Inyo</option>
+<option value="06029">Kern</option>
+<option value="06031">Kings</option>
+<option value="06033">Lake</option>
+<option value="06035">Lassen</option>
+<option value="06037">Los Angeles</option>
+<option value="06039">Madera</option>
+<option value="06041">Marin</option>
+<option value="06043">Mariposa</option>
+<option value="06045">Mendocino</option>
+<option value="06047">Merced</option>
+<option value="06049">Modoc</option>
+<option value="06051">Mono</option>
+<option value="06053">Monterey</option>
+<option value="06055">Napa</option>
+<option value="06057">Nevada</option>
+<option value="06059">Orange</option>
+<option value="06061">Placer</option>
+<option value="06063">Plumas</option>
+<option value="06065">Riverside</option>
+<option value="06067">Sacramento</option>
+<option value="06069">San Benito</option>
+<option value="06071">San Bernardino</option>
+<option value="06073">San Diego</option>
+<option value="06075">San Francisco</option>
+<option value="06077">San Joaquin</option>
+<option value="06079">San Luis Obispo</option>
+<option value="06081">San Mateo</option>
+<option value="06083">Santa Barbara</option>
+<option value="06085">Santa Clara</option>
+<option value="06087">Santa Cruz</option>
+<option value="06089">Shasta</option>
+<option value="06091">Sierra</option>
+<option value="06093">Siskiyou</option>
+<option value="06095">Solano</option>
+<option value="06097">Sonoma</option>
+<option value="06099">Stanislaus</option>
+<option value="06101">Sutter</option>
+<option value="06103">Tehama</option>
+<option value="06105">Trinity</option>
+<option value="06107">Tulare</option>
+<option value="06109">Tuolumne</option>
+<option value="06111">Ventura</option>
+<option value="06113">Yolo</option>
+<option value="06115">Yuba</option>
+</select>
+<p class="scenario-result" id="countyResult"></p>
+</div>
+</div>
+
+<div class="layer-group">
+<div class="layer-group-title collapsible-title">
 <button type="button" class="group-collapse-btn" aria-expanded="true" aria-controls="geoGroupBody">▾</button>
 <span>Geo / demographic info</span>
 <button type="button" class="group-hide-btn" aria-label="Hide all geo and demographic layers">Hide</button>
@@ -83,7 +160,8 @@ footerAttribution: >
 
 <p class="scenario-label">Facilities and infrastructure</p>
 <div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="geoFacilities" min="20" max="100" step="5" value="100" aria-label="Facilities and infrastructure layers opacity"><span class="opacity-value">100%</span></label></div>
-<label class="layer-item"><input type="checkbox" id="geoFacilities"><span class="swatch" data-swatch="geoFacilities"></span>Critical facilities <em>(USGS; zoom in)</em></label>
+<label class="layer-item"><input type="checkbox" id="geoFacilities"><span class="swatch" data-swatch="geoFacilities"></span>Critical facilities <em>(USGS)</em></label>
+<p class="scenario-result" id="geoFacilitiesResult"></p>
 <div class="bcdc-legend" id="geoFacilitiesLegend" hidden></div>
 <label class="layer-item"><input type="checkbox" id="geoFrs"><span class="swatch" data-swatch="geoFrs"></span>Regulated facilities, pollution sources <em>(EPA; zoom in)</em></label>
 <div class="bcdc-legend" id="geoFrsLegend" hidden></div>
@@ -274,13 +352,14 @@ footerAttribution: >
 </div>
 <div class="layer-group-body" id="noaaSlrGroupBody">
 <div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="noaaSlr" min="20" max="100" step="5" value="100" aria-label="NOAA Sea Level Rise Viewer opacity"><span class="opacity-value">100%</span></label></div>
-<p class="click-hint">Click the map to see whether a point falls within a mapped low-lying area at the selected sea level.</p>
+<p class="click-hint">Click the map to see whether a point is flooded (connected to the ocean), low-lying but not connected, or neither, at the selected sea level.</p>
 <label class="layer-item"><input type="checkbox" id="noaaSlrToggle"><span class="swatch" data-swatch="noaa-slr"></span>Show sea level rise layer</label>
 <div class="scenario-block">
 <div class="scenario-label">Sea Level Rise, <span id="noaaSlrValue">3 ft</span></div>
 <input type="range" id="noaaSlrSlider" min="0" max="20" step="1" value="6">
 </div>
 <p class="scenario-result" id="noaaSlrResult"></p>
+<div class="bcdc-legend" id="noaaSlrLegend" hidden></div>
 
 <p class="click-hint">Click the map to see the nearest tide station's high tide flooding thresholds — today's thresholds, not tied to the sea level rise amount above.</p>
 <label class="layer-item"><input type="checkbox" id="noaaHtfToggle"><span class="swatch" data-swatch="noaa-htf"></span>High Tide Flooding stations</label>
@@ -335,10 +414,10 @@ footerAttribution: >
 </div>
 <div class="layer-group-body" id="femaGroupBody">
 <div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="fema" min="20" max="100" step="5" value="100" aria-label="FEMA Flood Zones opacity"><span class="opacity-value">100%</span></label></div>
-<p class="click-hint">Click the map to see the FEMA flood zone at that point.</p>
+<p class="click-hint">Click the map to see the FEMA flood zone at that point (neighborhood zoom and closer).</p>
 <label class="layer-item"><input type="checkbox" id="femaToggle"><span class="swatch" data-swatch="fema"></span>Flood Hazard Zones (effective)</label>
 <p class="scenario-result" id="femaResult"></p>
-<p class="click-hint">Shows FEMA's effective flood hazard data only, not including preliminary or pending map updates.</p>
+<p class="click-hint">Zoomed in, this shows FEMA's effective flood hazard data only, not including preliminary or pending map updates. Zoomed out, it shows NOAA's older copy as an overview.</p>
 <div class="bcdc-legend" id="femaLegend" hidden></div>
 </div>
 </div>
