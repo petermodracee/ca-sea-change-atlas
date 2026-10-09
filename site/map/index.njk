@@ -68,7 +68,7 @@ footerAttribution: >
 </div>
 <div class="layer-group-body" id="countyGroupBody">
 <div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="county" min="20" max="100" step="5" value="100" aria-label="County boundaries opacity"><span class="opacity-value">100%</span></label></div>
-<label class="layer-item"><input type="checkbox" id="countyToggle"><span class="swatch" data-swatch="county"></span>County lines <em>(Census Bureau)</em></label>
+<label class="layer-item"><input type="checkbox" id="countyToggle"><span class="swatch" data-swatch="county"></span>County boundaries <em>(legal, may include coastal water)</em></label>
 <label for="countySelect" class="scenario-label">Zoom to county</label>
 <select id="countySelect">
 <option value="">Choose a county</option>
@@ -352,13 +352,14 @@ footerAttribution: >
 </div>
 <div class="layer-group-body" id="noaaSlrGroupBody">
 <div class="opacity-row"><label>Opacity <input type="range" class="group-opacity" data-pane="noaaSlr" min="20" max="100" step="5" value="100" aria-label="NOAA Sea Level Rise Viewer opacity"><span class="opacity-value">100%</span></label></div>
-<p class="click-hint">Click the map to see whether a point falls within a mapped low-lying area at the selected sea level.</p>
+<p class="click-hint">Click the map to see whether a point is flooded (connected to the ocean), low-lying but not connected, or neither, at the selected sea level.</p>
 <label class="layer-item"><input type="checkbox" id="noaaSlrToggle"><span class="swatch" data-swatch="noaa-slr"></span>Show sea level rise layer</label>
 <div class="scenario-block">
 <div class="scenario-label">Sea Level Rise, <span id="noaaSlrValue">3 ft</span></div>
 <input type="range" id="noaaSlrSlider" min="0" max="20" step="1" value="6">
 </div>
 <p class="scenario-result" id="noaaSlrResult"></p>
+<div class="bcdc-legend" id="noaaSlrLegend" hidden></div>
 
 <p class="click-hint">Click the map to see the nearest tide station's high tide flooding thresholds — today's thresholds, not tied to the sea level rise amount above.</p>
 <label class="layer-item"><input type="checkbox" id="noaaHtfToggle"><span class="swatch" data-swatch="noaa-htf"></span>High Tide Flooding stations</label>

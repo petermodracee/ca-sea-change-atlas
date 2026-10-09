@@ -1,5 +1,7 @@
 import { BaseLayer } from "../base-layer.js";
 import { groupPane } from "../shared/panes.js";
+import { renderImageLegendBlock } from "../shared/legend.js";
+import { tilePixel } from "../shared/tile-pixel.js";
 
 // --- NOAA Sea Level Rise Viewer ---------------------------------------------
 // Unlike BCDC/CoSMoS (one service, many sublayers), this is a whole separate
@@ -30,6 +32,10 @@ const NOAA_SLR_SCENARIOS = (() => {
 })();
 const NOAA_SLR_ATTRIBUTION = 'Flood data: <a href="https://coast.noaa.gov/slr/" target="_blank" rel="noopener">NOAA Office for Coastal Management, Sea Level Rise Viewer</a>';
 const NOAA_SLR_COLOR = "#2F6FA0";
+const NOAA_SLR_MAX_NATIVE_ZOOM = 19; // the tile cache's last level
+// Low-lying areas not connected to the ocean are drawn solid bright green (85, 255, 0); connected flooding is
+// a violet-blue (deep) to pale cyan (shallow) ramp; anything else is transparent. The popup reads the tile pixel.
+const isLowLyingGreen = ({ r, g, b }) => g > 200 && r < 140 && b < 80;
 
 /** One `L.esri.tiledMapLayer` scenario at a time, swapped by the SLR-amount slider; also registers a low-lying-area identify popup provider. */
 export class NoaaSlrLayer extends BaseLayer {
@@ -39,6 +45,22 @@ export class NoaaSlrLayer extends BaseLayer {
     this.sliderEl = document.getElementById("noaaSlrSlider");
     this.valueEl = document.getElementById("noaaSlrValue");
     this.resultEl = document.getElementById("noaaSlrResult");
+    this.legendEl = document.getElementById("noaaSlrLegend");
+  }
+
+  /** Legend for the current scenario's service: the green low-lying areas (layer 0) and the depth ramp (layer 1). */
+  async updateLegend(){
+    if(!this.isEnabled()){ this.legendEl.hidden = true; this.legendEl.innerHTML = ""; return; }
+    const { url } = this.currentScenario();
+    const [lowLying, depth] = await Promise.all([
+      renderImageLegendBlock(url, 0, "", ["Low-lying areas (not connected to the ocean)"]),
+      renderImageLegendBlock(url, 1, "", ["Flood depth, deep to shallow"])
+    ]).catch(() => []);
+    if(!this.isEnabled() || url !== this.currentScenario().url) return; // toggled off or slid on while the legend loaded
+    if(!lowLying){ this.legendEl.hidden = true; return; }
+    this.legendEl.innerHTML = "";
+    this.legendEl.append(lowLying, depth);
+    this.legendEl.hidden = false;
   }
 
   isEnabled(){
@@ -81,24 +103,22 @@ export class NoaaSlrLayer extends BaseLayer {
     this.registerPopupProvider(latlng => this.identify(latlng));
   }
 
-  identify(latlng){
-    if(!this.isEnabled()) return Promise.resolve(null);
+  /**
+   * Click-to-inspect by reading the rendered tile pixel under the click. The services' vector layer 0 can't be
+   * used (its polygons are huge dissolved shapes that contain dry land too) and identify on the depth raster
+   * returns nothing; see docs/DECISIONS.md.
+   */
+  async identify(latlng){
+    if(!this.isEnabled()) return null;
     const scenario = this.currentScenario();
-    const label = `NOAA SLR Viewer — ${scenario.label}`;
-    return new Promise(resolve => {
-      L.esri.identifyFeatures({ url: scenario.url })
-        .on(this.map)
-        .at(latlng)
-        .layers("visible:0")
-        .tolerance(3)
-        .run((error, featureCollection) => {
-          if(error){ resolve(null); return; }
-          if(!featureCollection || !featureCollection.features.length){
-            resolve({ title: label, note: "Not within a mapped low-lying area at this point." });
-            return;
-          }
-          resolve({ title: label, rows: [{ label: "Within low-lying area", value: "Yes" }] });
-        });
-    });
+    const title = `NOAA SLR Viewer — ${scenario.label}`;
+    const z = Math.min(this.map.getZoom(), NOAA_SLR_MAX_NATIVE_ZOOM);
+    const point = this.map.project(latlng, z);
+    const x = Math.floor(point.x / 256), y = Math.floor(point.y / 256);
+    const pixel = await tilePixel(`${scenario.url}/tile/${z}/${y}/${x}`, Math.floor(point.x - x * 256), Math.floor(point.y - y * 256));
+    if(!pixel) return null;
+    if(pixel.a < 16) return { title, note: "Not mapped as flooded or low-lying at this sea level." };
+    if(isLowLyingGreen(pixel)) return { title, note: "Low-lying area (green), not connected to the ocean at this sea level." };
+    return { title, note: "Flooded at this sea level (blue): connected to the ocean. This includes open water such as the Bay. Darker violet is deeper." };
   }
 }

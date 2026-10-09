@@ -36,10 +36,10 @@ const FEMA_NFHL_ATTRIBUTION = 'Flood zones: <a href="https://www.fema.gov/flood-
 // a bug. Below that zoom the checkbox draws NOAA's tiled copy instead (see below).
 const FEMA_NFHL_MIN_ZOOM = 14;
 // Below that zoom the checkbox shows NOAA's tiled copy of FEMA flood zones (the service the CFEM
-// group's "FEMA Flood Zones" toggle uses) as an overview. Its service description dates the data
-// April 2015, so it is labelled as an overview and the live layer takes over at FEMA_NFHL_MIN_ZOOM.
+// group's "FEMA Flood Zones" toggle uses) as an overview. Its service description says April 2015 but is wrong
+// about coverage, so no date is shown (docs/DECISIONS.md); the live layer takes over at FEMA_NFHL_MIN_ZOOM.
 const OVERVIEW_ATTRIBUTION = 'Overview: <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">NOAA Coastal Flood Exposure Mapper</a>, a copy of FEMA flood zones';
-const OVERVIEW_STATUS = "Overview from NOAA's copy of FEMA flood zones (April 2015, per NOAA). Zoom in to neighborhood level for FEMA's current effective map.";
+const OVERVIEW_STATUS = "Overview from NOAA's copy of FEMA flood zones (date unclear). Zoom in to neighborhood level for FEMA's current effective map.";
 
 /**
  * The FEMA Flood Zones checkbox: NOAA's tiled copy of the zones below FEMA_NFHL_MIN_ZOOM, FEMA's live
@@ -76,7 +76,7 @@ export class FemaNfhlLayer extends BaseLayer {
     const live = this.showsLive();
     const block = live
       ? await renderImageLegendBlock(FEMA_NFHL_URL, FEMA_NFHL_ZONES_LAYER_ID, "Flood Hazard Zones")
-      : await renderImageLegendBlock(CFEM_FEMA_URL, CFEM_FEMA_LAYER_ID, "FEMA Flood Zones (NOAA's copy, overview)");
+      : await renderImageLegendBlock(CFEM_FEMA_URL, CFEM_FEMA_LAYER_ID, "FEMA Flood Zones (NOAA's copy, date unclear)");
     if(!this.isEnabled() || live !== this.showsLive()) return; // toggled or zoomed across the hand-off while the legend loaded
     this.legendEl.innerHTML = "";
     this.legendEl.appendChild(block);

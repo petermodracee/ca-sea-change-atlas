@@ -7,7 +7,7 @@ import { cachedFetch } from "../shared/request-cache.js";
 // The county sublayers are banded by display scale (1, 3, 5, 7, ... 13, each with its own
 // generalization). Layer 7 holds the geometry that suits a regional view, and /query
 // ignores a layer's display-scale band, so one statewide query serves every zoom.
-// Both the boundary geometry and the zoom-to extent are fetched live; nothing is stored here.
+// The boundary geometry, which also gives the zoom-to bounds, is fetched live; nothing is stored here.
 const TIGERWEB_URL = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer";
 const COUNTY_LAYER_ID = 7;
 const CALIFORNIA_STATE_FIPS = "06";
@@ -23,7 +23,21 @@ const SELECTED_STYLE = { halo: { color: "#fff", weight: 7.5, opacity: 0.9 }, lin
 
 const query = params => `${TIGERWEB_URL}/${COUNTY_LAYER_ID}/query?${new URLSearchParams({ f: "json", outSR: "4326", ...params })}`;
 
-/** The county boundary lines, plus the "Zoom to county" select that fits the map to a county's live extent. */
+/** Planar area of a ring of [lng, lat] points (shoelace); only used to rank a county's parts against each other. */
+function ringArea(ring){
+  let sum = 0;
+  for(let i = 0; i < ring.length - 1; i++) sum += ring[i][0] * ring[i + 1][1] - ring[i + 1][0] * ring[i][1];
+  return Math.abs(sum) / 2;
+}
+
+/** Leaflet bounds of the largest part of a Polygon or MultiPolygon, so offshore islands don't zoom the fit out. */
+function largestPartBounds(geometry){
+  const parts = geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates;
+  const outer = parts.map(part => part[0]).sort((a, b) => ringArea(b) - ringArea(a))[0];
+  return L.latLngBounds(outer.map(([lng, lat]) => [lat, lng]));
+}
+
+/** The county boundary lines, plus the "Zoom to county" select that fits the map to a county's mainland. */
 export class CountyLayer extends BaseLayer {
   /**
    * @param {L.Map} map
@@ -102,18 +116,18 @@ export class CountyLayer extends BaseLayer {
     }).catch(() => {});
   }
 
-  /** Fits the map to a county's extent, from a live TIGERweb query. */
+  /** Fits the map to the mainland (largest polygon part) of a county, from the geometry already fetched for the lines. */
   async fit(fips, { animate = true } = {}){
     const token = ++this.fitToken;
-    const url = query({ where: `GEOID='${fips}'`, returnExtentOnly: "true" });
     try{
-      const { extent } = await cachedFetch(url, res => res.json());
+      const features = await this.loadFeatures();
       if(token !== this.fitToken) return; // a newer choice superseded this one
-      if(!extent || !Number.isFinite(extent.xmin)) throw new Error("No extent");
+      const feature = features.find(f => f.properties.GEOID === fips);
+      if(!feature) throw new Error("County not found");
       this.resultEl.textContent = "";
-      this.map.fitBounds([[extent.ymin, extent.xmin], [extent.ymax, extent.xmax]], { padding: [FIT_PADDING_PX, FIT_PADDING_PX], animate });
+      this.map.fitBounds(largestPartBounds(feature.geometry), { padding: [FIT_PADDING_PX, FIT_PADDING_PX], animate });
     }catch(err){
-      if(token === this.fitToken) this.resultEl.textContent = "Couldn't look up that county's extent from the Census Bureau.";
+      if(token === this.fitToken) this.resultEl.textContent = "Couldn't load that county's outline from the Census Bureau.";
     }
   }
 

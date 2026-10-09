@@ -77,18 +77,21 @@ export async function fetchLegendItems(url, layerId){
  *
  * @param {string} url - the service's base MapServer URL (no trailing slash).
  * @param {number} layerId - the sublayer id whose legend entries to use.
- * @param {string} title - legend block title.
+ * @param {string} title - legend block title; empty for none.
+ * @param {string[]} [labels] - replaces the service's own row labels, in order.
  * @returns {Promise<HTMLElement>}
  */
-export async function renderImageLegendBlock(url, layerId, title){
+export async function renderImageLegendBlock(url, layerId, title, labels){
   const items = await fetchLegendItems(url, layerId);
   const block = document.createElement("div");
   block.className = "legend-block";
-  const titleEl = document.createElement("div");
-  titleEl.className = "legend-block-title";
-  titleEl.textContent = title;
-  block.appendChild(titleEl);
-  items.forEach(item => {
+  if(title){
+    const titleEl = document.createElement("div");
+    titleEl.className = "legend-block-title";
+    titleEl.textContent = title;
+    block.appendChild(titleEl);
+  }
+  items.forEach((item, i) => {
     const row = document.createElement("div");
     row.className = "legend-block-row";
     const sw = document.createElement("img");
@@ -96,7 +99,7 @@ export async function renderImageLegendBlock(url, layerId, title){
     sw.className = "fema-legend-swatch";
     sw.alt = ""; // decorative: the label beside it carries the meaning
     const lbl = document.createElement("span");
-    lbl.textContent = item.label.trim();
+    lbl.textContent = labels && labels[i] ? labels[i] : item.label.trim();
     row.appendChild(sw);
     row.appendChild(lbl);
     block.appendChild(row);
