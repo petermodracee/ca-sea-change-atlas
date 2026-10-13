@@ -23,11 +23,11 @@ const sliderIndex = (ft) => ft * 2;
 //   follows: the slide has an increment picker, so the browser rewrites the slider value as it moves
 //   opens:  plain words for the accessible name and the About page
 //   publishers: who publishes the layers, for the About page
-// Sections not listed get no link: flood Homes at Risk (no NFIP layer on the map), flood Jobs at Risk
-// (not in the brief's recipe table), SLR timing, and both economy topics.
+// Sections not listed get no link: flood Homes at Risk (no NFIP layer on the map), SLR timing, and both economy topics.
 const MAP_LINKS = {
   flood: {
     "people-at-risk": { on: [FEMA_TOGGLE], v: [[PEOPLE, "geoPopDensity"]], opens: "flood zones and population density", publishers: "FEMA (flood zones, effective NFHL); NOAA Office for Coastal Management (flood zones, overview copy); EPA (population density); U.S. Census Bureau (county boundaries)" },
+    "jobs-at-risk": { on: [FEMA_TOGGLE], v: [[PEOPLE, "geoJobsDensity"]], opens: "flood zones and jobs density", publishers: "FEMA and NOAA (flood zones); EPA (jobs density); U.S. Census Bureau (county boundaries)" },
     "critical-facilities": { on: [FEMA_TOGGLE, FACILITIES], v: [], opens: "flood zones and critical facilities", publishers: "FEMA and NOAA (flood zones); USGS (critical facilities); U.S. Census Bureau (county boundaries)" },
     "natural-features": { on: [FEMA_TOGGLE], v: [[LAND, "geoDevChange"]], opens: "flood zones and land converted to development", publishers: "FEMA and NOAA (flood zones); NOAA C-CAP (land converted to development); U.S. Census Bureau (county boundaries)" },
   },
