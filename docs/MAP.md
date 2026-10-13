@@ -6,7 +6,7 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `site/j
 
 | Module | Role |
 |---|---|
-| `index.js` | Entry point. Order matters: read the permalink, apply panel state to the DOM, create the map, register loading indicators, then init every layer (which reads the panel controls), replay layer toggles, then the panel behaviors. Popup section order follows layer init order. |
+| `index.js` | Entry point. Order matters: read the permalink, apply panel state to the DOM, create the map, register loading indicators, then init every layer (which reads the panel controls), replay layer toggles, then the panel behaviors (including `initPanelCollapse`, last, so the legend card sees the restored state). Popup section order follows layer init order. |
 | `app-shell.js` | Map creation, the map-click handler (drops the shared marker, opens the popup, defers to the measure tool), and panel behavior: group collapse, per-group Hide, "N on" badge, mobile bottom sheet. |
 | `basemaps.js` | Basemap switcher (`L.control.layers`). Default is greyscale OpenFreeMap "Positron" rendered by MapLibre GL (loaded lazily, SRI-pinned), falling back to greyscale-filtered OSM tiles without WebGL. Also Humanitarian, standard OSM and Esri imagery. The chosen basemap is remembered in `localStorage` (`atlas.basemap`). |
 | `base-layer.js` | `BaseLayer`: shared lifecycle (`init`, `isEnabled`, `buildLayer`, `refresh`, `updateLegend`) plus `applySwatch` and `registerPopupProvider`. |
@@ -21,10 +21,19 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `site/j
 | `shared/load-script.js` | `loadScript({src, integrity})`: injects an SRI-checked `<script>` for lazily loaded libraries (MapLibre, h5wasm). |
 | `shared/zenodo-projections.js` | `loadCaliforniaProjections()`: range-reads one NetCDF file out of the task force's 298 MB Zenodo zip and parses it with h5wasm. See [`DECISIONS.md`](DECISIONS.md#nasa-interagency-sea-level-rise-scenario-tool-a-point-layer-built-from-the-zenodo-data). |
 | `permalink.js` | URL-hash state (see below). Exports `VALUE_CONTROL_IDS` so Node tooling can import the list. |
+| `panel-collapse.js` | `initPanelCollapse(map)`: the desktop collapse button, the top-right "Layers" button and the legend card (see [Collapsible panel and legend card](#collapsible-panel-and-legend-card)). |
 | `controls.js` | Scale bar, locate button, distance-measure tool (sets `map.measureActive`). |
 | `search.js` | Nominatim address search, California-biased, submit-only, with alternative matches listed. |
 | `print.js` | Print/save-as-PDF: adds a title and date to `buildActiveSummary()` to make a print sheet styled by the print block in `css/style.css`. |
 | `../info-popup.js` | Tool-agnostic click-to-inspect popup, see below. |
+
+## Collapsible panel and legend card
+
+At widths above the 768px bottom-sheet breakpoint the panel heading has a "Collapse" button (`#collapsePanelBtn`, next to "Hide all"). Collapsing adds `.panel-collapsed` to `.map-layout`: the panel column is hidden with `display:none` (it stays in the DOM, because the layer modules and `permalink.js` read its controls), the map takes the full width and `map.invalidateSize()` runs. Below 768px nothing changes; the bottom sheet is the only mobile behavior and a stored collapsed state is ignored there.
+
+While collapsed, a Leaflet control in the `topright` corner (`.legend-control`, stacked under the basemap switcher so they can't overlap) holds a "Layers" button that reopens the panel and the legend card. The card is `buildActiveSummary()` (the same function the print sheet uses), rebuilt about 120 ms after any panel `change`/`input` or any DOM mutation in the panel (a `MutationObserver` on `class`/`hidden`, child lists and text, which catches legends that render after a fetch and `.has-active` toggles). It has a "Legend" pill that folds the body away, and is hidden entirely when no layer is on. The body's max height is the map height minus a reserve (`CARD_BOTTOM_RESERVE_PX`) so it stays clear of the attribution and scale bar. Print hides the whole control; the print sheet is built separately.
+
+The collapsed/open choice is a per-browser viewing preference in `localStorage` (`atlas.panelCollapsed`, `1` or `0`), default open, every read and write in try/catch so a blocked store just means "open". It is deliberately not in the permalink hash; see [`DECISIONS.md`](DECISIONS.md#panel-collapse-state-lives-in-localstorage-not-the-permalink).
 
 ## Layer groups
 

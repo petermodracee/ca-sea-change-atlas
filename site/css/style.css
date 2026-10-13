@@ -169,6 +169,40 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
   .sheet-handle[aria-expanded="true"] .sheet-chevron{transform:rotate(180deg);}
 }
 .panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+.panel-heading-actions{display:flex;align-items:center;gap:6px;}
+.panel-collapse-btn{display:none;}
+
+/* Collapsible panel (desktop only): the panel column goes away and the legend control shows over the map. */
+.legend-control{display:none;width:max-content;max-width:min(300px,calc(100vw - 32px));text-align:right;}
+@media screen and (min-width:769px){
+  .panel-collapse-btn{display:inline-block;}
+  .map-layout.panel-collapsed{grid-template-columns:minmax(0,1fr);}
+  .map-layout.panel-collapsed .layer-panel{display:none;}
+  .map-layout.panel-collapsed .legend-control{display:block;}
+}
+/* The embed also shows the legend card beside the mobile bottom sheet. */
+.legend-control.is-embed{display:block;}
+.legend-layers-btn,.legend-pill{
+  padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:var(--paper);color:var(--ink);
+  font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25);
+}
+.legend-layers-btn:hover,.legend-pill:hover{border-color:var(--teal);color:var(--teal-text);}
+.legend-layers-btn[hidden]{display:none;}
+@media (max-width:768px){ .legend-layers-btn{display:none;} }
+.legend-card{margin-top:8px;text-align:left;}
+.legend-card[hidden]{display:none;}
+.legend-card .legend-pill{display:block;margin-left:auto;font-size:12px;padding:4px 10px;}
+.legend-card-body{
+  margin-top:6px;padding:8px 10px;overflow-y:auto;border:1px solid var(--line);border-radius:5px;
+  background:var(--paper);color:var(--ink);font-size:12px;line-height:1.35;box-shadow:0 1px 4px rgba(0,0,0,.25);
+}
+.legend-card-body[hidden]{display:none;}
+.legend-card-body h3{font-size:11px;margin:8px 0 2px;text-transform:uppercase;letter-spacing:.03em;color:var(--teal-text);}
+.legend-card-body section:first-child h3{margin-top:0;}
+.legend-card-body .print-scenario{margin:1px 0;font-weight:600;}
+.legend-card-body ul{margin:2px 0 4px;padding-left:16px;}
+.legend-card-body .bcdc-legend{margin-top:4px;padding-top:4px;border-top:0;}
+.legend-card-body img{max-width:100%;}
 .layer-panel h2{font-size:14px;margin:0;}
 .layer-group{margin-bottom:20px;}
 .layer-group-title{
@@ -620,7 +654,7 @@ legend{
   @page{size:landscape;margin:.4in;}
   body.map-page{display:block;height:auto;overflow:visible;background:#fff;color:#000;}
   .site-header,.map-toolbar,.search-status,.search-results,.site-footer-links,.layer-panel{display:none !important;}
-  .leaflet-control-zoom,.leaflet-control-layers,.leaflet-control-locate,.leaflet-control-measure{display:none;}
+  .leaflet-control-zoom,.leaflet-control-layers,.leaflet-control-locate,.leaflet-control-measure,.legend-control{display:none !important;}
   .map-layout{display:grid;grid-template-columns:700px 1fr;grid-template-rows:auto;gap:0 14px;overflow:visible;}
   #map{width:700px;height:610px;min-height:0;border:1px solid #999;}
   #printSheet{

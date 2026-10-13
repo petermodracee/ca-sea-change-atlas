@@ -9,6 +9,7 @@ import { createMap, createMarkerState, wireMapClick, initGroupCollapse, initGrou
 import { initOpacitySliders, initLayerOrder, initLoadingIndicators } from "./shared/panes.js";
 import { readPermalink, applyPanelState, replayLayerToggles, initPermalink } from "./permalink.js";
 import { initPrint } from "./print.js";
+import { initPanelCollapse } from "./panel-collapse.js";
 import { initControls } from "./controls.js";
 import { wireSearch } from "./search.js";
 import { BcdcLegalDeltaLayer, BcdcFloodLayer } from "./layers/bcdc-flood-layer.js";
@@ -56,6 +57,7 @@ async function main(){
   initOpacitySliders(map);
   initLayerOrder(map);
   initActiveIndicator();
+  initPanelCollapse(map);
 }
 
 main();

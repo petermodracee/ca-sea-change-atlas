@@ -163,3 +163,6 @@ USACE ERDC's probabilistic storm-hazard system covers the Atlantic, Gulf, Great 
 
 ### Nominatim: submit only
 Search runs on submit, never per keystroke, because Nominatim's usage policy forbids autocomplete. Results are biased to a California viewbox and limited to the US.
+
+### Panel collapse state lives in localStorage, not the permalink
+Whether the layer panel is collapsed is a viewing preference of the person at the screen, not part of what the map shows. A shared link should reproduce the view, basemap and layers, and should not force someone's collapsed panel on the reader. So the choice is stored per browser in `localStorage` (`atlas.panelCollapsed`), like the basemap, and is not in the hash. Storage access is always wrapped in try/catch; blocked storage means the panel is open.
