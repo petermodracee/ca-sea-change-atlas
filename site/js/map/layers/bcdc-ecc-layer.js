@@ -22,6 +22,7 @@ import { BCDC_WMS_URL, buildBcdcWmsLayer, parseGmlFeatures } from "./bcdc-flood-
 // scenario picker: just an SLR slider, a single on/off "100-year storm event"
 // toggle, and the three flood layers.
 const ECC_SLR_INCHES = [0, 12, 24, 36, 83];
+const ECC_ATTRIBUTION = 'Flood data: <a href="https://eccexplorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC East Contra Costa Shoreline Flood Explorer</a>';
 const ECC_LAYER_TYPES = {
   inundation: { opacity: 0.72, color: "#2E6FA3" },
   overtopping: { opacity: 0.9, color: "#C0392B" },
@@ -78,7 +79,7 @@ export class BcdcEccLayer extends BaseLayer {
 
   refreshLayer(typeId){
     if(this.layers[typeId]) this.map.removeLayer(this.layers[typeId]);
-    this.layers[typeId] = buildBcdcWmsLayer(this.map, this.layerName(typeId), ECC_LAYER_TYPES[typeId].opacity, "bcdcEcc");
+    this.layers[typeId] = buildBcdcWmsLayer(this.map, this.layerName(typeId), ECC_LAYER_TYPES[typeId].opacity, "bcdcEcc", ECC_ATTRIBUTION);
     this.layers[typeId].addTo(this.map);
   }
 
