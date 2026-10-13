@@ -43,8 +43,8 @@ The collapsed/open choice is a per-browser viewing preference in `localStorage` 
 
 | | Embed |
 |---|---|
-| Panel | Starts collapsed (`.panel-collapsed` is in the markup, so there is no flash). The "Layers" button and legend card are those of the [collapsible panel](#collapsible-panel-and-legend-card). The collapsed state is **not** read from or written to `localStorage`. Below 768px the panel is the usual bottom sheet. |
-| `?panel=locked` | Query string, not hash (the hash holds map state). Hides the Layers button, and the panel at every width including the bottom sheet (`body.map-embed-locked`), leaving the legend card. Default is unlocked. |
+| Panel | Starts collapsed (`.panel-collapsed` is in the markup, so there is no flash). The "Layers" button and legend card are those of the [collapsible panel](#collapsible-panel-and-legend-card). The collapsed state is **not** read from or written to `localStorage`. At 480px and wider the panel is a right-hand **drawer** over the map (the map doesn't resize; width `min(300px, 60%)` so map stays visible, and the Layers button hides while it is open); under 480px it is the bottom sheet. The full map's breakpoint stays 768px. Inside an iframe the breakpoint measures the frame, and a typical 600-800px report column would otherwise get the unwieldy bottom sheet. |
+| `?panel=locked` | Query string, not hash (the hash holds map state). Hides the Layers button, and the panel at every width including the drawer and the bottom sheet (`body.map-embed-locked`, `display:none !important`), leaving the legend card. Default is unlocked. |
 | Controls | Zoom and scale bar. No basemap switcher, locate button or measure tool. The basemap follows `base=` in the hash, else greyscale; the remembered full-map choice is ignored and not written. |
 | Not present | Address search, print, "Copy link", the site toolbar. |
 | Click-to-inspect | On, locked or not. |
