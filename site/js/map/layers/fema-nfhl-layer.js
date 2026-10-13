@@ -2,6 +2,7 @@ import { BaseLayer } from "../base-layer.js";
 import { groupPane } from "../shared/panes.js";
 import { fmtNum } from "../shared/format.js";
 import { renderImageLegendBlock } from "../shared/legend.js";
+import { CFEM_FEMA_URL, CFEM_FEMA_LAYER_ID } from "./cfem-composite-layer.js";
 
 // --- FEMA National Flood Hazard Layer ---------------------------------------
 // Restricted to sublayer 28 ("Flood Hazard Zones") only, not the full 30+
@@ -32,10 +33,19 @@ const FEMA_NFHL_ATTRIBUTION = 'Flood zones: <a href="https://www.fema.gov/flood-
 // fully transparent through zoom 13 at Bay Area latitudes, real content
 // from zoom 14 on. Toggling the layer on while zoomed out further than
 // this produces a real request that legitimately renders nothing — not
-// a bug, but worth a note so it doesn't look like the layer is broken.
+// a bug. Below that zoom the checkbox draws NOAA's tiled copy instead (see below).
 const FEMA_NFHL_MIN_ZOOM = 14;
+// Below that zoom the checkbox shows NOAA's tiled copy of FEMA flood zones (the service the CFEM
+// group's "FEMA Flood Zones" toggle uses) as an overview. Its service description says April 2015 but is wrong
+// about coverage, so no date is shown (docs/DECISIONS.md); the live layer takes over at FEMA_NFHL_MIN_ZOOM.
+const OVERVIEW_ATTRIBUTION = 'Overview: <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">NOAA Coastal Flood Exposure Mapper</a>, a copy of FEMA flood zones';
+const OVERVIEW_STATUS = "Overview from NOAA's copy of FEMA flood zones (date unclear). Zoom in to neighborhood level for FEMA's current effective map.";
 
-/** FEMA's effective Flood Hazard Zones sublayer, zoom-gated below FEMA_NFHL_MIN_ZOOM, with a live image legend and a zone-query identify popup provider. */
+/**
+ * The FEMA Flood Zones checkbox: NOAA's tiled copy of the zones below FEMA_NFHL_MIN_ZOOM, FEMA's live
+ * effective Flood Hazard Zones sublayer from there up, with the legend following whichever is showing
+ * and a zone-query identify popup provider that only answers on the live layer.
+ */
 export class FemaNfhlLayer extends BaseLayer {
   constructor(map, infoPopup){
     super(map, infoPopup);
@@ -48,40 +58,52 @@ export class FemaNfhlLayer extends BaseLayer {
     return this.toggleEl.checked;
   }
 
+  /** True when the live FEMA layer, not the NOAA overview, is the one to show at the current zoom. */
+  showsLive(){
+    return this.map.getZoom() >= FEMA_NFHL_MIN_ZOOM;
+  }
+
   buildLayer(){
-    return L.esri.dynamicMapLayer({
-      url: FEMA_NFHL_URL,
-      layers: [FEMA_NFHL_ZONES_LAYER_ID],
-      opacity: 0.6,
-      pane: groupPane(this.map, "fema"),
-      attribution: FEMA_NFHL_ATTRIBUTION
-    });
+    const pane = groupPane(this.map, "fema");
+    this.layerIsLive = this.showsLive();
+    return this.layerIsLive
+      ? L.esri.dynamicMapLayer({ url: FEMA_NFHL_URL, layers: [FEMA_NFHL_ZONES_LAYER_ID], opacity: 0.6, pane, attribution: FEMA_NFHL_ATTRIBUTION })
+      : L.esri.tiledMapLayer({ url: CFEM_FEMA_URL, opacity: 0.6, pane, attribution: OVERVIEW_ATTRIBUTION });
   }
 
   async updateLegend(){
     if(!this.isEnabled()){ this.legendEl.hidden = true; this.legendEl.innerHTML = ""; return; }
-    const block = await renderImageLegendBlock(FEMA_NFHL_URL, FEMA_NFHL_ZONES_LAYER_ID, "Flood Hazard Zones");
+    const live = this.showsLive();
+    const block = live
+      ? await renderImageLegendBlock(FEMA_NFHL_URL, FEMA_NFHL_ZONES_LAYER_ID, "Flood Hazard Zones")
+      : await renderImageLegendBlock(CFEM_FEMA_URL, CFEM_FEMA_LAYER_ID, "FEMA Flood Zones (NOAA's copy, date unclear)");
+    if(!this.isEnabled() || live !== this.showsLive()) return; // toggled or zoomed across the hand-off while the legend loaded
     this.legendEl.innerHTML = "";
     this.legendEl.appendChild(block);
     this.legendEl.hidden = false;
   }
 
   updateStatus(){
-    if(!this.isEnabled()){ this.resultEl.textContent = ""; return; }
-    this.resultEl.textContent = this.map.getZoom() < FEMA_NFHL_MIN_ZOOM
-      ? "Zoom in further (roughly to a neighborhood view) to see FEMA flood zones — FEMA's own server doesn't render this layer at a regional zoom."
-      : "";
+    this.resultEl.textContent = this.isEnabled() && !this.showsLive() ? OVERVIEW_STATUS : "";
+  }
+
+  /** Swaps between the overview and the live layer when the zoom crosses FEMA_NFHL_MIN_ZOOM. */
+  handOff(){
+    if(!this.isEnabled() || !this.layer || this.layerIsLive === this.showsLive()) return;
+    this.refresh();
+    this.updateStatus();
   }
 
   init(){
     this.applySwatch('[data-swatch="fema"]', FEMA_NFHL_COLOR, false);
     this.toggleEl.addEventListener("change", () => { this.refresh(); this.updateStatus(); });
-    this.map.on("zoomend", () => this.updateStatus());
+    this.map.on("zoomend", () => this.handOff());
     this.registerPopupProvider(latlng => this.identify(latlng));
   }
 
   identify(latlng){
-    if(!this.isEnabled()) return Promise.resolve(null);
+    // Only the live layer is clickable: the NOAA copy's query returns a stale county table (docs/DECISIONS.md).
+    if(!this.isEnabled() || !this.showsLive()) return Promise.resolve(null);
     return new Promise(resolve => {
       L.esri.query({ url: `${FEMA_NFHL_URL}/${FEMA_NFHL_ZONES_LAYER_ID}` })
         .contains(latlng)
