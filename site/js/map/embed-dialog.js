@@ -29,7 +29,7 @@ export function initEmbedDialog(permalink){
 
   const render = () => {
     const src = `${embedUrl}${interactive.checked ? "" : "?panel=locked"}${hash}`;
-    codeBox.value = `<iframe src="${escapeAttribute(src)}" width="100%" height="500" title="${IFRAME_TITLE}" loading="lazy"></iframe>`;
+    codeBox.value = `<iframe src="${escapeAttribute(src)}" width="100%" height="500" title="${IFRAME_TITLE}" loading="lazy" style="border:0"></iframe>`;
   };
 
   button.addEventListener("click", () => {
