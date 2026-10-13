@@ -118,6 +118,15 @@
   // This only drives the slider's own chrome (fill fraction, the <output> value badge, aria-valuetext
   // for screen readers) and calls the picker's own select(ft) — everything select() does with that
   // value is unchanged from the button-row version. ------------------------------------------------
+  // The slide's "View on map" link carries the sea level rise slider as feet x 2 (docs/MAP.md); keep it on
+  // the picker's increment. The static href is the slide's default, so without script it still works.
+  function followPicker(box, ft) {
+    var slide = box.closest(".cpd-slide");
+    var a = slide && slide.querySelector("a[data-cpd-map-follows]");
+    if (!a) return;
+    a.setAttribute("href", a.getAttribute("href").replace(/(id:noaaSlrSlider~)\d+/, "$1" + Number(ft) * 2));
+  }
+
   function wireSlider(box, select) {
     var input = box.querySelector("input.cpd-slider");
     var output = box.querySelector(".cpd-slider-value");
@@ -128,6 +137,7 @@
       input.setAttribute("aria-valuetext", ft + " ft");
       if (output) output.textContent = ft + " ft";
       select(String(ft), updateUrl);
+      followPicker(box, ft);
     }
     input.addEventListener("input", function () { apply(input.value, true); });
     return apply;

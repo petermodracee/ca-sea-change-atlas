@@ -18,6 +18,7 @@ import { CalAdaptSlrLayer } from "./layers/caladapt-slr-layer.js";
 import { NoaaSlrLayer } from "./layers/noaa-slr-layer.js";
 import { NoaaHtfLayer } from "./layers/noaa-htf-layer.js";
 import { NasaScenarioLayer } from "./layers/nasa-scenario-layer.js";
+import { CountyLayer } from "./layers/county-layer.js";
 import { FemaNfhlLayer } from "./layers/fema-nfhl-layer.js";
 import { CfemCompositeLayer } from "./layers/cfem-composite-layer.js";
 import { initGeoInfoLayers } from "./layers/geo-info-layer.js";
@@ -31,6 +32,7 @@ async function main(){
   const markerState = createMarkerState();
   wireMapClick(map, infoPopup, markerState);
 
+  new CountyLayer(map, infoPopup, permalink).init();
   new BcdcLegalDeltaLayer(map, infoPopup).init();
   new BcdcFloodLayer(map, infoPopup).init();
   new BcdcEccLayer(map, infoPopup).init();

@@ -69,6 +69,70 @@ A per-county baseline (auto-detected from the click) was tried on top of BCDC's 
 ### No cache headers from the flood servers
 BCDC's server sends no `Cache-Control` or `Expires` on tiles or GetFeatureInfo, and the other live sources are similarly unhelpful (checked from response headers). `shared/request-cache.js` keeps a per-session cache keyed by URL so a repeated tile or click doesn't repeat a roughly 450 ms server render. Cal-Adapt's tiles send a one-year `Cache-Control`, so they skip it.
 
+## Map: county boundaries and zoom-level overviews
+
+These were added so County Profiles can link into the map with a county and layers already set. Each service was tested directly in October 2026.
+
+### County boundaries: Census TIGERweb
+Candidates were tested in the order of the brief. **Census TIGERweb State_County MapServer** (`tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer`) passed all four requirements, so Caltrans' `CHboundary/County_Boundaries` (it exists and has a 58-feature layer 0) was not evaluated further.
+
+- **CORS:** responses echo the request `Origin` in `access-control-allow-origin` (checked with `http://localhost:8080` and `https://seachangeatlas.org`).
+- **Draws at county zoom:** the county layers are banded by display scale (layers 1, 3, 5, 7, 9, 11 and 13 are one set; further sets start at layers 19, 37 and 55, the last of which carries 2020 census counts; the first set is the one used), so a plain `dynamicMapLayer` would switch geometry by scale and could not highlight one county. `/query` ignores those bands, so the map instead fetches the counties once as GeoJSON from layer 7 with `maxAllowableOffset` 0.001 degrees (all 58 California counties measured 334 KB in about 1 s; the map now filters to the 27 County Profiles counties by GEOID, so it is smaller) and draws them as vectors. Smaller offsets cost more (0.0003 degrees on layer 1 was 736 KB); layer 13 at 0.01 was 61 KB but too coarse for a county-scale view.
+- **Queryable by FIPS, with an extent:** `where=GEOID='06059'&returnExtentOnly=true&outSR=4326` returns Orange County as -118.148, 33.334 to -117.413, 33.948. The extent covers the county's offshore waters and islands (Los Angeles runs from 32.75 to 34.82 because it includes San Clemente Island), so the map does not use it for fitting: `CountyLayer.fit()` fits to the largest polygon part of the geometry it already fetched for the lines, which keeps Catalina, the Farallones and the Channel Islands from zooming the view out. The extent query was dropped. The boundaries are TIGER legal boundaries and run slightly into coastal water; a shoreline-clipped (cartographic) version was not found as a live service, so they are kept and labelled.
+- **License:** Census Bureau data, public domain (17 U.S.C. §105). Its metadata states only "Source: U.S. Census Bureau".
+
+The fallback table of county centres and zooms was therefore not needed and does not exist. Select values are 5-digit FIPS (state 06 plus county), matching TIGERweb's `GEOID`.
+
+### Facility heat overview: leaflet.heat
+USGS Structures allows 2,000 records per request, supports `resultOffset` paging and returns JSON, GeoJSON and PBF. A box around Los Angeles County returned (counts, re-measured) 151 hospitals, 521 fire/EMS stations, 146 police stations and 3,157 schools. JSON paging with `orderByFields=OBJECTID` was stable (schools: 2,000 then 1,157). Asking for `outFields=` (empty) still returned a `name` attribute, so the request asks for `OBJECTID` only and the code ignores attributes.
+
+**Measured, Los Angeles County at its fitted zoom (8), desktop pane:** 7 requests (hospitals 1, fire/EMS 1, police 1, schools 4 pages), about 750 ms from first request to last response, 8,008 points in the padded view. A synchronous heat redraw of those points takes about 32 ms (it runs once per move, not per frame). Panning past the padded area refetches the same 7 requests; the old heat stays on screen until the new points replace it.
+
+Heat styling (radius 7, blur 9, `max` 2.2, `maxZoom` 11, minimum opacity 0.3) was tuned by eye on Los Angeles at zoom 8 and 10: with leaflet.heat's defaults the basin saturated at zoom 8. Every facility has the same weight, so schools dominate.
+
+**License correction:** the brief described leaflet.heat as MIT. Version 0.2.0's LICENSE file (and its bundled simpleheat) is BSD-2-Clause, copyright Vladimir Agafonkin; `credits.json` lists it as BSD-2-Clause. It is compatible with this project's license and needs only the notice kept.
+
+leaflet.heat 0.2.0 has no `pane` option and its `onRemove` assumes the canvas is a child of the overlay pane, so `facility-overview-layer.js` subclasses it to put the canvas in the group pane (needed for the group's opacity slider, Hide and bring-to-front) and to guard against a pending animation frame firing after removal.
+
+### FEMA overview below zoom 14: NOAA's tiled copy
+Real `/tile/z/y/x` requests were made against `CFEM_FEMAFloodZones` (decoding each PNG and counting non-transparent pixels), zoom 8 to 14:
+
+| Place | z9 | z10 | z11 | z12 |
+|---|---|---|---|---|
+| Orange coast (33.65, -117.95) | 3.3% | 7.8% | 11.8% | 6.1% |
+| Orange inland (33.80, -117.85) | 8.7% | 31.5% | 45.8% | 18.8% |
+| Los Angeles basin (34.00, -118.30) | 4.7% | 12.1% | 10.2% | 1.9% |
+| Los Angeles coast (33.77, -118.20) | 4.7% | 12.1% | 21.7% | 32.0% |
+| Lake County (39.00, -122.75) | 7.1% | 18.5% | 50.5% | 54.4% |
+
+It renders at county zoom (confirmed on screen too: Orange County at zoom 10 and Lake County at zoom 9 show real flood-zone polygons). It was not compared polygon by polygon with the live NFHL. Two things to know:
+
+- **Vintage:** the service has no date in its JSON or metadata XML (`CreaDate` 20230817 is the service's creation date). Its service description says the data are "a composite of best available National Flood Hazard Layer (NFHL) and digital Q3 data, as of April 2015", but the status line does not show it (it says "date unclear"), because the same description is wrong about coverage.
+- **The same description says the service covers only Gulf of Mexico and Atlantic coastal counties.** That is stale text: tiles are plainly populated for California. The vintage claim could be just as stale for California, which is why no date is shown. Verify before relying on it.
+
+Click-to-inspect stays on the live FEMA layer only (zoom 14 and up); the CFEM query is the stale county table described above. `cfemFemaToggle` in the CFEM group is unchanged. Not cached or copied.
+
+### NOAA sea level rise over the Delta
+Tile requests to `dc_slr/slr_2ft` and `slr_10ft`, same decoding method, with Fresno (Central Valley, far from the sea) as an empty control (0.0% opaque and a 190 B tile at zoom 10, at both heights; its zoom 13 tile could not be decoded):
+
+| Point | 2 ft, z10 | 2 ft, z13 | 10 ft, z10 | 10 ft, z13 |
+|---|---|---|---|---|
+| Sacramento, river city (38.58, -121.50) | 0.3% | 0.3% | 8.6% | 3.9% |
+| Sacramento County Delta, Isleton (38.16, -121.60) | 67.5% | 97.1% | 77.5% | 99.3% |
+| San Joaquin, Stockton (37.95, -121.32) | 56.3% | 40.5% | 73.6% | 94.7% |
+| San Joaquin Delta islands (37.85, -121.55) | 56.3% | 98.2% | 73.6% | 99.9% |
+| Yolo, West Sacramento (38.58, -121.55) | 0.3% | 3.8% | 8.6% | 22.0% |
+| Yolo Bypass (38.45, -121.60) | 24.4% | 1.8% | 45.0% | 88.0% |
+| Yolo, Clarksburg (38.42, -121.52) | 24.4% | 57.7% | 45.0% | 94.5% |
+
+Data is present over the Delta in all three counties, at both heights. The island tiles are nearly solid at zoom 13 (97 to 99.9%), while the city of Sacramento and West Sacramento are mostly clear at 2 ft. Whether the layer accounts for Delta levees was not checked, so those solid areas may be low-lying land that levees currently protect. County Profiles can offer NOAA SLR links for Sacramento, San Joaquin and Yolo, ideally with that caveat.
+
+### NOAA SLR popup: read the tile, not the services' vector layer
+The old popup identified vector layer 0 ("Low-lying Areas") and answered "Within low-lying area: Yes" or "Not within a low-lying area", which a click in the blue read as "not flooded". Tested at Alameda: identify on layer 0 returned the same polygon (OBJECTID 24) at open bay water, a low-lying green patch, and dry land, at 2 ft and 10 ft. Layer 0 holds 54 huge dissolved polygons (extent -171 to 146 degrees longitude), and a point query at a dry Alameda location also hit one, so it cannot say where the low-lying areas are. Identify on raster layer 1 (Depth) returned no result at any of those points. Neither service layer is usable for a point answer, so the popup now reads the one cached tile pixel under the click, as the Cal-Adapt and C-CAP layers do: bright green (85, 255, 0) is low-lying and not connected, any other opaque colour (the violet-blue to pale-cyan depth ramp) is connected flooding, transparent is neither. This gives no depth number; the depth is only in the colour (the legend says "deep to shallow"). The tile ramp includes open water such as the Bay, so the popup says so. Checked at Alameda at 2 ft and 10 ft on a green patch, on blue and on dry land.
+
+### Link fixes found while testing
+`NoaaSlrLayer.init()` set the slider to 3 ft after the permalink had restored it, so `noaaSlrSlider` in a link was silently ignored. The override is gone; `site/map/index.njk`'s `value="6"` is the default. A link carrying only `countySelect` (no `map=`) fits that county, and a link with `map=` leaves the view alone.
+
 ## Practitioner-survey resources
 
 Four resources from the practitioner survey (Figure 19.3, 2023 CA Coastal Adaptation Needs Assessment) were scoped but never added or excluded. Each was checked against the live service, September 2026. Licensing for the comparison-only ones is in [`LICENSING.md`](LICENSING.md).
@@ -102,7 +166,7 @@ County Profiles is the first CASCA tool to keep data in the repository, against 
 
 The stored JSON is a derived product, not a cache: computed statistics plus vintage metadata, a new work rather than a copy of anyone's data. Nothing is stored that a page could have fetched live. The other reason to build rather than fetch is consistency: a live Census total against a built in-floodplain figure would make a ratio across two vintages, drifting silently, so both halves of every ratio come from one snapshot.
 
-The inset map planned for a late phase is a sharper departure: simplified hazard extents are a derivative copy of FEMA and NOAA geometry. The inputs are public domain, so nothing is in question legally, but it will need its own entry here rather than looking like an oversight. The schema already reserves a `geometry` field for it. Phase 1 stores no geometry and no real data at all; its fixtures are invented and flagged.
+The inset map planned for a late phase is a sharper departure: simplified hazard extents are a derivative copy of FEMA and NOAA geometry. The inputs are public domain, so nothing is in question legally, but it will need its own entry here rather than looking like an oversight. The schema reserves a `geometry` field for it; Phase 8 replaced the inset map with map links, so that field is unused (see [Phase 8](#phase-8-view-on-map-links-replace-the-inset-map)). Phase 1 stores no geometry and no real data at all; its fixtures are invented and flagged.
 
 ### Zero and unavailable are different states
 A county with 0 medical facilities in its floodplain has an answer; a county with no data has a gap. The schema keeps them apart (`available: true` with a value of 0, versus `available: false` with a reason from a closed set), the validator rejects a null inside an available section, and the page renders them differently. Details: [`COUNTY-PROFILES.md`](COUNTY-PROFILES.md#data-model).
@@ -373,7 +437,7 @@ The footer carries data-as-of, snapshot, method version and the dated URL, and n
 
 *Repeating header and footer.* `position: fixed` inside `@media print` repeats on every page, but reserving space for it with page margin or padding failed in testing (offsets landed off the page, and padding reserves space only on the first page). The final form is a zero `@page` margin plus a real `thead`/`tfoot` spacer pair, which the engine repeats per page.
 
-*"View on the map" is dropped from print.* On screen it is a disabled stub until the map deep link exists, and a printed URL for a pan-and-zoom state would be long and unreadable on paper, the dead-link-on-paper problem the spec cites in the original. Every real source, methodology and correction link prints its address.
+*"View on the map" is dropped from print.* On screen it is now a link to the map (Phase 8), and a printed URL for a pan-and-zoom state would be long and unreadable on paper, the dead-link-on-paper problem the spec cites in the original. Every real source, methodology and correction link prints its address.
 
 *Refactor.* The inside of a section's panel moved to `section-body.njk`, included by the deck slide and by the print block. The built HTML of every existing page is unchanged apart from the added print block, the landing page's Print controls and a body class.
 
@@ -1723,6 +1787,25 @@ Sonoma is the case where the two rankings differ: the county form is correct the
 **Re-run.** The display-target script now also loads 1280 × 800 (1920 × 1200 at 150%): all 27 county directories at 1280 × 650, 1280 × 800, 1366 × 768, 1440 × 900 and 1920 × 1080: 0 problems over 2,440 slide checks. axe-core (light and dark, Santa Barbara, San Francisco, Humboldt, Napa, all topics): no violations. Print-colour audit on San Francisco, Humboldt, Napa, Santa Barbara, Orange, Yolo, Del Norte and Sonoma (economy pages included): all match. `diff-hazard.js`: 54 files identical. No em dashes.
 
 **Needs Peter's call:** the Wages headline switches to coastal California when any county sector is withheld.
+
+### Phase 8: "View on map" links replace the inset map
+
+The planned inset map (simplified hazard geometry under vintage-keyed paths) was dropped. Each slide with a matching map layer links to the live map instead: the county, layers and sea level rise increment are set through the map's permalink hash. No geometry is stored, no snapshot changed (`git diff` under `site/data/county-profiles/` is empty, `method` stays 1), and nothing is added to print. How it works is in [COUNTY-PROFILES.md](COUNTY-PROFILES.md#view-on-map-links).
+
+**Map PR checks that decided the links.** Both came out in favour of emitting every link in the recipe, so none was dropped. (1) The FEMA hand-off shipped: NOAA's CFEM copy renders at county zoom (see [FEMA overview below zoom 14](#fema-overview-below-zoom-14-noaas-tiled-copy)), so flood links show a floodplain when the county opens. I confirmed each flood link turns the FEMA checkbox and its legend on; I did not re-check the pixels for every county. (2) NOAA's SLR tiles have data over Sacramento, San Joaquin and Yolo, so those three get sea level rise links, with a Delta note on the About page: NOAA's mapping accounts for levees only as far as they appear in its elevation data and is not a levee failure or overtopping analysis.
+
+**Choices.**
+- *Increment.* The two slides with an increment slider rewrite the link's slider value in the browser; the two without (Jobs at Risk, which shows every increment at once, and Creating a Better Future) use 2 ft, the lowest increment, which is also what their callouts lead with.
+- *Flood Jobs at Risk has a link* (FEMA flood zones plus jobs density), added after the first PR review; it was not in the original recipe table.
+- *New tab.* `target="_blank" rel="noopener"` with the new tab named in the accessible name, since the deck holds state (scroll position, increment) that a same-tab navigation would lose.
+- *Dated snapshot pages* get the same links, from the templates, plus a one-line notice that the map shows current data. The archive is untouched.
+- *Definitions compared, not asserted equal.* The About page lists where the map and the profile differ, each checked against the live service. Jobs density is the EPA Smart Location Database, jobs per acre of land where development can occur, by block group, from 2017 employment (its popup says "2017"), against LODES 2023 by block. Its population density is ACS 2014 to 2018, against ACS ending 2024. The map's poverty layer is CDC SVI 2022, tract, below 150% of the poverty line (ACS 2018 to 2022), while the pipeline counts C17002's first two bins, below 100% (ACS ending 2024), so they do **not** match. The floodplain is NOAA's CFEM copy below zoom 14 (date unclear) and FEMA's effective NFHL from 14. Sea level rise on the map is blue (connected, including open water) and green (low-lying); the profile counts both (see [SLR sections always show the combined exposure](#slr-sections-always-show-the-combined-exposure-with-the-low-lying-part-marked)).
+- *Found while checking, not changed:* the map's "Land converted to development, 1996-2016" layer is served by a NOAA service named `CFEM_LandCover_19962010Change`, and I found no epoch statement in its metadata, so the label and the service name disagree and I could not tell which is right. The About page says the years are unconfirmed.
+- *The `geometry` field is vestigial.* Left in the schema and snapshots, because removing it changes every archived file.
+
+**Build check, and the negative test.** `checkMapLinks` runs after every build over the generated pages (see COUNTY-PROFILES.md). Each of these was applied to the map's source in turn, the build failed as intended with a message naming the link, and the change was reverted: renaming `femaToggle` in `site/map/index.njk` ("on=id:femaToggle: no such checkbox"); deleting the Orange option from `#countySelect` ("County Profiles county 06059 is not an option", plus the Orange links); adding a 28th option ("#countySelect option 06099 is not a County Profiles county"); shrinking `noaaSlrSlider` to `max="3"` ("outside #noaaSlrSlider (0 to 3, step 1)"); renaming the `geoPopDensity` option ("not an option of #geoPeopleSelect"); and removing `geoLandSelect` from `VALUE_CONTROL_IDS` ("not in VALUE_CONTROL_IDS"). The unmutated tree builds with 346 links checked.
+
+**Verification.** The build, `check-archive.js` and `state-report.js` pass; snapshots are byte-identical. `fit-report.js` over all 27 counties at five viewports: 0 problems over 2,440 slide checks; the 346 dated-page slides that carry the extra notice, checked separately at 1280 x 650 and 1920 x 1080, all fit. Print page counts for the San Francisco, Humboldt, Napa, Santa Barbara and Orange flood and sea level rise pages are unchanged (5 and 6 pages), and no map link is visible in print. axe-core on the Orange, San Francisco, Humboldt and Lake flood and sea level rise pages, light and dark: no violations (none before). The print-colour audit on eight counties passes; no em dashes in site text. Real links opened in Chrome for Orange, Los Angeles, San Francisco, Humboldt, Sacramento and Lake (31 links): the right checkboxes, slider position, People or Land dropdown, county highlight and legends in every case, no console errors. The increment slider moves each following link through 4, 8, 12, 16 and 20.
 
 ## Behavior
 

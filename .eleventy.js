@@ -20,6 +20,15 @@ module.exports = async function (eleventyConfig) {
   const { checkArchiveCanonicals } = require("./scripts/county-profiles/validate.js");
   eleventyConfig.on("eleventy.after", ({ dir }) => checkArchiveCanonicals(dir.output));
 
+  // "View on map" links: generated from one table, then checked against the map's real controls after the build.
+  const { mapLink, checkMapLinks } = require("./scripts/county-profiles/map-links.js");
+  eleventyConfig.addFilter("mapLink", mapLink);
+  const { VALUE_CONTROL_IDS } = await import(require("url").pathToFileURL(require("path").resolve("site/js/map/permalink.js")).href);
+  const spineFips = require("./site/_data/countySpine.json").counties.map((c) => c.fips);
+  eleventyConfig.on("eleventy.after", ({ results }) => checkMapLinks({
+    results, mapSource: fs.readFileSync("site/map/index.njk", "utf8"), valueControlIds: VALUE_CONTROL_IDS, spineFips,
+  }));
+
   eleventyConfig.addPassthroughCopy({ "site/css": "css" });
   eleventyConfig.addPassthroughCopy({ "site/js": "js" });
   eleventyConfig.addPassthroughCopy({ "site/data/*.json": "data" });

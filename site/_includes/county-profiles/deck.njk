@@ -72,7 +72,11 @@
 <div class="cpd-left">
 <h2>{{ def.title }}</h2>
 {%- if def.prose.length %}<p class="cpd-prose">{{ def.prose[0] }}</p>{% endif %}
-{%- if sec.available and def.kind != "timing" %}<p><button class="cpd-btn" type="button" disabled title="Deferred to a later phase">View on the map</button></p>{% endif %}
+{%- set ml = (topic.id | mapLink(def.id, county.fips)) if sec.available else null %}
+{%- if ml %}
+<p class="cpd-maplink"><a class="cpd-btn" href="{{ ml.href | url }}" target="_blank" rel="noopener"{% if ml.follows %} data-cpd-map-follows{% endif %}>View on map<span class="sr-only"> for {{ def.title }}: opens {{ ml.opens }} for {{ county.name }} County in a new tab</span></a></p>
+{%- if dated %}<p class="cpd-maplink-note">The map shows current data, not this snapshot's.</p>{% endif %}
+{%- endif %}
 </div>
 <div class="cpd-panel">
 <div class="cpd-panel-body">
