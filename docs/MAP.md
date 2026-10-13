@@ -115,7 +115,7 @@ County Profiles generates map links from these ids and values. **Renaming or rem
 
 ## Local configuration: CoSMoS
 
-CoSMoS's layer catalog is not CORS-enabled for cross-origin fetches even though its tile/WMS server is, so `site/data/cosmos-layers.json` holds the URL and layer-name templates (verified against the live catalog). It is configuration, not data: every tile and WMS render still comes live from `geo.pointblue.org`.
+CoSMoS's layer catalog is not CORS-enabled for cross-origin fetches even though its tile/WMS server is, so `site/data/cosmos-layers.json` holds the URL and layer-name templates (verified against the live catalog). It is configuration, not data: every tile and WMS render still comes live from `geo.pointblue.org`. The file is fetched with a URL resolved against the module (`new URL("../../../data/cosmos-layers.json", import.meta.url)`), not the page, so it loads from `/map/` and `/map/embed/` alike; any map module that fetches a local file must do the same.
 
 ## Library and plugin choices
 
