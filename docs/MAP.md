@@ -23,6 +23,7 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `site/j
 | `permalink.js` | URL-hash state (see below); `initPermalink` returns `{flush}` so the embed can write the hash before reading it. Exports `VALUE_CONTROL_IDS` so Node tooling can import the list. |
 | `panel-collapse.js` | `initPanelCollapse(map)`: the desktop collapse button, the top-right "Layers" button and the legend card (see [Collapsible panel and legend card](#collapsible-panel-and-legend-card)). |
 | `embed.js` | Embed-only behavior: `isEmbed()` (body class `map-embed`), `?panel=locked`, the scroll-wheel guard, the "Sources" attribution link and the "Open full map" link (see [Embed](#embed)). |
+| `embed-dialog.js` | The full map's toolbar "Embed" button and its dialog (see [Embed snippet generator](#embed-snippet-generator)). |
 | `controls.js` | Scale bar, locate button, distance-measure tool (sets `map.measureActive`); the embed gets the scale bar only. |
 | `search.js` | Nominatim address search, California-biased, submit-only, with alternative matches listed. |
 | `print.js` | Print/save-as-PDF: adds a title and date to `buildActiveSummary()` to make a print sheet styled by the print block in `css/style.css`. |
@@ -52,6 +53,10 @@ The collapsed/open choice is a per-browser viewing preference in `localStorage` 
 | Attribution | Leaflet's corner control, per active layer, with a "Sources" link to `/about/licenses/` added to its prefix. In the embed it wraps upward in the space right of the scale bar rather than running under it. |
 
 The hash keeps updating inside the iframe, so "Open full map" carries the current view and layers; the existing `hashchange` reload also applies, so a host page that changes the iframe's hash gets a reloaded map. The embed's own links to the site use root-relative paths and resolve against the iframe's origin, which is the site's.
+
+### Embed snippet generator
+
+The full map's toolbar has an "Embed" button (`#embedBtn`, next to "Copy link") that opens a native modal `<dialog>` (`#embedDialog`; Esc closes, focus is trapped and returns to the button). It shows an `<iframe>` for the current view: `src` is `site.url` + `/map/embed/` (from the dialog's `data-embed-url`) + the current hash (the permalink is flushed first), with `width="100%" height="500"`, `title="CA Sea Change Atlas map"` and `loading="lazy"`. "Let viewers change layers" is checked by default; unchecking it inserts `?panel=locked`. The `&` characters in the hash are escaped to `&amp;` in the snippet. Copy uses `navigator.clipboard`, falling back to `window.prompt` like "Copy link". The generated URL is the stable interface described under [Linkable control ids](#linkable-control-ids).
 
 Why unlocked by default, and why no locate button or address search: see [`DECISIONS.md`](DECISIONS.md#embed-defaults-and-what-the-embed-leaves-out).
 

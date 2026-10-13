@@ -10,6 +10,7 @@ import { initOpacitySliders, initLayerOrder, initLoadingIndicators } from "./sha
 import { readPermalink, applyPanelState, replayLayerToggles, initPermalink } from "./permalink.js";
 import { initPrint } from "./print.js";
 import { initPanelCollapse } from "./panel-collapse.js";
+import { initEmbedDialog } from "./embed-dialog.js";
 import { isEmbed, isPanelLocked, applyEmbedBodyState, initEmbed } from "./embed.js";
 import { initControls } from "./controls.js";
 import { wireSearch } from "./search.js";
@@ -62,6 +63,7 @@ async function main(){
   initActiveIndicator();
   initPanelCollapse(map, { embed, locked: embed && isPanelLocked() });
   if(embed) initEmbed(map, { flush });
+  else initEmbedDialog({ flush });
 }
 
 main();

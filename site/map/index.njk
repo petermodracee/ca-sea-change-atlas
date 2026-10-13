@@ -46,10 +46,23 @@ footerAttribution: >
 <button type="submit">Search</button>
 </form>
 <button type="button" id="copyLinkBtn" class="toolbar-btn" title="Copy a link to this exact view and layer selection">Copy link</button>
+<button type="button" id="embedBtn" class="toolbar-btn" title="Get code to embed this view of the map on another website">Embed</button>
 <button type="button" id="printBtn" class="toolbar-btn" title="Print or save as PDF: map, legends for active layers, and attribution">Print</button>
 </div>
 <div class="search-status" id="searchStatus" role="status" aria-live="polite"></div>
 <div class="search-results" id="searchResults" hidden></div>
+
+<dialog id="embedDialog" class="embed-dialog" aria-labelledby="embedDialogTitle" data-embed-url="{{ site.url }}{{ '/map/embed/' | url }}">
+<h2 id="embedDialogTitle">Embed this map</h2>
+<p>Paste this into a web page to show the map as it looks now: the same view, basemap and layers.</p>
+<label class="embed-option"><input type="checkbox" id="embedInteractive" checked> Let viewers change layers</label>
+<label for="embedCode" class="embed-code-label">Embed code</label>
+<textarea id="embedCode" class="embed-code" readonly rows="5" spellcheck="false"></textarea>
+<div class="embed-actions">
+<button type="button" id="embedCopyBtn" class="toolbar-btn">Copy code</button>
+<button type="button" id="embedCloseBtn" class="toolbar-btn">Close</button>
+</div>
+</dialog>
 
 <div class="map-layout">
 <div id="map"></div>
