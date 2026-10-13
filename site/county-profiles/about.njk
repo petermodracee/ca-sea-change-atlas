@@ -157,6 +157,31 @@ nav: county-profiles
 <p>NOAA's original marine economy snapshot reported how many marine businesses were in the floodplain. County Profiles does not report marine jobs at risk, and there is no substitute. Business locations, which made the original figure possible, are licensed data and cannot be reused, and the open replacement, LEHD LODES job counts, is published by 2-digit industry code, while ENOW's marine sectors are defined at up to 6 digits. No open source isolates marine jobs by location.</p>
 </section>
 
+<section class="cp-topic" id="map-links">
+<h2>View on map links</h2>
+<p>Sections with a matching layer on <a href="{{ '/map/' | url }}">the map</a> have a "View on map" button. It opens the map in a new tab with the county highlighted and fitted, its boundary line on, the layers listed below switched on, and, for sea level rise, the matching increment (2, 4, 6, 8 or 10 feet; the button follows the slide's increment slider where it has one, and uses 2 feet where it has none). No map data is copied into County Profiles: the map loads every layer live from its publisher. Sections with no matching layer have no button: Homes at Risk (the map has no flood insurance claims layer), the flood Jobs at Risk slide, the sea level rise timing slide, and both economy topics. The flood-only counties get flood buttons only. On a dated snapshot page the button carries a note that the map shows current data, not that snapshot's.</p>
+<div class="cp-table-wrap"><table class="cp-maplinks-table">
+<caption class="sr-only">What each View on map button opens</caption>
+<thead><tr><th scope="col">Slide</th><th scope="col">Opens</th><th scope="col">Published by</th></tr></thead>
+<tbody>
+{%- for r in countyProfiles.mapLinkRows %}
+<tr><th scope="row">{{ r.topic }}: {{ r.section }}</th><td>{{ r.opens | capitalize }}</td><td>{{ r.publishers }}</td></tr>
+{%- endfor %}
+</tbody></table></div>
+<h3 id="map-differences">Where the map and the profile figures differ</h3>
+<p>The map and the profiles use different sources, vintages and definitions, so the map is a place to look at the hazard, not a way to reproduce a profile figure. Nothing here says the two agree.</p>
+<ul>
+<li><strong>Floodplain.</strong> From zoom 14 the map draws FEMA's current effective National Flood Hazard Layer, the source the profile figures use (the vintage of each profile is on its slide). Zoomed out to a whole county, it draws NOAA's copy of FEMA flood zones from the Coastal Flood Exposure Mapper instead, because the live layer is not drawn at that scale. That copy carries no date we could confirm, and its own description gives April 2015 for a different coverage than the one it now shows, so treat it as an overview.</li>
+<li><strong>Sea level rise.</strong> On the map, blue is flooding connected to the ocean (the blue ramp includes open water such as a bay), and green is low-lying area not connected to it. The profile's sea level rise figures count both, shown as the solid (connected) and dashed (low-lying) parts of each bar; see <a href="#connected-low-lying">connected and low-lying exposure</a>. The Sacramento, San Joaquin and Yolo views show data over the Delta at all increments, but we did not check whether NOAA's layer accounts for Delta levees, so some of the area it shows may be land that levees protect today.</li>
+<li><strong>Jobs density.</strong> The map layer is the EPA Smart Location Database: jobs per acre of land where development can occur (parks and protected areas removed), by block group, from total employment for 2017, the year its popup shows. The profile counts LODES jobs for {{ countyProfiles.lodesYear }} by census block.</li>
+<li><strong>Population density.</strong> The same EPA database, from the American Community Survey 5-year estimates for 2014 to 2018 (population for 2018), per acre of land where development can occur. The profile uses the ACS 5-year estimates ending {{ countyProfiles.acsYear }}.</li>
+<li><strong>Poverty.</strong> No button opens it, but the map's People menu offers it. The map layer is the CDC Social Vulnerability Index (2022 release) by tract: the percentage of people below 150% of the poverty line, ACS 2018 to 2022. The profile counts people below 100% of the poverty line (the first two bins of ACS table C17002) by block group, ACS ending {{ countyProfiles.acsYear }}. These are different definitions, not two measures of one thing.</li>
+<li><strong>Critical facilities.</strong> Both read USGS Structures, but the map reads the live service and the profile reads it as of the snapshot. Zoomed out to a county, the map draws a density heat map, which counts every facility equally and so is dominated by schools; points appear from zoom 11.</li>
+<li><strong>Land cover.</strong> The "converted to development" layer comes from a NOAA service whose name gives the years 1996 to 2010, while the map labels it 1996 to 2016, the epochs the profile uses. We could not confirm which years the layer covers.</li>
+</ul>
+<p>The map keeps no history: a link to a dated snapshot shows today's map. A figure and what its link shows can move apart whenever either source updates.</p>
+</section>
+
 <section class="cp-topic" id="methodology-changelog">
 <h2>Methodology changelog</h2>
 <p>Each profile shows its methodology version ("Version <em>N</em>") on its About this data slide. The version is a monotonic integer, not a date: it increments only when a pipeline change could move a figure while the underlying source data stays the same (switching the intersect method, changing the rollup geography, fixing an aggregation bug), never for a new section, a restyle or an added county. Two snapshots carrying different versions are never joined by a trend line.</p>

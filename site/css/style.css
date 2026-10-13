@@ -928,6 +928,10 @@ body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
 .cpd-btn[aria-pressed="true"]{background:var(--paper-2);border-color:var(--teal-text);color:var(--ink);font-weight:600;}
 .cpd-btn:disabled{opacity:.5;cursor:not-allowed;}
 .cpd-btn:hover{border-color:var(--ink-soft);}
+a.cpd-btn{display:inline-block;text-decoration:none;}
+.cpd-maplink{margin:0;}
+.cpd-maplink-note{margin:4px 0 0;font-size:12.5px;line-height:1.35;color:var(--ink-soft);}
+@media print{.cpd-maplink,.cpd-maplink-note{display:none !important;}}
 
 .cpd-deck{position:fixed;top:58px;bottom:0;left:0;right:0;overflow-y:auto;scroll-behavior:smooth;}
 @media (prefers-reduced-motion:reduce){.cpd-deck{scroll-behavior:auto;}}
@@ -1201,6 +1205,9 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cp-gauge-table summary{cursor:pointer;font-weight:600;font-size:14.5px;}
 .cp-gauge-table .cp-muted{font-weight:400;color:var(--ink-soft);}
 .cp-table-wrap{overflow-x:auto;margin-top:8px;}
+.cp-maplinks-table{border-collapse:collapse;font-size:14px;width:100%;}
+.cp-maplinks-table th,.cp-maplinks-table td{padding:6px 10px 6px 0;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);}
+.cp-maplinks-table th{font-weight:600;}
 .cp-appendix-f{border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;}
 .cp-appendix-f th,.cp-appendix-f td{padding:4px 10px 4px 0;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap;}
 .cp-appendix-f td.cpd-out-below,.cp-appendix-f td.cpd-out-above{color:var(--ink-soft);}

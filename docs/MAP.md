@@ -89,7 +89,7 @@ BCDC, ECC and CoSMoS tiles and identify calls, the CFEM composite identify, and 
 
 ## Linkable control ids
 
-County Profiles generates map links from these ids and values. **Renaming or removing any of them breaks County Profiles links.** Change them together with the generator.
+County Profiles generates map links from these ids and values. **Renaming or removing any of them breaks County Profiles links**, and the County Profiles build now fails if you do (`checkMapLinks` in `scripts/county-profiles/map-links.js`; the generator is the table in the same file). Change them together.
 
 | Control | Id | Hash key | Values |
 |---|---|---|---|

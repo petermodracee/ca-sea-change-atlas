@@ -8,6 +8,7 @@ const { buildSectionModel } = require("../../scripts/county-profiles/section-mod
 const { timingTable, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
 const { ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE } = require("../../scripts/county-profiles/estimated.js");
+const { MAP_LINKS } = require("../../scripts/county-profiles/map-links.js");
 const { SHORE_TOLERANCE_M } = require("../../scripts/county-profiles/pipeline/enow-def.js");
 
 // Everything the County Profiles pages need, derived from the spine, the schema, the OPC reference
@@ -253,7 +254,17 @@ function economyMethod() {
   };
 }
 
+// The About page's table of map links, from the same table that generates the hrefs.
+const mapLinkRows = Object.entries(MAP_LINKS).flatMap(([topicId, secs]) => {
+  const topic = schema.topics.find((t) => t.id === topicId);
+  return Object.entries(secs).map(([sectionId, r]) => ({ topic: topic.label, section: topic.sections.find((s) => s.id === sectionId).title, opens: r.opens, publishers: r.publishers }));
+});
+const sourceYear = (key) => { const p = counties.find((x) => x.profile && x.profile.sources[key]); return p ? p.profile.sources[key].vintage.year : null; };
+
 module.exports = {
+  mapLinkRows,
+  lodesYear: sourceYear("lodes"),
+  acsYear: sourceYear("acs"),
   economyMethod: economyMethod(),
   reasonsById: schema.reasons,
   counties,
