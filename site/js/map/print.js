@@ -97,12 +97,13 @@ export function initPrint(map){
     if(sheet) return;
     saved = { center: map.getCenter(), zoom: map.getZoom(), detailsOpen: details ? details.open : false };
     if(details) details.open = true;
-    sheet = buildPrintSheet();
-    mapEl.after(sheet);
     mapEl.style.width = `${PRINT_MAP_WIDTH_PX}px`;
     mapEl.style.height = `${PRINT_MAP_HEIGHT_PX}px`;
     map.invalidateSize({ animate: false });
     map.setView(saved.center, saved.zoom, { animate: false });
+    // Built after the resize and refit, so zoom-dependent legends (critical facilities) are the ones for the printed view.
+    sheet = buildPrintSheet();
+    mapEl.after(sheet);
   };
 
   const exitPrintMode = () => {

@@ -3,7 +3,7 @@ import { groupPane } from "../shared/panes.js";
 import { setSwatch } from "../shared/dom.js";
 import { tilePixel } from "../shared/tile-pixel.js";
 import { fetchLegendItems, renderGradientLegendBlock, renderImageLegendBlock, renderSwatchLegendBlock } from "../shared/legend.js";
-import { FacilityOverviewLayer, FACILITY_MARKER_MIN_ZOOM, FACILITY_HEAT_GRADIENT } from "./facility-overview-layer.js";
+import { FacilityOverviewLayer, FACILITY_MARKER_MIN_ZOOM, FACILITY_HEAT_MIN_ZOOM, FACILITY_HEAT_GRADIENT } from "./facility-overview-layer.js";
 
 // --- Geo / demographic info -------------------------------------------------
 // Context layers that aren't flood tools themselves, so any flood layer can be
@@ -313,12 +313,18 @@ const LAYERS = [
         pointToLayer: (f, latlng) => L.circleMarker(latlng, { pane, radius: 7, color: "#fff", weight: 1.5, fillColor: t.color, fillOpacity: 0.95 })
       }))
     ]),
-    legend(){
-      const block = document.createElement("div");
-      block.append(
-        renderGradientLegendBlock({ label: "Facility density, low to high; schools, hospitals, fire/EMS, police", gradient: FACILITY_HEAT_GRADIENT, low: "Low", high: "High" }),
-        renderSwatchLegendBlock({ label: "Critical facilities, zoomed in (USGS Structures)", colors: FACILITY_TYPES.map(t => t.color), labels: FACILITY_TYPES.map(t => t.label) }));
-      return block;
+    legendFollowsZoom: true,
+    // Only the representation drawing at this zoom: markers from FACILITY_MARKER_MIN_ZOOM, the heat gradient from
+    // FACILITY_HEAT_MIN_ZOOM, nothing below (the status line covers that).
+    legend(map){
+      const zoom = map.getZoom();
+      if(zoom >= FACILITY_MARKER_MIN_ZOOM){
+        return renderSwatchLegendBlock({ label: "Critical facilities (USGS Structures)", colors: FACILITY_TYPES.map(t => t.color), labels: FACILITY_TYPES.map(t => t.label) });
+      }
+      if(zoom >= FACILITY_HEAT_MIN_ZOOM){
+        return renderGradientLegendBlock({ label: "Facility density, low to high; schools, hospitals, fire/EMS, police", gradient: FACILITY_HEAT_GRADIENT, low: "Low", high: "High" });
+      }
+      return null;
     },
     identify: { minZoom: FACILITY_MARKER_MIN_ZOOM, urls: [[`${STRUCTURES_URL}/49`, "Hospital / medical center"], [`${STRUCTURES_URL}/51`, "Fire / EMS station"],
       [`${STRUCTURES_URL}/53`, "Police station"], [`${STRUCTURES_URL}/58`, "School"]], nearby: "auto",
@@ -408,8 +414,9 @@ class GeoInfoLayer extends BaseLayer {
   async updateLegend(){
     if(!this.isEnabled()){ this.legendEl.hidden = true; this.legendEl.innerHTML = ""; return; }
     try{
-      const block = await this.config.legend();
+      const block = await this.config.legend(this.map);
       if(!this.isEnabled()) return; // toggled off while the legend was loading
+      if(!block){ this.legendEl.hidden = true; this.legendEl.innerHTML = ""; return; }
       this.legendEl.innerHTML = "";
       this.legendEl.appendChild(block);
       this.legendEl.hidden = false;
@@ -430,6 +437,7 @@ class GeoInfoLayer extends BaseLayer {
       setSwatch(document.querySelector(`[data-swatch="${this.config.id}"]`), this.config.swatch, false);
     }
     (this.selectEl || this.toggleEl).addEventListener("change", () => this.refresh());
+    if(this.config.legendFollowsZoom) this.map.on("zoomend", () => { if(this.isEnabled()) this.updateLegend(); });
     if(this.config.identify) this.registerPopupProvider(latlng => this.identify(latlng));
     if(this.config.identifyTile) this.registerPopupProvider(latlng => this.identifyTile(latlng));
     if(this.config.identifyRoad) this.registerPopupProvider(latlng => this.identifyRoad(latlng));
