@@ -5,6 +5,8 @@
  * the live panel just before printing. Attribution comes from the footer.
  */
 
+import { buildActiveSummary } from "./shared/active-summary.js";
+
 // Must match the print CSS: map and legend column widths in px (landscape Letter, .4in margins).
 const PRINT_MAP_WIDTH_PX = 700;
 const PRINT_MAP_HEIGHT_PX = 610;
@@ -23,36 +25,7 @@ function buildPrintSheet(){
   date.textContent = `Printed ${new Date().toLocaleDateString(undefined, { dateStyle: "long" })}. Unofficial planning-level tool.`;
   sheet.append(title, date);
 
-  document.querySelectorAll(".layer-group.has-active").forEach(group => {
-    const section = document.createElement("section");
-    const heading = document.createElement("h3");
-    heading.textContent = group.querySelector(".layer-group-title span").textContent.trim();
-    section.appendChild(heading);
-
-    // Scenario values (e.g. "Sea Level Rise, 3 ft", "36"" total water level) so the printout says what was modelled.
-    group.querySelectorAll(".scenario-label:has(span[id]), .level-row .overlay-level-value").forEach(el => {
-      const line = document.createElement("p");
-      line.className = "print-scenario";
-      line.textContent = el.classList.contains("overlay-level-value") ? `Total water level: ${el.textContent}` : el.textContent.trim();
-      section.appendChild(line);
-    });
-
-    const legends = [...group.querySelectorAll(".bcdc-legend:not([hidden])")];
-    // A layer whose legend already carries its name doesn't need a second line in the checklist.
-    const legendTitles = new Set(legends.flatMap(l => [...l.querySelectorAll(".legend-block-title")].map(t => t.textContent.trim())));
-    const list = document.createElement("ul");
-    group.querySelectorAll('.layer-group-body input[type="checkbox"]:checked').forEach(cb => {
-      const name = cb.closest("label").textContent.trim();
-      if(legendTitles.has(name)) return;
-      const item = document.createElement("li");
-      item.textContent = name;
-      list.appendChild(item);
-    });
-    if(list.children.length) section.appendChild(list);
-
-    legends.forEach(legend => section.appendChild(legend.cloneNode(true)));
-    sheet.appendChild(section);
-  });
+  sheet.appendChild(buildActiveSummary());
   return sheet;
 }
 

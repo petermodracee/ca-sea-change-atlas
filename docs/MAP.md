@@ -16,13 +16,14 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `site/j
 | `shared/tile-layers.js` | `CachedWmsTileLayer` and `CachedXyzTileLayer`: fetch each tile through `cachedFetch` and hand a blob URL to the `<img>`. |
 | `shared/identify-url.js` | Builds WMS GetFeatureInfo URLs (bbox and pixel math) for BCDC and CoSMoS. |
 | `shared/legend.js` | Static swatch legends, gradient (colour ramp) legends, image legends, and legends fetched from an ArcGIS `/legend` endpoint. |
+| `shared/active-summary.js` | `buildActiveSummary()`: clones what's on (active group names, scenario values, checked layers, legends) from the live panel into a `DocumentFragment`. Used by `print.js` for the print sheet; ids are stripped from the clones. |
 | `shared/button-grid.js`, `dom.js`, `format.js` | Scenario button rows, swatch coloring, number formatting. |
 | `shared/load-script.js` | `loadScript({src, integrity})`: injects an SRI-checked `<script>` for lazily loaded libraries (MapLibre, h5wasm). |
 | `shared/zenodo-projections.js` | `loadCaliforniaProjections()`: range-reads one NetCDF file out of the task force's 298 MB Zenodo zip and parses it with h5wasm. See [`DECISIONS.md`](DECISIONS.md#nasa-interagency-sea-level-rise-scenario-tool-a-point-layer-built-from-the-zenodo-data). |
 | `permalink.js` | URL-hash state (see below). Exports `VALUE_CONTROL_IDS` so Node tooling can import the list. |
 | `controls.js` | Scale bar, locate button, distance-measure tool (sets `map.measureActive`). |
 | `search.js` | Nominatim address search, California-biased, submit-only, with alternative matches listed. |
-| `print.js` | Print/save-as-PDF: clones active groups, scenario values and legends from the live panel into a print sheet styled by the print block in `css/style.css`. |
+| `print.js` | Print/save-as-PDF: adds a title and date to `buildActiveSummary()` to make a print sheet styled by the print block in `css/style.css`. |
 | `../info-popup.js` | Tool-agnostic click-to-inspect popup, see below. |
 
 ## Layer groups
