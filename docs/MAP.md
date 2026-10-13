@@ -29,7 +29,7 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `site/j
 
 | Panel group | Class (file in `layers/`) | Pane key | Notes |
 |---|---|---|---|
-| County boundaries | `CountyLayer` (`county-layer.js`) | `county` | County lines from Census TIGERweb (statewide, one live query, generalized to about 100 m), each drawn as a pale halo under a dark stroke; the selected county is heavier. Also the "Zoom to county" select, which fits the map to a live extent query. Its pane is on top of the others by default. See [County fit](#county-fit). |
+| Coastal county boundaries | `CountyLayer` (`county-layer.js`) | `county` | Lines for the 27 County Profiles counties only, from Census TIGERweb (one live query filtered by GEOID, generalized to about 100 m), each drawn as a pale halo under a dark stroke; the selected county is heavier. Also the "Highlight county" select, which highlights a county and fits the map to it. Its pane is on top of the others by default. See [County fit](#county-fit). |
 | BCDC Flood Explorer | `BcdcFloodLayer`, `BcdcLegalDeltaLayer` (`bcdc-flood-layer.js`) | `bcdc` | Live WMS. Total-water-level slider or scenario picker, impact layers, consequence picker. Regional storm-surge baseline only. Also exports the WMS URL and GML parser reused by ECC. |
 | East Contra Costa | `BcdcEccLayer` (`bcdc-ecc-layer.js`) | `bcdcEcc` | Same BCDC WMS server and session cache; only layer names differ. |
 | CoSMoS | `CosmosLayer` (`cosmos-layer.js`) | `cosmos` | Point Blue tile/WMS infrastructure, not ArcGIS. Region and topic dropdowns, SLR slider, storm-frequency picker. Templates in `site/data/cosmos-layers.json`. |
@@ -69,7 +69,13 @@ Drawing: `leaflet.heat` always appends its canvas to the overlay pane, so `creat
 
 ## County fit
 
-`CountyLayer` fetches the statewide county polygons once per page session from TIGERweb (layer 7, `maxAllowableOffset` 0.001 degrees, about 330 KB) and draws them when `countyToggle` is checked. Choosing a county in `countySelect` calls `fitBounds` (20 px padding) on the bounds of the county's largest polygon part, taken from that same fetched geometry (no extra request, nothing stored). Islands are still drawn in the outline but don't widen the fit: without this, Los Angeles (Catalina, San Clemente), San Francisco (Farallones), Ventura and Santa Barbara (Channel Islands) zoomed out to include them. Los Angeles fits at zoom 8 on a 1280x650 window and 9 on 1920x1080, so the facility heat overview shows. The lines are TIGER legal boundaries, which extend slightly into coastal water; shoreline-clipped versions aren't available as a live service, so the layer is labelled "County boundaries (legal, may include coastal water)".
+**The county list.** `PROFILE_COUNTY_FIPS` in `county-layer.js` and the options of `#countySelect` in `site/map/index.njk` hold the 27 counties of NOAA's Coastal County Snapshots California list (alphabetical in the select, FIPS values). **They must match the County Profiles spine**: Phase 8 County Profiles links set `countySelect`, and a county missing here is not drawn and cannot be fitted. Other counties are neither fetched nor drawn.
+
+**The select is "Highlight county"**, not "zoom to": it highlights the county (strong outline while the lines are on) and fits the map, and the label stays true after the user pans away.
+
+**County in the click popup.** With the lines on, the popup's first section ("County (Census boundary)") names the county under the click, by point-in-polygon against the polygons already loaded (no request). A click outside the 27 gets no county section.
+
+`CountyLayer` fetches the polygons of the 27 profile counties (a `GEOID IN (...)` filter, so nothing else is fetched) once per page session from TIGERweb (layer 7, `maxAllowableOffset` 0.001 degrees, about 330 KB) and draws them when `countyToggle` is checked. Choosing a county in `countySelect` calls `fitBounds` (20 px padding) on the bounds of the county's largest polygon part, taken from that same fetched geometry (no extra request, nothing stored). Islands are still drawn in the outline but don't widen the fit: without this, Los Angeles (Catalina, San Clemente), San Francisco (Farallones), Ventura and Santa Barbara (Channel Islands) zoomed out to include them. Los Angeles fits at zoom 8 on a 1280x650 window and 9 on 1920x1080, so the facility heat overview shows. The lines are TIGER legal boundaries, which extend slightly into coastal water; shoreline-clipped versions aren't available as a live service, so the layer is labelled "County boundaries (legal, may include coastal water)".
 
 A fit waits until the map container has a non-zero size (a `ResizeObserver` on it, then `invalidateSize`), because a page opened in a background tab has none and `fitBounds` would otherwise pick the maximum zoom; the heat canvas likewise skips redraws while it is zero-size and redraws on the map's `resize`. At load, a link with a county but no `map=` view fits to that county; a link with `map=` keeps its view. The select does not turn the lines on, and Hide (which unchecks the lines) leaves the select alone, so a link still carries the county.
 
@@ -88,7 +94,7 @@ County Profiles generates map links from these ids and values. **Renaming or rem
 | Control | Id | Hash key | Values |
 |---|---|---|---|
 | County lines | `countyToggle` (checkbox) | `on=id:countyToggle` | on or off |
-| Zoom to county | `countySelect` | `v=id:countySelect~<FIPS>` | 5-digit FIPS, `06001` (Alameda) to `06115` (Yuba), odd county numbers only; empty is none |
+| Highlight county | `countySelect` | `v=id:countySelect~<FIPS>` | One of the 27 County Profiles FIPS codes (`06001` Alameda to `06113` Yolo, listed in `county-layer.js`); empty is none |
 | NOAA sea level rise | `noaaSlrToggle` (checkbox), `noaaSlrSlider` | `on=id:noaaSlrToggle`, `v=id:noaaSlrSlider~<n>` | index 0 to 20 = feet x 2 (`4` is 2 ft, `20` is 10 ft) |
 | FEMA flood zones | `femaToggle` (checkbox) | `on=id:femaToggle` | on or off; overview below zoom 14, live NFHL from 14 |
 | People layer | `geoPeopleSelect` | `v=id:geoPeopleSelect~<value>` | `geoPopDensity`, `geoJobsDensity`, `geoPoverty`, `geoElderly`; empty is none |

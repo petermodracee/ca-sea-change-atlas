@@ -175,7 +175,7 @@
         {
           "name": "U.S. Census Bureau TIGERweb (State and County boundaries)",
           "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
-          "note": "County lines and the extent used by \"Zoom to county\", queried live. Census Bureau data are in the public domain.",
+          "note": "County lines and the outline used by \"Highlight county\", queried live. Census Bureau data are in the public domain.",
           "licenses": [
             "pd-us"
           ]

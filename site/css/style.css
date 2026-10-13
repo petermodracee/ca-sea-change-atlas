@@ -312,6 +312,8 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
   background-color:transparent!important;color:inherit;border:1px solid currentColor;
 }
 .fema-legend-swatch{width:18px;height:18px;flex:0 0 auto;background:#fff;border-radius:2px;}
+/* Browsers drop CSS backgrounds when printing unless told otherwise, which blanks colour-only legend swatches and ramps. */
+.swatch,.legend-block-swatch,.legend-block-gradient,.fema-legend-swatch{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 
 .info-popup{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;color:var(--ink);min-width:180px;}
 .info-popup.info-popup-loading{color:var(--ink-soft);font-style:italic;}

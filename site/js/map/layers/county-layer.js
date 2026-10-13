@@ -10,7 +10,9 @@ import { cachedFetch } from "../shared/request-cache.js";
 // The boundary geometry, which also gives the zoom-to bounds, is fetched live; nothing is stored here.
 const TIGERWEB_URL = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer";
 const COUNTY_LAYER_ID = 7;
-const CALIFORNIA_STATE_FIPS = "06";
+// The counties County Profiles covers (NOAA Coastal County Snapshots' California list). Only these are fetched and drawn.
+// Keep in step with the County Profiles spine and with the options in site/map/index.njk: County Profiles links set the select.
+export const PROFILE_COUNTY_FIPS = ["06001", "06013", "06015", "06023", "06033", "06037", "06041", "06045", "06053", "06055", "06059", "06067", "06069", "06073", "06075", "06077", "06079", "06081", "06083", "06085", "06087", "06095", "06097", "06101", "06105", "06111", "06113"];
 const GENERALIZE_DEGREES = 0.001; // about 100 m; keeps the statewide response near 330 KB
 const FIT_PADDING_PX = 20;
 const TIGERWEB_ATTRIBUTION = 'County boundaries: <a href="https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html" target="_blank" rel="noopener">U.S. Census Bureau TIGERweb</a>';
@@ -38,6 +40,18 @@ function whenSized(map){
   });
 }
 
+/** Whether [lng, lat] is inside a GeoJSON Polygon's rings (outer ring minus holes), by ray casting. */
+function inPolygon(lng, lat, rings){
+  let inside = false;
+  rings.forEach(ring => {
+    for(let i = 0, j = ring.length - 1; i < ring.length; j = i++){
+      const [xi, yi] = ring[i], [xj, yj] = ring[j];
+      if((yi > lat) !== (yj > lat) && lng < (xj - xi) * (lat - yi) / (yj - yi) + xi) inside = !inside;
+    }
+  });
+  return inside;
+}
+
 /** Planar area of a ring of [lng, lat] points (shoelace); only used to rank a county's parts against each other. */
 function ringArea(ring){
   let sum = 0;
@@ -52,7 +66,7 @@ function largestPartBounds(geometry){
   return L.latLngBounds(outer.map(([lng, lat]) => [lat, lng]));
 }
 
-/** The county boundary lines, plus the "Zoom to county" select that fits the map to a county's mainland. */
+/** The County Profiles county boundary lines, plus the "Highlight county" select that highlights a county and fits the map to its mainland. */
 export class CountyLayer extends BaseLayer {
   /**
    * @param {L.Map} map
@@ -65,8 +79,7 @@ export class CountyLayer extends BaseLayer {
     this.toggleEl = document.getElementById("countyToggle");
     this.selectEl = document.getElementById("countySelect");
     this.resultEl = document.getElementById("countyResult");
-    this.features = null; // statewide GeoJSON features, fetched once per page session
-    this.fitToken = 0;
+        this.fitToken = 0;
   }
 
   isEnabled(){
@@ -77,10 +90,10 @@ export class CountyLayer extends BaseLayer {
     return this.selectEl.value;
   }
 
-  /** Fetches the statewide county polygons (memoized per session). */
+  /** Fetches the 27 profile counties' polygons (memoized per session). */
   loadFeatures(){
     const url = query({
-      where: `STATE='${CALIFORNIA_STATE_FIPS}'`, outFields: "GEOID", returnGeometry: "true",
+      where: `GEOID IN (${PROFILE_COUNTY_FIPS.map(f => `'${f}'`).join(",")})`, outFields: "GEOID,NAME", returnGeometry: "true",
       maxAllowableOffset: String(GENERALIZE_DEGREES), geometryPrecision: "4", f: "geojson"
     });
     return cachedFetch(url, res => res.json()).then(fc => {
@@ -148,7 +161,20 @@ export class CountyLayer extends BaseLayer {
     }
   }
 
+  /** Click popup section naming the county under the click, from the polygons already loaded for the lines. */
+  async identify(latlng){
+    if(!this.isEnabled()) return null;
+    const features = await this.loadFeatures().catch(() => null);
+    if(!features) return null;
+    const hit = features.find(f => {
+      const parts = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates;
+      return parts.some(rings => inPolygon(latlng.lng, latlng.lat, rings));
+    });
+    return hit ? { title: "County (Census boundary)", rows: [{ label: "Name", value: hit.properties.NAME }] } : null;
+  }
+
   init(){
+    this.registerPopupProvider(latlng => this.identify(latlng)); // registered first, so this is the popup's first section
     this.applySwatch('[data-swatch="county"]', COUNTY_COLOR, false);
     this.toggleEl.addEventListener("change", () => this.refresh());
     this.selectEl.addEventListener("change", () => {
