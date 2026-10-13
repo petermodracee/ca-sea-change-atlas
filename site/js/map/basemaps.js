@@ -2,6 +2,7 @@
  * Basemap selection: a greyscale default (OpenFreeMap "Positron") so the many
  * colourful overlays stand out, plus Humanitarian, standard OSM and satellite
  * options behind a core L.control.layers switcher. The user's pick is remembered.
+ * The embed has no switcher and ignores the remembered pick: it shows `base=` from the link, else greyscale.
  */
 import { loadScript } from "./shared/load-script.js";
 
@@ -103,9 +104,10 @@ const GreyscaleBasemap = L.Layer.extend({
  * Call once, before any overlay is added.
  * @param {L.Map} map
  * @param {string|null} [preferred] - basemap name from a shared link; wins over the remembered choice.
+ * @param {{embed?: boolean}} [options] - `embed`: no switcher, and the remembered choice is neither read nor written.
  * @returns {() => string} getter for the currently selected basemap's name.
  */
-export function initBasemaps(map, preferred = null){
+export function initBasemaps(map, preferred = null, { embed = false } = {}){
   map.createPane(BASEMAP_PANE).style.zIndex = 150;
 
   const basemaps = {
@@ -122,15 +124,18 @@ export function initBasemaps(map, preferred = null){
   };
 
   let saved = null;
-  try { saved = localStorage.getItem(STORAGE_KEY); } catch(err){ /* storage blocked — use the default */ }
+  if(!embed){
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch(err){ /* storage blocked — use the default */ }
+  }
   const initial = [preferred, saved].find(name => basemaps[name]) || DEFAULT_BASEMAP;
   let current = initial;
 
   basemaps[initial].addTo(map);
-  L.control.layers(basemaps, null, { position: "topright", collapsed: true }).addTo(map);
+  if(!embed) L.control.layers(basemaps, null, { position: "topright", collapsed: true }).addTo(map);
 
   map.on("baselayerchange", e => {
     current = e.name;
+    if(embed) return;
     try { localStorage.setItem(STORAGE_KEY, e.name); } catch(err){ /* not critical */ }
   });
 

@@ -188,6 +188,7 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
 }
 .legend-layers-btn:hover,.legend-pill:hover{border-color:var(--teal);color:var(--teal-text);}
 .legend-layers-btn[hidden]{display:none;}
+.map-layout:not(.panel-collapsed) .legend-layers-btn{display:none;}
 @media (max-width:768px){ .legend-layers-btn{display:none;} }
 .legend-card{margin-top:8px;text-align:left;}
 .legend-card[hidden]{display:none;}
@@ -637,6 +638,21 @@ legend{
   .cmp-head-tool{padding-right:10px;}
   .cmp-table th,.cmp-table td{font-size:12.8px;padding-right:10px;}
 }
+
+/* ---------- embedded map (/map/embed/) ---------- */
+/* Same app shell as the map page (body.map-page), minus header, toolbar and footer; the bar replaces the footer. */
+.embed-bar{
+  flex:0 0 auto;padding:4px 10px;border-top:1px solid var(--line);background:var(--paper-2);
+  color:var(--ink-soft);font-size:11.5px;line-height:1.4;text-align:center;
+}
+.embed-bar a{color:var(--ink-soft);}
+.embed-bar a:hover{color:var(--teal-text);}
+/* Keep the credit visible and compact in small frames. */
+/* The attribution wraps upward in the space right of the scale bar instead of running under it. */
+.map-embed .leaflet-bottom.leaflet-right{max-width:calc(100% - 160px);}
+.map-embed .leaflet-control-attribution{font-size:10px;line-height:1.3;white-space:normal;}
+/* Locked: viewers can't reopen the panel, at any width (below 768px that includes the bottom sheet). */
+body.map-embed-locked .layer-panel{display:none;}
 
 /* Measure tool button + cursor. */
 .leaflet-control-measure a{display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;}

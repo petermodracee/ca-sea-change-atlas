@@ -1,0 +1,21 @@
+---
+layout: base.njk
+permalink: "map/embed/index.html"
+title: CA Sea Change Atlas — embedded map
+description: An embeddable view of the CA Sea Change Atlas map of California sea-level-rise and flood hazards.
+canonicalPath: /map/
+eleventyExcludeFromCollections: true
+bodyClass: map-page map-embed
+embed: true
+leaflet: true
+mapModuleEntry: /js/map/index.js
+---
+<div class="map-layout panel-collapsed">
+<div id="map"></div>
+{% include "map-panel.njk" %}
+</div>
+<div class="embed-bar">
+<a href="{{ '/' | url }}" target="_blank" rel="noopener">CA Sea Change Atlas</a> -
+<a href="{{ '/about/#disclosures' | url }}" target="_blank" rel="noopener">See disclaimers</a> -
+<a href="{{ '/map/' | url }}" id="embedFullMapLink" target="_blank" rel="noopener">Open full map</a>
+</div>

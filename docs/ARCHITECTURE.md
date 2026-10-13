@@ -18,6 +18,7 @@ Routes are grouped by tool rather than flat at the root, so a page's URL and its
 |---|---|---|
 | `/` | `site/index.njk` | Landing page: explains the tools and links to each |
 | `/map/` | `site/map/index.njk`, `site/js/map/` | The map |
+| `/map/embed/` | `site/map/embed/index.njk`, `site/_includes/map-panel.njk`, `site/js/map/embed.js` | The map for an `<iframe>`: same entry point and panel include as `/map/`, no header or footer, canonical `/map/`, not in the sitemap. See [`MAP.md`](MAP.md#embed) |
 | `/compare/` | `site/compare/index.njk`, `site/js/sources.js` | Filterable tool grid and compare picker |
 | `/compare/side-by-side/` | `site/compare/side-by-side.njk`, `site/js/compare.js`, `site/js/tool-detail.js` | Side-by-side comparison of two or three tools (`?tools=` ids), rendered in the browser |
 | `/compare/tool/<id>/` | `site/compare/tool.njk`, `site/data/toolDetailSchema.json` | One generated page per entry in `site/data/tools.json`; its sections come from the detail schema |
@@ -39,7 +40,7 @@ County Profiles routes are documented in [`COUNTY-PROFILES.md`](COUNTY-PROFILES.
 
 ## Templates
 
-`site/_includes/base.njk` wraps every page: head metadata (title, description, Open Graph and Twitter tags, canonical URL from `site/_data/site.js`), fonts, the header and footer includes, and scripts. `header.njk` renders the logo (`img/casca-logo.svg`, decorative since the site name sits beside it) and the nav; the browser-tab icon is `img/favicon.svg`, linked from `base.njk`. Both are SVG exports that were slimmed with `svgo`, which is worth repeating if they are re-exported from Inkscape; `footer.njk` renders the copyright/license line, mirrors the header's top-level links (Map, Compare tools, About, Licenses), and shows each page's `footerAttribution`. On the map page the footer collapses into a `<details>` because the page is a fixed-viewport app shell.
+`site/_includes/base.njk` wraps every page: head metadata (title, description, Open Graph and Twitter tags, canonical URL from `site/_data/site.js`), fonts, the header and footer includes, and scripts. `map-panel.njk` is the layer panel markup, included by `map/index.njk` and `map/embed/index.njk` so both render the same controls. `header.njk` renders the logo (`img/casca-logo.svg`, decorative since the site name sits beside it) and the nav; the browser-tab icon is `img/favicon.svg`, linked from `base.njk`. Both are SVG exports that were slimmed with `svgo`, which is worth repeating if they are re-exported from Inkscape; `footer.njk` renders the copyright/license line, mirrors the header's top-level links (Map, Compare tools, About, Licenses), and shows each page's `footerAttribution`. On the map page the footer collapses into a `<details>` because the page is a fixed-viewport app shell.
 
 Front-matter keys the layout understands:
 
@@ -51,6 +52,8 @@ Front-matter keys the layout understands:
 | `leaflet: true` | Loads Leaflet, esri-leaflet and leaflet.locatecontrol (CSS and JS) |
 | `mapModuleEntry` | Adds a `<script type="module">` for the map entry point |
 | `extraScripts` | Extra plain `<script>` files (`compare/index.njk`, `compare/side-by-side.njk`, and `toc.js` on pages with a table of contents) |
+| `embed: true` | Skips the header and footer includes (the embed page) |
+| `canonicalPath` | Overrides the canonical and `og:url` path (default `page.url`); the embed sets `/map/` |
 | `ogImage` | Social preview image; defaults to `img/preview-map.png` |
 | `footerAttribution` | Per-page attribution text shown in the footer |
 

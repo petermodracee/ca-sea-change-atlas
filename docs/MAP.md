@@ -1,6 +1,6 @@
 # Map (`/map/`)
 
-Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `site/js/map/index.js` is the only `<script type="module">` on the page (set by `mapModuleEntry` in `site/map/index.njk`). Panel markup is static HTML in `site/map/index.njk`; layer modules look up their controls by id at construction, so an id in `site/map/index.njk` and the module that reads it must change together.
+Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `site/js/map/index.js` is the only `<script type="module">` on the page (set by `mapModuleEntry` in `site/map/index.njk`, and again by `site/map/embed/index.njk` for the [embed](#embed)). Panel markup is static HTML in `site/_includes/map-panel.njk`, included by both pages so they render the identical panel; layer modules look up their controls by id at construction, so an id in that include and the module that reads it must change together.
 
 ## Modules
 
@@ -20,9 +20,10 @@ Leaflet, esri-leaflet and plain ES modules; no framework and no bundler. `site/j
 | `shared/button-grid.js`, `dom.js`, `format.js` | Scenario button rows, swatch coloring, number formatting. |
 | `shared/load-script.js` | `loadScript({src, integrity})`: injects an SRI-checked `<script>` for lazily loaded libraries (MapLibre, h5wasm). |
 | `shared/zenodo-projections.js` | `loadCaliforniaProjections()`: range-reads one NetCDF file out of the task force's 298 MB Zenodo zip and parses it with h5wasm. See [`DECISIONS.md`](DECISIONS.md#nasa-interagency-sea-level-rise-scenario-tool-a-point-layer-built-from-the-zenodo-data). |
-| `permalink.js` | URL-hash state (see below). Exports `VALUE_CONTROL_IDS` so Node tooling can import the list. |
+| `permalink.js` | URL-hash state (see below); `initPermalink` returns `{flush}` so the embed can write the hash before reading it. Exports `VALUE_CONTROL_IDS` so Node tooling can import the list. |
 | `panel-collapse.js` | `initPanelCollapse(map)`: the desktop collapse button, the top-right "Layers" button and the legend card (see [Collapsible panel and legend card](#collapsible-panel-and-legend-card)). |
-| `controls.js` | Scale bar, locate button, distance-measure tool (sets `map.measureActive`). |
+| `embed.js` | Embed-only behavior: `isEmbed()` (body class `map-embed`), `?panel=locked`, the scroll-wheel guard, the "Sources" attribution link and the "Open full map" link (see [Embed](#embed)). |
+| `controls.js` | Scale bar, locate button, distance-measure tool (sets `map.measureActive`); the embed gets the scale bar only. |
 | `search.js` | Nominatim address search, California-biased, submit-only, with alternative matches listed. |
 | `print.js` | Print/save-as-PDF: adds a title and date to `buildActiveSummary()` to make a print sheet styled by the print block in `css/style.css`. |
 | `../info-popup.js` | Tool-agnostic click-to-inspect popup, see below. |
@@ -34,6 +35,25 @@ At widths above the 768px bottom-sheet breakpoint the panel heading has a "Colla
 While collapsed, a Leaflet control in the `topright` corner (`.legend-control`, stacked under the basemap switcher so they can't overlap) holds a "Layers" button that reopens the panel and the legend card. The card is `buildActiveSummary()` (the same function the print sheet uses), rebuilt about 120 ms after any panel `change`/`input` or any DOM mutation in the panel (a `MutationObserver` on `class`/`hidden`, child lists and text, which catches legends that render after a fetch and `.has-active` toggles). It has a "Legend" pill that folds the body away, and is hidden entirely when no layer is on. The body's max height is the map height minus a reserve (`CARD_BOTTOM_RESERVE_PX`) so it stays clear of the attribution and scale bar. Print hides the whole control; the print sheet is built separately.
 
 The collapsed/open choice is a per-browser viewing preference in `localStorage` (`atlas.panelCollapsed`, `1` or `0`), default open, every read and write in try/catch so a blocked store just means "open". It is deliberately not in the permalink hash; see [`DECISIONS.md`](DECISIONS.md#panel-collapse-state-lives-in-localstorage-not-the-permalink).
+
+## Embed
+
+`/map/embed/` (`site/map/embed/index.njk`) is the map for an `<iframe>` on another site. It is the same page as `/map/` with less around it, not a fork: same entry point (`js/map/index.js`), same panel include, same layer modules. `base.njk` skips the site header and footer when the page sets `embed: true`; the body has class `map-embed`, which `index.js` and `embed.js` check. The page's canonical points at `/map/` (`canonicalPath`) and it sets `eleventyExcludeFromCollections`, so it is not in `sitemap.xml`.
+
+| | Embed |
+|---|---|
+| Panel | Starts collapsed (`.panel-collapsed` is in the markup, so there is no flash). The "Layers" button and legend card are those of the [collapsible panel](#collapsible-panel-and-legend-card). The collapsed state is **not** read from or written to `localStorage`. Below 768px the panel is the usual bottom sheet. |
+| `?panel=locked` | Query string, not hash (the hash holds map state). Hides the Layers button, and the panel at every width including the bottom sheet (`body.map-embed-locked`), leaving the legend card. Default is unlocked. |
+| Controls | Zoom and scale bar. No basemap switcher, locate button or measure tool. The basemap follows `base=` in the hash, else greyscale; the remembered full-map choice is ignored and not written. |
+| Not present | Address search, print, "Copy link", the site toolbar. |
+| Click-to-inspect | On, locked or not. |
+| Scroll wheel | Zoom is off until the map is clicked (clicks on map controls don't count) and off again on `mouseleave`, so the host page scrolls normally. Touch is unchanged. |
+| Bar | Under the map: `CA Sea Change Atlas - See disclaimers - Open full map`. The first links to the site home, the second to `/about/#disclosures`, the third to `/map/` plus the embed's current hash (refreshed, after flushing the permalink write, on hover, focus, click, middle-click and context menu). All use `target="_blank" rel="noopener"`; the host page is never navigated. |
+| Attribution | Leaflet's corner control, per active layer, with a "Sources" link to `/about/licenses/` added to its prefix. In the embed it wraps upward in the space right of the scale bar rather than running under it. |
+
+The hash keeps updating inside the iframe, so "Open full map" carries the current view and layers; the existing `hashchange` reload also applies, so a host page that changes the iframe's hash gets a reloaded map. The embed's own links to the site use root-relative paths and resolve against the iframe's origin, which is the site's.
+
+Why unlocked by default, and why no locate button or address search: see [`DECISIONS.md`](DECISIONS.md#embed-defaults-and-what-the-embed-leaves-out).
 
 ## Layer groups
 
@@ -79,7 +99,7 @@ Drawing: `leaflet.heat` always appends its canvas to the overlay pane, so `creat
 
 ## County fit
 
-**The county list.** `PROFILE_COUNTY_FIPS` in `county-layer.js` and the options of `#countySelect` in `site/map/index.njk` hold the 27 counties of NOAA's Coastal County Snapshots California list (alphabetical in the select, FIPS values). **They must match the County Profiles spine**: Phase 8 County Profiles links set `countySelect`, and a county missing here is not drawn and cannot be fitted. Other counties are neither fetched nor drawn.
+**The county list.** `PROFILE_COUNTY_FIPS` in `county-layer.js` and the options of `#countySelect` in `site/_includes/map-panel.njk` hold the 27 counties of NOAA's Coastal County Snapshots California list (alphabetical in the select, FIPS values). **They must match the County Profiles spine**: Phase 8 County Profiles links set `countySelect`, and a county missing here is not drawn and cannot be fitted. Other counties are neither fetched nor drawn.
 
 **The select is "Highlight county"**, not "zoom to": it highlights the county (strong outline while the lines are on) and fits the map, and the label stays true after the user pans away.
 
@@ -99,7 +119,7 @@ BCDC, ECC and CoSMoS tiles and identify calls, the CFEM composite identify, and 
 
 ## Linkable control ids
 
-County Profiles generates map links from these ids and values. **Renaming or removing any of them breaks County Profiles links.** Change them together with the generator.
+**`/map/embed/` and the hash format are a stable public interface.** Embeds on other sites live for years, and County Profiles generates map links from these ids and values. A renamed or removed hash key or control id must keep reading its old name (accept both, mapping the old to the new); there is no versioning scheme. Change ids together with the County Profiles generator.
 
 | Control | Id | Hash key | Values |
 |---|---|---|---|
@@ -149,7 +169,7 @@ Baseline: Leaflet 1.9.4 and esri-leaflet 3.1.0 plus the custom code above.
 1. **Licensing first.** Confirm the source is openly licensed ([`CONTRIBUTING.md`](../CONTRIBUTING.md#licensing-requirements)). If it isn't, it belongs on the comparison page only; mark it `mapEligibility: "excluded"` in `site/data/tools.json` and record why in [`LICENSING.md`](LICENSING.md).
 2. **Layer class** in `site/js/map/layers/`, extending `BaseLayer`. Implement `buildLayer()` for a single sublayer, or override `refresh()` like BCDC and CoSMoS for several. Build layers with `pane: groupPane(map, "<key>")`.
 3. **Pane key**: add it to `GROUP_PANE_KEYS` and the JSDoc union in `shared/panes.js`.
-4. **Panel markup** in `site/map/index.njk`: a `.layer-group` with a collapsible title and body, an opacity slider carrying `data-pane="<key>"`, and controls whose ids the class reads.
+4. **Panel markup** in `site/_includes/map-panel.njk` (shared with the embed): a `.layer-group` with a collapsible title and body, an opacity slider carrying `data-pane="<key>"`, and controls whose ids the class reads.
 5. **Init** it in `site/js/map/index.js` (order sets popup section order).
 6. **Popup provider** via `registerPopupProvider` if the source supports a point query.
 7. **Permalink**: add any new slider/select id to `VALUE_CONTROL_IDS` in `permalink.js` (and to [Linkable control ids](#linkable-control-ids) if County Profiles should link to it); checkboxes with an id are tracked automatically.
