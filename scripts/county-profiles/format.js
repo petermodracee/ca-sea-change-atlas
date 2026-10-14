@@ -33,6 +33,12 @@ function apaDate(iso) {
   return y + ", " + MONTHS[m - 1] + " " + d;
 }
 
+// "2026-09-24" -> "24 September 2026", for body text.
+function longDate(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  return d + " " + MONTHS[m - 1] + " " + y;
+}
+
 // A source's vintage by kind: what the data describes, not when it was fetched (that's `retrieved`
 // and `verified`, shown only in the Data and method table). `short` is the inline form (years only
 // for a period); `full` is the table form. A null vintage means the source publishes none.
@@ -60,4 +66,4 @@ const compact = (n, dollars, decimals = 1) => {
   if (n >= 1e3) return fmt(n / 1e3, "k");
   return p + n;
 };
-module.exports = { shareText, pct, num, usd, usdWords, compact, apaDate, vintageText };
+module.exports = { shareText, pct, num, usd, usdWords, compact, apaDate, longDate, vintageText };

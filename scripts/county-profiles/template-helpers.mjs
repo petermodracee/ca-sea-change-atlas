@@ -12,7 +12,7 @@ const { shareText, num, compact } = require("./format.js");
 const { SCENARIOS, SCENARIO_LABELS: LABELS, series, yearReached, envelope, MAP_MIN_FT, MAP_MAX_FT } = require("./timing.js");
 
 export { num };
-export { apaDate } from "./format.js";
+export { apaDate, longDate } from "./format.js";
 
 // ---- share ring (flood People at Risk and flood natural features only) -----------------------
 
