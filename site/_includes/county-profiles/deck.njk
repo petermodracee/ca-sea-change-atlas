@@ -91,7 +91,7 @@
 <div class="cpd-panel-body">
 {% include "county-profiles/section-body.njk" %}
 </div>
-{{ sources(sec.sources, county.sources) }}
+{{ sources(sec.sources, county.sources, false, ({ href: ('/county-profiles/about/methodology/' | url) + '#jobs-not-businesses', label: 'Jobs, not businesses' } if (def.id == 'jobs-at-risk' and topic.id != 'total-economy') else none)) }}
 </div>
 </section>
 {%- endfor %}

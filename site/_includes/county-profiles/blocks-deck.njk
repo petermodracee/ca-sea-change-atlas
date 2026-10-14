@@ -14,12 +14,15 @@
 {% endmacro %}
 
 {#- The sources line at the foot of a panel. -#}
-{% macro sources(keys, sources, short) %}
+{% macro sources(keys, sources, short, more) %}
 <div class="cpd-sources"><b>Sources</b>
 {%- for key in keys %}
 {%- set s = sources[key] %}
 <span>{% if short %}<span class="cpp-srcname">{{ s.label }}</span>{% else %}<a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a>{% endif %} <span class="cpd-vintage">({{ s.inline }})</span></span>
 {%- endfor %}
+{%- if more %}
+<span><a href="{{ more.href }}">{{ more.label }}</a></span>
+{%- endif %}
 </div>
 {% endmacro %}
 

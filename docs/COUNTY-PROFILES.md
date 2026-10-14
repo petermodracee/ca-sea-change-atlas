@@ -101,6 +101,8 @@ Adaptations, and only these:
 - Business sections become jobs sections (labelled "jobs" throughout) because business locations are licensed data (LODES job counts replace them). The first build also carried a line saying "this counts jobs, not businesses"; the text pass (PR #32) removed it from every slide, print block and accessible text, on purpose. NOAA's measuring sections ("If You Can't Measure It…") carry no prose of their own, matching the live tool.
 - The timing section names the assigned gauge instead of NOAA's "closest gauge to your county", and drops NOAA's sentence about which projection set it uses.
 
+**Jobs, not businesses.** The flood hazard and sea level rise *Being Underwater Is Not a Good Business Plan* slides count jobs located in the exposed area (Census LEHD LODES workplace data), not businesses as NOAA's original snapshots did (Esri Business Analyst, licensed), so the figures cannot be compared with NOAA's business counts. This is stated on `/county-profiles/about/methodology/` (`#jobs-not-businesses`), and those slides' sources line links to it.
+
 **Marine jobs at risk is not published.** No open source isolates marine jobs by location: LODES is 2-digit NAICS and ENOW's marine sectors go to 6 digits. This is stated on `/county-profiles/about/methodology/` (`#marine-jobs`).
 
 ### The callout rule
