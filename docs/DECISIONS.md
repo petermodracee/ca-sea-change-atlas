@@ -1818,6 +1818,16 @@ The planned inset map (simplified hazard geometry under vintage-keyed paths) was
 
 **Verification.** The build, `check-archive.js` and `state-report.js` pass; snapshots are byte-identical. `fit-report.js` over all 27 counties at five viewports: 0 problems over 2,440 slide checks; the 346 dated-page slides that carry the extra notice, checked separately at 1280 x 650 and 1920 x 1080, all fit. Print page counts for the San Francisco, Humboldt, Napa, Santa Barbara and Orange flood and sea level rise pages are unchanged (5 and 6 pages), and no map link is visible in print. axe-core on the Orange, San Francisco, Humboldt and Lake flood and sea level rise pages, light and dark: no violations (none before). The print-colour audit on eight counties passes; no em dashes in site text. Real links opened in Chrome for Orange, Los Angeles, San Francisco, Humboldt, Sacramento and Lake (31 links): the right checkboxes, slider position, People or Land dropdown, county highlight and legends in every case, no console errors. The increment slider moves each following link through 4, 8, 12, 16 and 20.
 
+### Review decisions after the PR check (PR #36)
+
+Peter decided these. None needs a site change beyond the five fixes of that review round (jobs versus businesses and Coastal U.S. on About, the Santa Barbara job count, the timing marks, the dated chooser line).
+
+- **Marine figures above the original ENOW.** The non-tourism marine figures are about 27% above the original ENOW's 2021 county values. That is accepted and left as documented on About ("Differences from NOAA's published ENOW"). No slide flag.
+- **Floor headlines.** The marine "More than N%" headlines stay as they are, including Napa (0.9%) and Santa Clara (0.7%). "More than" already says the figure is a floor.
+- **Coastal U.S. coverage is stated on About.** `#total-economy-comparators` now says Coastal U.S. is NOAA's Total Economy (Coastal) aggregate of shoreline counties in 29 states and the District of Columbia (Great Lakes states included), Puerto Rico and the U.S. Virgin Islands, with no data for the shoreline counties of Alaska, American Samoa, Guam and the Northern Mariana Islands. The text pass trace said "30 states and DC" in one place and "29 states and the District of Columbia" in another; the API settles it. `coastaleconomy` with `geotype=StateCoastal` for 2023 has data for 30 geoids, which are 29 states and DC (no Alaska), plus Puerto Rico and the Virgin Islands; the 30 geoids sum to 58,704,810 jobs and PR plus VI add 784,118, equal to Coastal US (59,488,928). The "30" in the trace counted DC as a state. The slide label, the comparator figures and the snapshots are unchanged.
+- **Jobs versus businesses is explained on About.** `#jobs-not-businesses` says the Being Underwater slides count jobs by workplace (LEHD LODES), not businesses as NOAA's original snapshots did (Esri Business Analyst, licensed), so the two are not comparable. The slides' sources line links to it.
+- **Santa Barbara marine transportation job count restored from a 2025 trace.** See "Santa Barbara marine transportation, 2025 trace" in Phase 7 follow-up 6: NAICS 334511 in 2025 is imputed at ladder step 2 (703 of the sector's 1,041 jobs), so the note says "an estimated 700 jobs in 2025".
+
 ## Behavior
 
 ### Nominatim: submit only
