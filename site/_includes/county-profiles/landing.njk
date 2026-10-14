@@ -25,7 +25,6 @@
 <div class="wrap cp">
 
 {%- if dated %}
-<p class="cp-note">This is the dated snapshot of {{ profile.snapshot }}. Its canonical address is the <a href="{{ base | url }}">current profile</a>.</p>
 {%- if county.correction %}
 {%- set fix = county.correction %}
 <div class="cp-fixture" role="note">
@@ -40,7 +39,7 @@
 
 <div class="cp-toolbar">
 {%- if profile %}
-<p class="cp-toolbar-asof">Data as of <time datetime="{{ profile.snapshot }}">{{ profile.snapshot | longDate }}</time> · <a href="{{ '/county-profiles/about/changelog/' | url }}">Methodology version {{ profile.method }}</a></p>
+<p class="cp-toolbar-asof">{{ "Snapshot dated" if dated else "Data as of" }} <time datetime="{{ profile.snapshot }}">{{ profile.snapshot | longDate }}</time> · <a href="{{ '/county-profiles/about/changelog/' | url }}">Methodology version {{ profile.method }}</a></p>
 {%- else %}
 <p class="cp-toolbar-asof">No data snapshot yet. The topics below follow the {{ county.tierLabel | lower }} tier rules.</p>
 {%- endif %}
