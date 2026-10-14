@@ -22,73 +22,6 @@ nav: county-profiles
 <div class="main">
 <div class="wrap cp about-body">
 
-<section class="cp-topic" id="timing">
-<h2>When is the time to act?</h2>
-<p>The timing table gives, for each county, the year a sea level rise increment (2, 4, 6, 8 or 10 feet, the increments NOAA maps) is reached under each of the three scenarios California's guidance recommends evaluating: Intermediate, Intermediate-high and High.</p>
-<p>The years come from Appendix F of the 2024 California Sea Level Rise Guidance, which projects sea level rise in feet above 2000 for {{ opcGaugeProjections.gauges | length }} of the state's tide gauges in each decade from 2030 to 2150, with local vertical land motion included. Between decades the table interpolates linearly, starting from zero in 2000, and rounds to the year. An increment not reached by 2150 is shown as "after 2150". It uses the median projection, so it says when an increment is reached in the middle of the range, not when it could be reached.</p>
-<p>The method was checked against NOAA's own table for San Francisco County, which stops at 2100: every year NOAA shows matches, except one that is a year off. The build also asserts the San Francisco table, so a change to the method that moves it fails the build.</p>
-</section>
-
-<section class="cp-topic" id="gauges">
-<h2>Which tide gauge each county uses</h2>
-<p>Sea level rise is not uniform along California's coast, so there is no statewide conversion. Each county takes one reference gauge, an editorial call following the guidance's own regional grouping where it and proximity agree.</p>
-<dl class="cp-reasons">
-{%- for g in countyProfiles.gaugeGroups %}
-<div><dt>{{ g.name }}</dt><dd>{{ g.counties | join(", ") }}</dd></div>
-{%- endfor %}
-</dl>
-<p>Each county has exactly one gauge. Some counties, San Mateo among them, span two shoreline regimes, an outer coast and a bay shore. An earlier version gave those counties a second gauge and computed a "straddle" note from the difference between the two; that was dropped in favor of one authoritative gauge per county, so every county reads a single set of projections. San Mateo's gauge is Alameda, an editorial call: its South Bay shore runs 0.3 to 0.4 ft below San Francisco by 2100, so San Francisco would have overstated it.</p>
-</section>
-
-<section class="cp-topic" id="horizons">
-<h2>Projected rise at 2050 and 2100</h2>
-<p>The tables below give the rise projected at each tide gauge in every decade, and 2050 and 2100 are the two horizons that appear in most California adaptation documents and Local Coastal Program updates. The values are in feet above 2000. The values are Appendix F's own: already in feet, with local vertical land motion included, so nothing is converted or rounded. Low and Intermediate-Low are not shown, because the state does not recommend planning against them. A profile's snapshot file carries all thirteen decades for its gauge.</p>
-<p>NOAA's inundation layers cover {{ countyProfiles.mapMinFt }} to {{ countyProfiles.mapMaxFt }} ft above MHHW. A projection outside that range is still stated, and marked: † for a figure under {{ countyProfiles.mapMinFt }} ft (near-term rise the map cannot show) and ‡ for one over {{ countyProfiles.mapMaxFt }} ft (past the top of the map). In practice the usable range is roughly 2050 to 2120; earlier, most scenarios are under the lowest layer, and later the High scenario climbs past the highest.</p>
-</section>
-
-<section class="cp-topic" id="appendix-f">
-<h2>Appendix F, by gauge</h2>
-<p>The three recommended scenarios at every gauge a county uses, in feet above 2000, as published in Appendix F of the 2024 guidance. Values marked † or ‡ fall outside the range the map shows. Under each, the same projections are turned around: for each map increment, the year each scenario reaches it (linear interpolation between decades, as in the timing table; "after 2150" if it never does).</p>
-{%- for g in countyProfiles.gaugeTables %}
-<details class="cp-gauge-table">
-<summary>{{ g.name }} <span class="cp-muted">(Table {{ g.table }}{% if g.counties.length %}; {{ g.counties | join(", ") }}{% endif %})</span></summary>
-<div class="cp-table-wrap"><table class="cp-appendix-f">
-<thead><tr><th scope="col">Scenario</th>{% for d in g.decades %}<th scope="col">{{ d }}</th>{% endfor %}</tr></thead>
-<tbody>
-{%- for row in g.rows %}
-<tr><th scope="row">{{ row.label }}</th>{% for c in row.cells %}<td{% if c.flag != "within" %} class="cpd-out-{{ c.flag }}"{% endif %}>{{ c.text }}{% if c.flag == "below" %}<sup>†</sup>{% elif c.flag == "above" %}<sup>‡</sup>{% endif %}</td>{% endfor %}</tr>
-{%- endfor %}
-</tbody>
-</table></div>
-<p class="cp-muted">The same projections by height: the year each increment is reached at this gauge.</p>
-<div class="cp-table-wrap"><table class="cp-appendix-f">
-<thead><tr><th scope="col">Sea level rise</th>{% for row in g.rows %}<th scope="col">{{ row.label }}</th>{% endfor %}</tr></thead>
-<tbody>
-{%- for r in g.byIncrement %}
-<tr><th scope="row">{{ r.feet }} ft</th>{% for c in r.cells %}<td>{% if c.year == null %}after 2150{% else %}{{ c.text }}{% endif %}</td>{% endfor %}</tr>
-{%- endfor %}
-</tbody>
-</table></div>
-</details>
-{%- endfor %}
-</section>
-
-<section class="cp-topic" id="connected-low-lying">
-<h2>Connected and low-lying sea level rise exposure</h2>
-<p>NOAA's sea level rise mapping separates two kinds of area at each increment: ocean-connected inundation, and isolated low-lying areas that are below the projected water level but that its elevation model does not connect to the ocean (<a href="https://coast.noaa.gov/data/digitalcoast/pdf/slr-inundation-methods.pdf" rel="noopener">NOAA Office for Coastal Management, method description for the Sea Level Rise Viewer, January 2017</a>). County Profiles reports the two combined: each bar or column is the total, with the ocean-connected part solid and the additional low-lying part dashed.</p>
-<p>Low-lying areas are included because they can still flood. Drainage the elevation model cannot see may connect them to the water, and coastal groundwater rises with the sea, which can flood areas that have no surface connection to the ocean (<a href="https://doi.org/10.1038/s41558-020-0874-1" rel="noopener">Befus, Barnard and Hoover, 2020, <i>Nature Climate Change</i></a>). The two sources are cited separately because they support different points: NOAA's document defines the two kinds of area and warns that the model does not resolve drains and ditches, so unconnected areas may be mapped incorrectly, but it does not discuss groundwater, which rests on Befus et al. The low-lying counts are therefore less certain than the ocean-connected ones. The same combined series is used for jobs under six feet of sea level rise in the total economy topic.</p>
-</section>
-
-<section class="cp-topic" id="withheld">
-<h2>Withheld values, zeros and gaps</h2>
-<p>Four different things can stand where a plain number would be, and the pages never blur them. <strong>Zero</strong> is an answer: a county with no medical facilities in its floodplain shows 0, and a marine sector with no jobs in a county shows none. <strong>Withheld</strong> is a figure this page does not show, for one of four reasons that the slide's footnote and the JSON <code>reason</code> field give: the public data hides it and too much of an estimate would rest on the weakest methods (<a href="#estimated">below</a>); the public data hides it and there is nothing to estimate it from; we could not reproduce NOAA's GDP ratio for it (Public administration); or tourism and recreation's shoreline share could not be calibrated. It appears as "withheld", a total that leaves one out is marked incomplete with an asterisk, and a callout is never stated from a figure whose parts are withheld. <strong>Estimated</strong> is a figure partly built from values the source withholds for confidentiality and this page fills in (<a href="#estimated">below</a>); it carries a &#8776; mark. <strong>Unavailable</strong> is a section or topic with no data at all, and it states its reason where the section would be.</p>
-</section>
-
-<section class="cp-topic" id="sectors-not-shown">
-<h2>Sectors that do not appear for some counties</h2>
-<p>The wages chart shows an average wage per job, so a sector with no jobs in a county has nothing to average and is left out of that county's chart without comment. This is a zero, not a withheld value: the data says the county has no jobs in that sector (for example, some inland counties have no tourism and recreation jobs in shoreline ZIP codes, and several have no ship and boat building). A withheld value is different and is marked as withheld on the chart. The county's counts elsewhere on the page, such as the Business Diversity chart, still show the zero.</p>
-</section>
-
 <section class="cp-topic" id="economy-years">
 <h2>Economy data years</h2>
 {%- set em = countyProfiles.economyMethod %}
@@ -96,37 +29,6 @@ nav: county-profiles
 <p>Each source shows its own newest year, and the pages do not blend them silently. The headline year for jobs, wages and establishments is the Bureau of Labor Statistics' Quarterly Census of Employment and Wages (QCEW), <strong>{{ em.qcew }}</strong>. GDP comes from the Bureau of Economic Analysis one year behind for the marine sectors, <strong>{{ em.beaMarine }}</strong>, because BEA publishes the detailed industries a year after the broad sectors (total economy GDP is {{ em.beaTotal }}). The wages comparison slides use the newest year the comparison series covers, so the county's dot and the comparison dots are the same year: <strong>{{ em.qcewWages }}</strong> for the marine economy (NOAA Open ENOW, {{ em.openEnow }}) and <strong>{{ em.totalWages }}</strong> for the total economy (NOAA Total Economy (Coastal), {{ em.coastalEconomy }}). The shoreline share of tourism and recreation uses Census ZIP Code Business Patterns {{ em.zbp }}. <em>Total Jobs</em> shows employed workers and self-employed workers as two separate figures, each with its own year and source, and does not add them: for the total economy, QCEW {{ em.qcew }} and Census Nonemployer Statistics {{ em.nes }}; for the marine economy, QCEW {{ em.qcew }} and NOAA's ENOW self-employed series, which ends in {{ em.enowSelf }}.</p>
 {%- endif %}
 <p>The delta counties (Sacramento, San Joaquin and Yolo) are on ENOW's list but are not in the shore-adjacent total economy series, so they have a marine economy and no total economy. Their sea level rise comes from NOAA's Delta inundation file. Lake, San Benito, Sutter and Trinity are in neither ENOW nor NOAA's sea level rise data, and have flood hazard only. Which counties have which topics did not change when the economy figures were rebuilt.</p>
-</section>
-
-<section class="cp-topic" id="economy-method">
-<h2>How the economy figures are built</h2>
-<p>NOAA's original Economics: National Ocean Watch (ENOW) county figures end in 2021 and were built from confidential Bureau of Labor Statistics (BLS) establishment-level data that NOAA can no longer use, so they cannot be reproduced. NOAA's stopgap, <a href="https://coast.noaa.gov/data/digitalcoast/pdf/enow-introducing-open.pdf" rel="noopener">Open ENOW</a> (March 2026), rebuilds the marine economy from public data but publishes only California and the coastal United States, saying county estimates would be much noisier. County Profiles applies Open ENOW's published method to each county. The county figures are therefore <strong>our estimates, not NOAA's</strong>, and are noisier than NOAA's state figures.</p>
-<h3>Sources and definitions</h3>
-<ul>
-<li><strong>Jobs, wages and establishments:</strong> public QCEW annual averages by county and industry (NAICS code) and ownership, from the BLS annual "by area" files. The marine economy is Open ENOW's six sectors and its NAICS codes for each year, including its 4- and 5-digit codes where every industry under the code is in the same sector. Some codes cover products that are not all maritime: marine transportation includes navigation instruments manufacturing (NAICS 334511), which can make up most of a county's marine transportation jobs.</li>
-<li><strong>GDP:</strong> modeled, not reported. A sector's GDP is the county's wages in the industry (all ownerships, public and private) times California's ratio of BEA GDP to QCEW wages for the same industry and year (BEA table SAGDP2, current dollars). For the marine sectors it runs a year behind jobs and wages, because BEA publishes the detailed industries later. Against NOAA's 2023 county figures for the total economy, Education and health matches within about 1% (median county), the other sectors are within roughly 1% to 10%, and Other services is 25% off, most likely because NOAA used an earlier BEA release (not tested). Public administration's GDP is withheld in every county: BEA's government GDP includes schools and hospitals that QCEW counts under other sectors, no ratio we tried reproduces NOAA's, and the total economy GDP figure leaves it out and is marked incomplete. Fishing, seafood and offshore minerals GDP are the least certain marine figures, because BEA has no line that isolates those industries.</li>
-<li><strong>Tourism and recreation:</strong> hotels, restaurants and similar industries count only where they sit in shoreline-adjacent ZIP codes, as in Open ENOW. NOAA does not publish its list of those ZIP codes, so it is derived here: a ZIP code tabulation area within {{ em.shoreMetres if em else 1000 }} metres of the Census coastline or of a tidal water body (bay, estuary or ocean) is shoreline-adjacent, and the county's share of each industry's jobs in those areas comes from Census ZIP Code Business Patterns. That rule fits California as a whole but not each county, so <strong>each county's shoreline share is calibrated to the original ENOW's 2021 county figure</strong>: it is set so that 2021 tourism jobs (and, separately, establishments) equal the original's, and held for every other year (capped at 100%{% if em.clampedCounties.length %}: {{ em.clampedCounties | join(', ') }}{% endif %}). Tourism therefore agrees with the original in 2021 by construction, which is not a measure of accuracy. Where the original's figure is withheld or zero there is nothing to calibrate to, and tourism and recreation is <strong>withheld</strong> in that county ({{ em.noAnchorCounties | join(', ') }}) rather than shown from the ZIP rule alone, which puts tourism where the original has none; the totals it feeds are marked incomplete. Each county's share, how it was set and the ZIP rule's own share are in its JSON download.</li>
-<li><strong>Total economy:</strong> all-industry QCEW county totals in the eleven QCEW supersectors that NOAA's Total Economy series uses (a supersector is published even when its 2-digit parts are withheld), with GDP by the same wages-to-GDP method and self-employed workers from Census Nonemployer Statistics.</li>
-</ul>
-<h3>Withheld values and the imputation ladder</h3>
-<p>Public QCEW withholds a value whenever showing it would identify an employer. Open ENOW fills each withheld value from the best information available, in this order, and so does this page: (1) interpolate between the county's last and next published value for the same industry and ownership; (2) scale the nearest published value by the change in California's value for that industry; (3) scale it by the change in the county's number of establishments; (4) use the average employment per establishment (and wages per job) of the next broader industry in the same county and year; (5) the same for a still broader industry in another year. Establishment counts are always published, so they are never estimated. Two details differ from the wording of Open ENOW's method: values are estimated one ownership row at a time (private, local government and so on), and step 5 also looks at later years and broader industries when it finds nothing earlier. An estimate is never allowed to push the sum of an industry's parts above the published total of the industry that contains them.</p>
-<h3 id="estimated">What "estimated" means</h3>
-<p>A figure is marked <strong>&#8776;</strong> (estimated) when {{ em.thresholdPercent if em else 25 }}% or more of its value comes from imputed values. The mark is a &#8776; sign before the number, a diagonal hatch on a bar segment and a dashed ring on a dot, so it does not depend on colour and survives a greyscale print. A figure with a smaller imputed share is shown without the mark; its snapshot record still states the share and the weakest ladder step used, in the JSON download. The two parent-average steps of the ladder (4 and 5) were much less accurate in our own test (median error about 18% and 27%, against 5% to 8% for steps 1 to 3), so a figure is not shown when {{ em.withholdPercent if em else 25 }}% or more of it was imputed at those two steps: it appears as "withheld", and a total it feeds leaves it out and is marked incomplete. A figure with nothing at all to estimate it from is withheld too.</p>
-<div class="cp-author-slot" data-author-slot="economy-plain-language"><p><strong>[To be written: a plain-language explanation of how reliable the county economy figures are, with the results of the imputation test.]</strong></p></div>
-<h3>Differences from NOAA's published ENOW</h3>
-<p>Open ENOW adds five NAICS codes that the original ENOW did not use (493190 within warehousing, 713110, 721199, 721214 and 722410), and uses 4- and 5-digit codes in place of some 6-digit ones. The county figures also come from public rather than confidential data, so they differ from the original ENOW's 2021 county values. Tourism and recreation is the exception: it is anchored to those 2021 values (above), so for that sector the two agree in 2021 by construction and that agreement is not a measure of accuracy. For the five other marine sectors, which are not fitted to the original, our county figures are higher than the original's in every county (the median county is about a quarter higher), and the difference is as large where little is imputed as where much is. The checks behind these statements are in the project's <a href="https://github.com/petermodracee/ca-sea-change-atlas/blob/main/docs/DECISIONS.md" rel="noopener">decision log</a>.</p>
-<h3 id="intended-use">What these figures are for</h3>
-<p>The county economy figures describe the approximate size and mix of each sector. They are not exact counts. They are built on a different basis from NOAA's original county series, whose county figures add up to less than its own California totals in the five sectors other than tourism (by 6% to 48%, because it withholds cells), so a figure here is not a drop-in replacement for an original one. The imputation test hides cells the source published and re-estimates them, which is a best case: the cells that are actually withheld are the concentrated ones, dominated by one or a few employers, and their estimates are more likely to be far off.</p>
-</section>
-
-<section class="cp-topic" id="land-cover">
-<h2>Land cover</h2>
-<p>The natural-features sections use NOAA's C-CAP regional land cover at 30 metres, the 1996 and 2016 epochs (the newest the regional product offers). Each pixel counts once, by its 2016 class. Wetland is the palustrine and estuarine wetland and aquatic-bed classes; upland is grassland, forest, scrub and shrub; other is developed, cultivated, pasture, bare and shore land. Open water is not counted as land. Development added is developed in 2016 and not in 1996. Inside and outside the floodplain, and inside each sea level rise extent, are pixel counts against the same hazard polygons as every other section.</p>
-</section>
-
-<section class="cp-topic" id="marine-jobs">
-<h2>Marine jobs at risk are not published</h2>
-<p>NOAA's original marine economy snapshot reported how many marine businesses were in the floodplain. County Profiles does not report marine jobs at risk, and there is no substitute. Business locations, which made the original figure possible, are licensed data and cannot be reused, and the open replacement, LEHD LODES job counts, is published by 2-digit industry code, while ENOW's marine sectors are defined at up to 6 digits. No open source isolates marine jobs by location.</p>
 </section>
 
 <section class="cp-topic" id="methodology-changelog">

@@ -23,7 +23,7 @@ Nested under `/county-profiles/`, consistent with how `/map/` and `/compare/` ar
 | `/county-profiles/county/<id>/<topic>/` | Topic deck: a full-width, one-topic-per-page presentation. `<topic>` is `flood-hazard`, `sea-level-rise`, `total-economy` or `marine-economy` |
 | `/county-profiles/county/<id>/<date>/` | Dated landing page, canonical to the current landing page |
 | `/county-profiles/county/<id>/<date>/<topic>/` | Dated topic deck, canonical to the current topic deck |
-| `/county-profiles/about/` | Method: the timing table, gauge assignments, withheld values, why marine jobs at risk are not published, the methodology changelog |
+| `/county-profiles/about/methodology/` | How the figures are computed: the timing table, gauge assignments, Appendix F, the economy method, land cover, then the limits of the figures (withheld values, sectors not shown, why marine jobs at risk are not published) |
 | `/county-profiles/county/<id>/print/` | Full-county print document: the landing summary and every available topic in order. `noindex`, canonical to the landing page, not in the sitemap or the top bar; linked from the landing page as "Print full profile". Current snapshot only |
 
 A topic the county has no data for at all — unavailable per its tier, or simply not built yet — gets no page at all; its tab in the deck's top bar is disabled (not removed), and the landing page states its reason in place. An unknown county, an unknown date or a topic with no page 404s, since nothing generates a route for it. Every dated snapshot has its own landing and topic pages, rendered from the archived JSON (see [Automation and the archive](#automation-and-the-archive)); today there is one.
@@ -94,7 +94,7 @@ Adaptations, and only these:
 - Business sections become jobs sections, with a "jobs, not businesses" line, because business locations are licensed data (LODES job counts replace them). NOAA's measuring sections ("If You Can't Measure It…") carry no prose of their own, matching the live tool.
 - The timing section names the assigned gauge instead of NOAA's "closest gauge to your county", and drops NOAA's sentence about which projection set it uses.
 
-**Marine jobs at risk is not published.** No open source isolates marine jobs by location: LODES is 2-digit NAICS and ENOW's marine sectors go to 6 digits. This is stated on `/county-profiles/about/`.
+**Marine jobs at risk is not published.** No open source isolates marine jobs by location: LODES is 2-digit NAICS and ENOW's marine sectors go to 6 digits. This is stated on `/county-profiles/about/methodology/` (`#marine-jobs`).
 
 ### The callout rule
 

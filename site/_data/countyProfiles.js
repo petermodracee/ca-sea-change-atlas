@@ -268,7 +268,7 @@ module.exports = {
   mapMinFt: MAP_MIN_FT,
   mapMaxFt: MAP_MAX_FT,
   // Appendix F for every gauge the spine uses, three recommended scenarios, every decade, each cell
-  // flagged when it sits outside the heights the map shows. For /county-profiles/about/.
+  // flagged when it sits outside the heights the map shows. For /county-profiles/about/methodology/.
   gaugeTables: Object.entries(spine.gauges).map(([id, g]) => ({
     id,
     name: g.name,

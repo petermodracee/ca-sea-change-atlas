@@ -8,6 +8,7 @@
 {%- set ch = "h2" if fullPrint else "h1" -%}
 {%- set sh = "h3" if fullPrint else "h2" -%}
 {%- set aboutUrl = site.url ~ ('/county-profiles/about/' | url) -%}
+{%- set methodologyUrl = site.url ~ ('/county-profiles/about/methodology/' | url) -%}
 {%- set currentUrl = site.url ~ ((base + topic.slug + '/') | url) -%}
 {%- set printMode = true -%}
 <article class="cpp-topic">
@@ -57,7 +58,7 @@
 {%- endif %}
 </dl>
 {%- if topic.id == "marine-economy" %}
-<p class="cpp-note">This topic omits jobs at risk: no open source isolates marine jobs by location. See <a href="{{ aboutUrl }}#marine-jobs">{{ aboutUrl }}#marine-jobs</a></p>
+<p class="cpp-note">This topic omits jobs at risk: no open source isolates marine jobs by location. See <a href="{{ methodologyUrl }}#marine-jobs">{{ methodologyUrl }}#marine-jobs</a></p>
 {%- endif %}
 <p class="cpp-cite"><b>Recommended citation.</b> California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile: {{ topic.label }}</em>. <a href="{{ permalink }}">{{ permalink }}</a></p>
 <table class="cpp-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Vintage</th><th scope="col">Retrieved</th></tr></thead>

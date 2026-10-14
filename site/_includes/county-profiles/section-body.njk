@@ -46,12 +46,12 @@
 {%- for p in def.prose %}{% if not loop.first %}<p class="cpd-footnote">{{ p }}</p>{% endif %}{% endfor %}
 {%- endif %}
 {%- for n in model.notes %}
-<p class="cpd-footnote">{% if n.text %}{{ n.text }} <a href="{{ ('/county-profiles/about/#' ~ n.anchor) | url }}">{{ n.label }}</a>.{% else %}{{ n }}{% endif %}</p>
+<p class="cpd-footnote">{% if n.text %}{{ n.text }} <a href="{{ ('/county-profiles/about/methodology/#' ~ n.anchor) | url }}">{{ n.label }}</a>.{% else %}{{ n }}{% endif %}</p>
 {%- endfor %}
 {%- for f in model.footnotes %}
 <p class="cpd-footnote">{{ f }}</p>
 {%- endfor %}
 {%- if model.estimated %}
-<p class="cpd-footnote cpd-est-note"><span class="cp-est-mark" aria-hidden="true">≈</span> <strong>Estimated.</strong> Figures marked ≈{% if v and v.type == "stacked100" %} (and hatched segments){% elif v and v.type == "dots" %} (and dashed rings){% endif %} are estimates: {{ model.estimated.thresholdPercent }}% or more of the value was filled in from other values rather than published. The mark is not colour alone. Detail: the JSON <code>est</code> fields and Data, methods and citation. <a href="{{ '/county-profiles/about/#estimated' | url }}">How estimates are made</a>.</p>
+<p class="cpd-footnote cpd-est-note"><span class="cp-est-mark" aria-hidden="true">≈</span> <strong>Estimated.</strong> Figures marked ≈{% if v and v.type == "stacked100" %} (and hatched segments){% elif v and v.type == "dots" %} (and dashed rings){% endif %} are estimates: {{ model.estimated.thresholdPercent }}% or more of the value was filled in from other values rather than published. The mark is not colour alone. Detail: the JSON <code>est</code> fields and Data, methods and citation. <a href="{{ '/county-profiles/about/methodology/#estimated' | url }}">How estimates are made</a>.</p>
 {%- endif %}
 {%- endif %}
