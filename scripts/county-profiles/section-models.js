@@ -67,9 +67,9 @@ const KEY_EXCLUDES = (names) => ({ glyph: MARK_INCOMPLETE, key: "Excludes " + li
 
 // Sector caveats that depend on what is inside a county's figure, keyed by county and sector (the snapshots carry no
 // per-industry rows, so this cannot be derived from them). The mechanism is general and is stated in the About page's
-// sector definitions; the figure is the traced one (docs/DECISIONS.md, "Santa Barbara marine transportation").
+// sector definitions; the figure is the traced one: the 2025 trace of NAICS 334511 (docs/DECISIONS.md, "Santa Barbara marine transportation, 2025 trace").
 const SECTOR_CAVEATS = [
-  { topicId: "marine-economy", county: "Santa Barbara", sector: "Marine transportation", text: "Santa Barbara’s marine transportation is dominated by navigation instruments manufacturing (NAICS 334511). The sector definition includes it, but its products are not all maritime." },
+  { topicId: "marine-economy", county: "Santa Barbara", sector: "Marine transportation", text: "Santa Barbara’s marine transportation is dominated by navigation instruments manufacturing (NAICS 334511, an estimated 700 jobs in 2025). The sector definition includes it, but its products are not all maritime." },
 ];
 const caveatsFor = (topicId, county, sectors) => SECTOR_CAVEATS.filter((c) => c.topicId === topicId && c.county === county && sectors.includes(c.sector)).map((c) => c.text);
 

@@ -1486,6 +1486,17 @@ Word totals of the quoted texts: 526 before, 679 after, over 27 changed strings 
 ### Phase 7 follow-up 6: Santa Barbara note and the Open ENOW source label
 
 - **Santa Barbara marine transportation note.** Removed "about 1,500 jobs in 2021" from the slide note (`SECTOR_CAVEATS` in `section-models.js`) and from the About page's definitions bullet. The slides show 2025 and only the 2021 split was traced, so a reader would take 1,500 as the figure on the page. The note now names the industry and NAICS code and says the sector definition includes it but its products are not all maritime. The 2021 trace stays in the follow-up 2 records above.
+- **Santa Barbara marine transportation, 2025 trace (restores a job count).** The note and the About bullet lost their number in the entry above because only 2021 had been traced, while the slides show 2025. `analysis/trace-sector.js 06083 2025 "Marine Transportation"`, from the pipeline's cached QCEW cells:
+
+| code | ownership | raw QCEW row | result | ladder step | jobs |
+|---|---|---|---|---|---|
+| 334511 | private | withheld, 10 estab | imputed | 2 | 703 |
+| 4883 | local | 1 estab, 84 jobs | published | | 84 |
+| 4883 | private | withheld, 4 estab | imputed | 4 | 43 |
+| 4931 | local | 2 estab, 9 jobs | published | | 9 |
+| 4931 | private | 15 estab, 202 jobs | published | | 202 |
+
+Sector total 1,041 jobs (the figure on the slide), of which 746 (72%) imputed. **NAICS 334511 in 2025 is not published: it is imputed at ladder step 2** (the nearest published year, 2019, at 1,499 jobs, scaled by California's change for the code, 14,161 / 30,203, giving 703). So 703 of the 1,041 jobs (68%) are that one estimated row. The note and the About bullet now say "an estimated 700 jobs in 2025". The 2021 trace (1,514 jobs, 78%) stays in follow-up 2.
 - **Open ENOW source label.** "NOAA Open ENOW (California and coastal U.S.)" is now "NOAA Open ENOW (California and All Coastal States)": Open ENOW's comparator is the coastal portions of 30 states. Changed at its source (`economySources` in `pipeline/economy-topics.js`) and in `docs/COUNTY-PROFILES.md`.
 - **Total Economy label unchanged.** "NOAA Total Economy (Coastal), coastal California and coastal U.S." keeps NOAA's own wording, because the 30-state footprint is verified only for Open ENOW. That footprint stays on the PR's "not verified" list.
 - **Snapshots patched in place.** The label string was replaced by script in the 46 committed snapshot files (23 counties, `latest/` and `2026-09-24/`), not by a regenerate, so nothing was re-fetched and no `retrieved` or `verified` date, figure, state, threshold or provenance field changed. A regenerate would produce the same string. The dated files were edited because nothing is published yet (the pre-publication reset above); `latest/` and the dated copies stay identical in content, and `check-archive.js` against the PR base reports these as edits to files the stack already carries.
