@@ -26,6 +26,8 @@ npm run check:links   # after a build: every internal href/src and #fragment mus
 | Tool list page | `site/compare/index.njk`, `site/js/sources.js` |
 | Tool page and compare page | `site/compare/tool.njk`; `site/compare/side-by-side.njk`, `site/js/compare.js`; layout in `site/data/toolDetailSchema.json`, resolved by `site/js/tool-detail.js` |
 | County profiles tool | `site/county-profiles/`, `site/data/countyProfileSchema.json`, `site/_data/countySpine.json`, `site/_data/opcGaugeProjections.json`, `scripts/county-profiles/`; [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md) |
+| About sections (shared layout and per-tool subpages) | `site/_includes/about-section.njk`, `site/_data/aboutSections.json`, `site/county-profiles/about/`; [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#about-sections) |
+| Issue templates (the County Profiles data-problem form) | `.github/ISSUE_TEMPLATE/`, `scripts/county-profiles/report-link.js`; [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md#reporting-a-problem) |
 | Licenses and credits page | `site/about/licenses.njk` fed by `site/_data/credits.json`; [`docs/LICENSING.md`](docs/LICENSING.md) |
 | Why something is the way it is | [`docs/DECISIONS.md`](docs/DECISIONS.md) |
 | How to contribute, license rules | [`CONTRIBUTING.md`](CONTRIBUTING.md) |
@@ -39,6 +41,7 @@ npm run check:links   # after a build: every internal href/src and #fragment mus
 - Map data is loaded live from publishers' servers, never copied into the repo. The one exception is County Profiles' derived statistics (`site/data/county-profiles/`), which are computed, not copied (`docs/DECISIONS.md`).
 - **`site/data/countyProfileSchema.json` is the source of truth for the County Profiles snapshot shape and reason codes.** Zero, withheld and unavailable are three different states: keep them distinct in data and templates. A County Profiles callout never repeats a figure its section shows (the build enforces it). `site/data/county-profiles/latest/` is pipeline output only; fixtures go in `site/_data/countyProfileFixtures/`.
 - Map layers use `groupPane(map, key)` from `site/js/map/shared/panes.js`; new keys go in `GROUP_PANE_KEYS`.
+- The repository URL comes from `site.repo` in `site/_data/site.js`; never hardcode it in a template or script.
 - Third-party scripts are pinned to a version with an SRI hash.
 - Internal links go through the `url` filter (`pathPrefix` is `/`). Front matter and `site/js/sources.js` can't use filters, so they use relative paths (`../map/`, `tool/<id>/`), never a hardcoded host or prefix. Nested pages (anything under `map/`, `compare/`, `about/`) link with a trailing slash (e.g. `/compare/side-by-side/`), not `.html`, since their permalink is `.../index.html`.
 - Test assumptions about a live map service directly (tile requests, response headers) rather than reasoning from another service; several earlier assumptions were wrong (`docs/DECISIONS.md`).
