@@ -1514,7 +1514,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cp-topic-card.is-available .cp-card-icon{color:var(--teal);}
 a.cp-topic-card.is-available:hover,a.cp-topic-card.is-available:focus-visible{background:var(--paper);box-shadow:0 0 0 2px var(--teal);outline:none;}
 .cp-topic-card.is-unavailable{border-style:dashed;background:transparent;}
-.cp-topic-card.is-unavailable h3,.cp-topic-card.is-unavailable .cp-topic-desc,.cp-topic-card.is-unavailable .cp-card-icon{color:var(--off-text);}
+.cp-topic-card.is-unavailable h3,.cp-topic-card.is-unavailable .cp-card-icon{color:var(--off-text);}
 .cp-topic-card.is-unavailable .cp-topic-reason{color:var(--ink);}
 .cp-topic-gaps{border-top:1px solid var(--line);padding-top:8px;margin-top:6px !important;font-size:13.5px !important;}
 .cp-topic-reason{margin-top:6px !important;}
