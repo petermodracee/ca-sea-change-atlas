@@ -20,7 +20,7 @@
 {%- if t.hasPage %}
 <a href="{{ (base + (profile.snapshot + '/' if dated else '') + t.slug + '/') | url }}"{% if t.id == topic.id %} aria-current="page"{% endif %}>{{ t.label }}</a>
 {%- else %}
-<a href="#" aria-disabled="true" title="{{ t.reasonLabel if not t.available else 'No data snapshot yet' }}">{{ t.label }}</a>
+<span class="cpd-tab-off" aria-disabled="true" title="{{ t.reasonLabel if not t.available else 'No data snapshot yet' }}">{{ t.label }}<span class="sr-only"> (not available for this county)</span></span>
 {%- endif %}
 {%- endfor %}
 </nav>
@@ -55,7 +55,11 @@
 <p class="cpd-eyebrow">In this profile</p>
 <ol class="cpd-contents">
 {%- for s in sections %}
+{%- if s.sec.available %}
 <li><a href="#s-{{ s.def.id }}">{{ s.def.title }} <span>{{ "0" if loop.index < 10 }}{{ loop.index }}</span></a></li>
+{%- else %}
+<li class="cpd-contents-off"><span aria-disabled="true">{{ s.def.title }}<span class="sr-only"> (not available for this county)</span> <span>{{ "0" if loop.index < 10 }}{{ loop.index }}</span></span></li>
+{%- endif %}
 {%- endfor %}
 <li><a href="#s-about">About this data <span>{{ "0" if (sections.length + 1) < 10 }}{{ sections.length + 1 }}</span></a></li>
 </ol>
