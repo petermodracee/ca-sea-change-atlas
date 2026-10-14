@@ -31,7 +31,7 @@ extraScripts:
 <input id="cp-combo-input" class="cp-combo-input" type="text" role="combobox" aria-labelledby="cp-picker-title" aria-expanded="false" aria-controls="cp-combo-list" aria-autocomplete="list" aria-activedescendant="" autocomplete="off" spellcheck="false" placeholder="Search {{ cp.counties | length }} counties">
 <ul id="cp-combo-list" class="cp-combo-list" role="listbox" aria-labelledby="cp-picker-title" hidden>
 {%- for c in cp.counties %}
-<li id="cp-opt-{{ c.slug }}" role="option" aria-selected="false" data-name="{{ c.name | lower }}" data-href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}"><span class="cp-opt-name">{{ c.name }}</span>{% if c.coverageNote %} <span class="cp-opt-note">{{ c.coverageNote }}</span>{% for s in c.coverageSummaries %}<span class="cp-opt-why">{{ s }}</span>{% endfor %}{% endif %}</li>
+<li id="cp-opt-{{ c.slug }}" role="option" aria-selected="false" data-name="{{ c.name | lower }}" data-href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}"><span class="cp-opt-name">{{ c.name }}</span>{% if c.coverageNote %} <span class="cp-opt-note">{{ c.coverageNote }}</span>{% endif %}</li>
 {%- endfor %}
 </ul>
 <p class="sr-only" role="status" aria-live="polite" id="cp-combo-status"></p>
