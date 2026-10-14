@@ -1,0 +1,17 @@
+{#- The county switcher: a <select> of the counties and a Go button. Current pages only (a dated page
+    keeps its "Current profile" link: another county may have no snapshot of that date). Expects
+    `county` and `switcherTopic` (the topic slug on a deck, "" on the chooser). The form is `hidden`
+    until js/county-switcher.js runs, so without JavaScript only the "All county profiles" link remains.
+    The county-to-topics availability map is built here at build time and embedded, so nothing is
+    fetched. Changing the selection does nothing by itself; Enter or Go commits it. -#}
+{%- set switcherId = "cp-switch-" + ("topic" if switcherTopic else "county") %}
+<form class="cp-switcher" data-cp-switcher data-topic="{{ switcherTopic }}" data-base="{{ '/county-profiles/county/' | url }}" hidden>
+<label for="{{ switcherId }}">County</label>
+<select id="{{ switcherId }}">
+{%- for c in countyProfiles.switcher %}
+<option value="{{ c.slug }}"{% if c.slug == county.slug %} selected{% endif %}>{{ c.name }}</option>
+{%- endfor %}
+</select>
+<button class="cpd-btn" type="submit">Go</button>
+</form>
+<script type="application/json" id="cp-switch-data">{{ countyProfiles.switcher | jsonify | safe }}</script>

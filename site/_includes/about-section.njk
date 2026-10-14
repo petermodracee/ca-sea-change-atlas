@@ -1,0 +1,57 @@
+---
+layout: base.njk
+extraScripts:
+  - /js/toc.js
+---
+{#- The shared layout of a tool's About section: a hero, a sidebar listing the tool's About subpages
+    and an "On this page" list, and the page body. A page opts in through front matter (a directory
+    data file can carry the shared keys, as site/county-profiles/about/about.json does):
+      aboutSection  the tool's key in _data/aboutSections.json
+      aboutKind     overview | methodology | data | changelog (the fixed order, set by aboutSections.kinds)
+      aboutWide     true for a page with wide tables: the body fills the width
+      heading       the hero's title; the overview defaults to "About <tool>"
+      lede          the hero's one line
+    The subpage list is the `aboutPages` collection (see .eleventy.js) filtered to this tool, so a tool
+    adds a subpage by adding one file. Works for .njk and .md pages alike: it only wraps `content`. -#}
+{%- set tool = aboutSections.tools[aboutSection] %}
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<p class="hero-nav"><a href="{{ tool.home | url }}">{{ tool.homeLabel }}</a>
+{%- for p in collections.aboutPages %}{% if p.data.aboutSection == aboutSection and p.data.aboutKind == "overview" and aboutKind != "overview" %} · <a href="{{ p.url | url }}">About {{ tool.name }}</a>{% endif %}{% endfor %}</p>
+<h1>{{ heading or ("About " + tool.name) }}</h1>
+{%- if lede %}
+<p class="lede">{{ lede }}</p>
+{%- endif %}
+</div>
+</div>
+
+<div class="main">
+<div class="wrap page-toc {{ tool.cssClass }}{% if aboutWide %} about-wide{% endif %}">
+<aside class="about-side">
+<nav class="about-subnav" aria-label="About {{ tool.name }}">
+<ul>
+{%- for p in collections.aboutPages %}{% if p.data.aboutSection == aboutSection %}
+<li><a href="{{ p.url | url }}"{% if p.url == page.url %} aria-current="page"{% endif %}>{{ aboutSections.labels[p.data.aboutKind] }}</a></li>
+{%- endif %}{% endfor %}
+</ul>
+</nav>
+{% include "toc.njk" %}
+</aside>
+<div class="about-body" data-toc-source>
+{{ content | safe }}
+{%- if aboutKind == "overview" %}
+<ul class="about-subpages">
+{%- for p in collections.aboutPages %}{% if p.data.aboutSection == aboutSection and p.data.aboutKind != "overview" %}
+<li><a href="{{ p.url | url }}">{{ aboutSections.labels[p.data.aboutKind] }}</a>{% if p.data.description %}: {{ p.data.description }}{% endif %}</li>
+{%- endif %}{% endfor %}
+</ul>
+{%- endif %}
+</div>
+</div>
+</div>

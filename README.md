@@ -10,11 +10,13 @@ Live site: <https://seachangeatlas.org/>
 
 **Comparison tool** (`/compare/`): a filterable grid of sea-level-rise and coastal-flooding tools, with a side-by-side compare page (`/compare/side-by-side/`) for up to three tools covering scope, processes, exposure, data, and limitations. Each tool also has its own page at `/compare/tool/<id>/`. It includes tools that can't legally be drawn on the map.
 
-**County Profiles** (`/county-profiles/`, in progress): rebuilds NOAA's discontinued Coastal County Snapshots for California — flood, sea-level-rise, and economic exposure at the county level. See [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md).
+**County Profiles** (`/county-profiles/`): rebuilds NOAA's discontinued Coastal County Snapshots for California. A search picker leads to a chooser for each of 27 counties with four topics (flood hazard, sea level rise, total economy, marine economy), each a deck of figures with its sources and year, in dated snapshots that can be cited. See [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md).
 
 ## Status
 
-Under active development. All planned map layers have been implemented; which tools are on the map, and which are comparison-only and why, is defined in [`site/data/tools.json`](site/data/tools.json) and shown on the comparison page. The next phase is focused on the county-profiles tool and human verification of the comparison data.
+Under active development. All planned map layers have been implemented; which tools are on the map, and which are comparison-only and why, is defined in [`site/data/tools.json`](site/data/tools.json) and shown on the comparison page. County Profiles is built ([`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md) has the status and the details); the next work is the site restructure and human verification of the comparison data.
+
+A problem with a County Profiles figure goes to the "Report a data problem" issue form (every County Profiles page links to it, pre-filled); questions and ideas go to [Discussions](https://github.com/petermodracee/ca-sea-change-atlas/discussions).
 
 ## Run it locally
 

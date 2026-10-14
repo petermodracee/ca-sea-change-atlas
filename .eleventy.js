@@ -1,14 +1,35 @@
 const fs = require("fs");
 
 module.exports = async function (eleventyConfig) {
-  eleventyConfig.setTemplateFormats(["njk"]);
+  eleventyConfig.setTemplateFormats(["njk", "md"]);
+  eleventyConfig.ignores.add("site/data/**/*.md"); // READMEs next to the data, not pages
+
+  // A tool's About subpages: every page with `aboutSection` and `aboutKind` front matter, in the fixed
+  // order of _data/aboutSections.json "kinds" (overview, methodology, data, changelog). The layout
+  // _includes/about-section.njk filters this by tool, so a new subpage is one new file.
+  const aboutKinds = require("./site/_data/aboutSections.json").kinds;
+  eleventyConfig.addCollection("aboutPages", (api) => {
+    const pages = api.getAll().filter((p) => p.data.aboutSection && p.data.aboutKind);
+    for (const p of pages) if (!aboutKinds.includes(p.data.aboutKind)) throw new Error(p.inputPath + ": aboutKind '" + p.data.aboutKind + "' is not one of " + aboutKinds.join(", "));
+    return pages.sort((a, b) => aboutKinds.indexOf(a.data.aboutKind) - aboutKinds.indexOf(b.data.aboutKind));
+  });
 
   eleventyConfig.addFilter("jsonify", (obj) => JSON.stringify(obj));
+  // A hero subtitle that still starts with "PETER:" is a placeholder for the author to replace. It renders,
+  // and this warns (once per page) rather than failing the build, so it cannot be published silently.
+  const warnedPlaceholders = new Set();
+  eleventyConfig.addFilter("placeholderWarn", (text, inputPath) => {
+    if (/^\s*PETER:/.test(text) && !warnedPlaceholders.has(inputPath)) {
+      warnedPlaceholders.add(inputPath);
+      console.warn("[placeholder] " + inputPath + ": the hero subtitle still starts with PETER: and needs real text");
+    }
+    return text;
+  });
   eleventyConfig.addFilter("toolSections", require("./site/js/tool-detail.js").toolSections);
 
   // County Profiles chart maths (d3-scale/d3-array are ESM-only, hence the dynamic import).
   const helpers = await import("./scripts/county-profiles/template-helpers.mjs");
-  for (const name of ["ring", "num", "apaDate", "barChart", "stackedBars", "stackedByIncrement", "stacked100Bars", "groupedColumns", "dotPlot", "slrCurves", "horizonColumns"]) eleventyConfig.addFilter(name, helpers[name]);
+  for (const name of ["ring", "num", "apaDate", "longDate", "barChart", "stackedBars", "stackedByIncrement", "stacked100Bars", "groupedColumns", "dotPlot", "slrCurves", "horizonColumns"]) eleventyConfig.addFilter(name, helpers[name]);
   eleventyConfig.addWatchTarget("site/data/county-profiles/");
   eleventyConfig.addWatchTarget("site/data/countyProfileSchema.json");
 
@@ -23,6 +44,9 @@ module.exports = async function (eleventyConfig) {
   // "View on map" links: generated from one table, then checked against the map's real controls after the build.
   const { mapLink, checkMapLinks } = require("./scripts/county-profiles/map-links.js");
   eleventyConfig.addFilter("mapLink", mapLink);
+  eleventyConfig.addFilter("reportUrl", require("./scripts/county-profiles/report-link.js").reportUrl);
+  eleventyConfig.addFilter("topicMapLink", require("./scripts/county-profiles/map-links.js").topicMapLink);
+  eleventyConfig.addFilter("compareLink", require("./scripts/county-profiles/tool-links.js").compareLink);
   const { VALUE_CONTROL_IDS } = await import(require("url").pathToFileURL(require("path").resolve("site/js/map/permalink.js")).href);
   const spineFips = require("./site/_data/countySpine.json").counties.map((c) => c.fips);
   eleventyConfig.on("eleventy.after", ({ results }) => checkMapLinks({

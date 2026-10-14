@@ -3,24 +3,28 @@
     `placeholders` and `dated` (boolean) from the pagination context. -#}
 {% from "county-profiles/blocks-deck.njk" import gap, sources, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves %}
 {% from "county-profiles/share-ring.njk" import shareRing %}
+{%- from "county-profiles/card-icon.njk" import cardIcon %}
+{%- from "county-profiles/citation.njk" import citation, citationUrl with context %}
 {%- set profile = county.profile %}
 {%- set reasons = countyProfiles.reasonsById %}
 {%- set base = "/county-profiles/county/" + county.slug + "/" %}
 {%- set datedBase = base + profile.snapshot + "/" %}
-{%- set permalink = site.url + datedBase + topic.slug + "/" %}
+{%- set permalink = citationUrl(county, topic, profile.snapshot) %}
 {%- set landingPermalink = site.url + datedBase %}
 {%- set printMode = false %}
 
 <header class="cpd-topbar">
 <a class="cpd-brand" href="{{ '/index.html' | url }}"><img src="{{ '/img/casca-logo.svg' | url }}" alt="" width="30" height="30"><span class="cpd-brand-name">{{ site.name }}</span></a>
 <div class="cpd-divider" aria-hidden="true"></div>
-<div class="cpd-crumb"><small><a href="{{ '/county-profiles/' | url }}">County Profiles</a></small><strong>{{ county.name }} County</strong></div>
+<div class="cpd-crumb"><small><a href="{{ '/county-profiles/' | url }}">County Profiles</a></small>
+{%- if not dated %}{% set switcherTopic = topic.slug %}{% include "county-profiles/county-switcher.njk" %}{% endif %}
+<strong data-cp-switcher-fallback>{{ county.name }} County</strong></div>
 <nav class="cpd-topics" aria-label="Topics for {{ county.name }} County">
 {%- for t in county.coverage %}
 {%- if t.hasPage %}
 <a href="{{ (base + (profile.snapshot + '/' if dated else '') + t.slug + '/') | url }}"{% if t.id == topic.id %} aria-current="page"{% endif %}>{{ t.label }}</a>
 {%- else %}
-<a href="#" aria-disabled="true" title="{{ t.reasonLabel if not t.available else 'No data snapshot yet' }}">{{ t.label }}</a>
+<span class="cpd-tab-off" aria-disabled="true" title="{{ t.reasonLabel if not t.available else 'No data snapshot yet' }}">{{ t.label }}<span class="sr-only"> (not available for this county)</span></span>
 {%- endif %}
 {%- endfor %}
 </nav>
@@ -55,9 +59,14 @@
 <p class="cpd-eyebrow">In this profile</p>
 <ol class="cpd-contents">
 {%- for s in sections %}
+{%- if s.sec.available %}
 <li><a href="#s-{{ s.def.id }}">{{ s.def.title }} <span>{{ "0" if loop.index < 10 }}{{ loop.index }}</span></a></li>
+{%- else %}
+<li class="cpd-contents-off"><span aria-disabled="true">{{ s.def.title }}<span class="sr-only"> (not available for this county)</span> <span>{{ "0" if loop.index < 10 }}{{ loop.index }}</span></span></li>
+{%- endif %}
 {%- endfor %}
-<li><a href="#s-about">About this data <span>{{ "0" if (sections.length + 1) < 10 }}{{ sections.length + 1 }}</span></a></li>
+<li><a href="#s-digging-deeper">{{ countyProfiles.diggingDeeper.heading }} <span>{{ "0" if (sections.length + 1) < 10 }}{{ sections.length + 1 }}</span></a></li>
+<li><a href="#s-about">About this data <span>{{ "0" if (sections.length + 2) < 10 }}{{ sections.length + 2 }}</span></a></li>
 </ol>
 </div>
 </div>
@@ -82,10 +91,40 @@
 <div class="cpd-panel-body">
 {% include "county-profiles/section-body.njk" %}
 </div>
-{{ sources(sec.sources, county.sources) }}
+{{ sources(sec.sources, county.sources, false, ({ href: ('/county-profiles/about/methodology/' | url) + '#jobs-not-businesses', label: 'Jobs, not businesses' } if (def.id == 'jobs-at-risk' and topic.id != 'total-economy') else none)) }}
 </div>
 </section>
 {%- endfor %}
+
+{#- Digging Deeper: generated links into the atlas's other tools; the words are in countyProfileDiggingDeeper.json. Screen only (never in print). -#}
+{%- set dd = countyProfiles.diggingDeeper %}
+{%- set ddMap = topic.id | topicMapLink(county.fips) %}
+{%- set ddCompare = county.fips | compareLink %}
+<section class="cpd-slide cpd-digging" id="s-digging-deeper" data-label="{{ dd.heading }}">
+<div class="cpd-left">
+<h2>{{ dd.heading }}</h2>
+<p class="cpd-prose">{{ dd.lede | replace("{county}", county.name) | replace("{topic}", topic.label | lower) }}</p>
+</div>
+<div class="cpd-panel">
+<div class="cpd-panel-body">
+<div class="cp-topic-cards cpd-digging-cards">
+<a class="cp-topic-card is-available" href="{{ ddMap.href | url }}" target="_blank" rel="noopener">
+{{ cardIcon(dd.icons.map, true) }}
+<h3>{{ dd.map.title | replace("{county}", county.name) }}</h3>
+<p>{% if ddMap.layers %}{{ dd.map.lineWithLayers | replace("{layers}", dd.map.layers[topic.id]) }}{% else %}{{ dd.map.line }}{% endif %}</p>
+{%- if dated %}
+<p class="cp-topic-gaps">{{ dd.map.datedNote }}</p>
+{%- endif %}
+</a>
+<a class="cp-topic-card is-available" href="{{ ddCompare.href | url }}">
+{{ cardIcon(dd.icons.compare, true) }}
+<h3>{{ dd.compare.title }}</h3>
+<p>{{ dd.compare.line }}</p>
+</a>
+</div>
+</div>
+</div>
+</section>
 
 <section class="cpd-slide" id="s-about" data-label="About this data">
 <div class="cpd-left">
@@ -93,21 +132,22 @@
 <h2>Data, methods and citation</h2>
 <dl class="cpd-facts">
 <dt>Snapshot</dt><dd>{{ profile.snapshot }} · <a href="{{ (base | url) }}#earlier-snapshots">all snapshots</a></dd>
-<dt>Methodology</dt><dd>Version {{ profile.method }} · <a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">what changed</a></dd>
+<dt>Methodology</dt><dd>Version {{ profile.method }} · <a href="{{ '/county-profiles/about/changelog/' | url }}">what changed</a></dd>
 {%- if topic.id == "slr" and county.gaugeName %}
 <dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix F)</dd>
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
 {%- endif %}
 </dl>
+<p class="cpd-note cpd-report"><a href="{{ { county: county.name, topic: topic.label, snapshot: profile.snapshot, method: profile.method, page: site.url ~ page.url } | reportUrl }}" target="_blank" rel="noopener">Report a problem with these figures</a></p>
 {%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
-<p class="cpd-note">Some figures are estimated with NOAA's Open ENOW method, and some are withheld. <a href="{{ '/county-profiles/about/' | url }}#estimated">How estimates are made</a> · <a href="{{ '/county-profiles/about/' | url }}#withheld-reasons">Why figures are withheld</a></p>
+<p class="cpd-note">Some figures are estimated with NOAA's Open ENOW method, and some are withheld. <a href="{{ '/county-profiles/about/methodology/' | url }}#estimated">How estimates are made</a> · <a href="{{ '/county-profiles/about/methodology/' | url }}#withheld-reasons">Why figures are withheld</a></p>
 {%- endif %}
 </div>
 <div class="cpd-panel">
 <div class="cpd-panel-body">
 <div class="cpd-citebox">
 <p class="cpd-eyebrow">Recommended citation</p>
-<p class="cpd-cite" id="cpd-cite">California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile: {{ topic.label }}</em>. <a href="{{ permalink }}">{{ permalink }}</a></p>
+<p class="cpd-cite" id="cpd-cite">{{ citation(county, topic, profile.snapshot) }}</p>
 <button class="cpd-btn" type="button" id="cpd-copy">Copy citation</button>
 </div>
 <div class="cpd-tview" style="max-height:none">
@@ -121,7 +161,7 @@
 </table>
 </div>
 </div>
-{%- set footerAttribution %}<a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
+{%- set footerAttribution %}<a href="{{ '/county-profiles/about/changelog/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/data/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
 {% include "footer.njk" %}
 </div>
 </section>

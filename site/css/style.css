@@ -1,4 +1,5 @@
 :root{
+  color-scheme:light; /* native controls (option lists, scrollbars, autofill) draw to match the theme */
   --ink:#122430;
   --navy:#1B3A4B;
   --navy-2:#234B5F;
@@ -17,6 +18,7 @@
   --rust-text:#7C331D;
 }
 [data-theme="dark"]{
+  color-scheme:dark;
   --paper:#0F1D26;
   --paper-2:#152833;
   --line:#2C4552;
@@ -30,6 +32,7 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
+    color-scheme:dark;
     --paper:#0F1D26;
     --paper-2:#152833;
     --line:#2C4552;
@@ -42,6 +45,8 @@
     --rust-text:#E8896A;
   }
 }
+/* A native option list can ignore color-scheme, so the options carry the theme's own colors. */
+select option,select optgroup{background-color:var(--paper);color:var(--ink);}
 *{box-sizing:border-box;}
 body{
   margin:0;
@@ -493,6 +498,22 @@ legend{
   .toc.toc-ready{position:sticky;top:16px;align-self:start;margin:0;padding:0;border-bottom:0;}
 }
 
+/* ---------- an About section's sidebar (_includes/about-section.njk) ---------- */
+.about-side{align-self:start;}
+.about-subnav ul{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:4px 18px;}
+.about-subnav a{display:block;padding:4px 0;color:var(--ink-soft);text-decoration:none;border-bottom:2px solid transparent;}
+.about-subnav a:hover{color:var(--teal-text);}
+.about-subnav a[aria-current="page"]{border-bottom-color:var(--teal);color:var(--teal-text);font-weight:600;}
+@media (min-width:900px){
+  .about-side{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;}
+  .about-subnav ul{display:block;margin-bottom:20px;}
+  .about-subnav a{padding:5px 0 5px 10px;border-bottom:0;border-left:2px solid var(--line);}
+  .about-subnav a[aria-current="page"]{border-left-color:var(--teal);}
+  .about-side .toc.toc-ready{position:static;}
+  .page-toc.about-wide{grid-template-columns:220px minmax(0,1fr);}
+  .about-wide .about-body{max-width:none;}
+}
+
 /* ---------- licenses page ---------- */
 .about-body h2[id]{scroll-margin-top:16px;}
 .license-list{list-style:none;margin:0 0 8px;padding:0;}
@@ -652,6 +673,12 @@ legend{
 .cp code{font-size:.9em;}
 .cp-note{max-width:72ch;font-size:14.5px;color:var(--ink-soft);}
 .cp-topic{margin:0 0 44px;scroll-margin-top:16px;}
+.cp-topic .cp-topic{margin-bottom:24px;}
+.cp-draft{border:1px dashed var(--ink-soft);border-radius:4px;padding:10px 14px;margin:0 0 18px;font-size:14.5px;}
+.cp-draft p{margin:0;}
+.about-subpages{list-style:none;margin:22px 0 0;padding:0;}
+.about-subpages li{padding:10px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink-soft);}
+.about-subpages a{font-weight:600;}
 .cp-tier-badge{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.02em;border:1px solid rgba(243,239,224,.5);border-radius:4px;padding:2px 8px;margin-right:6px;color:#FBF8F1;}
 .cp-asof{margin:18px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;color:#FBF8F1;}
 .cp-asof-label{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#E9D9AE;}
@@ -842,7 +869,7 @@ legend{
 
 @media print{
   /* Print is always light , whatever the screen theme, so ring and text colours stay legible on paper. */
-  .cp{--paper:#fff;--paper-2:#fff;--ink:#000;--ink-soft:#333;--line:#bbb;--teal:#134F45;--teal-text:#134F45;--rust:#7C331D;--rust-text:#7C331D;}
+  .cp{--paper:#fff;--paper-2:#fff;--ink:#000;--ink-soft:#333;--line:#bbb;--teal:#134F45;--teal-text:#134F45;--rust:#7C331D;--rust-text:#7C331D;--off-text:#555;}
   .cp .share,.cp .cp-section,.cp .cp-gap{break-inside:avoid;}
   .cp-toc,.no-print{display:none !important;}
   /* Mark fills used to be hard-coded here (e.g. .cp-bar-natural-1 as rust) while the legend swatches
@@ -917,10 +944,10 @@ body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
 .cpd-crumb small a:hover{color:var(--ink);text-decoration:underline;}
 .cpd-crumb strong{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:19px;color:var(--ink);}
 .cpd-topics{display:flex;gap:4px;flex-wrap:nowrap;overflow-x:auto;min-width:0;}
-.cpd-topics a{font-size:14px;text-decoration:none;color:var(--ink-soft);padding:7px 12px;border-radius:4px;white-space:nowrap;}
+.cpd-topics a{font-size:14px;text-decoration:none;color:var(--ink-soft);padding:7px 10px;border-radius:4px;white-space:nowrap;}
 .cpd-topics a:hover{color:var(--ink);background:var(--paper-2);}
 .cpd-topics a[aria-current="page"]{color:var(--ink);background:var(--paper-2);font-weight:600;}
-.cpd-topics a[aria-disabled="true"]{color:var(--line);pointer-events:none;}
+.cpd-topics .cpd-tab-off{font-size:14px;color:var(--ink-soft);opacity:.55;padding:7px 10px;white-space:nowrap;cursor:not-allowed;}
 .cpd-bar-right{margin-left:auto;display:flex;align-items:center;gap:14px;white-space:nowrap;font-size:13px;color:var(--ink-soft);}
 .cpd-bar-right b{color:var(--ink);font-weight:600;}
 .cpd-tag{background:var(--sand-deep);color:var(--ink);font-size:11.5px;padding:3px 8px;border-radius:3px;letter-spacing:.02em;}
@@ -931,7 +958,11 @@ body.cpd-page .site-header,body.cpd-page .site-footer{display:none;}
 a.cpd-btn{display:inline-block;text-decoration:none;}
 .cpd-maplink{margin:0;}
 .cpd-maplink-note{margin:4px 0 0;font-size:12.5px;line-height:1.35;color:var(--ink-soft);}
-@media print{.cpd-maplink,.cpd-maplink-note{display:none !important;}}
+@media print{.cpd-maplink,.cpd-maplink-note,.cpd-digging{display:none !important;}}
+.cpd-digging .cpd-digging-cards{grid-template-columns:repeat(2,minmax(0,1fr));margin:0;}
+.cpd-digging .cp-topic-card.is-available{background:var(--paper);}
+.cpd-digging .cp-topic-card h3{font-size:19px;}
+@media (max-width:600px){.cpd-digging .cpd-digging-cards{grid-template-columns:1fr;}}
 
 .cpd-deck{position:fixed;top:58px;bottom:0;left:0;right:0;overflow-y:auto;scroll-behavior:smooth;}
 @media (prefers-reduced-motion:reduce){.cpd-deck{scroll-behavior:auto;}}
@@ -1063,6 +1094,8 @@ svg [hidden]{display:none;}
 .cpd-contents{list-style:none;margin:0;padding:0;display:grid;gap:2px;max-width:560px;}
 .cpd-contents a{display:flex;justify-content:space-between;gap:16px;padding:15px 4px;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);font-size:19px;}
 .cpd-contents a span{color:var(--ink-soft);font-size:15px;}
+.cpd-contents-off > span{display:flex;justify-content:space-between;gap:16px;padding:15px 4px;border-bottom:1px solid var(--line);color:var(--ink-soft);opacity:.6;font-size:19px;cursor:not-allowed;}
+.cpd-contents-off > span > span:last-child{font-size:15px;}
 .cpd-contents a:hover{color:var(--teal-text);}
 
 /* figure header: title + chart/table switch */
@@ -1263,6 +1296,14 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
   .cpd-deck{position:static;top:auto;}
   body.cpd-page{height:auto;overflow:visible;}
 }
+/* Between the stacked narrow header (900px and under) and the full one, the tabs share what room is
+   left and wrap onto two lines rather than being cut off mid-word. */
+@media (min-width:901px) and (max-width:1100px){
+  .cpd-brand-name{display:none;}
+  .cpd-topics{overflow-x:visible;flex:0 1 auto;}
+  .cpd-topics a,.cpd-topics .cpd-tab-off{white-space:normal;text-align:center;line-height:1.15;padding:5px 8px;}
+  .cpd-bar-right .cpd-asof{display:none;}
+}
 @media (max-width:900px){
   /* Keep the topic tabs reachable (scrollable) rather than hiding them: wrap the bar to a second
      row instead. */
@@ -1293,7 +1334,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 
 /* ================================================================================
    County Profiles print layout. Every page carries a `.cpp` block rendered at build time from the
-   same sections as the deck (print-topic.njk / print-landing.njk). `.print-only` hides it on screen;
+   same sections as the deck (print-topic.njk). `.print-only` hides it on screen;
    @media print hides the deck and all chrome and shows it, so Ctrl+P, File > Print and the Print
    button print the same thing with no JavaScript. The full-profile page (/print/) shows the same
    block on screen as a paper preview. Print is always light.
@@ -1315,12 +1356,16 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp h1{font-size:26pt;line-height:1.1;} .cpp h2{font-size:16pt;margin:0 0 6pt;} .cpp h3{font-size:12.5pt;margin:0 0 4pt;}
 .cpp-eyebrow{font-size:8.5pt;letter-spacing:.08em;text-transform:uppercase;color:#333;margin:0 0 4pt;}
 .cpp-intro,.cpp-prose{margin:6pt 0;font-size:10.5pt;}
-.cpp-meta,.cpp-note,.cpp-lede,.cpp-asof{margin:5pt 0;font-size:9.5pt;color:#333;}
-.cpp-lede{font-size:11pt;color:#000;}
-.cpp-tier{border:1px solid #000;border-radius:3px;padding:1px 6px;font-weight:600;font-size:9pt;}
-.cpp-asof-label{text-transform:uppercase;letter-spacing:.06em;font-size:8.5pt;}
-.cpp-asof b{font-family:'Spectral',Georgia,serif;font-size:15pt;}
-.cpp-asof-meta{margin-left:10pt;}
+.cpp-meta,.cpp-note,.cpp-asof{margin:5pt 0;font-size:9.5pt;color:#333;}
+/* The full profile opens with a compact title block, then the first topic follows on the same page. */
+.cpp-titleblock{margin:0 0 10pt;padding-bottom:6pt;border-bottom:1.5px solid #000;}
+.cpp-titleblock h1{font-size:22pt;}
+.cpp-titleblock .cpp-asof{font-size:10pt;color:#000;margin:3pt 0 0;}
+.cpp-unavail{margin:10pt 0;padding:8pt 10pt;border:1px dashed #666;break-inside:avoid;}
+.cpp-unavail h2{font-size:13pt;margin:0 0 3pt;}
+.cpp-unavail p{margin:0;font-size:10pt;}
+.cpp-citeblock{margin:14pt 0 0;padding-top:8pt;border-top:1.5px solid #000;break-inside:avoid;}
+.cpp-citeblock h2{font-size:13pt;margin:0 0 4pt;}
 .cpp-notice{border:1.5px solid #000;padding:6pt 9pt;margin:8pt 0;font-size:9.5pt;}
 .cpp-cover{margin:0 0 12pt;padding-bottom:8pt;border-bottom:1.5px solid #000;}
 .cpp-section{padding:10pt 0;border-bottom:1px solid #bbb;}
@@ -1329,12 +1374,6 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp-cite{font-size:9.5pt;margin:8pt 0;overflow-wrap:anywhere;}
 .cpp-facts{display:grid;grid-template-columns:auto 1fr;gap:2pt 12pt;font-size:9.5pt;margin:6pt 0;}
 .cpp-facts dt{font-weight:600;} .cpp-facts dd{margin:0;}
-.cpp-topics{display:grid;grid-template-columns:1fr 1fr;gap:10pt;margin:8pt 0;}
-.cpp-topic-card{border:1px solid #888;border-radius:4px;padding:8pt 10pt;break-inside:avoid;}
-.cpp-fig{font-family:'Spectral',Georgia,serif;font-size:22pt;font-weight:600;margin:2pt 0 0;color:#134F45;}
-.cpp-cap{font-size:9.5pt;margin:0 0 4pt;}
-.cpp-gaps{margin:4pt 0 0;padding-left:14pt;font-size:9pt;}
-.cpp-code{font-size:8.5pt;}
 .cpp-srctable{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6pt;}
 .cpp-srctable th,.cpp-srctable td{text-align:left;padding:2pt 5pt;border-bottom:1px solid #ccc;vertical-align:top;font-weight:400;}
 .cpp-srctable thead th{font-weight:600;border-bottom:1.5px solid #000;}
@@ -1434,8 +1473,24 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 @page{size:letter;margin:0;}
 @media print{
   html,body,body.cpd-page,body.cp-landing{height:auto;overflow:visible;display:block;background:#fff;color:#000;}
-  .cpd-topbar,.cpd-dots,.cpd-deck,.cpd-tooltip,.site-header,.site-footer,.hero,.main,.no-print{display:none !important;}
+  .cpd-topbar,.cpd-dots,.cpd-deck,.cpd-tooltip,.site-header,.site-footer,.no-print{display:none !important;}
+  body:not(.cp-landing) .hero,body:not(.cp-landing) .main{display:none !important;}
   .print-only{display:block;}
+  /* The county chooser prints as it looks on screen: the county name, the as-of line, the four cards, the
+     citation and one line pointing at the full-profile print. The switcher, links and the download and
+     snapshot rows stay off the paper. */
+  body.cp-landing .hero{background:none;color:#000;padding:0 0 6pt;border-bottom:1.5px solid #000;margin-bottom:10pt;}
+  body.cp-landing .hero svg,body.cp-landing .hero-nav,.cp-toolbar-actions,.cp-switcher{display:none !important;}
+  body.cp-landing .hero h1{color:#000;font-size:22pt;margin:0;}
+  body.cp-landing .main{display:block;}
+  .cp-toolbar{margin:0 0 10pt;} .cp-toolbar-asof{color:#000;font-size:10pt;}
+  .cp-topic-cards{grid-template-columns:1fr 1fr;gap:10pt;}
+  .cp-topic-card{break-inside:avoid;border:1px solid #888;background:none;padding:8pt 10pt;color:#000;}
+  .cp-topic-card.is-unavailable{border-style:dashed;}
+  .cp-topic-card h3{font-size:13pt;}
+  .cp-topic-card p{font-size:9.5pt;}
+  .cp-chooser-meta{margin-top:10pt;} .cp-meta-list{font-size:9.5pt;}
+  .cp-print-line{margin:10pt 0 0;font-size:9.5pt;overflow-wrap:anywhere;}
   .cpp{margin:0;padding:0;box-shadow:none;max-width:none;}
   /* Zero page margin; the fixed header/footer sit in it and the table-group spacers reserve the same
      height on every printed page (padding would only reserve it on the first). */
@@ -1448,6 +1503,81 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
   .cpp-head-name{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:11pt;}
   .cpp-foot{bottom:.35in;flex-direction:column;gap:1pt;border-top:1px solid #000;padding-top:3pt;}
   .cpp-foot-vintage{font-size:8.5pt;} .cpp-foot-cite{overflow-wrap:anywhere;}
-  .cpp-doc .cpp-topic,.cpp-cover-page ~ .cpp-topic{break-before:page;}
+  .cpp-doc .cpp-topic{break-before:page;}
+  .cpp-doc .cpp-titleblock + .cpp-topic{break-before:auto;}
   .cpp-section,.cpp-figure,.cpp .share,.cpp .cpd-gap,.cpp-about{break-inside:avoid;}
+}
+
+/* ---------- county picker (county-profiles/index.njk, js/county-picker.js) ---------- */
+.cp-county-list{list-style:none;margin:0 0 16px;padding:0;columns:3 220px;column-gap:28px;}
+.cp-county-list li{break-inside:avoid;padding:6px 0;border-bottom:1px solid var(--line);font-size:16px;}
+.cp-county-list li[hidden]{display:none;}
+.cp-county-note{display:block;font-size:12.5px;color:var(--ink-soft);}
+
+/* ---------- county chooser: toolbar and topic cards (_includes/county-profiles/landing.njk) ---------- */
+:root{--off-text:#5E6D75;}
+[data-theme="dark"]{--off-text:#8497A0;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--off-text:#8497A0;}}
+.cp-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 24px;margin:0 0 20px;}
+.cp-toolbar p{margin:0;}
+.cp-toolbar-asof{font-size:15px;color:var(--ink-soft);}
+.cp-toolbar-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;font-size:15px;}
+.cp-topic-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:0 0 28px;}
+@media (max-width:1000px){.cp-topic-cards{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:600px){.cp-topic-cards{grid-template-columns:1fr;}}
+.cp-topic-card{display:flex;flex-direction:column;gap:8px;padding:18px 18px;border:1px solid var(--line);border-radius:8px;color:var(--ink);text-decoration:none;}
+.cp-topic-card h3{font-size:19px;margin:6px 0 0;}
+.cp-topic-card p{margin:0;font-size:14.5px;}
+.cp-card-icon{width:40px;height:40px;fill:currentColor;flex:none;}
+.cp-topic-card.is-available{background:var(--paper-2);border-color:var(--teal);}
+.cp-topic-card.is-available .cp-card-icon{color:var(--teal);}
+a.cp-topic-card.is-available:hover,a.cp-topic-card.is-available:focus-visible{background:var(--paper);box-shadow:0 0 0 2px var(--teal);outline:none;}
+.cp-topic-card.is-unavailable{border-style:dashed;background:transparent;}
+.cp-topic-card.is-unavailable h3,.cp-topic-card.is-unavailable .cp-card-icon{color:var(--off-text);}
+.cp-topic-card.is-unavailable .cp-topic-reason,.cp-topic-card.is-unavailable .cp-topic-reason strong{color:var(--off-text);}
+.cp-topic-card.is-unavailable .cp-topic-reason a{color:var(--teal-text);}
+.cp-topic-gaps{border-top:1px solid var(--line);padding-top:8px;margin-top:6px !important;font-size:13.5px !important;}
+.cp-topic-reason{margin-top:6px !important;}
+.cp-meta-list{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:12px 0 0;font-size:14.5px;}
+.cp-meta-list dt{font-weight:600;color:var(--ink-soft);}
+.cp-meta-list dd{margin:0;}
+.cp-meta-list .cp-snapshot-list{margin:0;}
+.cp-chooser-meta{margin-top:8px;}
+.cp-meta-list .cp-cite{max-width:72ch;overflow-wrap:anywhere;}
+
+/* ---------- county switcher (_includes/county-profiles/county-switcher.njk, js/county-switcher.js) ---------- */
+.cp-switcher{display:flex;align-items:center;gap:8px;margin:0;}
+.cp-switcher[hidden]{display:none;}
+.cp-switcher label{font-size:13px;color:var(--ink-soft);}
+.cp-switcher select{font:inherit;font-size:14px;width:10em;text-align:left;max-width:11em;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);}
+.cp-switcher .cpd-btn{padding:6px 12px;}
+.cpd-topbar .cp-switcher label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+/* In the deck header the select is the county label: same face and size as the name it replaces. Both selects
+   have a fixed width so the controls and tabs beside them stay put as the county changes: 9em of the 19px label is
+   171px against 167px measured for the widest name, San Luis Obispo; 10em of the 14px chooser select is 140px
+   against 138px. */
+.cpd-topbar .cp-switcher{gap:6px;white-space:nowrap;}
+.cpd-topbar .cp-switcher select{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:19px;line-height:1.2;width:9em;max-width:none;padding:1px 2px;border:1px solid transparent;background:transparent;cursor:pointer;}
+.cpd-topbar .cp-switcher select:hover,.cpd-topbar .cp-switcher select:focus-visible{border-color:var(--line);}
+.cpd-topbar .cp-switcher .cpd-btn{padding:3px 9px;font-size:12px;}
+.cpd-topbar .cpd-crumb{gap:1px;}
+@media print{.cp-switcher{display:none !important;}}
+
+/* ---------- picker combobox (county-profiles/index.njk, js/county-picker.js) ---------- */
+.cp-picker-row{display:grid;grid-template-columns:25% minmax(0,1fr);gap:12px 24px;align-items:center;}
+.cp-picker-label{margin:0;font-size:24px;}
+.cp-combo{position:relative;}
+.cp-combo-input{width:100%;box-sizing:border-box;padding:14px 16px;font:inherit;font-size:18px;border:2px solid var(--ink-soft);border-radius:8px;background:var(--paper);color:var(--ink);}
+.cp-combo-input::placeholder{color:var(--ink-soft);opacity:1;}
+.cp-combo-input:focus{outline:3px solid var(--teal);outline-offset:1px;border-color:var(--teal);}
+.cp-combo-list{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px 0;list-style:none;max-height:min(60vh,420px);overflow-y:auto;background:var(--paper);border:1px solid var(--ink-soft);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);}
+.cp-combo-list[hidden]{display:none;}
+.cp-combo-list li{padding:9px 16px;cursor:pointer;font-size:16px;}
+.cp-combo-list li[hidden]{display:none;}
+.cp-combo-list li[aria-selected="true"]{background:var(--teal);color:#fff;}
+.cp-opt-note{margin-left:8px;font-size:13px;color:var(--ink-soft);}
+.cp-combo-list .cp-combo-empty{cursor:default;color:var(--ink-soft);}
+.cp-picker-note{margin:16px 0 0;font-size:15px;}
+@media (max-width:700px){
+  .cp-picker-row{grid-template-columns:1fr;}
 }

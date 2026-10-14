@@ -5,9 +5,11 @@
     where headings sit one level lower). Every href here is absolute (`site.url`), because the print
     stylesheet shows each link's destination. -#}
 {%- from "county-profiles/blocks-deck.njk" import sources -%}
+{%- from "county-profiles/citation.njk" import citation with context -%}
 {%- set ch = "h2" if fullPrint else "h1" -%}
 {%- set sh = "h3" if fullPrint else "h2" -%}
-{%- set aboutUrl = site.url ~ ('/county-profiles/about/' | url) -%}
+{%- set changelogUrl = site.url ~ ('/county-profiles/about/changelog/' | url) -%}
+{%- set methodologyUrl = site.url ~ ('/county-profiles/about/methodology/' | url) -%}
 {%- set currentUrl = site.url ~ ((base + topic.slug + '/') | url) -%}
 {%- set printMode = true -%}
 <article class="cpp-topic">
@@ -46,19 +48,21 @@
 {%- endfor %}
 
 <section class="cpp-section cpp-about">
-<{{ sh }}>Data, methods and citation</{{ sh }}>
+<{{ sh }}>{{ "Data and methods" if fullPrint else "Data, methods and citation" }}</{{ sh }}>
 <dl class="cpp-facts">
 <dt>Snapshot</dt><dd>{{ profile.snapshot }}</dd>
-<dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ aboutUrl }}#methodology-changelog">{{ aboutUrl }}#methodology-changelog</a></dd>
+<dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ changelogUrl }}#methodology-changelog">{{ changelogUrl }}#methodology-changelog</a></dd>
 {%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
-<dt>Estimates</dt><dd>Some figures are estimated with NOAA's Open ENOW method, and some are withheld. How estimates are made: {{ aboutUrl }}#estimated. Why figures are withheld: {{ aboutUrl }}#withheld-reasons</dd>
+<dt>Estimates</dt><dd>Some figures are estimated with NOAA's Open ENOW method, and some are withheld. How estimates are made: {{ methodologyUrl }}#estimated. Why figures are withheld: {{ methodologyUrl }}#withheld-reasons</dd>
 {%- endif %}
 {%- if topic.id == "slr" and county.gaugeName %}
 <dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix F)</dd>
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
 {%- endif %}
 </dl>
-<p class="cpp-cite"><b>Recommended citation.</b> California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile: {{ topic.label }}</em>. <a href="{{ permalink }}">{{ permalink }}</a></p>
+{%- if not fullPrint %}
+<p class="cpp-cite"><b>Recommended citation.</b> {{ citation(county, topic, profile.snapshot) }}</p>
+{%- endif %}
 <table class="cpp-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Period covered</th><th scope="col">Retrieved</th></tr></thead>
 <tbody>
 {%- for s in sourcesUsed %}

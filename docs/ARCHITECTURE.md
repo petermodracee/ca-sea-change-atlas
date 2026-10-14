@@ -32,7 +32,7 @@ County Profiles routes are documented in [`COUNTY-PROFILES.md`](COUNTY-PROFILES.
 
 ## Build and deploy
 
-- `.eleventy.js`: `dir.input` is `site/`; only `.njk` files are templates. It registers the `toolSections` filter (from `site/js/tool-detail.js`) used by `compare/tool.njk`, and the chart-geometry filters (from `scripts/county-profiles/template-helpers.mjs`) used by County Profiles. The config function is async because `d3-scale` and `d3-array` are ESM-only and are loaded with a dynamic `import()`; the CI Node 20 can't `require()` them. `site/css/`, `site/js/` and `site/img/` are passthrough-copied whole to their same relative path under the output root; `site/data/` is passthrough-copied by a `**/*.json` glob rather than as a whole directory, because `site/data/index.njk` lives in the same folder as the JSON it lists — a whole-directory copy would also raw-copy that template's `.njk` source into the output alongside its rendered page. `LICENSE` and `robots.txt` stay at the repo root and are passthrough-copied from there. `LICENSE-CONTENT.md` also stays at the repo root but is deliberately *not* passthrough-copied — it's a GitHub-browsing convenience (a second license-declaration file alongside `LICENSE`, since GPLv3 code and CC BY-SA content are different licenses), not a page the live site serves; the licenses page links to CC BY-SA's actual legal text directly instead. `pathPrefix` is `/` (the site is served from the root of seachangeatlas.org; `site/CNAME` is passthrough-copied for GitHub Pages); use the `url` filter for every internal link (front-matter values can't use filters, so `footerAttribution` uses relative paths like `../map/`, and County Profiles' generated `canonical` and citation URLs are built from `site.url`).
+- `.eleventy.js`: `dir.input` is `site/`; `.njk` and `.md` files are templates (READMEs under `site/data/` are ignored). It registers the `aboutPages` collection (below) and the `reportUrl` filter, which builds the pre-filled new-issue URL for `.github/ISSUE_TEMPLATE/data-problem.yml` (see [`COUNTY-PROFILES.md`](COUNTY-PROFILES.md#reporting-a-problem)). It registers the `toolSections` filter (from `site/js/tool-detail.js`) used by `compare/tool.njk`, and the chart-geometry filters (from `scripts/county-profiles/template-helpers.mjs`) used by County Profiles. The config function is async because `d3-scale` and `d3-array` are ESM-only and are loaded with a dynamic `import()`; the CI Node 20 can't `require()` them. `site/css/`, `site/js/` and `site/img/` are passthrough-copied whole to their same relative path under the output root; `site/data/` is passthrough-copied by a `**/*.json` glob rather than as a whole directory, because `site/data/index.njk` lives in the same folder as the JSON it lists — a whole-directory copy would also raw-copy that template's `.njk` source into the output alongside its rendered page. `LICENSE` and `robots.txt` stay at the repo root and are passthrough-copied from there. `LICENSE-CONTENT.md` also stays at the repo root but is deliberately *not* passthrough-copied — it's a GitHub-browsing convenience (a second license-declaration file alongside `LICENSE`, since GPLv3 code and CC BY-SA content are different licenses), not a page the live site serves; the licenses page links to CC BY-SA's actual legal text directly instead. `pathPrefix` is `/` (the site is served from the root of seachangeatlas.org; `site/CNAME` is passthrough-copied for GitHub Pages); use the `url` filter for every internal link (front-matter values can't use filters, so `footerAttribution` uses relative paths like `../map/`, and County Profiles' generated `canonical` and citation URLs are built from `site.url`).
 - `.github/workflows/deploy.yml`: on push to `main` (or manually), Node 20, `npm ci`, `npx eleventy`, then upload `_site/` to GitHub Pages. The repo's Pages source is "GitHub Actions".
 - `.claude/launch.json`: defines the `eleventy-dev` preview server on port 8080.
 - Local dev: see the [README](../README.md#run-it-locally).
@@ -45,21 +45,42 @@ Front-matter keys the layout understands:
 
 | Key | Effect |
 |---|---|
-| `title`, `description` | Page title and meta/OG description |
+| `title`, `description` | Page title and meta/OG description. `base.njk` renders any " — " in a title as " | " (in `<title>`, `og:title` and `twitter:title`) |
 | `nav` | Which header link gets `aria-current` |
 | `bodyClass` | Class on `<body>` (`map-page` switches the footer to its compact form) |
 | `leaflet: true` | Loads Leaflet, esri-leaflet and leaflet.locatecontrol (CSS and JS) |
 | `mapModuleEntry` | Adds a `<script type="module">` for the map entry point |
 | `extraScripts` | Extra plain `<script>` files (`compare/index.njk`, `compare/side-by-side.njk`, and `toc.js` on pages with a table of contents) |
+| `subtitle`, `subtitleLink` | A hero subtitle: `subtitle` is the page's own text, `subtitleLink` is `{text, href}` (a site path, run through `url`) appended by `_includes/hero-subtitle.njk`, which a hero includes after its `<h1>`. A subtitle starting "PETER:" is a placeholder: it renders and the build warns, naming the page |
 | `canonical` | Overrides the canonical and Open Graph URL, which default to the page's own (the dated County Profiles snapshot points at the current profile) |
 | `ogImage` | Social preview image; defaults to `img/preview-map.png` |
 | `footerAttribution` | Per-page attribution text shown in the footer |
 
 Third-party scripts come from unpkg at pinned versions with Subresource Integrity hashes (`base.njk` for Leaflet, esri-leaflet and locatecontrol; `js/map/basemaps.js` for the lazily loaded MapLibre pair). When bumping one, regenerate its hash. `img/preview-map.png` and `img/preview-sources.png` are screenshots used on the landing page and as social previews; they are not generated, so refresh them by hand when those pages change substantially.
 
+### Theming
+
+The theme's custom properties are defined in `site/css/style.css` three times: `:root` (light), `[data-theme="dark"]`, and the `prefers-color-scheme: dark` block (which skips `[data-theme="light"]`). Each also sets `color-scheme`, so native controls (option lists, scrollbars, autofill) draw to match, and `select option` / `optgroup` carry the theme's `--paper` and `--ink` explicitly for browsers that ignore `color-scheme`. There is no visible toggle yet; the site follows the operating system, and a toggle only has to set `data-theme` on `<html>`.
+
 ### Table of contents component
 
 `site/_includes/toc.njk` plus `site/js/toc.js` give a page a sticky left-hand table of contents (a top block on narrow screens). To use it: wrap the page body in `<div class="wrap page-toc">`, `{% include "toc.njk" %}`, put the content in a container with `data-toc-source`, and add `/js/toc.js` to `extraScripts`. The script lists the container's `<h2>` headings, adds slug ids to any that lack one, and highlights the section in view. `about/licenses.njk` is the reference example, and `about/index.njk` uses it too; adopting it needed no changes to a page's prose.
+
+### About sections
+
+Each tool's About is a section of subpages rather than one long page. The shared layout is `site/_includes/about-section.njk`: a hero, a sidebar that lists the tool's About subpages and, beneath them, the page's own "On this page" list (`toc.njk`), then the page body. It wraps `content`, so a subpage can be `.njk` (when it needs template data) or `.md`.
+
+A subpage opts in with front matter, usually through a directory data file such as `site/county-profiles/about/about.json`:
+
+| Key | Effect |
+|---|---|
+| `layout: about-section.njk` | Uses the shared layout |
+| `aboutSection` | The tool's key in `site/_data/aboutSections.json` (`tools`: name, home link, CSS class) |
+| `aboutKind` | `overview`, `methodology`, `data` or `changelog`. The sidebar lists a tool's subpages in that fixed order (`aboutSections.json` `kinds`); a tool skips any it does not need |
+| `aboutWide` | `true` lets the body fill the width, for a page with wide tables |
+| `heading`, `lede` | The hero's title (the overview defaults to "About <tool>") and one-line lede |
+
+The sidebar is built from the `aboutPages` collection (`.eleventy.js`: every page with `aboutSection` and `aboutKind`), filtered to the tool, so adding a subpage is adding one file. The Map, Compare and site About pages are meant to adopt this layout.
 
 ## Data
 
@@ -70,7 +91,7 @@ Third-party scripts come from unpkg at pinned versions with Subresource Integrit
 | `site/_data/toolTagMasters.js` | `compare/tool.njk` | Distinct tag values per tag-table field across all tools, computed once at build time from `site/js/tool-detail.js`. |
 | `site/_data/credits.json` | `about/licenses.njk` | Every third-party library, dataset and service credited on `/about/licenses/`, alphabetical within each category. A credit line (`attribution`) is present only where the license requires one. |
 | `site/_data/licenseTypes.json` | `about/licenses.njk` | License names and links to their texts, referenced by key from `credits.json`. Rationale for what is used: [`LICENSING.md`](LICENSING.md). |
-| `site/_data/site.js` | `base.njk`, `index.njk` | Deployed site URL and name for canonical and Open Graph tags |
+| `site/_data/site.js` | `base.njk`, `index.njk` | Deployed site URL and name for canonical and Open Graph tags, and `repo`, the GitHub repository URL: every link to the repository that a template builds (the County Profiles "Report a problem" link, through the `reportUrl` filter in `scripts/county-profiles/report-link.js`) takes it from here, never hardcoded |
 | `site/data/cosmos-layers.json` | `site/js/map/layers/cosmos-layer.js` | URL and layer-name templates for CoSMoS. See [`MAP.md`](MAP.md#local-configuration-cosmos). |
 
 County Profiles has its own data: `site/data/countyProfileSchema.json` (the snapshot schema and vocabularies), `site/_data/countySpine.json` (the hand-authored county list), `site/_data/opcGaugeProjections.json` (the hand-transcribed sea level rise projections behind the timing table), the placeholder fixtures in `site/_data/countyProfileFixtures/`, and the snapshot archive at `site/data/county-profiles/`, all loaded and validated at build time by `site/_data/countyProfiles.js`. This is the one place the site stores data rather than loading it live; see [`DECISIONS.md`](DECISIONS.md#county-profiles-store-derived-data-in-the-repo) and [`COUNTY-PROFILES.md`](COUNTY-PROFILES.md).

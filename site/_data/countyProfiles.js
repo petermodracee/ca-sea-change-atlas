@@ -3,10 +3,13 @@ const path = require("path");
 const schema = require("../data/countyProfileSchema.json");
 const spine = require("./countySpine.json");
 const reference = require("./opcGaugeProjections.json");
-const { validateSnapshot } = require("../../scripts/county-profiles/validate.js");
+const topicCards = require("./countyProfileTopicCards.json");
+const diggingText = require("./countyProfileDiggingDeeper.json");
+const { validateSnapshot, validateDois } = require("../../scripts/county-profiles/validate.js");
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
 const { timingTable, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
+const { iconByName } = require("../../scripts/county-profiles/sector-icons.js");
 const { ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE } = require("../../scripts/county-profiles/estimated.js");
 const { MAP_LINKS } = require("../../scripts/county-profiles/map-links.js");
 const { SHORE_TOLERANCE_M } = require("../../scripts/county-profiles/pipeline/enow-def.js");
@@ -61,6 +64,13 @@ for (const date of fs.existsSync(dataDir) ? fs.readdirSync(dataDir).filter((d) =
     if (snap.snapshot !== date) throw new Error(date + "/" + fips + ".json: snapshot field says " + snap.snapshot);
   }
 }
+// DOIs minted for dated snapshots (one Zenodo version per date), by hand; see docs/COUNTY-PROFILES.md. The
+// file is not snapshot content and is read with a missing file meaning none.
+const doisFile = path.join(dataDir, "dois.json");
+const dois = fs.existsSync(doisFile) ? JSON.parse(fs.readFileSync(doisFile, "utf8")) : {};
+const doiProblems = validateDois(dois, Object.keys(archive));
+if (doiProblems.length) throw new Error(doiProblems.join("\n"));
+
 const corrections = require("./countyProfileCorrections.json").corrections;
 for (const x of corrections) {
   for (const d of [x.snapshot, x.supersededBy]) if (!archive[d] || !archive[d][x.fips]) throw new Error("correction for " + x.fips + " names snapshot " + d + ", which is not in the archive");
@@ -76,6 +86,28 @@ for (const [fips, snap] of Object.entries(latest)) {
 // since Phase 3: all 27 counties have a real snapshot). A section the pipeline could not compute is
 // unavailable in the snapshot itself, with a reason from the schema's closed set, and renders as a
 // dashed block stating it in position.
+
+// The topic cards on the county chooser: a Material Symbols icon per topic (the text is the topic's intro).
+const topicIcons = {};
+for (const t of schema.topics) {
+  const card = topicCards[t.id];
+  if (!card) throw new Error("countyProfileTopicCards.json has no entry for topic " + t.id);
+  topicIcons[t.id] = iconByName(card.icon);
+  if (!topicIcons[t.id]) throw new Error("countyProfileTopicCards.json: topic " + t.id + " names icon " + card.icon + ", which @material-symbols/svg-400 does not have");
+}
+
+// The report link pre-fills the issue form's topic dropdown with the topic label, so every label must be one of its options.
+const issueForm = fs.readFileSync(path.join(__dirname, "..", "..", ".github", "ISSUE_TEMPLATE", "data-problem.yml"), "utf8");
+for (const t of schema.topics) {
+  if (!new RegExp("^\\s+- " + t.label + "\\s*$", "m").test(issueForm)) throw new Error(".github/ISSUE_TEMPLATE/data-problem.yml: the topic dropdown has no option \"" + t.label + "\"");
+}
+
+// The Digging Deeper slide: its words (from the data file) and the two cards' icons.
+const diggingDeeper = { ...diggingText, icons: {} };
+for (const key of ["map", "compare"]) {
+  diggingDeeper.icons[key] = iconByName(diggingText[key].icon);
+  if (!diggingDeeper.icons[key]) throw new Error("countyProfileDiggingDeeper.json: " + key + " names icon " + diggingText[key].icon + ", which @material-symbols/svg-400 does not have");
+}
 
 // --- per-county derivations ------------------------------------------------------------------------
 
@@ -122,6 +154,15 @@ function placeholderTitlesOf(sections, wholeFixture) {
   return sections.filter((s) => s.sec.available && wholeFixture && s.def.kind !== "timing").map((s) => s.def.title);
 }
 
+// A short plain note of what a county covers when it is not every topic, derived from its coverage
+// ("Flood hazard only", "No total economy"); null for a county with all four.
+function coverageNoteOf(coverage) {
+  const on = coverage.filter((t) => t.available), off = coverage.filter((t) => !t.available);
+  if (!off.length) return null;
+  if (on.length === 1) return on[0].label + " only";
+  return "No " + off.map((t) => t.label.toLowerCase()).join(" or ");
+}
+
 function buildCounty(c, profile) {
     const coverage = schema.topics.map((t) => {
       // A snapshot's topic states are validated to equal its tier's rule, so either source gives the same answer.
@@ -130,9 +171,11 @@ function buildCounty(c, profile) {
         id: t.id,
         slug: t.slug,
         label: t.label,
+        intro: t.intro,
         available: state.available,
         reason: state.reason,
         reasonLabel: state.reason ? schema.reasons[state.reason].label : null,
+        reasonSummary: state.reason ? schema.reasons[state.reason].summary : null,
       };
     });
     const hasSlr = coverage.find((t) => t.id === "slr").available && c.gauge;
@@ -151,10 +194,14 @@ function buildCounty(c, profile) {
     return {
       ...c,
       tierLabel: schema.tiers[c.tier].label,
+      coverageNote: coverageNoteOf(coverage),
       coverage: coverage.map((t) => ({
         ...t,
         headline: topicSections[t.id] ? headlineOf(topicSections[t.id]) : null,
+        // The card's text is the topic's own intro, the same string the deck's title slide renders.
+        description: t.intro,
         hasPage: Boolean(topicSections[t.id]),
+        sectionTotal: topicSections[t.id] ? topicSections[t.id].length : 0,
         // Sections of an available topic that have no data: each states its reason where it sits on
         // the topic's own page, and is listed on the landing page too, so a gap inside a topic is
         // as visible as a whole unavailable topic.
@@ -265,6 +312,9 @@ module.exports = {
   mapLinkRows,
   lodesYear: sourceYear("lodes"),
   acsYear: sourceYear("acs"),
+  // The DOI of a dated snapshot (a string), or null when none has been minted; and the concept DOI covering all versions.
+  doiFor: (date) => (dois[date] && dois[date].doi) || null,
+  doiConcept: dois.concept || null,
   economyMethod: economyMethod(),
   reasonsById: schema.reasons,
   counties,
@@ -275,11 +325,15 @@ module.exports = {
   tiers,
   floodOnly: tiers.find((t) => t.id === "flood-only"),
   topics: schema.topics,
+  topicIcons,
+  diggingDeeper,
+  // For the county switcher: every county and the slugs of the topics that have a page for it.
+  switcher: counties.map((c) => ({ slug: c.slug, name: c.name, topics: c.coverage.filter((t) => t.hasPage).map((t) => t.slug) })),
   increments,
   mapMinFt: MAP_MIN_FT,
   mapMaxFt: MAP_MAX_FT,
   // Appendix F for every gauge the spine uses, three recommended scenarios, every decade, each cell
-  // flagged when it sits outside the heights the map shows. For /county-profiles/about/.
+  // flagged when it sits outside the heights the map shows. For /county-profiles/about/methodology/.
   gaugeTables: Object.entries(spine.gauges).map(([id, g]) => ({
     id,
     name: g.name,

@@ -1,0 +1,14 @@
+---
+aboutKind: changelog
+heading: Methodology changelog
+lede: What changed in how the figures are computed, newest first.
+title: Changelog, About County Profiles — CA Sea Change Atlas
+description: The County Profiles methodology versions and what changed in each.
+---
+
+<section class="cp-topic" id="methodology-changelog">
+<h2>Methodology changelog</h2>
+<p>Each profile shows its methodology version ("Version <em>N</em>") on its About this data slide. The version is a monotonic integer, not a date: it increments only when a pipeline change could move a figure while the underlying source data stays the same (switching the intersect method, changing the rollup geography, fixing an aggregation bug), never for a new section, a restyle or an added county. Two snapshots carrying different versions are never joined by a trend line.</p>
+{%- set entries = changelog["county-profiles"] %}
+{% include "about-changelog.njk" %}
+</section>

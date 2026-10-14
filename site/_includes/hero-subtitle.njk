@@ -1,0 +1,11 @@
+{#- The subtitle under a hero's title. Set it in the page's front matter:
+      subtitle: Two sentences about the page.
+      subtitleLink:
+        text: About County Profiles
+        href: /county-profiles/about/     (a site path; this template runs it through the url filter)
+    The text is the page's own; the template appends the link. Include this inside `.hero .wrap`, after
+    the <h1>. A subtitle that still starts with "PETER:" is a placeholder: it renders, and the build prints
+    a warning naming the page (see placeholderWarn in .eleventy.js). -#}
+{%- if subtitle %}
+<p class="lede">{{ subtitle | placeholderWarn(page.inputPath) }}{% if subtitleLink %} <a href="{{ subtitleLink.href | url }}">{{ subtitleLink.text }}</a>{% endif %}</p>
+{%- endif %}

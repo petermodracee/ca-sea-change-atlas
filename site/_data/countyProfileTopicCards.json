@@ -1,0 +1,6 @@
+{
+  "flood": { "icon": "flood" },
+  "slr": { "icon": "waves" },
+  "total-economy": { "icon": "storefront" },
+  "marine-economy": { "icon": "sailing" }
+}

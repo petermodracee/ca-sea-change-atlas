@@ -54,6 +54,11 @@ const CALLOUT_FIELDS = {
 
 function validateSnapshot(snap, { schema, spine, file, fixture }) {
   const fail = (msg) => { throw new Error("county profile " + file + ": " + msg); };
+  // Every reason carries `summary`, the one plain sentence a reader sees on the county chooser; `rule` is the
+  // maintainers' note and stays on About data.
+  for (const [id, r] of Object.entries(schema.reasons)) {
+    if (typeof r.summary !== "string" || !r.summary.trim()) fail("schema reason " + id + " needs a non-empty summary");
+  }
   const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
   const isQty = (v) => typeof v === "number" && Number.isFinite(v) && v >= 0;
   const isCount = (v) => Number.isInteger(v) && v >= 0;
@@ -381,4 +386,23 @@ function checkArchiveCanonicals(outputDir) {
   return checked;
 }
 
-module.exports = { validateSnapshot, checkNoStaleHost, checkArchiveCanonicals };
+// site/data/county-profiles/dois.json: {"concept"?: DOI, "<snapshot date>": {doi, record?}}. Not snapshot
+// content. Each date key must be an existing dated snapshot, each DOI must look like 10.NNNN/suffix, and a
+// record must be an https URL. Returns the problems found (empty when the file is fine).
+const DOI_PATTERN = /^10\.\d{4,9}\/\S+$/;
+function validateDois(dois, snapshotDates) {
+  const problems = [];
+  if (!dois || typeof dois !== "object" || Array.isArray(dois)) return ["dois.json must be an object"];
+  for (const [key, entry] of Object.entries(dois)) {
+    if (key === "concept") {
+      if (typeof entry !== "string" || !DOI_PATTERN.test(entry)) problems.push("dois.json: concept \"" + entry + "\" is not a DOI (10.NNNN/...)");
+      continue;
+    }
+    if (!snapshotDates.includes(key)) { problems.push("dois.json: key " + key + " is not an existing dated snapshot (" + snapshotDates.join(", ") + ")"); continue; }
+    if (!entry || typeof entry.doi !== "string" || !DOI_PATTERN.test(entry.doi)) problems.push("dois.json: " + key + " doi \"" + (entry && entry.doi) + "\" is not a DOI (10.NNNN/...)");
+    if (entry && entry.record !== undefined && !/^https:\/\/\S+$/.test(entry.record)) problems.push("dois.json: " + key + " record must be an https URL");
+  }
+  return problems;
+}
+
+module.exports = { validateSnapshot, checkNoStaleHost, checkArchiveCanonicals, validateDois };

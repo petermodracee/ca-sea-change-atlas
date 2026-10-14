@@ -15,10 +15,10 @@ eleventyComputed:
   description: "Every topic of the {{ county.name }} County profile as one printable document."
   canonical: "{{ site.url }}/county-profiles/county/{{ county.slug }}/"
 ---
+{%- from "county-profiles/citation.njk" import citation, citationUrl with context %}
 {%- set dated = false %}
 {%- set profile = county.profile %}
 {%- set base = "/county-profiles/county/" + county.slug + "/" %}
-{%- set datedBase = base + profile.snapshot + "/" %}
 {%- set fullPrint = true %}
 <div class="cpp-screenbar no-print">
 <div class="wrap">
@@ -28,18 +28,39 @@ eleventyComputed:
 </div>
 <div class="cpp cpp-preview">
 {%- set frameLabel = "Full profile" %}
-{%- set frameCite = site.url ~ (datedBase | url) %}
+{%- set frameCite = citationUrl(county, null, profile.snapshot) %}
 {% include "county-profiles/print-frame.njk" %}
 <table class="cpp-layout" role="presentation"><thead><tr><td><div class="cpp-sp-h"></div></td></tr></thead><tfoot><tr><td><div class="cpp-sp-f"></div></td></tr></tfoot><tbody><tr><td class="cpp-body">
-{% include "county-profiles/print-landing.njk" %}
+<header class="cpp-titleblock">
+<p class="cpp-eyebrow">California Sea Change Atlas · County profile</p>
+<h1>{{ county.name }} County</h1>
+<p class="cpp-asof">Data as of {{ profile.snapshot | longDate }} · Methodology version {{ profile.method }}</p>
+</header>
+{%- for t in county.coverage %}
+{%- if t.hasPage %}
 {%- for entry in countyProfiles.topicPages %}
-{%- if entry.county.fips == county.fips %}
+{%- if entry.county.fips == county.fips and entry.topic.id == t.id %}
 {%- set topic = entry.topic %}
 {%- set sections = entry.sections %}
 {%- set sourcesUsed = entry.sourcesUsed %}
-{%- set permalink = site.url ~ ((datedBase + topic.slug + "/") | url) %}
+{%- set permalink = citationUrl(county, topic, profile.snapshot) %}
 {% include "county-profiles/print-topic.njk" %}
 {%- endif %}
 {%- endfor %}
+{%- else %}
+<section class="cpp-unavail">
+<h2>{{ t.label }}</h2>
+{%- if t.available %}
+<p>No data snapshot yet. This topic is available for {{ county.name }} County; its figures have not been built.</p>
+{%- else %}
+<p><strong>Not available: {{ t.reasonLabel }}.</strong> {{ t.reasonSummary }}</p>
+{%- endif %}
+</section>
+{%- endif %}
+{%- endfor %}
+<section class="cpp-citeblock">
+<h2>Cite this profile</h2>
+<p class="cpp-cite">{{ citation(county, null, profile.snapshot) }}</p>
+</section>
 </td></tr></tbody></table>
 </div>

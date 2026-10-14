@@ -14,12 +14,15 @@
 {% endmacro %}
 
 {#- The sources line at the foot of a panel. -#}
-{% macro sources(keys, sources, short) %}
+{% macro sources(keys, sources, short, more) %}
 <div class="cpd-sources"><b>Sources</b>
 {%- for key in keys %}
 {%- set s = sources[key] %}
 <span>{% if short %}<span class="cpp-srcname">{{ s.label }}</span>{% else %}<a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a>{% endif %} <span class="cpd-vintage">({{ s.inline }})</span></span>
 {%- endfor %}
+{%- if more %}
+<span><a href="{{ more.href }}">{{ more.label }}</a></span>
+{%- endif %}
 </div>
 {% endmacro %}
 
@@ -335,8 +338,8 @@
 <line x1="{{ hz.ml }}" x2="{{ hz.width - hz.mr }}" y1="{{ hz.axisY }}" y2="{{ hz.axisY }}" style="stroke:var(--ink-soft);stroke-width:1.5"/>
 </svg></div>
 <ul class="cpd-legend" aria-hidden="true">{% for l in hz.legend %}<li><span class="cpd-swatch cpd-ramp-{{ l.ramp }}"></span>{{ l.label }}</li>{% endfor %}</ul>
-{%- if hz.flags.below %}<p class="cpd-horizon-note">† Under {{ hz.flags.min }} ft, the lowest level the map shows.</p>{% endif %}
-{%- if hz.flags.above %}<p class="cpd-horizon-note">‡ Over {{ hz.flags.max }} ft, the highest level the map shows.</p>{% endif %}
+{%- if hz.flags.below %}<p class="cpd-horizon-note">¤ Under {{ hz.flags.min }} ft, the lowest level the map shows.</p>{% endif %}
+{%- if hz.flags.above %}<p class="cpd-horizon-note">¶ Over {{ hz.flags.max }} ft, the highest level the map shows.</p>{% endif %}
 
 </div>
 <div class="cpp-timing">
@@ -428,8 +431,8 @@
 <line x1="{{ hz.ml }}" x2="{{ hz.width - hz.mr }}" y1="{{ hz.axisY }}" y2="{{ hz.axisY }}" style="stroke:var(--ink-soft);stroke-width:1.5"/>
 </svg></div>
 <ul class="cpd-legend" aria-hidden="true">{% for l in hz.legend %}<li><span class="cpd-swatch cpd-ramp-{{ l.ramp }}"></span>{{ l.label }}</li>{% endfor %}</ul>
-{%- if hz.flags.below %}<p class="cpd-horizon-note">† Under {{ hz.flags.min }} ft, the lowest level the map shows.</p>{% endif %}
-{%- if hz.flags.above %}<p class="cpd-horizon-note">‡ Over {{ hz.flags.max }} ft, the highest level the map shows.</p>{% endif %}
+{%- if hz.flags.below %}<p class="cpd-horizon-note">¤ Under {{ hz.flags.min }} ft, the lowest level the map shows.</p>{% endif %}
+{%- if hz.flags.above %}<p class="cpd-horizon-note">¶ Over {{ hz.flags.max }} ft, the highest level the map shows.</p>{% endif %}
 </div>
 <div data-cpd-pane="table" class="cpd-pane cpd-pane-hidden cpd-tview">
 <p class="cpd-chart-subtitle">Year each increment is reached</p>
