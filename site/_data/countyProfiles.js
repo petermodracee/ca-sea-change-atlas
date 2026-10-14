@@ -86,11 +86,11 @@ for (const [fips, snap] of Object.entries(latest)) {
 // unavailable in the snapshot itself, with a reason from the schema's closed set, and renders as a
 // dashed block stating it in position.
 
-// The topic cards on the county chooser: a one-line description and a Material Symbols icon per topic.
+// The topic cards on the county chooser: a Material Symbols icon per topic (the text is the topic's intro).
 const topicIcons = {};
 for (const t of schema.topics) {
   const card = topicCards[t.id];
-  if (!card || !card.description) throw new Error("countyProfileTopicCards.json has no description for topic " + t.id);
+  if (!card) throw new Error("countyProfileTopicCards.json has no entry for topic " + t.id);
   topicIcons[t.id] = iconByName(card.icon);
   if (!topicIcons[t.id]) throw new Error("countyProfileTopicCards.json: topic " + t.id + " names icon " + card.icon + ", which @material-symbols/svg-400 does not have");
 }
@@ -157,6 +157,7 @@ function buildCounty(c, profile) {
         id: t.id,
         slug: t.slug,
         label: t.label,
+        intro: t.intro,
         available: state.available,
         reason: state.reason,
         reasonLabel: state.reason ? schema.reasons[state.reason].label : null,
@@ -185,7 +186,8 @@ function buildCounty(c, profile) {
       coverage: coverage.map((t) => ({
         ...t,
         headline: topicSections[t.id] ? headlineOf(topicSections[t.id]) : null,
-        description: topicCards[t.id].description,
+        // The card's text is the topic's own intro, the same string the deck's title slide renders.
+        description: t.intro,
         hasPage: Boolean(topicSections[t.id]),
         sectionTotal: topicSections[t.id] ? topicSections[t.id].length : 0,
         // Sections of an available topic that have no data: each states its reason where it sits on
