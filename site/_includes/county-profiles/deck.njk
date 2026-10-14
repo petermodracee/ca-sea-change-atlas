@@ -3,11 +3,12 @@
     `placeholders` and `dated` (boolean) from the pagination context. -#}
 {% from "county-profiles/blocks-deck.njk" import gap, sources, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves %}
 {% from "county-profiles/share-ring.njk" import shareRing %}
+{%- from "county-profiles/citation.njk" import citation, citationUrl with context %}
 {%- set profile = county.profile %}
 {%- set reasons = countyProfiles.reasonsById %}
 {%- set base = "/county-profiles/county/" + county.slug + "/" %}
 {%- set datedBase = base + profile.snapshot + "/" %}
-{%- set permalink = site.url + datedBase + topic.slug + "/" %}
+{%- set permalink = citationUrl(county, topic, profile.snapshot) %}
 {%- set landingPermalink = site.url + datedBase %}
 {%- set printMode = false %}
 
@@ -112,7 +113,7 @@
 <div class="cpd-panel-body">
 <div class="cpd-citebox">
 <p class="cpd-eyebrow">Recommended citation</p>
-<p class="cpd-cite" id="cpd-cite">California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile: {{ topic.label }}</em>. <a href="{{ permalink }}">{{ permalink }}</a></p>
+<p class="cpd-cite" id="cpd-cite">{{ citation(county, topic, profile.snapshot) }}</p>
 <button class="cpd-btn" type="button" id="cpd-copy">Copy citation</button>
 </div>
 <div class="cpd-tview" style="max-height:none">

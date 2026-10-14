@@ -1,5 +1,6 @@
 {#- The county landing page body: a normal document (not a deck), shared by the current route
     (county.njk) and the dated route (county-snapshot.njk). Expects `county` and `dated`. -#}
+{%- from "county-profiles/citation.njk" import citationUrl with context %}
 {#- One topic card's icon: the filled variant when the topic is available, the outlined one when not. -#}
 {%- macro topicIcon(ic, filled) -%}
 <svg class="cp-card-icon" viewBox="{{ ic.viewBox }}" aria-hidden="true" focusable="false">{{ (ic.fillInner if filled else ic.outlineInner) | safe }}</svg>
@@ -109,7 +110,7 @@
 {#- The paper version (hidden on screen, shown by @media print): a cover/summary with absolute URLs. -#}
 {%- set fullPrint = false %}
 {%- set frameLabel = "County profile" %}
-{%- set frameCite = site.url ~ ((base + profile.snapshot + "/") | url) %}
+{%- set frameCite = citationUrl(county, null, profile.snapshot) %}
 <div class="cpp print-only">
 {% include "county-profiles/print-frame.njk" %}
 <table class="cpp-layout" role="presentation"><thead><tr><td><div class="cpp-sp-h"></div></td></tr></thead><tfoot><tr><td><div class="cpp-sp-f"></div></td></tr></tfoot><tbody><tr><td class="cpp-body">

@@ -2,10 +2,9 @@
     figures, and a reason for every topic or section that is missing. Absolute hrefs only. Expects
     `county`, `profile`, `dated`, `base`, and `fullPrint` (the full-county document, where the topics
     follow in the same document). -#}
+{%- from "county-profiles/citation.njk" import citation with context -%}
 {%- set reasons = countyProfiles.reasonsById -%}
-{%- set datedBase = base + profile.snapshot + "/" -%}
 {%- set currentLanding = site.url ~ (base | url) -%}
-{%- set datedLanding = site.url ~ (datedBase | url) -%}
 <article class="cpp-cover-page">
 <p class="cpp-eyebrow">California Sea Change Atlas · County profile</p>
 <h1>{{ county.name }} County</h1>
@@ -56,5 +55,5 @@
 {%- endfor %}
 </div>
 {%- if county.gauge %}<p class="cpp-meta">Reference tide gauge: <strong>{{ county.gaugeName }}</strong>.</p>{% endif %}
-<p class="cpp-cite"><b>Recommended citation.</b> California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile</em>. <a href="{{ datedLanding }}">{{ datedLanding }}</a></p>
+<p class="cpp-cite"><b>Recommended citation.</b> {{ citation(county, null, profile.snapshot) }}</p>
 </article>
