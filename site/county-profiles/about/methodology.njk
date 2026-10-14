@@ -143,17 +143,21 @@ description: How the County Profiles figures are computed, which tide gauge each
 <p>The map keeps no history: a link to a dated snapshot shows today's map. A figure and what its link shows can move apart whenever either source updates.</p>
 </section>
 
+<section class="cp-topic" id="limits">
+<h2>Limits of these figures</h2>
+
 <section class="cp-topic" id="withheld">
-<h2>Withheld values, zeros and gaps</h2>
+<h3>Withheld values, zeros and gaps</h3>
 <p>Four different things can stand where a plain number would be, and the pages never blur them. <strong>Zero</strong> is an answer: a county with no medical facilities in its floodplain shows 0, and a marine sector with no jobs in a county shows none. <strong>Withheld</strong> is a figure this page does not show, for one of four reasons, each listed <a href="#withheld-reasons">below</a> and given in the JSON <code>reason</code> field. A slide says only which figure is withheld and that there was not enough reliable data; a total that leaves one out is marked incomplete with an asterisk, and a headline is never stated as an exact figure from a total whose parts are withheld: the marine economy's share of employment then reads "More than N%" (the known sectors only, rounded down, so it is always true), or "More than N jobs" if that share is under 0.1%, and a headline that would rest on a missing sector (the largest sector's share) is left out. <strong>Estimated</strong> is a figure partly built from values the source withholds for confidentiality and this page fills in (<a href="#estimated">below</a>); it carries a &#8776; mark. <strong>Unavailable</strong> is a section or topic with no data at all, and it states its reason where the section would be.</p>
 </section>
 
 <section class="cp-topic" id="sectors-not-shown">
-<h2>Sectors that do not appear for some counties</h2>
+<h3>Sectors that do not appear for some counties</h3>
 <p>The wages chart shows an average wage per job, so a sector with no jobs in a county has nothing to average and is left out of that county's chart without comment. This is a zero, not a withheld value: the data says the county has no jobs in that sector (for example, some inland counties have no tourism and recreation jobs in shoreline ZIP codes, and several have no ship and boat building). A withheld value is different and is marked as withheld on the chart. The county's counts elsewhere on the page, such as the Business Diversity chart, still show the zero.</p>
 </section>
 
 <section class="cp-topic" id="marine-jobs">
-<h2>Marine jobs at risk are not published</h2>
+<h3>Marine jobs at risk are not published</h3>
 <p>NOAA's original marine economy snapshot reported how many marine businesses were in the floodplain. County Profiles does not report marine jobs at risk, and there is no substitute. Business locations, which made the original figure possible, are licensed data and cannot be reused, and the open replacement, LEHD LODES job counts, is published by 2-digit industry code, while ENOW's marine sectors are defined at up to 6 digits. No open source isolates marine jobs by location.</p>
+</section>
 </section>
