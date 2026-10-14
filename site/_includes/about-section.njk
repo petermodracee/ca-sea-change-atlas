@@ -44,6 +44,13 @@ extraScripts:
 </aside>
 <div class="about-body" data-toc-source>
 {{ content | safe }}
+{%- if aboutKind == "overview" %}
+<ul class="about-subpages">
+{%- for p in collections.aboutPages %}{% if p.data.aboutSection == aboutSection and p.data.aboutKind != "overview" %}
+<li><a href="{{ p.url | url }}">{{ aboutSections.labels[p.data.aboutKind] }}</a>{% if p.data.description %}: {{ p.data.description }}{% endif %}</li>
+{%- endif %}{% endfor %}
+</ul>
+{%- endif %}
 </div>
 </div>
 </div>
