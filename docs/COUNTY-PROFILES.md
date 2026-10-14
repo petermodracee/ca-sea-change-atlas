@@ -49,6 +49,8 @@ Archived dated snapshot pages must not dilute search ranking for the current one
 
 Any validator error, failed assertion, stale-host reference or repeated callout figure fails the build.
 
+`scripts/check-links.js` (`npm run check:links`, after a build; `SITE_DIR` names the output directory and defaults to `_site/`) covers the whole site, not only County Profiles. It fails when an internal `href` or `src` points at a file that was not built, or when a link's `#fragment` has no element with that `id` (or `<a name>`) on the target page. An absolute URL on the site's own host, which the print pages use, is checked as the internal link it is; other external URLs are ignored. Links that a script builds at run time are not in the built HTML and are not checked.
+
 ## Data model
 
 `site/data/countyProfileSchema.json` is the source of truth for the snapshot shape (`snapshotShape`), the availability rules, the tiers, the topics and their sections (including NOAA's prose), the section kinds and the reason codes. One snapshot file describes one county. This section explains the choices; read the schema for the fields.
@@ -315,7 +317,7 @@ Every dated landing page (`county/<slug>/<date>/`) and dated topic page (`county
 
 Triggers: a quarterly `schedule:` (09:17 UTC on the 5th of January, April, July and October) and `workflow_dispatch` with two inputs, `counties` (FIPS list or `all`) and `force` (recompute even if the gate finds nothing). It runs on `main`.
 
-Order: gate, recompute the flagged counties, `check-archive.js`, `state-report.js`, Eleventy build, commit and push the data, upload the artifact, deploy. The build runs before the commit, so a snapshot that breaks the site is never pushed. The run's summary lists what the gate decided per county.
+Order: gate, recompute the flagged counties, `check-archive.js`, `state-report.js`, Eleventy build, `check-links.js`, commit and push the data, upload the artifact, deploy. The build runs before the commit, so a snapshot that breaks the site is never pushed. The run's summary lists what the gate decided per county.
 
 ### The `EFF_DATE` gate
 

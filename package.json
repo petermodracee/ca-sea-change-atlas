@@ -6,7 +6,8 @@
   "license": "GPL-3.0-only",
   "scripts": {
     "build": "eleventy",
-    "serve": "eleventy --serve"
+    "serve": "eleventy --serve",
+    "check:links": "node scripts/check-links.js"
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.0.0",
