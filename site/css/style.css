@@ -1530,12 +1530,15 @@ a.cp-topic-card.is-available:hover,a.cp-topic-card.is-available:focus-visible{ba
 .cp-switcher{display:flex;align-items:center;gap:8px;margin:0;}
 .cp-switcher[hidden]{display:none;}
 .cp-switcher label{font-size:13px;color:var(--ink-soft);}
-.cp-switcher select{font:inherit;font-size:14px;max-width:11em;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);}
+.cp-switcher select{font:inherit;font-size:14px;width:10em;text-align:left;max-width:11em;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);}
 .cp-switcher .cpd-btn{padding:6px 12px;}
 .cpd-topbar .cp-switcher label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
-/* In the deck header the select is the county label: same face and size as the name it replaces. */
+/* In the deck header the select is the county label: same face and size as the name it replaces. Both selects
+   have a fixed width so the controls and tabs beside them stay put as the county changes: 9em of the 19px label is
+   171px against 167px measured for the widest name, San Luis Obispo; 10em of the 14px chooser select is 140px
+   against 138px. */
 .cpd-topbar .cp-switcher{gap:6px;white-space:nowrap;}
-.cpd-topbar .cp-switcher select{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:19px;line-height:1.2;max-width:none;padding:1px 2px;border:1px solid transparent;background:transparent;cursor:pointer;field-sizing:content;}
+.cpd-topbar .cp-switcher select{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:19px;line-height:1.2;width:9em;max-width:none;padding:1px 2px;border:1px solid transparent;background:transparent;cursor:pointer;}
 .cpd-topbar .cp-switcher select:hover,.cpd-topbar .cp-switcher select:focus-visible{border-color:var(--line);}
 .cpd-topbar .cp-switcher .cpd-btn{padding:3px 9px;font-size:12px;}
 .cpd-topbar .cpd-crumb{gap:1px;}
