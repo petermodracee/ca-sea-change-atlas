@@ -56,7 +56,7 @@ Archived dated snapshot pages must not dilute search ranking for the current one
 
 Any validator error, failed assertion, stale-host reference or repeated callout figure fails the build.
 
-`scripts/check-links.js` (`npm run check:links`, after a build; `SITE_DIR` names the output directory and defaults to `_site/`) covers the whole site, not only County Profiles. It fails when an internal `href` or `src` points at a file that was not built, or when a link's `#fragment` has no element with that `id` (or `<a name>`) on the target page. An absolute URL on the site's own host, which the print pages use, is checked as the internal link it is; other external URLs are ignored. Links that a script builds at run time are not in the built HTML and are not checked.
+`scripts/check-links.js` (`npm run check:links`, after a build; `SITE_DIR` names the output directory and defaults to `_site/`) covers the whole site, not only County Profiles. It fails when an internal `href` or `src` points at a file that was not built, or when a link's `#fragment` has no element with that `id` (or `<a name>`) on the target page. An absolute URL on the site's own host, which the print pages use, is checked as the internal link it is; other external URLs are ignored. A fragment containing `=` is app state (the map permalink `/map/#on=...&v=...` that the "View on map" links use), not an element id, and is not checked. Links that a script builds at run time are not in the built HTML and are not checked.
 
 ## Data model
 
