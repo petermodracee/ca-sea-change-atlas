@@ -1,0 +1,17 @@
+{
+  "kinds": ["overview", "methodology", "data", "changelog"],
+  "labels": {
+    "overview": "Overview",
+    "methodology": "Methodology",
+    "data": "Data",
+    "changelog": "Changelog"
+  },
+  "tools": {
+    "county-profiles": {
+      "name": "County Profiles",
+      "home": "/county-profiles/",
+      "homeLabel": "All county profiles",
+      "cssClass": "cp"
+    }
+  }
+}

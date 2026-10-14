@@ -489,6 +489,20 @@ legend{
   .toc.toc-ready{position:sticky;top:16px;align-self:start;margin:0;padding:0;border-bottom:0;}
 }
 
+/* ---------- an About section's sidebar (_includes/about-section.njk) ---------- */
+.about-side{align-self:start;}
+.about-subnav ul{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-wrap:wrap;gap:4px 18px;}
+.about-subnav a{display:block;padding:4px 0;color:var(--ink-soft);text-decoration:none;border-bottom:2px solid transparent;}
+.about-subnav a:hover{color:var(--teal-text);}
+.about-subnav a[aria-current="page"]{border-bottom-color:var(--teal);color:var(--teal-text);font-weight:600;}
+@media (min-width:900px){
+  .about-side{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;}
+  .about-subnav ul{display:block;margin-bottom:20px;}
+  .about-subnav a{padding:5px 0 5px 10px;border-bottom:0;border-left:2px solid var(--line);}
+  .about-subnav a[aria-current="page"]{border-left-color:var(--teal);}
+  .about-side .toc.toc-ready{position:static;}
+}
+
 /* ---------- licenses page ---------- */
 .about-body h2[id]{scroll-margin-top:16px;}
 .license-list{list-style:none;margin:0 0 8px;padding:0;}
