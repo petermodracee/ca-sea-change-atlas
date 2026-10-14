@@ -1435,26 +1435,35 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cp-county-list li[hidden]{display:none;}
 .cp-county-note{display:block;font-size:12.5px;color:var(--ink-soft);}
 
-/* ---------- county chooser: topic cards (_includes/county-profiles/landing.njk) ---------- */
-.cp-topic-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin:0 0 28px;}
-.cp-topic-card{display:flex;flex-direction:column;gap:6px;padding:18px 20px;border:1px solid var(--line);border-radius:8px;background:var(--paper-2);color:var(--ink);text-decoration:none;}
+/* ---------- county chooser: toolbar and topic cards (_includes/county-profiles/landing.njk) ---------- */
+:root{--off-text:#5E6D75;}
+[data-theme="dark"]{--off-text:#8497A0;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--off-text:#8497A0;}}
+.cp-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 24px;margin:0 0 20px;}
+.cp-toolbar p{margin:0;}
+.cp-toolbar-asof{font-size:15px;color:var(--ink-soft);}
+.cp-toolbar-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;font-size:15px;}
+.cp-topic-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:0 0 28px;}
+@media (max-width:1000px){.cp-topic-cards{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:600px){.cp-topic-cards{grid-template-columns:1fr;}}
+.cp-topic-card{display:flex;flex-direction:column;gap:8px;padding:18px 18px;border:1px solid var(--line);border-radius:8px;color:var(--ink);text-decoration:none;}
 .cp-topic-card h3{font-size:19px;margin:6px 0 0;}
-.cp-topic-card p{margin:0;font-size:14.5px;color:var(--ink-soft);}
+.cp-topic-card p{margin:0;font-size:14.5px;}
 .cp-card-icon{width:40px;height:40px;fill:currentColor;flex:none;}
-.cp-topic-card.is-available{border-color:var(--teal);}
+.cp-topic-card.is-available{background:var(--paper-2);border-color:var(--teal);}
 .cp-topic-card.is-available .cp-card-icon{color:var(--teal);}
 a.cp-topic-card.is-available:hover,a.cp-topic-card.is-available:focus-visible{background:var(--paper);box-shadow:0 0 0 2px var(--teal);outline:none;}
 .cp-topic-card.is-unavailable{border-style:dashed;background:transparent;}
-.cp-topic-card.is-unavailable h3{color:var(--ink-soft);}
-.cp-topic-card.is-unavailable .cp-card-icon{color:var(--ink-soft);opacity:.7;}
-.cp-topic-gaps{font-size:13.5px;border-top:1px solid var(--line);padding-top:8px;margin-top:6px !important;}
+.cp-topic-card.is-unavailable h3,.cp-topic-card.is-unavailable .cp-topic-desc,.cp-topic-card.is-unavailable .cp-card-icon{color:var(--off-text);}
+.cp-topic-card.is-unavailable .cp-topic-reason{color:var(--ink);}
+.cp-topic-gaps{border-top:1px solid var(--line);padding-top:8px;margin-top:6px !important;font-size:13.5px !important;}
 .cp-topic-reason{margin-top:6px !important;}
-.cp-topic-reason strong{color:var(--ink);}
 .cp-meta-list{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:12px 0 0;font-size:14.5px;}
 .cp-meta-list dt{font-weight:600;color:var(--ink-soft);}
 .cp-meta-list dd{margin:0;}
 .cp-meta-list .cp-snapshot-list{margin:0;}
 .cp-chooser-meta{margin-top:8px;}
+.cp-meta-list .cp-cite{max-width:72ch;overflow-wrap:anywhere;}
 
 /* ---------- county switcher (_includes/county-profiles/county-switcher.njk, js/county-switcher.js) ---------- */
 .cp-switcher{display:flex;align-items:center;gap:8px;margin:0;}
@@ -1462,11 +1471,8 @@ a.cp-topic-card.is-available:hover,a.cp-topic-card.is-available:focus-visible{ba
 .cp-switcher label{font-size:13px;color:var(--ink-soft);}
 .cp-switcher select{font:inherit;font-size:14px;max-width:11em;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);}
 .cp-switcher .cpd-btn{padding:6px 12px;}
-.hero .cp-switcher{margin:14px 0 0;}
-.hero .cp-switcher label{color:#DCE6DE;}
 .cpd-topbar .cp-switcher label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
 @media print{.cp-switcher{display:none !important;}}
-.cp-meta-list .cp-cite{max-width:72ch;overflow-wrap:anywhere;}
 
 /* ---------- picker combobox (county-profiles/index.njk, js/county-picker.js) ---------- */
 .cp-picker-row{display:grid;grid-template-columns:25% minmax(0,1fr);gap:12px 24px;align-items:center;}

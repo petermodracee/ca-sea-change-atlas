@@ -17,14 +17,8 @@
 <path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
 </svg>
 <div class="wrap">
-<p class="hero-nav"><a href="{{ '/county-profiles/' | url }}">All county profiles</a>{% if dated %} · <a href="{{ base | url }}">Current profile</a>{% endif %}</p>
+<p class="hero-nav"><a href="{{ '/county-profiles/' | url }}">All county profiles</a></p>
 <h1>{{ county.name }} County</h1>
-{%- if not dated %}{% set switcherTopic = "" %}{% include "county-profiles/county-switcher.njk" %}{% endif %}
-{%- if profile %}
-<p class="cp-asof"><span class="cp-asof-label">Data as of</span> <time datetime="{{ profile.snapshot }}">{{ profile.snapshot }}</time><span class="cp-asof-meta">Methodology version {{ profile.method }} · generated {{ profile.generated }}</span></p>
-{%- else %}
-<p class="cp-asof"><span class="cp-asof-label">No data snapshot yet</span><span class="cp-asof-meta">The topics below follow the {{ county.tierLabel | lower }} tier rules.</span></p>
-{%- endif %}
 </div>
 </div>
 
@@ -44,6 +38,23 @@
 <p><strong>Placeholder figures.</strong> This county's topic pages show invented numbers to exercise the layout; they are not measurements of {{ county.name }} County.</p>
 </div>
 {%- endif %}
+
+<div class="cp-toolbar">
+{%- if profile %}
+<p class="cp-toolbar-asof">Data as of <time datetime="{{ profile.snapshot }}">{{ profile.snapshot | longDate }}</time> · <a href="{{ '/county-profiles/about/changelog/' | url }}">Methodology version {{ profile.method }}</a></p>
+{%- else %}
+<p class="cp-toolbar-asof">No data snapshot yet. The topics below follow the {{ county.tierLabel | lower }} tier rules.</p>
+{%- endif %}
+<div class="cp-toolbar-actions">
+{%- if dated %}
+<a href="{{ base | url }}">Current profile</a>
+{%- else %}
+{%- set switcherTopic = "" %}
+{% include "county-profiles/county-switcher.njk" %}
+<a class="cp-toolbar-print" href="{{ (base + 'print/') | url }}">Print full profile</a>
+{%- endif %}
+</div>
+</div>
 
 <section class="cp-topic" id="topics">
 <h2 class="sr-only">Topics</h2>
@@ -71,7 +82,7 @@
 {{ topicIcon(ic, false) }}
 <h3>{{ t.label }}</h3>
 <p class="cp-topic-desc">{{ t.description }}</p>
-<p class="cp-topic-reason"><strong>Not available: {{ t.reasonLabel }}.</strong> {{ reasons[t.reason].rule }} <a href="{{ ('/county-profiles/about/data/#reason-' + t.reason) | url }}">About this reason</a></p>
+<p class="cp-topic-reason"><strong>Not available: {{ t.reasonLabel }}.</strong> {{ t.reasonSummary }} <a href="{{ ('/county-profiles/about/data/#reason-' + t.reason) | url }}">About this reason</a></p>
 </div>
 {%- endif %}
 {%- endfor %}
@@ -79,12 +90,10 @@
 </section>
 
 <section class="cp-topic cp-chooser-meta" id="earlier-snapshots">
-<h2 class="sr-only">Print, download and snapshots</h2>
-<p class="cp-actions no-print"><button class="cpd-btn" type="button" onclick="window.print()">Print</button>{% if not dated %} <a href="{{ (base + 'print/') | url }}">Print full profile</a>{% endif %}</p>
+<h2 class="sr-only">Download, citation and snapshots</h2>
 {%- if profile %}
 <dl class="cp-meta-list">
 <dt>Data</dt><dd><a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a></dd>
-<dt>Methodology</dt><dd>Version {{ profile.method }} · <a href="{{ '/county-profiles/about/changelog/' | url }}">what changed</a></dd>
 <dt>Cite</dt><dd class="cp-cite">{{ citation(county, null, profile.snapshot) }}</dd>
 <dt>Earlier snapshots</dt>
 <dd>
