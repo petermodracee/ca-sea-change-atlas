@@ -23,6 +23,7 @@ Nested under `/county-profiles/`, consistent with how `/map/` and `/compare/` ar
 | `/county-profiles/county/<id>/<topic>/` | Topic deck: a full-width, one-topic-per-page presentation. `<topic>` is `flood-hazard`, `sea-level-rise`, `total-economy` or `marine-economy` |
 | `/county-profiles/county/<id>/<date>/` | Dated landing page, canonical to the current landing page |
 | `/county-profiles/county/<id>/<date>/<topic>/` | Dated topic deck, canonical to the current topic deck |
+| `/county-profiles/about/` | About overview: a placeholder for the author's own text, then generated links to the subpages below (the section's layout is described in [`ARCHITECTURE.md`](ARCHITECTURE.md#about-sections)) |
 | `/county-profiles/about/methodology/` | How the figures are computed: the timing table, gauge assignments, Appendix F, the economy method, land cover, then the limits of the figures (withheld values, sectors not shown, why marine jobs at risk are not published) |
 | `/county-profiles/about/data/` | Data: each economy source's year, and (Part 3 of the navigation pass) coverage, reasons, tiers and the JSON fields |
 | `/county-profiles/about/changelog/` | The methodology changelog |
@@ -36,7 +37,7 @@ Archived dated snapshot pages must not dilute search ranking for the current one
 
 ## File layout
 
-- `site/county-profiles/`: Eleventy templates — `index.njk` (the statewide index), `county.njk`/`county-snapshot.njk` (the landing page, current and dated), `topic.njk`/`topic-snapshot.njk` (the topic deck, current and dated), `about.njk` (methodology).
+- `site/county-profiles/`: Eleventy templates — `index.njk` (the statewide index), `county.njk`/`county-snapshot.njk` (the landing page, current and dated), `topic.njk`/`topic-snapshot.njk` (the topic deck, current and dated), the About section in `about/` (`index.njk` overview, `methodology.njk`, `data.njk`, `changelog.njk`, with `about.json` carrying the shared front matter).
 - `site/_includes/county-profiles/`: `landing.njk` (the landing page body, shared by current and dated), `deck.njk` (the topic deck body, shared by current and dated), `blocks.njk` (the landing page's unavailable block and sources line), `blocks-deck.njk` (every deck chart macro: rings via `share-ring.njk`, stacked bars, stacked-by-increment bars, 100%-stacked bars, grouped columns, the wages dot plot, the sea-level-rise curves, the gap block and sources line), `share-ring.njk` (the share ring macro, used by both).
 - `scripts/county-profiles/sector-icons.js`: the sector → Material Symbols icon mapping (one per total-economy and marine-economy sector), pulled from `@material-symbols/svg-400` at build time and drawn inside a wide-enough Diverse Economies bar segment.
 - Print: `print-frame.njk` (the repeating header and footer), `print-topic.njk` and `print-landing.njk` (the paper bodies) and `section-body.njk` (the inside of one section's panel, shared by the deck slide and the print block so both loop over the same section objects) in `site/_includes/county-profiles/`; `site/county-profiles/print.njk` (the full-county document); the `.cpp` rules at the end of `site/css/style.css`.
