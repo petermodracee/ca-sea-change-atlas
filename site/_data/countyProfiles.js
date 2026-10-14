@@ -96,6 +96,12 @@ for (const t of schema.topics) {
   if (!topicIcons[t.id]) throw new Error("countyProfileTopicCards.json: topic " + t.id + " names icon " + card.icon + ", which @material-symbols/svg-400 does not have");
 }
 
+// The report link pre-fills the issue form's topic dropdown with the topic label, so every label must be one of its options.
+const issueForm = fs.readFileSync(path.join(__dirname, "..", "..", ".github", "ISSUE_TEMPLATE", "data-problem.yml"), "utf8");
+for (const t of schema.topics) {
+  if (!new RegExp("^\\s+- " + t.label + "\\s*$", "m").test(issueForm)) throw new Error(".github/ISSUE_TEMPLATE/data-problem.yml: the topic dropdown has no option \"" + t.label + "\"");
+}
+
 // The Digging Deeper slide: its words (from the data file) and the two cards' icons.
 const diggingDeeper = { ...diggingText, icons: {} };
 for (const key of ["map", "compare"]) {

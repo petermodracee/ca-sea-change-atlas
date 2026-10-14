@@ -138,6 +138,7 @@
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
 {%- endif %}
 </dl>
+<p class="cpd-note cpd-report"><a href="{{ { county: county.name, topic: topic.label, snapshot: profile.snapshot, method: profile.method, page: site.url ~ page.url } | reportUrl }}" target="_blank" rel="noopener">Report a problem with these figures</a></p>
 {%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
 <p class="cpd-note">Some figures are estimated with NOAA's Open ENOW method, and some are withheld. <a href="{{ '/county-profiles/about/methodology/' | url }}#estimated">How estimates are made</a> · <a href="{{ '/county-profiles/about/methodology/' | url }}#withheld-reasons">Why figures are withheld</a></p>
 {%- endif %}

@@ -92,6 +92,7 @@
 <dl class="cp-meta-list">
 <dt class="no-print">Data</dt><dd class="no-print"><a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a></dd>
 <dt>Cite</dt><dd class="cp-cite">{{ citation(county, null, profile.snapshot) }}</dd>
+<dt class="no-print">Report</dt><dd class="no-print"><a href="{{ { county: county.name, snapshot: profile.snapshot, method: profile.method, page: site.url ~ page.url } | reportUrl }}" target="_blank" rel="noopener">Report a problem with these figures</a></dd>
 <dt class="no-print">Earlier snapshots</dt>
 <dd class="no-print">
 {%- if county.snapshots.length %}
