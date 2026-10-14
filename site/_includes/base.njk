@@ -1,8 +1,10 @@
+{#- Page titles are written in front matter with " — " between parts; the rendered title, og:title and twitter:title use " | " (no em dashes in site text). -#}
+{%- set pageTitle = title | replace(" — ", " | ") -%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>{{ title }}</title>
+<title>{{ pageTitle }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1B3A4B">
 <link rel="icon" type="image/svg+xml" href="{{ '/img/favicon.svg' | url }}">
@@ -14,7 +16,7 @@
 <meta name="description" content="{{ description }}">
 {%- endif %}
 <meta property="og:site_name" content="{{ site.name }}">
-<meta property="og:title" content="{{ title }}">
+<meta property="og:title" content="{{ pageTitle }}">
 {%- if description %}
 <meta property="og:description" content="{{ description }}">
 {%- endif %}
@@ -23,7 +25,7 @@
 {%- set previewImage = ogImage or "/img/preview-map.png" %}
 <meta property="og:image" content="{{ site.url }}{{ previewImage }}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ title }}">
+<meta name="twitter:title" content="{{ pageTitle }}">
 {%- if description %}
 <meta name="twitter:description" content="{{ description }}">
 {%- endif %}
