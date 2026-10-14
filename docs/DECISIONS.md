@@ -1517,7 +1517,7 @@ A site-wide pass over slide text, chart headers, legends, footnotes and layout, 
 | § | A sector with a withheld figure, in the sector legend, with the one line "[sector] withheld; not enough reliable data." | Sector charts |
 | ≈ | An estimate. "≈ and hatched segments are estimates." ("dashed rings" on the dot plot, "≈ marks estimates." on tiles) | Everywhere a figure is estimated |
 
-All five are in a text key on the slide, survive a greyscale print and do not depend on colour. `†` and `‡` are also used for the 2050 / 2100 range notes on the timing slide and in the About page's horizons section; each key is local to its own slide, so they do not meet, but it is a reuse (see "Needs Peter's call" in the PR).
+All five are in a text key on the slide, survive a greyscale print and do not depend on colour. The 2050 / 2100 range notes on the timing slide, in its print block and in the About page's horizons and Appendix F sections used to reuse `†` and `‡`; each key was local to its own slide, but the same mark meant two things across the tool. They now use `¤` (under the map's lowest level) and `¶` (over its highest), so the economy marks keep `†` and `‡` to themselves (review round after the PR check). The plan was the next two in the traditional sequence, `‖` and `¶`; a glyph check in Chrome (`CSS.getPlatformFontsForNode`, screen and print) showed IBM Plex Sans has no `‖` (U+2016), so it was drawn by Segoe UI, a mismatched font, while `¶` is Plex's own. `¤` (U+00A4, Latin-1, drawn by Plex) replaced it; other candidates were `¦` (reads as a pipe), `#` (reads as a number) and `°`. The same check shows the economy topics' `‡` is also drawn by a fallback font (Segoe UI), left as it is here.
 
 #### What each removed statement became
 

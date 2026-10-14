@@ -28,12 +28,12 @@ description: How the County Profiles figures are computed, which tide gauge each
 <section class="cp-topic" id="horizons">
 <h2>Projected rise at 2050 and 2100</h2>
 <p>The tables below give the rise projected at each tide gauge in every decade, and 2050 and 2100 are the two horizons that appear in most California adaptation documents and Local Coastal Program updates. The values are in feet above 2000. The values are Appendix F's own: already in feet, with local vertical land motion included, so nothing is converted or rounded. Low and Intermediate-Low are not shown, because the state does not recommend planning against them. A profile's snapshot file carries all thirteen decades for its gauge.</p>
-<p>NOAA's inundation layers cover {{ countyProfiles.mapMinFt }} to {{ countyProfiles.mapMaxFt }} ft above MHHW. A projection outside that range is still stated, and marked: † for a figure under {{ countyProfiles.mapMinFt }} ft (near-term rise the map cannot show) and ‡ for one over {{ countyProfiles.mapMaxFt }} ft (past the top of the map). In practice the usable range is roughly 2050 to 2120; earlier, most scenarios are under the lowest layer, and later the High scenario climbs past the highest.</p>
+<p>NOAA's inundation layers cover {{ countyProfiles.mapMinFt }} to {{ countyProfiles.mapMaxFt }} ft above MHHW. A projection outside that range is still stated, and marked: ¤ for a figure under {{ countyProfiles.mapMinFt }} ft (near-term rise the map cannot show) and ¶ for one over {{ countyProfiles.mapMaxFt }} ft (past the top of the map). In practice the usable range is roughly 2050 to 2120; earlier, most scenarios are under the lowest layer, and later the High scenario climbs past the highest.</p>
 </section>
 
 <section class="cp-topic" id="appendix-f">
 <h2>Appendix F, by gauge</h2>
-<p>The three recommended scenarios at every gauge a county uses, in feet above 2000, as published in Appendix F of the 2024 guidance. Values marked † or ‡ fall outside the range the map shows. Under each, the same projections are turned around: for each map increment, the year each scenario reaches it (linear interpolation between decades, as in the timing table; "after 2150" if it never does).</p>
+<p>The three recommended scenarios at every gauge a county uses, in feet above 2000, as published in Appendix F of the 2024 guidance. Values marked ¤ or ¶ fall outside the range the map shows. Under each, the same projections are turned around: for each map increment, the year each scenario reaches it (linear interpolation between decades, as in the timing table; "after 2150" if it never does).</p>
 {%- for g in countyProfiles.gaugeTables %}
 <details class="cp-gauge-table">
 <summary>{{ g.name }} <span class="cp-muted">(Table {{ g.table }}{% if g.counties.length %}; {{ g.counties | join(", ") }}{% endif %})</span></summary>
@@ -41,7 +41,7 @@ description: How the County Profiles figures are computed, which tide gauge each
 <thead><tr><th scope="col">Scenario</th>{% for d in g.decades %}<th scope="col">{{ d }}</th>{% endfor %}</tr></thead>
 <tbody>
 {%- for row in g.rows %}
-<tr><th scope="row">{{ row.label }}</th>{% for c in row.cells %}<td{% if c.flag != "within" %} class="cpd-out-{{ c.flag }}"{% endif %}>{{ c.text }}{% if c.flag == "below" %}<sup>†</sup>{% elif c.flag == "above" %}<sup>‡</sup>{% endif %}</td>{% endfor %}</tr>
+<tr><th scope="row">{{ row.label }}</th>{% for c in row.cells %}<td{% if c.flag != "within" %} class="cpd-out-{{ c.flag }}"{% endif %}>{{ c.text }}{% if c.flag == "below" %}<sup>¤</sup>{% elif c.flag == "above" %}<sup>¶</sup>{% endif %}</td>{% endfor %}</tr>
 {%- endfor %}
 </tbody>
 </table></div>

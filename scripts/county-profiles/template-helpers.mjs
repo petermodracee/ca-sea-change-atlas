@@ -468,7 +468,7 @@ export function slrCurves(reference, gaugeId, increments) {
 
 // Two groups (the horizons) of three columns (the recommended scenarios, ramp steps 1, 3, 5), in feet
 // above 2000 straight from Appendix F. A value under the map's lowest level or over its highest gets
-// a † or ‡; the footnote flags say which are needed. Every column's value is labelled above it.
+// a ¤ or ¶; the footnote flags say which are needed. Every column's value is labelled above it.
 export function horizonColumns(reference, gaugeId) {
   const g = reference.gauges[gaugeId];
   if (!g) throw new Error("no OPC gauge " + gaugeId);
@@ -488,14 +488,14 @@ export function horizonColumns(reference, gaugeId) {
       const flag = envelope(feet);
       if (flag !== "within") flags[flag] = true;
       const x = x0 + i * (colW + GAP_PX), top = mt + y(feet);
-      const text = feet.toFixed(1) + (flag === "below" ? "†" : flag === "above" ? "‡" : "");
+      const text = feet.toFixed(1) + (flag === "below" ? "¤" : flag === "above" ? "¶" : "");
       return {
         s: i === 0 ? 0 : i === 1 ? 2 : 4,
         path: columnPath(x, top, colW, mt + ih - top),
         text,
         labelX: x + colW / 2,
         labelY: top - 10,
-        tip: SCENARIO_LABELS[s] + ", " + yr + ": " + text.replace(/[†‡]$/, "") + " ft above 2000",
+        tip: SCENARIO_LABELS[s] + ", " + yr + ": " + text.replace(/[¤¶]$/, "") + " ft above 2000",
       };
     });
     return { label: String(yr), labelX: ml + gi * band + band / 2, labelY: H - mb + 40, cols };
