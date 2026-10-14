@@ -2,12 +2,15 @@
       {% from "county-profiles/citation.njk" import citation, citationUrl with context %}
     citationUrl(county, topic, snapshot) is the absolute dated address to cite; `topic` is the topic
     definition, or null for the county's page. citation(county, topic, snapshot) is the APA text with
-    that address as a link (the caller supplies the wrapping element and any label). -#}
+    that address as a link (the caller supplies the wrapping element and any label). When the snapshot
+    date has a DOI (site/data/county-profiles/dois.json, through countyProfiles.doiFor), the DOI is the
+    link and the dated address is shown beneath it. -#}
 {%- macro citationUrl(county, topic, snapshot) -%}
 {{ site.url }}{{ ("/county-profiles/county/" + county.slug + "/" + snapshot + "/" + ((topic.slug + "/") if topic else "")) | url }}
 {%- endmacro -%}
 
 {%- macro citation(county, topic, snapshot) -%}
 {%- set address = citationUrl(county, topic, snapshot) -%}
-California Sea Change Atlas. ({{ snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile{% if topic %}: {{ topic.label }}{% endif %}</em>. <a href="{{ address }}">{{ address }}</a>
+{%- set doi = countyProfiles.doiFor(snapshot) -%}
+California Sea Change Atlas. ({{ snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile{% if topic %}: {{ topic.label }}{% endif %}</em>. {% if doi %}<a href="https://doi.org/{{ doi }}">https://doi.org/{{ doi }}</a><br><a href="{{ address }}">{{ address }}</a>{% else %}<a href="{{ address }}">{{ address }}</a>{% endif %}
 {%- endmacro -%}

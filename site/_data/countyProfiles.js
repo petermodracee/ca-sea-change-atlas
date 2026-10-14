@@ -4,7 +4,7 @@ const schema = require("../data/countyProfileSchema.json");
 const spine = require("./countySpine.json");
 const reference = require("./opcGaugeProjections.json");
 const topicCards = require("./countyProfileTopicCards.json");
-const { validateSnapshot } = require("../../scripts/county-profiles/validate.js");
+const { validateSnapshot, validateDois } = require("../../scripts/county-profiles/validate.js");
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
 const { timingTable, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
@@ -63,6 +63,13 @@ for (const date of fs.existsSync(dataDir) ? fs.readdirSync(dataDir).filter((d) =
     if (snap.snapshot !== date) throw new Error(date + "/" + fips + ".json: snapshot field says " + snap.snapshot);
   }
 }
+// DOIs minted for dated snapshots (one Zenodo version per date), by hand; see docs/COUNTY-PROFILES.md. The
+// file is not snapshot content and is read with a missing file meaning none.
+const doisFile = path.join(dataDir, "dois.json");
+const dois = fs.existsSync(doisFile) ? JSON.parse(fs.readFileSync(doisFile, "utf8")) : {};
+const doiProblems = validateDois(dois, Object.keys(archive));
+if (doiProblems.length) throw new Error(doiProblems.join("\n"));
+
 const corrections = require("./countyProfileCorrections.json").corrections;
 for (const x of corrections) {
   for (const d of [x.snapshot, x.supersededBy]) if (!archive[d] || !archive[d][x.fips]) throw new Error("correction for " + x.fips + " names snapshot " + d + ", which is not in the archive");
@@ -288,6 +295,9 @@ module.exports = {
   mapLinkRows,
   lodesYear: sourceYear("lodes"),
   acsYear: sourceYear("acs"),
+  // The DOI of a dated snapshot (a string), or null when none has been minted; and the concept DOI covering all versions.
+  doiFor: (date) => (dois[date] && dois[date].doi) || null,
+  doiConcept: dois.concept || null,
   economyMethod: economyMethod(),
   reasonsById: schema.reasons,
   counties,

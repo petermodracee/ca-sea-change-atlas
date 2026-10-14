@@ -229,6 +229,29 @@ Print is done by the reader's browser from the pages themselves. No PDFs are gen
 
 Each topic deck ends with a recommended citation in APA 7, naming the topic: `California Sea Change Atlas. (2026, September 20). *Orange County coastal county profile: Sea level rise*. <permalink>`. The county landing page's citation drops the topic. The permalink is always the dated route, built from `site.url`, which resolves now for the current (only) snapshot.
 
+The text and the address are built in one place, the `citation` and `citationUrl` macros in `site/_includes/county-profiles/citation.njk`, which the deck, both print bodies, the chooser and the full print page all use; nothing else writes a citation. When the snapshot date has a DOI (below), the citation links `https://doi.org/<doi>` and shows the dated URL beneath it.
+
+### DOIs
+
+`site/data/county-profiles/dois.json` records the DOIs minted for dated snapshots. It is hand-edited, not pipeline output and not snapshot content: `archive.js` ignores it and `check-archive.js` allows it to be added to. It ships as `{}`, and with nothing in it no page changes. Its shape:
+
+```json
+{
+  "concept": "10.5281/zenodo.1234566",
+  "2026-09-24": { "doi": "10.5281/zenodo.1234567", "record": "https://zenodo.org/records/1234567" }
+}
+```
+
+`concept` (optional) is the DOI that resolves to the newest version; every other key is a snapshot date, and must be an existing dated snapshot. The build fails if a key is not, if a DOI does not match `10.\d{4,9}/\S+`, or if a `record` is not an https URL (`validateDois` in `scripts/county-profiles/validate.js`). `countyProfiles.doiFor(date)` returns a date's DOI or `null`.
+
+One Zenodo version per snapshot date, not per county: a dated snapshot directory holds only the counties that changed that day, so a version holds exactly what that date's pages cite. To mint one, by hand:
+
+1. After the snapshot is merged and deployed, run `node scripts/county-profiles/zenodo-package.js <date>`. It writes `zenodo-upload/<date>/` (gitignored): the date's JSON under readable names, a README listing each county, its methodology version and its dated page URL, and `zenodo-metadata.json`.
+2. Create (or, for a later date, add a new version to) the Zenodo record, upload the folder's files, copy its metadata from `zenodo-metadata.json` and publish.
+3. Add the DOI and record URL to `dois.json` under the date (and `concept` the first time), and commit it. The citations update on the next deploy.
+
+No `CITATION.cff` or `.zenodo.json` is kept at the repository root.
+
 ## Data sources and licensing
 
 All sources are public domain except Esri Business Analyst business-location data, which is licensed and excluded outright (replaced by LEHD LODES workplace-area-characteristics job counts, a different measure, reported as such). Every source has an entry in `site/_data/credits.json`. Nothing raw is committed: the pipeline keeps its downloads in `scripts/county-profiles/.cache/` (gitignored) and commits only the derived snapshot. This is the first CASCA tool that stores data in the repo; see [`DECISIONS.md`](DECISIONS.md#county-profiles-store-derived-data-in-the-repo).
