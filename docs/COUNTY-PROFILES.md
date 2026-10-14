@@ -24,6 +24,8 @@ Nested under `/county-profiles/`, consistent with how `/map/` and `/compare/` ar
 | `/county-profiles/county/<id>/<date>/` | Dated landing page, canonical to the current landing page |
 | `/county-profiles/county/<id>/<date>/<topic>/` | Dated topic deck, canonical to the current topic deck |
 | `/county-profiles/about/methodology/` | How the figures are computed: the timing table, gauge assignments, Appendix F, the economy method, land cover, then the limits of the figures (withheld values, sectors not shown, why marine jobs at risk are not published) |
+| `/county-profiles/about/data/` | Data: each economy source's year, and (Part 3 of the navigation pass) coverage, reasons, tiers and the JSON fields |
+| `/county-profiles/about/changelog/` | The methodology changelog |
 | `/county-profiles/county/<id>/print/` | Full-county print document: the landing summary and every available topic in order. `noindex`, canonical to the landing page, not in the sitemap or the top bar; linked from the landing page as "Print full profile". Current snapshot only |
 
 A topic the county has no data for at all — unavailable per its tier, or simply not built yet — gets no page at all; its tab in the deck's top bar is disabled (not removed), and the landing page states its reason in place. An unknown county, an unknown date or a topic with no page 404s, since nothing generates a route for it. Every dated snapshot has its own landing and topic pages, rendered from the archived JSON (see [Automation and the archive](#automation-and-the-archive)); today there is one.

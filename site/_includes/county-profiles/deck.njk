@@ -93,7 +93,7 @@
 <h2>Data, methods and citation</h2>
 <dl class="cpd-facts">
 <dt>Snapshot</dt><dd>{{ profile.snapshot }} · <a href="{{ (base | url) }}#earlier-snapshots">all snapshots</a></dd>
-<dt>Methodology</dt><dd>Version {{ profile.method }} · <a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">what changed</a></dd>
+<dt>Methodology</dt><dd>Version {{ profile.method }} · <a href="{{ '/county-profiles/about/changelog/' | url }}">what changed</a></dd>
 {%- if topic.id == "slr" and county.gaugeName %}
 <dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix F)</dd>
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
@@ -121,7 +121,7 @@
 </table>
 </div>
 </div>
-{%- set footerAttribution %}<a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/methodology/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
+{%- set footerAttribution %}<a href="{{ '/county-profiles/about/changelog/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/methodology/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
 {% include "footer.njk" %}
 </div>
 </section>

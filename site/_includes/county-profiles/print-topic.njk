@@ -7,7 +7,7 @@
 {%- from "county-profiles/blocks-deck.njk" import sources -%}
 {%- set ch = "h2" if fullPrint else "h1" -%}
 {%- set sh = "h3" if fullPrint else "h2" -%}
-{%- set aboutUrl = site.url ~ ('/county-profiles/about/' | url) -%}
+{%- set changelogUrl = site.url ~ ('/county-profiles/about/changelog/' | url) -%}
 {%- set methodologyUrl = site.url ~ ('/county-profiles/about/methodology/' | url) -%}
 {%- set currentUrl = site.url ~ ((base + topic.slug + '/') | url) -%}
 {%- set printMode = true -%}
@@ -50,7 +50,7 @@
 <{{ sh }}>Data, methods and citation</{{ sh }}>
 <dl class="cpp-facts">
 <dt>Snapshot</dt><dd>{{ profile.snapshot }}</dd>
-<dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ aboutUrl }}#methodology-changelog">{{ aboutUrl }}#methodology-changelog</a></dd>
+<dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ changelogUrl }}#methodology-changelog">{{ changelogUrl }}#methodology-changelog</a></dd>
 {%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
 <dt>Estimates</dt><dd>Some figures are estimated with NOAA's Open ENOW method, and some are withheld. How estimates are made: {{ methodologyUrl }}#estimated. Why figures are withheld: {{ methodologyUrl }}#withheld-reasons</dd>
 {%- endif %}

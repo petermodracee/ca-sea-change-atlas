@@ -22,23 +22,5 @@ nav: county-profiles
 <div class="main">
 <div class="wrap cp about-body">
 
-<section class="cp-topic" id="economy-years">
-<h2>Economy data years</h2>
-{%- set em = countyProfiles.economyMethod %}
-{%- if em %}
-<p>Each source shows its own newest year, and the pages do not blend them silently. The headline year for jobs, wages and establishments is the Bureau of Labor Statistics' Quarterly Census of Employment and Wages (QCEW), <strong>{{ em.qcew }}</strong>. GDP comes from the Bureau of Economic Analysis one year behind for the marine sectors, <strong>{{ em.beaMarine }}</strong>, because BEA publishes the detailed industries a year after the broad sectors (total economy GDP is {{ em.beaTotal }}). The wages comparison slides use the newest year the comparison series covers, so the county's dot and the comparison dots are the same year: <strong>{{ em.qcewWages }}</strong> for the marine economy (NOAA Open ENOW, {{ em.openEnow }}) and <strong>{{ em.totalWages }}</strong> for the total economy (NOAA Total Economy (Coastal), {{ em.coastalEconomy }}). The shoreline share of tourism and recreation uses Census ZIP Code Business Patterns {{ em.zbp }}. <em>Total Jobs</em> shows employed workers and self-employed workers as two separate figures, each with its own year and source, and does not add them: for the total economy, QCEW {{ em.qcew }} and Census Nonemployer Statistics {{ em.nes }}; for the marine economy, QCEW {{ em.qcew }} and NOAA's ENOW self-employed series, which ends in {{ em.enowSelf }}.</p>
-{%- endif %}
-<p>The delta counties (Sacramento, San Joaquin and Yolo) are on ENOW's list but are not in the shore-adjacent total economy series, so they have a marine economy and no total economy. Their sea level rise comes from NOAA's Delta inundation file. Lake, San Benito, Sutter and Trinity are in neither ENOW nor NOAA's sea level rise data, and have flood hazard only. Which counties have which topics did not change when the economy figures were rebuilt.</p>
-</section>
-
-<section class="cp-topic" id="methodology-changelog">
-<h2>Methodology changelog</h2>
-<p>Each profile shows its methodology version ("Version <em>N</em>") on its About this data slide. The version is a monotonic integer, not a date: it increments only when a pipeline change could move a figure while the underlying source data stays the same (switching the intersect method, changing the rollup geography, fixing an aggregation bug), never for a new section, a restyle or an added county. Two snapshots carrying different versions are never joined by a trend line.</p>
-<dl class="cp-reasons">
-<div><dt>Version 1</dt><dd>The version in development. Orange County was first computed from real data in Phase 2 (block-level areal apportionment of people and jobs to the flood and sea level rise extents); Phase 3 extended the same method to all 27 counties (FEMA flood zones found through the political-jurisdiction layer, sea level rise polygons read from every NOAA regional file a county touches, each county measured on a projection centred on it). The version stays 1 until the tool is published; from then on any change that could move a figure increments it.</dd></div>
-<div><dt>Phase 4 (still version 1)</dt><dd>Sea level rise sections are framed against the OPC scenarios: the projected rise at 2050 and 2100 for each recommended scenario, the full Appendix F table on this page, and every snapshot carrying its gauge's thirteen decades. No exposure figure, and no crossing year, moved; the version stays 1.</dd></div>
-</dl>
-</section>
-
 </div>
 </div>
