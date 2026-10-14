@@ -869,7 +869,7 @@ legend{
 
 @media print{
   /* Print is always light , whatever the screen theme, so ring and text colours stay legible on paper. */
-  .cp{--paper:#fff;--paper-2:#fff;--ink:#000;--ink-soft:#333;--line:#bbb;--teal:#134F45;--teal-text:#134F45;--rust:#7C331D;--rust-text:#7C331D;}
+  .cp{--paper:#fff;--paper-2:#fff;--ink:#000;--ink-soft:#333;--line:#bbb;--teal:#134F45;--teal-text:#134F45;--rust:#7C331D;--rust-text:#7C331D;--off-text:#555;}
   .cp .share,.cp .cp-section,.cp .cp-gap{break-inside:avoid;}
   .cp-toc,.no-print{display:none !important;}
   /* Mark fills used to be hard-coded here (e.g. .cp-bar-natural-1 as rust) while the legend swatches
