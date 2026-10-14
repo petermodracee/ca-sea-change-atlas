@@ -1,0 +1,16 @@
+---
+aboutKind: data
+heading: Data
+lede: Sources, coverage, vintages and the JSON download.
+title: Data, About County Profiles — CA Sea Change Atlas
+description: The sources behind the County Profiles figures, the year of each, and how to download a county snapshot as JSON.
+---
+
+<section class="cp-topic" id="economy-years">
+<h2>Economy data years</h2>
+{%- set em = countyProfiles.economyMethod %}
+{%- if em %}
+<p>Each source shows its own newest year, and the pages do not blend them silently. The headline year for jobs, wages and establishments is the Bureau of Labor Statistics' Quarterly Census of Employment and Wages (QCEW), <strong>{{ em.qcew }}</strong>. GDP comes from the Bureau of Economic Analysis one year behind for the marine sectors, <strong>{{ em.beaMarine }}</strong>, because BEA publishes the detailed industries a year after the broad sectors (total economy GDP is {{ em.beaTotal }}). The wages comparison slides use the newest year the comparison series covers, so the county's dot and the comparison dots are the same year: <strong>{{ em.qcewWages }}</strong> for the marine economy (NOAA Open ENOW, {{ em.openEnow }}) and <strong>{{ em.totalWages }}</strong> for the total economy (NOAA Total Economy (Coastal), {{ em.coastalEconomy }}). The shoreline share of tourism and recreation uses Census ZIP Code Business Patterns {{ em.zbp }}. <em>Total Jobs</em> shows employed workers and self-employed workers as two separate figures, each with its own year and source, and does not add them: for the total economy, QCEW {{ em.qcew }} and Census Nonemployer Statistics {{ em.nes }}; for the marine economy, QCEW {{ em.qcew }} and NOAA's ENOW self-employed series, which ends in {{ em.enowSelf }}.</p>
+{%- endif %}
+<p>The delta counties (Sacramento, San Joaquin and Yolo) are on ENOW's list but are not in the shore-adjacent total economy series, so they have a marine economy and no total economy. Their sea level rise comes from NOAA's Delta inundation file. Lake, San Benito, Sutter and Trinity are in neither ENOW nor NOAA's sea level rise data, and have flood hazard only. Which counties have which topics did not change when the economy figures were rebuilt.</p>
+</section>

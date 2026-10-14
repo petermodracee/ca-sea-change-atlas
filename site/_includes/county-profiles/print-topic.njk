@@ -7,7 +7,7 @@
 {%- from "county-profiles/blocks-deck.njk" import sources -%}
 {%- set ch = "h2" if fullPrint else "h1" -%}
 {%- set sh = "h3" if fullPrint else "h2" -%}
-{%- set aboutUrl = site.url ~ ('/county-profiles/about/' | url) -%}
+{%- set changelogUrl = site.url ~ ('/county-profiles/about/changelog/' | url) -%}
 {%- set methodologyUrl = site.url ~ ('/county-profiles/about/methodology/' | url) -%}
 {%- set currentUrl = site.url ~ ((base + topic.slug + '/') | url) -%}
 {%- set printMode = true -%}
@@ -51,7 +51,7 @@
 <p class="cpp-prose">Every figure here comes from one dated snapshot. A source's vintage is the period it describes, which can be years before the snapshot date.</p>
 <dl class="cpp-facts">
 <dt>Snapshot</dt><dd>{{ profile.snapshot }}</dd>
-<dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ aboutUrl }}#methodology-changelog">{{ aboutUrl }}#methodology-changelog</a></dd>
+<dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ changelogUrl }}#methodology-changelog">{{ changelogUrl }}#methodology-changelog</a></dd>
 {%- if topic.id == "slr" and county.gaugeName %}
 <dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix F)</dd>
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
