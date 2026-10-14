@@ -8,6 +8,7 @@ extraScripts:
     data file can carry the shared keys, as site/county-profiles/about/about.json does):
       aboutSection  the tool's key in _data/aboutSections.json
       aboutKind     overview | methodology | data | changelog (the fixed order, set by aboutSections.kinds)
+      aboutWide     true for a page with wide tables: the body fills the width
       heading       the hero's title; the overview defaults to "About <tool>"
       lede          the hero's one line
     The subpage list is the `aboutPages` collection (see .eleventy.js) filtered to this tool, so a tool
@@ -31,7 +32,7 @@ extraScripts:
 </div>
 
 <div class="main">
-<div class="wrap page-toc {{ tool.cssClass }}">
+<div class="wrap page-toc {{ tool.cssClass }}{% if aboutWide %} about-wide{% endif %}">
 <aside class="about-side">
 <nav class="about-subnav" aria-label="About {{ tool.name }}">
 <ul>
