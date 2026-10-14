@@ -389,6 +389,7 @@ export function dotPlot(items, seriesLabels) {
         s,
         cx: v.suppressed ? null : +x(v.value).toFixed(1),
         suppressed: v.suppressed,
+        est: !!v.est,
         text: v.suppressed ? "withheld" : v.text,
         tip: (seriesLabels ? seriesLabels[s] + ", " : "") + it.label + ": " + (v.suppressed ? "withheld" : v.text),
       })),

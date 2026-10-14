@@ -148,13 +148,16 @@
 
 <div class="cpd-chart" data-cpd-tips>
     <svg class="cp-bars cp-bars-100" viewBox="0 0 {{ g.width }} {{ g.height }}" role="img" aria-label="{{ title }}" aria-describedby="{{ uid }}-d" preserveAspectRatio="xMidYMid meet">
-    <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}, by sector: {% for seg in row.segments %}{{ legend[loop.index0] }} {% if seg.suppressed %}withheld{% else %}{{ seg.pctText }}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+    <desc id="{{ uid }}-d">{% for row in g.rows %}{{ row.label }}, by sector: {% for seg in row.segments %}{{ legend[loop.index0] }} {% if seg.suppressed %}withheld{% else %}{{ seg.pctText }}{% if seg.est %} (estimated){% endif %}{% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}</desc>
+    {#- Estimated segments get a diagonal hatch over their fill: a light and a dark stripe, so it reads on any fill and in greyscale. -#}
+    <defs><pattern id="{{ uid }}-est" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="9" stroke="#fff" stroke-width="3" stroke-opacity=".8"/><line x1="4.5" y1="0" x2="4.5" y2="9" stroke="#000" stroke-width="1.2" stroke-opacity=".55"/></pattern></defs>
     {%- for row in g.rows %}
         <text class="cp-bar-label" x="{{ g.plotX - 14 }}" y="{{ row.labelY }}" text-anchor="end">{{ row.label }}</text>
         {%- for seg in row.segments %}
             {%- if not seg.suppressed %}
                 {%- set sc = 'cp-sec-headline' if seg.isHeadline else ('cp-sec-neutral-' + (loop.index0 % 2)) %}
                 <path class="cp-bar {{ sc }}" data-tip="{{ seg.tip }}" transform="translate({{ g.plotX }},{{ row.barY }})" d="{{ seg.path }}"/>
+                {%- if seg.est %}<path class="cp-est-overlay" data-tip="{{ seg.tip }}" transform="translate({{ g.plotX }},{{ row.barY }})" d="{{ seg.path }}" fill="url(#{{ uid }}-est)"/>{% endif %}
                     {%- if seg.showLabel %}<text class="cpd-onfill-headline" x="{{ g.plotX + seg.labelX }}" y="{{ seg.midY }}" text-anchor="middle">{{ seg.pctText }}</text>
                 {%- elif seg.showIcon and (not print or seg.w >= 64) %}
                     <svg x="{{ g.plotX + seg.iconX }}" y="{{ seg.iconY }}" width="30" height="30" viewBox="{{ seg.icon.viewBox }}" class="cpd-sector-icon{{ ' cpd-onfill-headline' if seg.isHeadline else '' }}" data-tip="{{ seg.tip }}">{{ (seg.icon.fillInner if seg.isHeadline else seg.icon.outlineInner) | safe }}</svg>
@@ -286,7 +289,7 @@
 <line class="cpd-grid" x1="{{ g.plotL }}" x2="{{ g.plotR }}" y1="{{ row.cy }}" y2="{{ row.cy }}"/>
 <text class="cpd-dotplot-label" x="{{ row.labelX }}" y="{{ row.cy }}" text-anchor="end">{% for ln in row.labelLines %}<tspan x="{{ row.labelX }}" dy="{{ ln.dy }}">{{ ln.text }}</tspan>{% endfor %}</text>
 {%- if row.lineX1 != null %}<line class="cpd-dotplot-line" x1="{{ row.lineX1 }}" x2="{{ row.lineX2 }}" y1="{{ row.cy }}" y2="{{ row.cy }}"/>{% endif %}
-{%- for d in row.dots | reverse %}{% if not d.suppressed %}<circle class="cpd-dot-{{ d.s }}" data-tip="{{ d.tip }}" cx="{{ d.cx }}" cy="{{ row.cy }}" r="10"/>{% endif %}{% endfor %}
+{%- for d in row.dots | reverse %}{% if not d.suppressed %}<circle class="cpd-dot-{{ d.s }}{{ ' cpd-dot-est' if d.est else '' }}" data-tip="{{ d.tip }}" cx="{{ d.cx }}" cy="{{ row.cy }}" r="10"/>{% endif %}{% endfor %}
 {%- endfor %}
 </svg>
 </div>

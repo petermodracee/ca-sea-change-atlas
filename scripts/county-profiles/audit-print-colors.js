@@ -83,8 +83,9 @@ function collectPairs() {
   for (const county of counties) {
     for (const topic of TOPICS) {
       const page = await browser.newPage({ viewport: { width: 816, height: 1056 } });
-      const res = await page.goto(`http://localhost:${port}/county-profiles/county/${county}/${topic}/`);
-      if (res.status() === 200 && (await page.$(".cpp"))) {
+      // A topic a county has no page for (a delta county's total economy) answers 404: skip it.
+      const res = await page.goto(`http://localhost:${port}/county-profiles/county/${county}/${topic}/`).catch(() => null);
+      if (res && res.status() === 200 && (await page.$(".cpp"))) {
         pages++;
         await page.emulateMedia({ media: "print" });
         for (const r of await page.evaluate(collectPairs)) {
