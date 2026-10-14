@@ -15,6 +15,16 @@ module.exports = async function (eleventyConfig) {
   });
 
   eleventyConfig.addFilter("jsonify", (obj) => JSON.stringify(obj));
+  // A hero subtitle that still starts with "PETER:" is a placeholder for the author to replace. It renders,
+  // and this warns (once per page) rather than failing the build, so it cannot be published silently.
+  const warnedPlaceholders = new Set();
+  eleventyConfig.addFilter("placeholderWarn", (text, inputPath) => {
+    if (/^\s*PETER:/.test(text) && !warnedPlaceholders.has(inputPath)) {
+      warnedPlaceholders.add(inputPath);
+      console.warn("[placeholder] " + inputPath + ": the hero subtitle still starts with PETER: and needs real text");
+    }
+    return text;
+  });
   eleventyConfig.addFilter("toolSections", require("./site/js/tool-detail.js").toolSections);
 
   // County Profiles chart maths (d3-scale/d3-array are ESM-only, hence the dynamic import).
