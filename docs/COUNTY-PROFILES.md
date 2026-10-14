@@ -18,14 +18,14 @@ Nested under `/county-profiles/`, consistent with how `/map/` and `/compare/` ar
 
 | Route | Page |
 |---|---|
-| `/county-profiles/` | Index: all 27 counties with a coverage matrix and the county-selection explainer |
+| `/county-profiles/` | Index: all 27 counties with a coverage matrix and the county-selection explainer (moving to `/county-profiles/about/data/`) |
 | `/county-profiles/county/<id>/` | County landing page: header, each topic's headline figure and a link to its page (or its reason, in place), earlier snapshots |
 | `/county-profiles/county/<id>/<topic>/` | Topic deck: a full-width, one-topic-per-page presentation. `<topic>` is `flood-hazard`, `sea-level-rise`, `total-economy` or `marine-economy` |
 | `/county-profiles/county/<id>/<date>/` | Dated landing page, canonical to the current landing page |
 | `/county-profiles/county/<id>/<date>/<topic>/` | Dated topic deck, canonical to the current topic deck |
 | `/county-profiles/about/` | About overview: a placeholder for the author's own text, then generated links to the subpages below (the section's layout is described in [`ARCHITECTURE.md`](ARCHITECTURE.md#about-sections)) |
 | `/county-profiles/about/methodology/` | How the figures are computed: the timing table, gauge assignments, Appendix F, the economy method, land cover, then the limits of the figures (withheld values, sectors not shown, why marine jobs at risk are not published) |
-| `/county-profiles/about/data/` | Data: each economy source's year, and (Part 3 of the navigation pass) coverage, reasons, tiers and the JSON fields |
+| `/county-profiles/about/data/` | Data: the coverage matrix, the reasons a topic is unavailable, the coverage tiers, why these counties, and each economy source's year |
 | `/county-profiles/about/changelog/` | The methodology changelog |
 | `/county-profiles/county/<id>/print/` | Full-county print document: the landing summary and every available topic in order. `noindex`, canonical to the landing page, not in the sitemap or the top bar; linked from the landing page as "Print full profile". Current snapshot only |
 
