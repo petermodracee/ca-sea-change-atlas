@@ -44,6 +44,8 @@ module.exports = async function (eleventyConfig) {
   // "View on map" links: generated from one table, then checked against the map's real controls after the build.
   const { mapLink, checkMapLinks } = require("./scripts/county-profiles/map-links.js");
   eleventyConfig.addFilter("mapLink", mapLink);
+  eleventyConfig.addFilter("topicMapLink", require("./scripts/county-profiles/map-links.js").topicMapLink);
+  eleventyConfig.addFilter("compareLink", require("./scripts/county-profiles/tool-links.js").compareLink);
   const { VALUE_CONTROL_IDS } = await import(require("url").pathToFileURL(require("path").resolve("site/js/map/permalink.js")).href);
   const spineFips = require("./site/_data/countySpine.json").counties.map((c) => c.fips);
   eleventyConfig.on("eleventy.after", ({ results }) => checkMapLinks({

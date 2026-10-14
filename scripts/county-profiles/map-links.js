@@ -53,6 +53,21 @@ function mapLink(topicId, sectionId, fips, ft = DEFAULT_FT) {
   return { href: `/map/#${hash}`, hash, follows: Boolean(r.follows), opens: r.opens, publishers: r.publishers, fips };
 }
 
+/**
+ * The link for a whole topic: the county highlighted and, for Flood hazard and Sea level rise, the topic's layers
+ * switched on (the layer toggles the topic's section links use, taken from its People at Risk recipe, at the default
+ * increment; no value controls). The economy topics have no layers, so they get the county highlight only. The Digging
+ * Deeper slide uses this.
+ * @returns {{href: string, hash: string, fips: string, layers: boolean}} `href` is a site-relative path ("/map/#...").
+ */
+function topicMapLink(topicId, fips, ft = DEFAULT_FT) {
+  const r = MAP_LINKS[topicId] && MAP_LINKS[topicId]["people-at-risk"];
+  const on = [...(r ? r.on : []), COUNTY_TOGGLE];
+  const v = [...(r && r.slr ? [[SLIDER, String(sliderIndex(ft))]] : []), [COUNTY_SELECT, fips]];
+  const hash = `on=${on.join(",")}&v=${v.map(([k, val]) => `${k}~${val}`).join("|")}`;
+  return { href: `/map/#${hash}`, hash, fips, layers: Boolean(r) };
+}
+
 // ---- the build check ---------------------------------------------------------------------------------------
 
 /** Parses the map page's static controls: checkbox ids, and for value controls their options or range. */
@@ -129,4 +144,4 @@ function checkMapLinks({ results, mapSource, valueControlIds, spineFips, expectL
   return { links: built.length };
 }
 
-module.exports = { MAP_LINKS, DEFAULT_FT, mapLink, checkMapLinks, parseMapControls, hashProblems };
+module.exports = { MAP_LINKS, DEFAULT_FT, mapLink, topicMapLink, checkMapLinks, parseMapControls, hashProblems };

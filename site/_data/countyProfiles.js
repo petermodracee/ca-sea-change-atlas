@@ -4,6 +4,7 @@ const schema = require("../data/countyProfileSchema.json");
 const spine = require("./countySpine.json");
 const reference = require("./opcGaugeProjections.json");
 const topicCards = require("./countyProfileTopicCards.json");
+const diggingText = require("./countyProfileDiggingDeeper.json");
 const { validateSnapshot, validateDois } = require("../../scripts/county-profiles/validate.js");
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
 const { timingTable, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
@@ -93,6 +94,13 @@ for (const t of schema.topics) {
   if (!card) throw new Error("countyProfileTopicCards.json has no entry for topic " + t.id);
   topicIcons[t.id] = iconByName(card.icon);
   if (!topicIcons[t.id]) throw new Error("countyProfileTopicCards.json: topic " + t.id + " names icon " + card.icon + ", which @material-symbols/svg-400 does not have");
+}
+
+// The Digging Deeper slide: its words (from the data file) and the two cards' icons.
+const diggingDeeper = { ...diggingText, icons: {} };
+for (const key of ["map", "compare"]) {
+  diggingDeeper.icons[key] = iconByName(diggingText[key].icon);
+  if (!diggingDeeper.icons[key]) throw new Error("countyProfileDiggingDeeper.json: " + key + " names icon " + diggingText[key].icon + ", which @material-symbols/svg-400 does not have");
 }
 
 // --- per-county derivations ------------------------------------------------------------------------
@@ -312,6 +320,7 @@ module.exports = {
   floodOnly: tiers.find((t) => t.id === "flood-only"),
   topics: schema.topics,
   topicIcons,
+  diggingDeeper,
   // For the county switcher: every county and the slugs of the topics that have a page for it.
   switcher: counties.map((c) => ({ slug: c.slug, name: c.name, topics: c.coverage.filter((t) => t.hasPage).map((t) => t.slug) })),
   increments,
