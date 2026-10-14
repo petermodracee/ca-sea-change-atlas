@@ -36,7 +36,7 @@ description: The sources behind the County Profiles figures, the year of each, a
 <h3>Reasons a topic is unavailable</h3>
 <dl class="cp-reasons">
 {%- for r in cp.reasons %}
-<div><dt>{{ r.label }} <code>{{ r.id }}</code></dt><dd>{{ r.rule }}</dd></div>
+<div><dt id="reason-{{ r.id }}">{{ r.label }} <code>{{ r.id }}</code></dt><dd>{{ r.rule }}</dd></div>
 {%- endfor %}
 </dl>
 <p class="cp-note"><strong>Zero is not unavailable.</strong> A count of 0, such as no medical facilities in a county's floodplain, is an answer and is shown as one. Unavailable means there is no data, and the reason is given. A figure the publisher withholds is a third state, shown as "withheld". <a href="{{ '/county-profiles/about/methodology/' | url }}">How the figures are computed</a>.</p>
