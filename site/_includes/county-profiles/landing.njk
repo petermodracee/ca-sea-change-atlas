@@ -2,10 +2,8 @@
     (county.njk) and the dated route (county-snapshot.njk). Expects `county` and `dated`. Ctrl+P prints this
     layout (see the body.cp-landing rules in @media print), not a separate paper version. -#}
 {%- from "county-profiles/citation.njk" import citation with context %}
-{#- An available card shows the topic's intro; an unavailable one shows only the icon, the title and the reason. One topic card's icon: the filled variant when the topic is available, the outlined one when not. -#}
-{%- macro topicIcon(ic, filled) -%}
-<svg class="cp-card-icon" viewBox="{{ ic.viewBox }}" aria-hidden="true" focusable="false">{{ (ic.fillInner if filled else ic.outlineInner) | safe }}</svg>
-{%- endmacro %}
+{%- from "county-profiles/card-icon.njk" import cardIcon %}
+{#- An available card shows the topic's intro; an unavailable one shows only the icon, the title and the reason. -#}
 {%- set profile = county.profile %}
 {%- set reasons = countyProfiles.reasonsById %}
 {%- set base = "/county-profiles/county/" + county.slug + "/" %}
@@ -64,7 +62,7 @@
 {%- set ic = countyProfiles.topicIcons[t.id] %}
 {%- if t.hasPage %}
 <a class="cp-topic-card is-available" href="{{ (base + (profile.snapshot + '/' if dated else '') + t.slug + '/') | url }}">
-{{ topicIcon(ic, true) }}
+{{ cardIcon(ic, true) }}
 <h3>{{ t.label }}</h3>
 <p class="cp-topic-desc">{{ t.description }}</p>
 {%- if t.sectionGaps.length %}
@@ -73,13 +71,13 @@
 </a>
 {%- elif t.available %}
 <div class="cp-topic-card is-unavailable">
-{{ topicIcon(ic, false) }}
+{{ cardIcon(ic, false) }}
 <h3>{{ t.label }}</h3>
 <p class="cp-topic-reason">No data snapshot yet. This topic is available for {{ county.name }} County; its figures have not been built.</p>
 </div>
 {%- else %}
 <div class="cp-topic-card is-unavailable">
-{{ topicIcon(ic, false) }}
+{{ cardIcon(ic, false) }}
 <h3>{{ t.label }}</h3>
 <p class="cp-topic-reason"><strong>Not available: {{ t.reasonLabel }}.</strong> {{ t.reasonSummary }} <a href="{{ ('/county-profiles/about/data/#reason-' + t.reason) | url }}">About this reason</a></p>
 </div>

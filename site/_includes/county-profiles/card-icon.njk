@@ -1,0 +1,6 @@
+{#- One card's icon (a Material Symbols glyph from countyProfiles.topicIcons or diggingIcons): the filled
+    variant when the card is on, the outlined one when it is off. Used by the county chooser and the
+    Digging Deeper slide. -#}
+{%- macro cardIcon(ic, filled) -%}
+<svg class="cp-card-icon" viewBox="{{ ic.viewBox }}" aria-hidden="true" focusable="false">{{ (ic.fillInner if filled else ic.outlineInner) | safe }}</svg>
+{%- endmacro %}
