@@ -76,7 +76,7 @@ A county with a marine topic also carries `estimation.tourismShoreShare` (`{jobs
 
 ### Reason codes
 
-A closed set of five, each stating a rule (the wording is in the schema's `reasons`):
+A closed set of five (the wording is in the schema's `reasons`). Each has a `label`, a `rule` (a maintainers' note, shown in the reasons list on About data) and a `summary` (one plain sentence for a reader, saying why the county has no data for the topic; shown on the county chooser's cards and in the picker's coverage notes). The validator fails the build if a reason has no `summary`:
 
 | Code | Meaning |
 |---|---|

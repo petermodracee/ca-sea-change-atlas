@@ -54,6 +54,11 @@ const CALLOUT_FIELDS = {
 
 function validateSnapshot(snap, { schema, spine, file, fixture }) {
   const fail = (msg) => { throw new Error("county profile " + file + ": " + msg); };
+  // Every reason carries `summary`, the one plain sentence a reader sees on the county chooser; `rule` is the
+  // maintainers' note and stays on About data.
+  for (const [id, r] of Object.entries(schema.reasons)) {
+    if (typeof r.summary !== "string" || !r.summary.trim()) fail("schema reason " + id + " needs a non-empty summary");
+  }
   const isObj = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
   const isQty = (v) => typeof v === "number" && Number.isFinite(v) && v >= 0;
   const isCount = (v) => Number.isInteger(v) && v >= 0;
