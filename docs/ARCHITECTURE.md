@@ -32,7 +32,7 @@ County Profiles routes are documented in [`COUNTY-PROFILES.md`](COUNTY-PROFILES.
 
 ## Build and deploy
 
-- `.eleventy.js`: `dir.input` is `site/`; only `.njk` files are templates. It registers the `toolSections` filter (from `site/js/tool-detail.js`) used by `compare/tool.njk`, and the chart-geometry filters (from `scripts/county-profiles/template-helpers.mjs`) used by County Profiles. The config function is async because `d3-scale` and `d3-array` are ESM-only and are loaded with a dynamic `import()`; the CI Node 20 can't `require()` them. `site/css/`, `site/js/` and `site/img/` are passthrough-copied whole to their same relative path under the output root; `site/data/` is passthrough-copied by a `**/*.json` glob rather than as a whole directory, because `site/data/index.njk` lives in the same folder as the JSON it lists — a whole-directory copy would also raw-copy that template's `.njk` source into the output alongside its rendered page. `LICENSE` and `robots.txt` stay at the repo root and are passthrough-copied from there. `LICENSE-CONTENT.md` also stays at the repo root but is deliberately *not* passthrough-copied — it's a GitHub-browsing convenience (a second license-declaration file alongside `LICENSE`, since GPLv3 code and CC BY-SA content are different licenses), not a page the live site serves; the licenses page links to CC BY-SA's actual legal text directly instead. `pathPrefix` is `/` (the site is served from the root of seachangeatlas.org; `site/CNAME` is passthrough-copied for GitHub Pages); use the `url` filter for every internal link (front-matter values can't use filters, so `footerAttribution` uses relative paths like `../map/`, and County Profiles' generated `canonical` and citation URLs are built from `site.url`).
+- `.eleventy.js`: `dir.input` is `site/`; `.njk` and `.md` files are templates (READMEs under `site/data/` are ignored). It registers the `aboutPages` collection (below). It registers the `toolSections` filter (from `site/js/tool-detail.js`) used by `compare/tool.njk`, and the chart-geometry filters (from `scripts/county-profiles/template-helpers.mjs`) used by County Profiles. The config function is async because `d3-scale` and `d3-array` are ESM-only and are loaded with a dynamic `import()`; the CI Node 20 can't `require()` them. `site/css/`, `site/js/` and `site/img/` are passthrough-copied whole to their same relative path under the output root; `site/data/` is passthrough-copied by a `**/*.json` glob rather than as a whole directory, because `site/data/index.njk` lives in the same folder as the JSON it lists — a whole-directory copy would also raw-copy that template's `.njk` source into the output alongside its rendered page. `LICENSE` and `robots.txt` stay at the repo root and are passthrough-copied from there. `LICENSE-CONTENT.md` also stays at the repo root but is deliberately *not* passthrough-copied — it's a GitHub-browsing convenience (a second license-declaration file alongside `LICENSE`, since GPLv3 code and CC BY-SA content are different licenses), not a page the live site serves; the licenses page links to CC BY-SA's actual legal text directly instead. `pathPrefix` is `/` (the site is served from the root of seachangeatlas.org; `site/CNAME` is passthrough-copied for GitHub Pages); use the `url` filter for every internal link (front-matter values can't use filters, so `footerAttribution` uses relative paths like `../map/`, and County Profiles' generated `canonical` and citation URLs are built from `site.url`).
 - `.github/workflows/deploy.yml`: on push to `main` (or manually), Node 20, `npm ci`, `npx eleventy`, then upload `_site/` to GitHub Pages. The repo's Pages source is "GitHub Actions".
 - `.claude/launch.json`: defines the `eleventy-dev` preview server on port 8080.
 - Local dev: see the [README](../README.md#run-it-locally).
@@ -60,6 +60,21 @@ Third-party scripts come from unpkg at pinned versions with Subresource Integrit
 ### Table of contents component
 
 `site/_includes/toc.njk` plus `site/js/toc.js` give a page a sticky left-hand table of contents (a top block on narrow screens). To use it: wrap the page body in `<div class="wrap page-toc">`, `{% include "toc.njk" %}`, put the content in a container with `data-toc-source`, and add `/js/toc.js` to `extraScripts`. The script lists the container's `<h2>` headings, adds slug ids to any that lack one, and highlights the section in view. `about/licenses.njk` is the reference example, and `about/index.njk` uses it too; adopting it needed no changes to a page's prose.
+
+### About sections
+
+Each tool's About is a section of subpages rather than one long page. The shared layout is `site/_includes/about-section.njk`: a hero, a sidebar that lists the tool's About subpages and, beneath them, the page's own "On this page" list (`toc.njk`), then the page body. It wraps `content`, so a subpage can be `.njk` (when it needs template data) or `.md`.
+
+A subpage opts in with front matter, usually through a directory data file such as `site/county-profiles/about/about.json`:
+
+| Key | Effect |
+|---|---|
+| `layout: about-section.njk` | Uses the shared layout |
+| `aboutSection` | The tool's key in `site/_data/aboutSections.json` (`tools`: name, home link, CSS class) |
+| `aboutKind` | `overview`, `methodology`, `data` or `changelog`. The sidebar lists a tool's subpages in that fixed order (`aboutSections.json` `kinds`); a tool skips any it does not need |
+| `heading`, `lede` | The hero's title (the overview defaults to "About <tool>") and one-line lede |
+
+The sidebar is built from the `aboutPages` collection (`.eleventy.js`: every page with `aboutSection` and `aboutKind`), filtered to the tool, so adding a subpage is adding one file. The Map, Compare and site About pages are meant to adopt this layout.
 
 ## Data
 

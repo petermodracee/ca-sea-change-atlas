@@ -1,7 +1,18 @@
 const fs = require("fs");
 
 module.exports = async function (eleventyConfig) {
-  eleventyConfig.setTemplateFormats(["njk"]);
+  eleventyConfig.setTemplateFormats(["njk", "md"]);
+  eleventyConfig.ignores.add("site/data/**/*.md"); // READMEs next to the data, not pages
+
+  // A tool's About subpages: every page with `aboutSection` and `aboutKind` front matter, in the fixed
+  // order of _data/aboutSections.json "kinds" (overview, methodology, data, changelog). The layout
+  // _includes/about-section.njk filters this by tool, so a new subpage is one new file.
+  const aboutKinds = require("./site/_data/aboutSections.json").kinds;
+  eleventyConfig.addCollection("aboutPages", (api) => {
+    const pages = api.getAll().filter((p) => p.data.aboutSection && p.data.aboutKind);
+    for (const p of pages) if (!aboutKinds.includes(p.data.aboutKind)) throw new Error(p.inputPath + ": aboutKind '" + p.data.aboutKind + "' is not one of " + aboutKinds.join(", "));
+    return pages.sort((a, b) => aboutKinds.indexOf(a.data.aboutKind) - aboutKinds.indexOf(b.data.aboutKind));
+  });
 
   eleventyConfig.addFilter("jsonify", (obj) => JSON.stringify(obj));
   eleventyConfig.addFilter("toolSections", require("./site/js/tool-detail.js").toolSections);
