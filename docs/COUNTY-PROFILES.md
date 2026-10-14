@@ -35,6 +35,8 @@ Snapshot JSON is at `/data/county-profiles/latest/<fips>.json`. `.eleventy.js` c
 
 Archived dated snapshot pages must not dilute search ranking for the current one once older ones exist — see the SEO note below.
 
+**County switcher.** A county `<select>` with a Go button sits in the deck's top bar and in the chooser's hero, on current pages only (a dated page keeps its "Current profile" link; another county may have no snapshot of that date). Go (or Enter on the select) opens the same topic for the chosen county, keeping the slide most in view as the anchor and the `?slr=` increment; a county without that topic goes to its chooser page, where the grayed card says why. Changing the selection, with the arrow keys or otherwise, never navigates: the commit is explicit. The county-to-topics map (`switcher` in `countyProfiles.js`) is embedded in each page by `county-switcher.njk`, nothing is fetched, and the form is `hidden` until `js/county-switcher.js` runs, so without JavaScript the "All county profiles" link is the way across.
+
 ## File layout
 
 - `site/county-profiles/`: Eleventy templates — `index.njk` (the statewide index), `county.njk`/`county-snapshot.njk` (the landing page, current and dated), `topic.njk`/`topic-snapshot.njk` (the topic deck, current and dated), the About section in `about/` (`index.njk` overview, `methodology.njk`, `data.njk`, `changelog.njk`, with `about.json` carrying the shared front matter).
