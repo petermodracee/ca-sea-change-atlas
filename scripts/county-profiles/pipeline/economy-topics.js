@@ -70,7 +70,7 @@ function economySources({ S, eco, nes, meta }) {
     const t = eco.total;
     out["qcew-total-wages"] = { label: "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year", url: "https://www.bls.gov/cew/", vintage: vintageYear(t.wagesYear), retrieved: em.retrieved.qcew, verified: ver.qcew };
     out["bea-total"] = { label: bea, url: "https://www.bea.gov/data/gdp/gdp-industry", vintage: vintageYear(t.gdpYear), retrieved: em.retrieved.bea, verified: ver.bea };
-    out["coastal-economy"] = { label: "NOAA Total Economy (Coastal), coastal California and coastal U.S.", url: "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html", vintage: vintageYear(S.totalYear), retrieved: meta.enow.retrieved, verified: ver.coastalEconomy };
+    out["coastal-economy"] = { label: "NOAA Total Economy (Coastal), shoreline counties of California and of the U.S.", url: "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html", vintage: vintageYear(S.totalYear), retrieved: meta.enow.retrieved, verified: ver.coastalEconomy };
     if (nes) out.nes = { label: "Census Nonemployer Statistics", url: "https://www.census.gov/programs-surveys/nonemployer-statistics.html", vintage: vintageYear(nes.value.year), retrieved: meta.nes.retrieved, verified: ver.nes };
   }
   return out;

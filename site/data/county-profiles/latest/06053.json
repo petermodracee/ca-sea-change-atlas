@@ -178,7 +178,7 @@
       "verified": "2026-10-01"
     },
     "coastal-economy": {
-      "label": "NOAA Total Economy (Coastal), coastal California and coastal U.S.",
+      "label": "NOAA Total Economy (Coastal), shoreline counties of California and of the U.S.",
       "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
       "vintage": {
         "kind": "year",

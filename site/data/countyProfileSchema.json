@@ -130,22 +130,20 @@
           "title": "Flooded Facilities Can't Provide Critical Services",
           "prose": ["First responders. Hospitals. Shelters. All play a central role in response and recovery. Incorporating vulnerability information into planning efforts save lives (fewer instances where critical services are made unavailable) and is cost effective (fewer damages to facilities)."],
           "kind": "inside-outside",
-          "caption": "Critical facilities inside and outside the floodplain, by type."
+          "caption": "Critical facilities, by type."
         },
         {
           "id": "homes-at-risk",
           "title": "Homes at Risk",
           "prose": ["Flooding is costly for homeowners, no doubt. But the community also shares in the cost as lowered property values negatively affect tax revenues."],
           "kind": "payouts",
-          "caption": "National Flood Insurance Program payouts by five-year period."
+          "caption": "NFIP payouts by five-year period."
         },
         {
           "id": "jobs-at-risk",
           "title": "Being Underwater Is Not a Good Business Plan",
           "prose": [
-            "Flood-related losses of services, revenues, and salaries can hit a community hard.",
-            "This counts jobs, not businesses: a different measure from the business counts NOAA's original snapshots reported."
-          ],
+            "Flood-related losses of services, revenues, and salaries can hit a community hard."],
           "kind": "single-share"
         },
         {
@@ -176,15 +174,13 @@
           "title": "Flooded Facilities Can't Provide Critical Services",
           "prose": ["Fire and police stations. Hospitals. Shelters. These facilities play a central role in response and recovery. Understanding future exposure can help reduce damages and the conditions that make these services unavailable."],
           "kind": "increment-bars",
-          "caption": "Facilities exposed at each increment of sea level rise, by type."
+          "caption": "Facilities exposed at each increment of sea level rise."
         },
         {
           "id": "jobs-at-risk",
           "title": "Being Underwater Is Not a Good Business Plan",
           "prose": [
-            "Flood-related losses of services, revenues, and salaries can hit a community hard.",
-            "This counts jobs, not businesses: a different measure from the business counts NOAA's original snapshots reported."
-          ],
+            "Flood-related losses of services, revenues, and salaries can hit a community hard."],
           "kind": "increment-single",
           "caption": "Jobs in areas exposed at each increment of sea level rise."
         },
@@ -193,7 +189,7 @@
           "title": "Creating a Better Future: Yes, It Can Be Done",
           "prose": ["Make it a goal: more natural areas (wetlands, forests, parks, dunes, etc.) to absorb floodwaters and protect the community, and less development in flood-prone areas. Consider not only today’s floodplain, but also the floodplain extent projected for the future."],
           "kind": "increment-composition",
-          "caption": "Land cover inundated at each increment of sea level rise, in square miles."
+          "caption": "Land cover inundated at each increment of sea level rise."
         },
         {
           "id": "when-to-act",
@@ -222,15 +218,13 @@
           "title": "Diverse Economies are Resilient Economies",
           "prose": ["An economy comprised of multiple sectors can better handle disruptions, including storms and economic downturns. Understanding how each sector is represented in your coastal county is important, particularly for hazard mitigation planning."],
           "kind": "sector-measures",
-          "caption": "Establishments, wages, employment and GDP by sector, each as a share of the county total."
+          "caption": "Share of the county total, by sector."
         },
         {
           "id": "jobs-at-risk",
           "title": "Coastal Jobs Are Vulnerable",
           "prose": [
-            "Many jobs in coastal counties are vulnerable to flooding. This graphic shows the number of jobs threatened by two flood scenarios: current flooding (the 100-year floodplain) and future flooding (six feet of sea level rise).",
-            "This counts jobs, not businesses: a different measure from the business counts NOAA's original snapshots reported."
-          ],
+            "Many jobs in coastal counties are vulnerable to flooding. This graphic shows the number of jobs threatened by two flood scenarios: current flooding (the 100-year floodplain) and future flooding (six feet of sea level rise)."],
           "kind": "stat-pair"
         },
         {
@@ -266,7 +260,7 @@
           "title": "Business Diversity",
           "prose": ["Understanding the types and amounts of businesses in the marine economy will inform community planning and management initiatives. This graphic highlights the six sectors that make up the marine economy."],
           "kind": "sector-measures",
-          "caption": "Establishments, wages, employment and GDP by sector, each as a share of the county total."
+          "caption": "Share of the county total, by sector."
         },
         {
           "id": "wages",

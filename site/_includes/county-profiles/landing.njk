@@ -37,7 +37,7 @@
 {%- endif %}
 {%- elif county.isFixture %}
 <div class="cp-fixture" role="note">
-<p><strong>Placeholder figures.</strong> This county's topic pages show invented numbers to exercise the layout — they are not measurements of {{ county.name }} County.</p>
+<p><strong>Placeholder figures.</strong> This county's topic pages show invented numbers to exercise the layout; they are not measurements of {{ county.name }} County.</p>
 </div>
 {%- endif %}
 
@@ -81,7 +81,7 @@
 {%- if county.snapshots.length %}
 <ul class="cp-snapshot-list">
 {%- for s in county.snapshots %}
-<li><a href="{{ (base + s.date + '/') | url }}">{{ s.date }}</a>{% if s.isCurrent %} — current{% endif %}{% if dated and s.date == profile.snapshot %} — you are here{% endif %}</li>
+<li><a href="{{ (base + s.date + '/') | url }}">{{ s.date }}</a>{% if s.isCurrent %} (current){% endif %}{% if dated and s.date == profile.snapshot %} (you are here){% endif %}</li>
 {%- endfor %}
 </ul>
 {%- if county.snapshots.length < 2 %}

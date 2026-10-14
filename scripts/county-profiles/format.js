@@ -37,7 +37,7 @@ function apaDate(iso) {
 // and `verified`, shown only in the Data and method table). `short` is the inline form (years only
 // for a period); `full` is the table form. A null vintage means the source publishes none.
 function vintageText(v, mode) {
-  if (!v) return "no published vintage";
+  if (!v) return "period not published";
   if (v.kind === "date") return v.date;
   if (v.kind === "year") return String(v.year);
   if (v.kind === "period") {

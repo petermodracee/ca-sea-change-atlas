@@ -87,7 +87,6 @@
 <div class="cpd-left">
 <p class="cpd-eyebrow">About this data</p>
 <h2>Data, methods and citation</h2>
-<p class="cpd-prose">Every figure on this page comes from one dated snapshot. A source's vintage is the period it describes, which can be years before the snapshot date.</p>
 <dl class="cpd-facts">
 <dt>Snapshot</dt><dd>{{ profile.snapshot }} · <a href="{{ (base | url) }}#earlier-snapshots">all snapshots</a></dd>
 <dt>Methodology</dt><dd>Version {{ profile.method }} · <a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">what changed</a></dd>
@@ -97,10 +96,7 @@
 {%- endif %}
 </dl>
 {%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
-<p class="cpd-note">In the JSON download, a figure with an <code>est</code> object was partly imputed: <code>share</code> is the imputed fraction, <code>weakShare</code> the part imputed at the two weakest steps (4 and 5), <code>step</code> the weakest step used. <code>"suppressed": true</code> marks a withheld figure, with a <code>reason</code>. To keep only published figures, drop any figure with an <code>est</code> object or a <code>suppressed</code> flag.</p>
-{%- endif %}
-{%- if topic.id == "marine-economy" %}
-<p class="cpd-note">This topic omits jobs at risk: no open source isolates marine jobs by location. <a href="{{ '/county-profiles/about/' | url }}#marine-jobs">Why, on the methodology page</a>.</p>
+<p class="cpd-note">Some figures are estimated with NOAA's Open ENOW method, and some are withheld. <a href="{{ '/county-profiles/about/' | url }}#estimated">How estimates are made</a> · <a href="{{ '/county-profiles/about/' | url }}#withheld-reasons">Why figures are withheld</a></p>
 {%- endif %}
 </div>
 <div class="cpd-panel">
@@ -112,7 +108,7 @@
 </div>
 <div class="cpd-tview" style="max-height:none">
 {#- Three columns only: the slides themselves already say what each source is used for. -#}
-<table class="cpd-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Vintage</th><th scope="col">Retrieved</th></tr></thead>
+<table class="cpd-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Period covered</th><th scope="col">Retrieved</th></tr></thead>
 <tbody>
 {%- for s in sourcesUsed %}
 <tr><th scope="row"><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a></th><td class="cpd-vintage-cell">{{ s.vintage }}</td><td class="cpd-num">{{ s.retrieved }}</td></tr>
@@ -121,7 +117,7 @@
 </table>
 </div>
 </div>
-{%- set footerAttribution %}<a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
+{%- set footerAttribution %}<a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
 {% include "footer.njk" %}
 </div>
 </section>

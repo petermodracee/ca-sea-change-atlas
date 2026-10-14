@@ -28,7 +28,7 @@ try {
   process.exit(2);
 }
 
-const ROOT = path.join(__dirname, "..", "..", "_site");
+const ROOT = process.env.SITE_DIR ? path.resolve(process.env.SITE_DIR) : path.join(__dirname, "..", "..", "_site");
 const TOPICS = ["flood-hazard", "sea-level-rise", "total-economy", "marine-economy"];
 const DEFAULT_COUNTIES = ["orange", "contra-costa", "san-mateo", "sacramento", "lake", "del-norte", "humboldt", "san-diego", "los-angeles"];
 const TYPES = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml" };
