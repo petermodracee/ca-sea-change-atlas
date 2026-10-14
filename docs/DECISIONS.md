@@ -131,7 +131,7 @@ Data is present over the Delta in all three counties, at both heights. The islan
 The old popup identified vector layer 0 ("Low-lying Areas") and answered "Within low-lying area: Yes" or "Not within a low-lying area", which a click in the blue read as "not flooded". Tested at Alameda: identify on layer 0 returned the same polygon (OBJECTID 24) at open bay water, a low-lying green patch, and dry land, at 2 ft and 10 ft. Layer 0 holds 54 huge dissolved polygons (extent -171 to 146 degrees longitude), and a point query at a dry Alameda location also hit one, so it cannot say where the low-lying areas are. Identify on raster layer 1 (Depth) returned no result at any of those points. Neither service layer is usable for a point answer, so the popup now reads the one cached tile pixel under the click, as the Cal-Adapt and C-CAP layers do: bright green (85, 255, 0) is low-lying and not connected, any other opaque colour (the violet-blue to pale-cyan depth ramp) is connected flooding, transparent is neither. This gives no depth number; the depth is only in the colour (the legend says "deep to shallow"). The tile ramp includes open water such as the Bay, so the popup says so. Checked at Alameda at 2 ft and 10 ft on a green patch, on blue and on dry land.
 
 ### Link fixes found while testing
-`NoaaSlrLayer.init()` set the slider to 3 ft after the permalink had restored it, so `noaaSlrSlider` in a link was silently ignored. The override is gone; `site/map/index.njk`'s `value="6"` is the default. A link carrying only `countySelect` (no `map=`) fits that county, and a link with `map=` leaves the view alone.
+`NoaaSlrLayer.init()` set the slider to 3 ft after the permalink had restored it, so `noaaSlrSlider` in a link was silently ignored. The override is gone; `site/_includes/map-panel.njk`'s `value="6"` is the default. A link carrying only `countySelect` (no `map=`) fits that county, and a link with `map=` leaves the view alone.
 
 ## Practitioner-survey resources
 
@@ -163,3 +163,21 @@ USACE ERDC's probabilistic storm-hazard system covers the Atlantic, Gulf, Great 
 
 ### Nominatim: submit only
 Search runs on submit, never per keystroke, because Nominatim's usage policy forbids autocomplete. Results are biased to a California viewbox and limited to the US.
+
+### Panel collapse state lives in localStorage, not the permalink
+Whether the layer panel is collapsed is a viewing preference of the person at the screen, not part of what the map shows. A shared link should reproduce the view, basemap and layers, and should not force someone's collapsed panel on the reader. So the choice is stored per browser in `localStorage` (`atlas.panelCollapsed`), like the basemap, and is not in the hash. Storage access is always wrapped in try/catch; blocked storage means the panel is open.
+
+### Embed defaults, and what the embed leaves out
+The embed (`/map/embed/`, see [`MAP.md`](MAP.md#embed)) differs from the full map on purpose.
+
+- **Unlocked by default, lock is opt-in (`?panel=locked`).** An embed is usually placed by someone who wants readers to explore; a locked one is the case where the author wants one fixed scenario. Defaulting to locked would make every embed a static picture unless the author knew to ask.
+- **No locate button.** Cross-origin iframes can't use geolocation unless the host page adds `allow="geolocation"` to the `<iframe>`, so the button would silently fail on most sites.
+- **No address search.** Nominatim's usage policy applies to the site making the requests; search from many third-party pages would count against this site's use of a free service that forbids heavy use. The full map is one click away.
+- **Basemap: `base=` or greyscale, never the remembered choice.** Embeds should show what the author chose, not whatever the reader picked on the full map; storage inside a third-party iframe is also partitioned or blocked in many browsers, so it couldn't be relied on anyway.
+- **Canonical to `/map/`, out of the sitemap.** The embed is a view of the map, not a page to rank. It is not marked `noindex`, so a crawler that does reach it is pointed at the real page.
+
+### Embed panel: drawer from 480px, bottom sheet only below
+The full map switches to the bottom sheet at 768px because that is a window width. In an iframe the same media query measures the frame, so the common 600-800px report column got the bottom sheet, which covers most of a 450px-tall map. The embed has its own breakpoint: 480px and wider get the Layers button and a right-hand drawer that overlays the map (no resize, capped at 60% of the frame so some map stays visible); only frames under 480px get the sheet. The full map's 768px behavior is unchanged. The legend card's start-as-pill rule (frames under 600px) still makes sense with the drawer and was left alone.
+
+### Embed print has its own block
+The full map's print block builds a landscape sheet (map forced to 700x610 beside a legend column, legend control hidden). In an iframe that made the embedded document larger than its frame (scrollbars, cropped map) and removed the legend from the page. A printed embed should look like the embed on screen, since the host page is usually a report that needs the colors explained, so a second `@media print` block scoped to `body.map-embed` overrides the first rather than the full map's rules being rewritten (its printed output was compared before and after: identical). The legend card prints expanded and uncapped; the bar's links print as plain text. Found while checking printed PDFs: a below-the-fold frame's tiles could print transparent (Leaflet's opacity fade-in is rAF-driven), hence the `opacity:1` override for tiles in the embed print block.

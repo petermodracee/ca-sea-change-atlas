@@ -6,7 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#1B3A4B">
 <link rel="icon" type="image/svg+xml" href="{{ '/img/favicon.svg' | url }}">
-<link rel="canonical" href="{{ site.url }}{{ page.url }}">
+{%- set canonicalUrl = site.url + (canonicalPath or page.url) %}
+<link rel="canonical" href="{{ canonicalUrl }}">
 {%- if description %}
 <meta name="description" content="{{ description }}">
 {%- endif %}
@@ -16,7 +17,7 @@
 <meta property="og:description" content="{{ description }}">
 {%- endif %}
 <meta property="og:type" content="website">
-<meta property="og:url" content="{{ site.url }}{{ page.url }}">
+<meta property="og:url" content="{{ canonicalUrl }}">
 {%- set previewImage = ogImage or "/img/preview-map.png" %}
 <meta property="og:image" content="{{ site.url }}{{ previewImage }}">
 <meta name="twitter:card" content="summary_large_image">
@@ -36,11 +37,15 @@
 </head>
 <body class="{{ bodyClass }}">
 
+{%- if not embed %}
 {% include "header.njk" %}
+{%- endif %}
 
 {{ content | safe }}
 
+{%- if not embed %}
 {% include "footer.njk" %}
+{%- endif %}
 
 {%- if leaflet %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>

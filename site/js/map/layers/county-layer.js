@@ -11,7 +11,7 @@ import { cachedFetch } from "../shared/request-cache.js";
 const TIGERWEB_URL = "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer";
 const COUNTY_LAYER_ID = 7;
 // The counties County Profiles covers (NOAA Coastal County Snapshots' California list). Only these are fetched and drawn.
-// Keep in step with the County Profiles spine and with the options in site/map/index.njk: County Profiles links set the select.
+// Keep in step with the County Profiles spine and with the options in site/_includes/map-panel.njk: County Profiles links set the select.
 export const PROFILE_COUNTY_FIPS = ["06001", "06013", "06015", "06023", "06033", "06037", "06041", "06045", "06053", "06055", "06059", "06067", "06069", "06073", "06075", "06077", "06079", "06081", "06083", "06085", "06087", "06095", "06097", "06101", "06105", "06111", "06113"];
 const GENERALIZE_DEGREES = 0.001; // about 100 m; keeps the statewide response near 330 KB
 const FIT_PADDING_PX = 20;
