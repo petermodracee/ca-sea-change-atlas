@@ -71,7 +71,7 @@
 {%- endfor %}
 </svg></div>
 {%- if series.length %}<ul class="cpd-legend" aria-hidden="true">{% for name in series %}<li><span class="cpd-swatch cp-bar-s{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}</ul>{% endif %}
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h4 class="sr-only">Data table: {{ title }}</h4>
 <table class="sr-only">
 <thead><tr><th scope="col"></th>{% if series.length %}{% for name in series %}<th scope="col">{{ name }}</th>{% endfor %}{% else %}<th scope="col">Value</th>{% endif %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for b in row.bars %}<td>{{ b.tip }}</td>{% endfor %}</tr>{% endfor %}</tbody>
@@ -106,7 +106,7 @@
                     {%- if seg.suppressed %}
                         <text class="cp-withheld" x="{{ seg.x + 2 }}" y="{{ row.midY }}">withheld</text>
                     {%- else %}
-                        <path class="cp-bar {{ segClasses[loop.index0] if segClasses else ('cp-bar-s' + loop.index0) }}" data-tip="{{ row.label }} — {{ legend[loop.index0] }}: {{ seg.text }}{% if row.keyTip %}&#10;{{ row.keyTip }}{% endif %}" transform="translate(0,{{ row.barY }})" d="{{ seg.path }}"/>
+                        <path class="cp-bar {{ segClasses[loop.index0] if segClasses else ('cp-bar-s' + loop.index0) }}" data-tip="{{ row.label }}, {{ legend[loop.index0] }}: {{ seg.text }}{% if row.keyTip %}&#10;{{ row.keyTip }}{% endif %}" transform="translate(0,{{ row.barY }})" d="{{ seg.path }}"/>
                     {%- endif %}
                 {%- endfor %}
                 <text class="cp-bar-value" x="{{ (row.segments | last).x + (row.segments | last).w + 10 }}" y="{{ row.midY }}">{{ row.keyLabel }}</text>
@@ -126,7 +126,7 @@
             {% endfor %}
         </ul>
     {% endif %}
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h4 class="sr-only">Data table: {{ title }}</h4>
 <table class="sr-only">
 <thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for seg in row.segments %}<td>{{ seg.text }}</td>{% endfor %}</tr>{% endfor %}</tbody>
@@ -169,7 +169,7 @@
 </div>
 {%- set legendHtml %}<ul class="cpd-legend{{ ' cpp-key' if print else '' }}" aria-hidden="true">{% for name in legend %}{% set seg0 = g.rows[0].segments[loop.index0] %}<li><span class="cpd-legend-icon{{ ' cpd-legend-icon-headline' if seg0.isHeadline else '' }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="18" height="18" aria-hidden="true">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}</span>{{ name }}</li>{% endfor %}</ul>{% endset %}
 {%- if not print %}{{ legendHtml | safe }}{% endif %}
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h4 class="sr-only">Data table: {{ title }}</h4>
 <table class="{{ 'sr-only cpp-icons' if print else 'sr-only' }}">
 <thead><tr><th scope="col"></th>{% for name in legend %}{% if print %}{% set seg0 = g.rows[0].segments[loop.index0] %}<th scope="col" class="cpp-iconhead" title="{{ name }}">{% if seg0.icon %}<svg viewBox="{{ seg0.icon.viewBox }}" width="17" height="17" aria-hidden="true" class="cpp-headicon{{ ' cpp-headicon-headline' if seg0.isHeadline else '' }}">{{ (seg0.icon.fillInner if seg0.isHeadline else seg0.icon.outlineInner) | safe }}</svg>{% endif %}<span class="cpp-vh">{{ name }}</span></th>{% else %}<th scope="col">{{ name }}</th>{% endif %}{% endfor %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for seg in row.segments %}<td>{% if seg.suppressed %}withheld{% elif print %}{{ seg.printText or seg.text }}{% else %}{{ seg.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
@@ -215,7 +215,7 @@
 {%- if increments %}{{ incrementSlider(uid, increments, increments[0], 'data-cpd-col-incs', g.mt / g.width, (g.height - g.axisY) / g.width) }}{% endif %}
 </div>
 <ul class="cpd-legend" aria-hidden="true">{% for name in legend %}<li><span class="cpd-swatch cpd-ramp-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}{% if g.groups[0].cols[0].hasLow %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}</ul>
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h4 class="sr-only">Data table: {{ title }}</h4>
 <table class="sr-only">
 {%- if print and g.groups[0].cols[0].hasLow %}<caption>Each cell: exposure in ocean-connected areas; the figure in parentheses beneath includes isolated low-lying areas.</caption>{% endif %}
 <thead><tr><th scope="col"></th>{% for name in legend %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
@@ -263,7 +263,7 @@
 </div>
 <ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch cp-bar-s0"></span>Exposed at the selected increment</li>{% if g.rows[0].states[0].lowLabel %}<li><span class="cpd-swatch cpd-swatch-extra"></span>Affected in low-lying areas</li>{% endif %}<li><span class="cpd-swatch cp-bar-not-exposed"></span>Not yet exposed</li></ul>
 {%- endif %}
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h4 class="sr-only">Data table: {{ title }}</h4>
 <table class="{{ 'cpp-figtable' if print else 'sr-only' }}">
 {%- if print and g.rows[0].states[0].lowLabel %}<caption>Each cell: facilities exposed in ocean-connected areas; the figure in parentheses beneath includes isolated low-lying areas.</caption>{% endif %}
 <thead><tr><th scope="col"></th><th scope="col">Total</th>{% for ft in increments %}<th scope="col">{{ ft }} ft exposed</th>{% endfor %}</tr></thead>
@@ -294,7 +294,7 @@
 </svg>
 </div>
 <ul class="cpd-legend" aria-hidden="true">{% for name in series %}<li><span class="cpd-swatch cpd-dot-{{ loop.index0 }}"></span>{{ name }}</li>{% endfor %}</ul>
-<h4 class="sr-only">{{ title }} — data table</h4>
+<h4 class="sr-only">Data table: {{ title }}</h4>
 <table class="sr-only">
 <thead><tr><th scope="col"></th>{% for name in series %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
 <tbody>{% for row in g.rows %}<tr><th scope="row">{{ row.label }}</th>{% for d in row.dots %}<td>{% if d.suppressed %}withheld{% else %}{{ d.text }}{% endif %}</td>{% endfor %}</tr>{% endfor %}</tbody>
