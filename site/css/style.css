@@ -1,4 +1,5 @@
 :root{
+  color-scheme:light; /* native controls (option lists, scrollbars, autofill) draw to match the theme */
   --ink:#122430;
   --navy:#1B3A4B;
   --navy-2:#234B5F;
@@ -17,6 +18,7 @@
   --rust-text:#7C331D;
 }
 [data-theme="dark"]{
+  color-scheme:dark;
   --paper:#0F1D26;
   --paper-2:#152833;
   --line:#2C4552;
@@ -30,6 +32,7 @@
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
+    color-scheme:dark;
     --paper:#0F1D26;
     --paper-2:#152833;
     --line:#2C4552;
@@ -42,6 +45,8 @@
     --rust-text:#E8896A;
   }
 }
+/* A native option list can ignore color-scheme, so the options carry the theme's own colors. */
+select option,select optgroup{background-color:var(--paper);color:var(--ink);}
 *{box-sizing:border-box;}
 body{
   margin:0;
@@ -1493,6 +1498,7 @@ a.cp-topic-card.is-available:hover,a.cp-topic-card.is-available:focus-visible{ba
 .cp-picker-label{margin:0;font-size:24px;}
 .cp-combo{position:relative;}
 .cp-combo-input{width:100%;box-sizing:border-box;padding:14px 16px;font:inherit;font-size:18px;border:2px solid var(--ink-soft);border-radius:8px;background:var(--paper);color:var(--ink);}
+.cp-combo-input::placeholder{color:var(--ink-soft);opacity:1;}
 .cp-combo-input:focus{outline:3px solid var(--teal);outline-offset:1px;border-color:var(--teal);}
 .cp-combo-list{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);margin:0;padding:4px 0;list-style:none;max-height:min(60vh,420px);overflow-y:auto;background:var(--paper);border:1px solid var(--ink-soft);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);}
 .cp-combo-list[hidden]{display:none;}

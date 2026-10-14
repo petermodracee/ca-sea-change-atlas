@@ -57,6 +57,10 @@ Front-matter keys the layout understands:
 
 Third-party scripts come from unpkg at pinned versions with Subresource Integrity hashes (`base.njk` for Leaflet, esri-leaflet and locatecontrol; `js/map/basemaps.js` for the lazily loaded MapLibre pair). When bumping one, regenerate its hash. `img/preview-map.png` and `img/preview-sources.png` are screenshots used on the landing page and as social previews; they are not generated, so refresh them by hand when those pages change substantially.
 
+### Theming
+
+The theme's custom properties are defined in `site/css/style.css` three times: `:root` (light), `[data-theme="dark"]`, and the `prefers-color-scheme: dark` block (which skips `[data-theme="light"]`). Each also sets `color-scheme`, so native controls (option lists, scrollbars, autofill) draw to match, and `select option` / `optgroup` carry the theme's `--paper` and `--ink` explicitly for browsers that ignore `color-scheme`. There is no visible toggle yet; the site follows the operating system, and a toggle only has to set `data-theme` on `<html>`.
+
 ### Table of contents component
 
 `site/_includes/toc.njk` plus `site/js/toc.js` give a page a sticky left-hand table of contents (a top block on narrow screens). To use it: wrap the page body in `<div class="wrap page-toc">`, `{% include "toc.njk" %}`, put the content in a container with `data-toc-source`, and add `/js/toc.js` to `extraScripts`. The script lists the container's `<h2>` headings, adds slug ids to any that lack one, and highlights the section in view. `about/licenses.njk` is the reference example, and `about/index.njk` uses it too; adopting it needed no changes to a page's prose.
