@@ -1471,3 +1471,4 @@ a.cp-topic-card.is-available:hover,a.cp-topic-card.is-available:focus-visible{ba
 .hero .cp-switcher label{color:#DCE6DE;}
 .cpd-topbar .cp-switcher label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
 @media print{.cp-switcher{display:none !important;}}
+.cp-meta-list .cp-cite{max-width:72ch;overflow-wrap:anywhere;}
