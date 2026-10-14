@@ -90,17 +90,21 @@ description: How the County Profiles figures are computed, which tide gauge each
 <p>The natural-features sections use NOAA's C-CAP regional land cover at 30 metres, the 1996 and 2016 epochs (the newest the regional product offers). Each pixel counts once, by its 2016 class. Wetland is the palustrine and estuarine wetland and aquatic-bed classes; upland is grassland, forest, scrub and shrub; other is developed, cultivated, pasture, bare and shore land. Open water is not counted as land. Development added is developed in 2016 and not in 1996. Inside and outside the floodplain, and inside each sea level rise extent, are pixel counts against the same hazard polygons as every other section.</p>
 </section>
 
+<section class="cp-topic" id="limits">
+<h2>Limits of these figures</h2>
+
 <section class="cp-topic" id="withheld">
-<h2>Withheld values, zeros and gaps</h2>
+<h3>Withheld values, zeros and gaps</h3>
 <p>Four different things can stand where a plain number would be, and the pages never blur them. <strong>Zero</strong> is an answer: a county with no medical facilities in its floodplain shows 0, and a marine sector with no jobs in a county shows none. <strong>Withheld</strong> is a figure this page does not show, for one of four reasons that the slide's footnote and the JSON <code>reason</code> field give: the public data hides it and too much of an estimate would rest on the weakest methods (<a href="#estimated">below</a>); the public data hides it and there is nothing to estimate it from; we could not reproduce NOAA's GDP ratio for it (Public administration); or tourism and recreation's shoreline share could not be calibrated. It appears as "withheld", a total that leaves one out is marked incomplete with an asterisk, and a callout is never stated from a figure whose parts are withheld. <strong>Estimated</strong> is a figure partly built from values the source withholds for confidentiality and this page fills in (<a href="#estimated">below</a>); it carries a &#8776; mark. <strong>Unavailable</strong> is a section or topic with no data at all, and it states its reason where the section would be.</p>
 </section>
 
 <section class="cp-topic" id="sectors-not-shown">
-<h2>Sectors that do not appear for some counties</h2>
+<h3>Sectors that do not appear for some counties</h3>
 <p>The wages chart shows an average wage per job, so a sector with no jobs in a county has nothing to average and is left out of that county's chart without comment. This is a zero, not a withheld value: the data says the county has no jobs in that sector (for example, some inland counties have no tourism and recreation jobs in shoreline ZIP codes, and several have no ship and boat building). A withheld value is different and is marked as withheld on the chart. The county's counts elsewhere on the page, such as the Business Diversity chart, still show the zero.</p>
 </section>
 
 <section class="cp-topic" id="marine-jobs">
-<h2>Marine jobs at risk are not published</h2>
+<h3>Marine jobs at risk are not published</h3>
 <p>NOAA's original marine economy snapshot reported how many marine businesses were in the floodplain. County Profiles does not report marine jobs at risk, and there is no substitute. Business locations, which made the original figure possible, are licensed data and cannot be reused, and the open replacement, LEHD LODES job counts, is published by 2-digit industry code, while ENOW's marine sectors are defined at up to 6 digits. No open source isolates marine jobs by location.</p>
+</section>
 </section>

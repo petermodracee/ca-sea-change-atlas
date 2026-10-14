@@ -662,6 +662,7 @@ legend{
 .cp code{font-size:.9em;}
 .cp-note{max-width:72ch;font-size:14.5px;color:var(--ink-soft);}
 .cp-topic{margin:0 0 44px;scroll-margin-top:16px;}
+.cp-topic .cp-topic{margin-bottom:24px;}
 .cp-tier-badge{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.02em;border:1px solid rgba(243,239,224,.5);border-radius:4px;padding:2px 8px;margin-right:6px;color:#FBF8F1;}
 .cp-asof{margin:18px 0 0;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;color:#FBF8F1;}
 .cp-asof-label{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#E9D9AE;}
