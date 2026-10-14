@@ -3,6 +3,7 @@
     `placeholders` and `dated` (boolean) from the pagination context. -#}
 {% from "county-profiles/blocks-deck.njk" import gap, sources, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves %}
 {% from "county-profiles/share-ring.njk" import shareRing %}
+{%- from "county-profiles/card-icon.njk" import cardIcon %}
 {%- from "county-profiles/citation.njk" import citation, citationUrl with context %}
 {%- set profile = county.profile %}
 {%- set reasons = countyProfiles.reasonsById %}
@@ -64,7 +65,8 @@
 <li class="cpd-contents-off"><span aria-disabled="true">{{ s.def.title }}<span class="sr-only"> (not available for this county)</span> <span>{{ "0" if loop.index < 10 }}{{ loop.index }}</span></span></li>
 {%- endif %}
 {%- endfor %}
-<li><a href="#s-about">About this data <span>{{ "0" if (sections.length + 1) < 10 }}{{ sections.length + 1 }}</span></a></li>
+<li><a href="#s-digging-deeper">{{ countyProfiles.diggingDeeper.heading }} <span>{{ "0" if (sections.length + 1) < 10 }}{{ sections.length + 1 }}</span></a></li>
+<li><a href="#s-about">About this data <span>{{ "0" if (sections.length + 2) < 10 }}{{ sections.length + 2 }}</span></a></li>
 </ol>
 </div>
 </div>
@@ -93,6 +95,36 @@
 </div>
 </section>
 {%- endfor %}
+
+{#- Digging Deeper: generated links into the atlas's other tools; the words are in countyProfileDiggingDeeper.json. Screen only (never in print). -#}
+{%- set dd = countyProfiles.diggingDeeper %}
+{%- set ddMap = topic.id | topicMapLink(county.fips) %}
+{%- set ddCompare = county.fips | compareLink %}
+<section class="cpd-slide cpd-digging" id="s-digging-deeper" data-label="{{ dd.heading }}">
+<div class="cpd-left">
+<h2>{{ dd.heading }}</h2>
+<p class="cpd-prose">{{ dd.lede | replace("{county}", county.name) | replace("{topic}", topic.label | lower) }}</p>
+</div>
+<div class="cpd-panel">
+<div class="cpd-panel-body">
+<div class="cp-topic-cards cpd-digging-cards">
+<a class="cp-topic-card is-available" href="{{ ddMap.href | url }}" target="_blank" rel="noopener">
+{{ cardIcon(dd.icons.map, true) }}
+<h3>{{ dd.map.title | replace("{county}", county.name) }}</h3>
+<p>{% if ddMap.layers %}{{ dd.map.lineWithLayers | replace("{layers}", dd.map.layers[topic.id]) }}{% else %}{{ dd.map.line }}{% endif %}</p>
+{%- if dated %}
+<p class="cp-topic-gaps">{{ dd.map.datedNote }}</p>
+{%- endif %}
+</a>
+<a class="cp-topic-card is-available" href="{{ ddCompare.href | url }}">
+{{ cardIcon(dd.icons.compare, true) }}
+<h3>{{ dd.compare.title }}</h3>
+<p>{{ dd.compare.line }}</p>
+</a>
+</div>
+</div>
+</div>
+</section>
 
 <section class="cpd-slide" id="s-about" data-label="About this data">
 <div class="cpd-left">
