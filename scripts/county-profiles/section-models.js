@@ -373,7 +373,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       const ratio = top ? (cv(top.county) / cv(bottom.county)).toFixed(1) + "×" : null;
       callout = countyWithheld || !top ? null : {
         figure: ratio,
-        caption: top.label + " pays the most on average in " + C + "’s economy" + (countyWithheld ? PARTIAL_MARK : "") + " — that many times the lowest-paying sector's wage.",
+        caption: top.label + " pays the most on average in " + C + "’s economy" + (countyWithheld ? PARTIAL_MARK : "") + ", at that many times the lowest-paying sector's wage.",
         partial: countyWithheld,
         est: isEstimatedCell(top.county) || isEstimatedCell(bottom.county),
       };
