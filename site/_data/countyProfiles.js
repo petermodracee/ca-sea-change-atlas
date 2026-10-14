@@ -3,10 +3,12 @@ const path = require("path");
 const schema = require("../data/countyProfileSchema.json");
 const spine = require("./countySpine.json");
 const reference = require("./opcGaugeProjections.json");
+const topicCards = require("./countyProfileTopicCards.json");
 const { validateSnapshot } = require("../../scripts/county-profiles/validate.js");
 const { buildSectionModel } = require("../../scripts/county-profiles/section-models.js");
 const { timingTable, envelope, SCENARIOS, SCENARIO_LABELS, MAP_MIN_FT, MAP_MAX_FT } = require("../../scripts/county-profiles/timing.js");
 const { vintageText } = require("../../scripts/county-profiles/format.js");
+const { iconByName } = require("../../scripts/county-profiles/sector-icons.js");
 const { ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE } = require("../../scripts/county-profiles/estimated.js");
 const { SHORE_TOLERANCE_M } = require("../../scripts/county-profiles/pipeline/enow-def.js");
 
@@ -75,6 +77,15 @@ for (const [fips, snap] of Object.entries(latest)) {
 // since Phase 3: all 27 counties have a real snapshot). A section the pipeline could not compute is
 // unavailable in the snapshot itself, with a reason from the schema's closed set, and renders as a
 // dashed block stating it in position.
+
+// The topic cards on the county chooser: a one-line description and a Material Symbols icon per topic.
+const topicIcons = {};
+for (const t of schema.topics) {
+  const card = topicCards[t.id];
+  if (!card || !card.description) throw new Error("countyProfileTopicCards.json has no description for topic " + t.id);
+  topicIcons[t.id] = iconByName(card.icon);
+  if (!topicIcons[t.id]) throw new Error("countyProfileTopicCards.json: topic " + t.id + " names icon " + card.icon + ", which @material-symbols/svg-400 does not have");
+}
 
 // --- per-county derivations ------------------------------------------------------------------------
 
@@ -163,7 +174,9 @@ function buildCounty(c, profile) {
       coverage: coverage.map((t) => ({
         ...t,
         headline: topicSections[t.id] ? headlineOf(topicSections[t.id]) : null,
+        description: topicCards[t.id].description,
         hasPage: Boolean(topicSections[t.id]),
+        sectionTotal: topicSections[t.id] ? topicSections[t.id].length : 0,
         // Sections of an available topic that have no data: each states its reason where it sits on
         // the topic's own page, and is listed on the landing page too, so a gap inside a topic is
         // as visible as a whole unavailable topic.
@@ -274,6 +287,7 @@ module.exports = {
   tiers,
   floodOnly: tiers.find((t) => t.id === "flood-only"),
   topics: schema.topics,
+  topicIcons,
   increments,
   mapMinFt: MAP_MIN_FT,
   mapMaxFt: MAP_MAX_FT,

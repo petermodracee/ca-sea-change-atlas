@@ -1,0 +1,18 @@
+{
+  "flood": {
+    "icon": "flood",
+    "description": "How much of the county, and how many of its people, homes, facilities and jobs, sit inside the FEMA 100-year floodplain?"
+  },
+  "slr": {
+    "icon": "waves",
+    "description": "Who and what would be exposed at 2 to 10 feet of sea level rise, and when could each level be reached?"
+  },
+  "total-economy": {
+    "icon": "storefront",
+    "description": "How large is the county's whole economy, and how much of it is within reach of sea level rise?"
+  },
+  "marine-economy": {
+    "icon": "sailing",
+    "description": "How big is the ocean-dependent economy, and how diverse and well paid is it?"
+  }
+}
