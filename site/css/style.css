@@ -1471,8 +1471,24 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 @page{size:letter;margin:0;}
 @media print{
   html,body,body.cpd-page,body.cp-landing{height:auto;overflow:visible;display:block;background:#fff;color:#000;}
-  .cpd-topbar,.cpd-dots,.cpd-deck,.cpd-tooltip,.site-header,.site-footer,.hero,.main,.no-print{display:none !important;}
+  .cpd-topbar,.cpd-dots,.cpd-deck,.cpd-tooltip,.site-header,.site-footer,.no-print{display:none !important;}
+  body:not(.cp-landing) .hero,body:not(.cp-landing) .main{display:none !important;}
   .print-only{display:block;}
+  /* The county chooser prints as it looks on screen: the county name, the as-of line, the four cards, the
+     citation and one line pointing at the full-profile print. The switcher, links and the download and
+     snapshot rows stay off the paper. */
+  body.cp-landing .hero{background:none;color:#000;padding:0 0 6pt;border-bottom:1.5px solid #000;margin-bottom:10pt;}
+  body.cp-landing .hero svg,body.cp-landing .hero-nav,.cp-toolbar-actions,.cp-switcher{display:none !important;}
+  body.cp-landing .hero h1{color:#000;font-size:22pt;margin:0;}
+  body.cp-landing .main{display:block;}
+  .cp-toolbar{margin:0 0 10pt;} .cp-toolbar-asof{color:#000;font-size:10pt;}
+  .cp-topic-cards{grid-template-columns:1fr 1fr;gap:10pt;}
+  .cp-topic-card{break-inside:avoid;border:1px solid #888;background:none;padding:8pt 10pt;color:#000;}
+  .cp-topic-card.is-unavailable{border-style:dashed;}
+  .cp-topic-card h3{font-size:13pt;}
+  .cp-topic-card p{font-size:9.5pt;}
+  .cp-chooser-meta{margin-top:10pt;} .cp-meta-list{font-size:9.5pt;}
+  .cp-print-line{margin:10pt 0 0;font-size:9.5pt;overflow-wrap:anywhere;}
   .cpp{margin:0;padding:0;box-shadow:none;max-width:none;}
   /* Zero page margin; the fixed header/footer sit in it and the table-group spacers reserve the same
      height on every printed page (padding would only reserve it on the first). */

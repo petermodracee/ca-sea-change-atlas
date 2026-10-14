@@ -1,6 +1,7 @@
-{#- The county landing page body: a normal document (not a deck), shared by the current route
-    (county.njk) and the dated route (county-snapshot.njk). Expects `county` and `dated`. -#}
-{%- from "county-profiles/citation.njk" import citation, citationUrl with context %}
+{#- The county chooser page body: a normal document (not a deck), shared by the current route
+    (county.njk) and the dated route (county-snapshot.njk). Expects `county` and `dated`. Ctrl+P prints this
+    layout (see the body.cp-landing rules in @media print), not a separate paper version. -#}
+{%- from "county-profiles/citation.njk" import citation with context %}
 {#- An available card shows the topic's intro; an unavailable one shows only the icon, the title and the reason. One topic card's icon: the filled variant when the topic is available, the outlined one when not. -#}
 {%- macro topicIcon(ic, filled) -%}
 <svg class="cp-card-icon" viewBox="{{ ic.viewBox }}" aria-hidden="true" focusable="false">{{ (ic.fillInner if filled else ic.outlineInner) | safe }}</svg>
@@ -91,10 +92,10 @@
 <h2 class="sr-only">Download, citation and snapshots</h2>
 {%- if profile %}
 <dl class="cp-meta-list">
-<dt>Data</dt><dd><a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a></dd>
+<dt class="no-print">Data</dt><dd class="no-print"><a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a></dd>
 <dt>Cite</dt><dd class="cp-cite">{{ citation(county, null, profile.snapshot) }}</dd>
-<dt>Earlier snapshots</dt>
-<dd>
+<dt class="no-print">Earlier snapshots</dt>
+<dd class="no-print">
 {%- if county.snapshots.length %}
 <ul class="cp-snapshot-list">
 {%- for s in county.snapshots %}
@@ -111,17 +112,9 @@
 </dl>
 {%- endif %}
 </section>
+{%- if profile and not dated %}
+<p class="cp-print-line print-only">Full profile: {{ site.url }}{{ (base + 'print/') | url }}</p>
+{%- endif %}
 
 </div>
-</div>
-
-{#- The paper version (hidden on screen, shown by @media print): a cover/summary with absolute URLs. -#}
-{%- set fullPrint = false %}
-{%- set frameLabel = "County profile" %}
-{%- set frameCite = citationUrl(county, null, profile.snapshot) %}
-<div class="cpp print-only">
-{% include "county-profiles/print-frame.njk" %}
-<table class="cpp-layout" role="presentation"><thead><tr><td><div class="cpp-sp-h"></div></td></tr></thead><tfoot><tr><td><div class="cpp-sp-f"></div></td></tr></tfoot><tbody><tr><td class="cpp-body">
-{% include "county-profiles/print-landing.njk" %}
-</td></tr></tbody></table>
 </div>
