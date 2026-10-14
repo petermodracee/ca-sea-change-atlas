@@ -229,6 +229,10 @@ Print is done by the reader's browser from the pages themselves. No PDFs are gen
 
 **Accessibility.** The HTML page is the accessible artifact. A PDF the reader saves from the browser may be untagged, so it is a convenience copy and never the only route to the content.
 
+## Reporting a problem
+
+A wrong figure is a defect, so reports go to GitHub Issues through an issue form, `.github/ISSUE_TEMPLATE/data-problem.yml` (labels `data problem` and `county profiles`; fields `county`, `topic`, `snapshot`, `methodology`, `page`, `figure`, `expected`, `context`). The form's intro text is a `PETER:` placeholder to reword. `.github/ISSUE_TEMPLATE/config.yml` points general questions at Discussions and leaves `blank_issues_enabled` at its default. Both files were validated against the schemastore `github-issue-forms` and `github-issue-config` schemas. Two things are needed on GitHub: the two labels must exist (a template's labels are applied only if they do), and the template must be on the default branch before the form, and the pre-filled links that open it, work end to end.
+
 ## Citation
 
 Each topic deck ends with a recommended citation in APA 7, naming the topic: `California Sea Change Atlas. (2026, September 20). *Orange County coastal county profile: Sea level rise*. <permalink>`. The county landing page's citation drops the topic. The permalink is always the dated route, built from `site.url`, which resolves now for the current (only) snapshot.

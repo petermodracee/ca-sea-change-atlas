@@ -1,0 +1,66 @@
+name: Report a data problem
+description: A County Profiles figure looks wrong
+title: "Data problem: "
+labels: ["data problem", "county profiles"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        PETER: one or two sentences on how reports are handled, for example that each one is checked against its source and a confirmed error is fixed in a new dated snapshot.
+  - type: input
+    id: county
+    attributes:
+      label: County
+    validations:
+      required: true
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Topic
+      options:
+        - Flood hazard
+        - Sea level rise
+        - Total economy
+        - Marine economy
+        - Other or not sure
+    validations:
+      required: true
+  - type: input
+    id: snapshot
+    attributes:
+      label: Snapshot
+      description: "The 'Data as of' date on the page, e.g. 2026-09-24"
+    validations:
+      required: true
+  - type: input
+    id: methodology
+    attributes:
+      label: Methodology version
+      description: "The methodology version shown on the page, e.g. 1"
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page address (URL)
+    validations:
+      required: false
+  - type: textarea
+    id: figure
+    attributes:
+      label: Which figure or chart looks wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect, and where does that come from?
+      description: A source or document helps most.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+    validations:
+      required: false
