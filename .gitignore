@@ -5,3 +5,6 @@ _site/
 
 # County Profiles pipeline: raw source downloads (large, never committed)
 scripts/county-profiles/.cache/
+
+# Zenodo upload folders written by scripts/county-profiles/zenodo-package.js
+zenodo-upload/
