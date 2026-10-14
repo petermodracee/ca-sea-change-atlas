@@ -36,23 +36,28 @@
   "reasons": {
     "outside-enow": {
       "label": "Outside ENOW",
-      "rule": "Outside the economic county definition used by NOAA's Economics: National Ocean Watch (ENOW), so there is no economy data for this county."
+      "rule": "Outside the economic county definition used by NOAA's Economics: National Ocean Watch (ENOW), so there is no economy data for this county.",
+      "summary": "NOAA's ocean economy statistics do not cover this county, so there is no economy data to show."
     },
     "not-shore-adjacent": {
       "label": "Not shore-adjacent",
-      "rule": "On ENOW's county list but outside its shore-adjacent county definition, so the total-economy figures, which cover shore-adjacent counties, do not include it."
+      "rule": "On ENOW's county list but outside its shore-adjacent county definition, so the total-economy figures, which cover shore-adjacent counties, do not include it.",
+      "summary": "NOAA counts this county in its ocean economy list but not among the shoreline counties behind the total economy, so there are no total economy figures for it."
     },
     "no-slr-extent": {
       "label": "No SLR extent",
-      "rule": "No significant sea level rise inundation extent in this county, so there is nothing to intersect. The flood-only tier's rule; also the section-level reason if NOAA's data has no polygon in a county that should have some."
+      "rule": "No significant sea level rise inundation extent in this county, so there is nothing to intersect. The flood-only tier's rule; also the section-level reason if NOAA's data has no polygon in a county that should have some.",
+      "summary": "NOAA's sea level rise data shows no flooded area to measure in this county."
     },
     "no-nfhl-coverage": {
       "label": "No NFHL coverage",
-      "rule": "No effective FEMA National Flood Hazard Layer coverage for this county."
+      "rule": "No effective FEMA National Flood Hazard Layer coverage for this county.",
+      "summary": "FEMA has no current flood hazard maps for this county, so flood exposure cannot be measured."
     },
     "source-geography": {
       "label": "Not in source",
-      "rule": "The source dataset does not extend to this geography."
+      "rule": "The source dataset does not extend to this geography.",
+      "summary": "The data source does not cover this part of California, so there is nothing to show."
     }
   },
 
