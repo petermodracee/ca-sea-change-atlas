@@ -128,7 +128,7 @@
 </table>
 </div>
 </div>
-{%- set footerAttribution %}<a href="{{ '/county-profiles/about/changelog/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/methodology/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
+{%- set footerAttribution %}<a href="{{ '/county-profiles/about/changelog/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/data/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
 {% include "footer.njk" %}
 </div>
 </section>

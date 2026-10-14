@@ -68,3 +68,14 @@ description: The sources behind the County Profiles figures, the year of each, a
 {%- endif %}
 <p>The delta counties (Sacramento, San Joaquin and Yolo) are on ENOW's list but are not in the shore-adjacent total economy series, so they have a marine economy and no total economy. Their sea level rise comes from NOAA's Delta inundation file. Lake, San Benito, Sutter and Trinity are in neither ENOW nor NOAA's sea level rise data, and have flood hazard only. Which counties have which topics did not change when the economy figures were rebuilt.</p>
 </section>
+
+<section class="cp-topic" id="json-download">
+<h3 id="json-fields">What the fields in the JSON download mean</h3>
+<p>Every county's snapshot can be downloaded as JSON from its data and citation slide. In the economy topics, each figure is one of three things:</p>
+<dl class="cp-reasons">
+<div><dt>A plain number</dt><dd>A published figure: no <code>est</code> object and no <code>suppressed</code> flag. To keep only published figures, drop any figure that has either.</dd></div>
+<div><dt><code>est</code></dt><dd>The figure was partly imputed. <code>share</code> is the imputed fraction of its value (0 to 1), <code>weakShare</code> the part imputed at the two weakest steps of the ladder (4 and 5), and <code>step</code> the weakest step used. The page marks it &#8776; when <code>share</code> is {{ em.thresholdPercent if em else 25 }}% or more.</dd></div>
+<div><dt><code>"suppressed": true</code></dt><dd>The figure is withheld, and <code>reason</code> says why: <code>weak-share</code>, <code>no-data</code>, <code>gdp-unreproducible</code> or <code>no-calibration-anchor</code> (each explained <a href="{{ '/county-profiles/about/methodology/' | url }}#withheld-reasons">above</a>).</dd></div>
+</dl>
+<p>A total that leaves a withheld or partial component out is stored as <code>{value, partial: true}</code>, where <code>value</code> is the sum of the components that are present. A county's <code>estimation</code> block records the thresholds used and, for tourism and recreation, each county's shoreline share and how it was set.</p>
+</section>
