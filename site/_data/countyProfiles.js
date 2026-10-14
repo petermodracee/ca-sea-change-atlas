@@ -121,6 +121,15 @@ function placeholderTitlesOf(sections, wholeFixture) {
   return sections.filter((s) => s.sec.available && wholeFixture && s.def.kind !== "timing").map((s) => s.def.title);
 }
 
+// A short plain note of what a county covers when it is not every topic, derived from its coverage
+// ("Flood hazard only", "No total economy"); null for a county with all four.
+function coverageNoteOf(coverage) {
+  const on = coverage.filter((t) => t.available), off = coverage.filter((t) => !t.available);
+  if (!off.length) return null;
+  if (on.length === 1) return on[0].label + " only";
+  return "No " + off.map((t) => t.label.toLowerCase()).join(" or ");
+}
+
 function buildCounty(c, profile) {
     const coverage = schema.topics.map((t) => {
       // A snapshot's topic states are validated to equal its tier's rule, so either source gives the same answer.
@@ -150,6 +159,7 @@ function buildCounty(c, profile) {
     return {
       ...c,
       tierLabel: schema.tiers[c.tier].label,
+      coverageNote: coverageNoteOf(coverage),
       coverage: coverage.map((t) => ({
         ...t,
         headline: topicSections[t.id] ? headlineOf(topicSections[t.id]) : null,

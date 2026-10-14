@@ -18,7 +18,7 @@ Nested under `/county-profiles/`, consistent with how `/map/` and `/compare/` ar
 
 | Route | Page |
 |---|---|
-| `/county-profiles/` | Index: all 27 counties with a coverage matrix and the county-selection explainer (moving to `/county-profiles/about/data/`) |
+| `/county-profiles/` | County picker: the 27 counties in one alphabetical list, with a search box (`js/county-picker.js`, hidden without JavaScript) that filters as you type and a short coverage note (`coverageNote` in `countyProfiles.js`, derived from the county's coverage: "Flood hazard only", "No total economy") on the 7 counties that cover fewer than four topics. The coverage matrix lives on the About data page |
 | `/county-profiles/county/<id>/` | County landing page: header, each topic's headline figure and a link to its page (or its reason, in place), earlier snapshots |
 | `/county-profiles/county/<id>/<topic>/` | Topic deck: a full-width, one-topic-per-page presentation. `<topic>` is `flood-hazard`, `sea-level-rise`, `total-economy` or `marine-economy` |
 | `/county-profiles/county/<id>/<date>/` | Dated landing page, canonical to the current landing page |
