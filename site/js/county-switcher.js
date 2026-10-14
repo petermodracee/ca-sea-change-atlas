@@ -12,6 +12,9 @@
   var select = form.querySelector("select");
   var topic = form.getAttribute("data-topic");
   form.hidden = false;
+  // The switcher is the county label on a deck: the static name it replaces is hidden once it works.
+  var fallback = document.querySelector("[data-cp-switcher-fallback]");
+  if (fallback) fallback.hidden = true;
 
   // The slide most in view in the deck, as "#s-..."; empty on a page with no deck.
   function currentSlide() {
