@@ -45,7 +45,7 @@ Front-matter keys the layout understands:
 
 | Key | Effect |
 |---|---|
-| `title`, `description` | Page title and meta/OG description |
+| `title`, `description` | Page title and meta/OG description. `base.njk` renders any " — " in a title as " | " (in `<title>`, `og:title` and `twitter:title`) |
 | `nav` | Which header link gets `aria-current` |
 | `bodyClass` | Class on `<body>` (`map-page` switches the footer to its compact form) |
 | `leaflet: true` | Loads Leaflet, esri-leaflet and leaflet.locatecontrol (CSS and JS) |
