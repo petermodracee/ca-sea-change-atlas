@@ -73,8 +73,10 @@ jobs:
       - run: node scripts/county-profiles/check-archive.js
       - run: node scripts/county-profiles/state-report.js
 
-      # 4. Build before committing, so a snapshot that breaks the site is never pushed.
+      # 4. Build before committing, so a snapshot that breaks the site is never pushed, then check every
+      # internal link and #fragment in the built site.
       - run: npx eleventy
+      - run: node scripts/check-links.js
 
       # 5. Commit the JSON (dated snapshots, latest/, gate state) and push.
       - name: Commit data

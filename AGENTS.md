@@ -10,6 +10,7 @@ This file is a map, not a manual. It points at the docs, which are the source of
 npm install
 npm run serve   # http://localhost:8080/
 npm run build   # one-off build into _site/ (gitignored); must pass before a PR
+npm run check:links   # after a build: every internal href/src and #fragment must resolve (SITE_DIR overrides _site/)
 ```
 
 `.claude/launch.json` defines an `eleventy-dev` preview server for browser verification. There are no automated tests. The maintainer runs `eleventy --serve --port 8000` against `_site/` outside Claude Code and it must not be stopped: for verification, build elsewhere with `npx eleventy --output=<dir>` and point the dev scripts at it with `SITE_DIR=<dir>`.
