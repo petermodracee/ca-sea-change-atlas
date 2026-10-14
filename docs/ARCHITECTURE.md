@@ -51,6 +51,7 @@ Front-matter keys the layout understands:
 | `leaflet: true` | Loads Leaflet, esri-leaflet and leaflet.locatecontrol (CSS and JS) |
 | `mapModuleEntry` | Adds a `<script type="module">` for the map entry point |
 | `extraScripts` | Extra plain `<script>` files (`compare/index.njk`, `compare/side-by-side.njk`, and `toc.js` on pages with a table of contents) |
+| `subtitle`, `subtitleLink` | A hero subtitle: `subtitle` is the page's own text, `subtitleLink` is `{text, href}` (a site path, run through `url`) appended by `_includes/hero-subtitle.njk`, which a hero includes after its `<h1>`. A subtitle starting "PETER:" is a placeholder: it renders and the build warns, naming the page |
 | `canonical` | Overrides the canonical and Open Graph URL, which default to the page's own (the dated County Profiles snapshot points at the current profile) |
 | `ogImage` | Social preview image; defaults to `img/preview-map.png` |
 | `footerAttribution` | Per-page attribution text shown in the footer |
