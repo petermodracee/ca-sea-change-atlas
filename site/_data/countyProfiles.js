@@ -160,6 +160,7 @@ function buildCounty(c, profile) {
         available: state.available,
         reason: state.reason,
         reasonLabel: state.reason ? schema.reasons[state.reason].label : null,
+        reasonSummary: state.reason ? schema.reasons[state.reason].summary : null,
       };
     });
     const hasSlr = coverage.find((t) => t.id === "slr").available && c.gauge;
@@ -179,6 +180,8 @@ function buildCounty(c, profile) {
       ...c,
       tierLabel: schema.tiers[c.tier].label,
       coverageNote: coverageNoteOf(coverage),
+      // The distinct reader-facing reasons behind that note, in topic order.
+      coverageSummaries: [...new Set(coverage.filter((t) => !t.available).map((t) => t.reasonSummary))],
       coverage: coverage.map((t) => ({
         ...t,
         headline: topicSections[t.id] ? headlineOf(topicSections[t.id]) : null,

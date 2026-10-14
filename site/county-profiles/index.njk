@@ -16,8 +16,6 @@ extraScripts:
 </svg>
 <div class="wrap">
 <h1>County profiles</h1>
-<p class="lede">What does sea level rise and flooding mean for my jurisdiction? Find your county and see its exposure, with the source and vintage of every figure.</p>
-<p class="hero-about-link">Every figure is computed from public data and carries its source and vintage. The tool is still being built: <a href="{{ '/county-profiles/about/' | url }}">see how the figures are computed</a>.</p>
 </div>
 </div>
 
@@ -25,18 +23,29 @@ extraScripts:
 <div class="wrap cp">
 
 <section class="cp-picker" aria-labelledby="cp-picker-title">
-<h2 id="cp-picker-title">Choose a county</h2>
-<div class="cp-picker-search" data-cp-search hidden>
-<label for="cp-county-search">Search {{ cp.counties | length }} counties</label>
-<input type="search" id="cp-county-search" autocomplete="off" placeholder="Start typing a county name">
-<p class="cp-picker-status" id="cp-picker-status" role="status" aria-live="polite"></p>
-</div>
-<ul class="cp-county-list" id="cp-county-list">
+<div class="cp-picker-row">
+<h2 id="cp-picker-title" class="cp-picker-label">Choose a county</h2>
+<div class="cp-picker-box">
+{#- The combobox is built from this list and shown by js/county-picker.js; without JavaScript the plain list in <noscript> is the way in. -#}
+<div class="cp-combo" data-cp-combo hidden>
+<input id="cp-combo-input" class="cp-combo-input" type="text" role="combobox" aria-labelledby="cp-picker-title" aria-expanded="false" aria-controls="cp-combo-list" aria-autocomplete="list" aria-activedescendant="" autocomplete="off" spellcheck="false" placeholder="Search {{ cp.counties | length }} counties">
+<ul id="cp-combo-list" class="cp-combo-list" role="listbox" aria-labelledby="cp-picker-title" hidden>
 {%- for c in cp.counties %}
-<li data-county-name="{{ c.name | lower }}"><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}">{{ c.name }}</a>{% if c.coverageNote %} <span class="cp-county-note">{{ c.coverageNote }}</span>{% endif %}</li>
+<li id="cp-opt-{{ c.slug }}" role="option" aria-selected="false" data-name="{{ c.name | lower }}" data-href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}"><span class="cp-opt-name">{{ c.name }}</span>{% if c.coverageNote %} <span class="cp-opt-note">{{ c.coverageNote }}</span>{% for s in c.coverageSummaries %}<span class="cp-opt-why">{{ s }}</span>{% endfor %}{% endif %}</li>
 {%- endfor %}
 </ul>
-<p class="cp-note">Counties with a note cover fewer topics. <a href="{{ '/county-profiles/about/data/' | url }}#coverage">Which topics each county covers</a>.</p>
+<p class="sr-only" role="status" aria-live="polite" id="cp-combo-status"></p>
+</div>
+<noscript>
+<ul class="cp-county-list">
+{%- for c in cp.counties %}
+<li><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}">{{ c.name }}</a>{% if c.coverageNote %} <span class="cp-county-note">{{ c.coverageNote }}</span>{% endif %}</li>
+{%- endfor %}
+</ul>
+</noscript>
+</div>
+</div>
+<p class="cp-picker-note">Some counties were excluded. <a href="{{ '/county-profiles/about/data/#why-these-counties' | url }}">Find out more.</a></p>
 </section>
 
 </div>
