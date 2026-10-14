@@ -55,10 +55,16 @@ function loadIcon(fileBase) {
 // "identify this segment via the tooltip only" rather than throw).
 function sectorIconFor(label) {
   const name = SECTOR_ICON_NAMES[label];
-  if (!name) return null;
+  return name ? iconByName(name) : null;
+}
+
+// {viewBox, outlineInner, fillInner} for a Material Symbols icon by name, or null if the package has
+// none. The topic cards on the county chooser use this directly.
+function iconByName(name) {
+  if (!fs.existsSync(path.join(ICON_DIR, name + ".svg"))) return null;
   const outline = loadIcon(name);
   const fill = loadIcon(name + "-fill");
   return { viewBox: outline.viewBox, outlineInner: outline.inner, fillInner: fill.inner };
 }
 
-module.exports = { sectorIconFor, SECTOR_ICON_NAMES };
+module.exports = { sectorIconFor, iconByName, SECTOR_ICON_NAMES };
