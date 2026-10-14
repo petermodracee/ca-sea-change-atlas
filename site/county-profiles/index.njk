@@ -3,9 +3,10 @@ layout: base.njk
 title: County profiles | CA Sea Change Atlas
 description: Flood, sea level rise and ocean-economy exposure for California's coastal and Delta counties, with the year each figure covers and the reason behind every gap.
 nav: county-profiles
+extraScripts:
+  - /js/county-picker.js
 ---
 {%- set cp = countyProfiles %}
-{%- set floodOnly = cp.floodOnly %}
 <div class="hero">
 <svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
 <path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
@@ -15,13 +16,28 @@ nav: county-profiles
 </svg>
 <div class="wrap">
 <h1>County profiles</h1>
-<p class="lede">What does sea level rise and flooding mean for my jurisdiction? A profile for each of {{ cp.counties | length }} California counties, rebuilding the function of NOAA's discontinued Coastal County Snapshots. Every figure carries its vintage, and every gap says why it is a gap.</p>
-<p class="hero-about-link">Every figure is computed from public data and carries its source and the year it covers. The tool is still being built: <a href="{{ '/county-profiles/about/' | url }}">see how the figures are computed</a>.</p>
+<p class="lede">What does sea level rise and flooding mean for my jurisdiction? Find your county and see its exposure, with the source and vintage of every figure.</p>
+<p class="hero-about-link">Every figure is computed from public data and carries its source and vintage. The tool is still being built: <a href="{{ '/county-profiles/about/' | url }}">see how the figures are computed</a>.</p>
 </div>
 </div>
 
 <div class="main">
 <div class="wrap cp">
+
+<section class="cp-picker" aria-labelledby="cp-picker-title">
+<h2 id="cp-picker-title">Choose a county</h2>
+<div class="cp-picker-search" data-cp-search hidden>
+<label for="cp-county-search">Search {{ cp.counties | length }} counties</label>
+<input type="search" id="cp-county-search" autocomplete="off" placeholder="Start typing a county name">
+<p class="cp-picker-status" id="cp-picker-status" role="status" aria-live="polite"></p>
+</div>
+<ul class="cp-county-list" id="cp-county-list">
+{%- for c in cp.counties %}
+<li data-county-name="{{ c.name | lower }}"><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}">{{ c.name }}</a>{% if c.coverageNote %} <span class="cp-county-note">{{ c.coverageNote }}</span>{% endif %}</li>
+{%- endfor %}
+</ul>
+<p class="cp-note">Counties with a note cover fewer topics. <a href="{{ '/county-profiles/about/data/' | url }}#coverage">Which topics each county covers</a>.</p>
+</section>
 
 </div>
 </div>
