@@ -50,6 +50,14 @@ Before a new source or library is merged:
 - for a tool, add or update its entry in [`site/data/tools.json`](site/data/tools.json) (`mapEligibility: "excluded"` if it can't go on the map);
 - record why a source was excluded, with the ToU clause or how you verified it, in [`docs/LICENSING.md`](docs/LICENSING.md).
 
+## Reporting a data problem
+
+If a County Profiles figure looks wrong, open an issue with the **Report a data problem** form ([`.github/ISSUE_TEMPLATE/data-problem.yml`](.github/ISSUE_TEMPLATE/data-problem.yml)). Include the county, the topic, the snapshot date (the "Data as of" date on the page), the methodology version, which figure looks wrong, and the source for the value you expected; a source or document helps most.
+
+Every County Profiles page has a "Report a problem with these figures" link that opens the form with the county, topic, snapshot, methodology version and page address already filled in.
+
+Questions and ideas go to [Discussions](https://github.com/petermodracee/ca-sea-change-atlas/discussions), not to issues.
+
 ## Documentation rules
 
 - Per-tool status lives in `site/data/tools.json`. Don't restate it, or counts of tools, in prose; link to it.
