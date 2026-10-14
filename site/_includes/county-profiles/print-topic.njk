@@ -48,7 +48,7 @@
 {%- endfor %}
 
 <section class="cpp-section cpp-about">
-<{{ sh }}>Data, methods and citation</{{ sh }}>
+<{{ sh }}>{{ "Data and methods" if fullPrint else "Data, methods and citation" }}</{{ sh }}>
 <dl class="cpp-facts">
 <dt>Snapshot</dt><dd>{{ profile.snapshot }}</dd>
 <dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ changelogUrl }}#methodology-changelog">{{ changelogUrl }}#methodology-changelog</a></dd>
@@ -60,7 +60,9 @@
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
 {%- endif %}
 </dl>
+{%- if not fullPrint %}
 <p class="cpp-cite"><b>Recommended citation.</b> {{ citation(county, topic, profile.snapshot) }}</p>
+{%- endif %}
 <table class="cpp-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Period covered</th><th scope="col">Retrieved</th></tr></thead>
 <tbody>
 {%- for s in sourcesUsed %}
