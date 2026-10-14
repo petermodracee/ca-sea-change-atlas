@@ -8,6 +8,7 @@
 {%- set ch = "h2" if fullPrint else "h1" -%}
 {%- set sh = "h3" if fullPrint else "h2" -%}
 {%- set aboutUrl = site.url ~ ('/county-profiles/about/' | url) -%}
+{%- set methodologyUrl = site.url ~ ('/county-profiles/about/methodology/' | url) -%}
 {%- set currentUrl = site.url ~ ((base + topic.slug + '/') | url) -%}
 {%- set printMode = true -%}
 <article class="cpp-topic">
@@ -51,7 +52,7 @@
 <dt>Snapshot</dt><dd>{{ profile.snapshot }}</dd>
 <dt>Methodology</dt><dd>Version {{ profile.method }}. What changed: <a href="{{ aboutUrl }}#methodology-changelog">{{ aboutUrl }}#methodology-changelog</a></dd>
 {%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
-<dt>Estimates</dt><dd>Some figures are estimated with NOAA's Open ENOW method, and some are withheld. How estimates are made: {{ aboutUrl }}#estimated. Why figures are withheld: {{ aboutUrl }}#withheld-reasons</dd>
+<dt>Estimates</dt><dd>Some figures are estimated with NOAA's Open ENOW method, and some are withheld. How estimates are made: {{ methodologyUrl }}#estimated. Why figures are withheld: {{ methodologyUrl }}#withheld-reasons</dd>
 {%- endif %}
 {%- if topic.id == "slr" and county.gaugeName %}
 <dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix F)</dd>

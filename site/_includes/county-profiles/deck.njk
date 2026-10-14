@@ -100,7 +100,7 @@
 {%- endif %}
 </dl>
 {%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
-<p class="cpd-note">Some figures are estimated with NOAA's Open ENOW method, and some are withheld. <a href="{{ '/county-profiles/about/' | url }}#estimated">How estimates are made</a> · <a href="{{ '/county-profiles/about/' | url }}#withheld-reasons">Why figures are withheld</a></p>
+<p class="cpd-note">Some figures are estimated with NOAA's Open ENOW method, and some are withheld. <a href="{{ '/county-profiles/about/methodology/' | url }}#estimated">How estimates are made</a> · <a href="{{ '/county-profiles/about/methodology/' | url }}#withheld-reasons">Why figures are withheld</a></p>
 {%- endif %}
 </div>
 <div class="cpd-panel">
@@ -121,7 +121,7 @@
 </table>
 </div>
 </div>
-{%- set footerAttribution %}<a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
+{%- set footerAttribution %}<a href="{{ '/county-profiles/about/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/methodology/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
 {% include "footer.njk" %}
 </div>
 </section>

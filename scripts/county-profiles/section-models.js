@@ -415,7 +415,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         }
       }
       // A sector the county has no jobs in (data.noJobs) is simply not a row: the slide says nothing
-      // about it, and /county-profiles/about/#sectors-not-shown explains it once for every county.
+      // about it, and /county-profiles/about/methodology/#sectors-not-shown explains it once for every county.
       // A withheld value is different (the publisher would not say), so it keeps its footnote.
       const cells = [];
       data.items.forEach((i) => keys.forEach((k, n) => { if (isSuppressed(i[k])) cells.push({ reason: i[k].reason, name: k === "county" ? i.label : i.label + " (" + series[n] + ")" }); }));
