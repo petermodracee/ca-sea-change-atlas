@@ -5,6 +5,7 @@
     where headings sit one level lower). Every href here is absolute (`site.url`), because the print
     stylesheet shows each link's destination. -#}
 {%- from "county-profiles/blocks-deck.njk" import sources -%}
+{%- from "county-profiles/citation.njk" import citation with context -%}
 {%- set ch = "h2" if fullPrint else "h1" -%}
 {%- set sh = "h3" if fullPrint else "h2" -%}
 {%- set changelogUrl = site.url ~ ('/county-profiles/about/changelog/' | url) -%}
@@ -59,7 +60,7 @@
 <dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
 {%- endif %}
 </dl>
-<p class="cpp-cite"><b>Recommended citation.</b> California Sea Change Atlas. ({{ profile.snapshot | apaDate }}). <em>{{ county.name }} County coastal county profile: {{ topic.label }}</em>. <a href="{{ permalink }}">{{ permalink }}</a></p>
+<p class="cpp-cite"><b>Recommended citation.</b> {{ citation(county, topic, profile.snapshot) }}</p>
 <table class="cpp-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Period covered</th><th scope="col">Retrieved</th></tr></thead>
 <tbody>
 {%- for s in sourcesUsed %}
