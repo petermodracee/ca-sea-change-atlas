@@ -1330,7 +1330,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 
 /* ================================================================================
    County Profiles print layout. Every page carries a `.cpp` block rendered at build time from the
-   same sections as the deck (print-topic.njk / print-landing.njk). `.print-only` hides it on screen;
+   same sections as the deck (print-topic.njk). `.print-only` hides it on screen;
    @media print hides the deck and all chrome and shows it, so Ctrl+P, File > Print and the Print
    button print the same thing with no JavaScript. The full-profile page (/print/) shows the same
    block on screen as a paper preview. Print is always light.
@@ -1352,12 +1352,16 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp h1{font-size:26pt;line-height:1.1;} .cpp h2{font-size:16pt;margin:0 0 6pt;} .cpp h3{font-size:12.5pt;margin:0 0 4pt;}
 .cpp-eyebrow{font-size:8.5pt;letter-spacing:.08em;text-transform:uppercase;color:#333;margin:0 0 4pt;}
 .cpp-intro,.cpp-prose{margin:6pt 0;font-size:10.5pt;}
-.cpp-meta,.cpp-note,.cpp-lede,.cpp-asof{margin:5pt 0;font-size:9.5pt;color:#333;}
-.cpp-lede{font-size:11pt;color:#000;}
-.cpp-tier{border:1px solid #000;border-radius:3px;padding:1px 6px;font-weight:600;font-size:9pt;}
-.cpp-asof-label{text-transform:uppercase;letter-spacing:.06em;font-size:8.5pt;}
-.cpp-asof b{font-family:'Spectral',Georgia,serif;font-size:15pt;}
-.cpp-asof-meta{margin-left:10pt;}
+.cpp-meta,.cpp-note,.cpp-asof{margin:5pt 0;font-size:9.5pt;color:#333;}
+/* The full profile opens with a compact title block, then the first topic follows on the same page. */
+.cpp-titleblock{margin:0 0 10pt;padding-bottom:6pt;border-bottom:1.5px solid #000;}
+.cpp-titleblock h1{font-size:22pt;}
+.cpp-titleblock .cpp-asof{font-size:10pt;color:#000;margin:3pt 0 0;}
+.cpp-unavail{margin:10pt 0;padding:8pt 10pt;border:1px dashed #666;break-inside:avoid;}
+.cpp-unavail h2{font-size:13pt;margin:0 0 3pt;}
+.cpp-unavail p{margin:0;font-size:10pt;}
+.cpp-citeblock{margin:14pt 0 0;padding-top:8pt;border-top:1.5px solid #000;break-inside:avoid;}
+.cpp-citeblock h2{font-size:13pt;margin:0 0 4pt;}
 .cpp-notice{border:1.5px solid #000;padding:6pt 9pt;margin:8pt 0;font-size:9.5pt;}
 .cpp-cover{margin:0 0 12pt;padding-bottom:8pt;border-bottom:1.5px solid #000;}
 .cpp-section{padding:10pt 0;border-bottom:1px solid #bbb;}
@@ -1366,12 +1370,6 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 .cpp-cite{font-size:9.5pt;margin:8pt 0;overflow-wrap:anywhere;}
 .cpp-facts{display:grid;grid-template-columns:auto 1fr;gap:2pt 12pt;font-size:9.5pt;margin:6pt 0;}
 .cpp-facts dt{font-weight:600;} .cpp-facts dd{margin:0;}
-.cpp-topics{display:grid;grid-template-columns:1fr 1fr;gap:10pt;margin:8pt 0;}
-.cpp-topic-card{border:1px solid #888;border-radius:4px;padding:8pt 10pt;break-inside:avoid;}
-.cpp-fig{font-family:'Spectral',Georgia,serif;font-size:22pt;font-weight:600;margin:2pt 0 0;color:#134F45;}
-.cpp-cap{font-size:9.5pt;margin:0 0 4pt;}
-.cpp-gaps{margin:4pt 0 0;padding-left:14pt;font-size:9pt;}
-.cpp-code{font-size:8.5pt;}
 .cpp-srctable{width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:6pt;}
 .cpp-srctable th,.cpp-srctable td{text-align:left;padding:2pt 5pt;border-bottom:1px solid #ccc;vertical-align:top;font-weight:400;}
 .cpp-srctable thead th{font-weight:600;border-bottom:1.5px solid #000;}
@@ -1501,7 +1499,8 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
   .cpp-head-name{font-family:'Spectral',Georgia,serif;font-weight:600;font-size:11pt;}
   .cpp-foot{bottom:.35in;flex-direction:column;gap:1pt;border-top:1px solid #000;padding-top:3pt;}
   .cpp-foot-vintage{font-size:8.5pt;} .cpp-foot-cite{overflow-wrap:anywhere;}
-  .cpp-doc .cpp-topic,.cpp-cover-page ~ .cpp-topic{break-before:page;}
+  .cpp-doc .cpp-topic{break-before:page;}
+  .cpp-doc .cpp-titleblock + .cpp-topic{break-before:auto;}
   .cpp-section,.cpp-figure,.cpp .share,.cpp .cpd-gap,.cpp-about{break-inside:avoid;}
 }
 
