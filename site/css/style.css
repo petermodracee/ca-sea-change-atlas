@@ -1432,7 +1432,7 @@ input[type="range"].cpd-slider:focus-visible{outline:2px solid var(--teal-text);
 /* ---------- county picker (county-profiles/index.njk, js/county-picker.js) ---------- */
 .cp-picker-search{margin:0 0 18px;max-width:420px;}
 .cp-picker-search label{display:block;font-size:13px;font-weight:600;margin:0 0 4px;color:var(--ink-soft);}
-.cp-picker-search input{width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink);}
+.cp-picker-search input{width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);}
 .cp-picker-search input:focus{outline:2px solid var(--teal);outline-offset:1px;}
 .cp-picker-status{min-height:1.4em;margin:6px 0 0;font-size:13px;color:var(--ink-soft);}
 .cp-county-list{list-style:none;margin:0 0 16px;padding:0;columns:3 220px;column-gap:28px;}
@@ -1465,7 +1465,7 @@ a.cp-topic-card.is-available:hover,a.cp-topic-card.is-available:focus-visible{ba
 .cp-switcher{display:flex;align-items:center;gap:8px;margin:0;}
 .cp-switcher[hidden]{display:none;}
 .cp-switcher label{font-size:13px;color:var(--ink-soft);}
-.cp-switcher select{font:inherit;font-size:14px;max-width:11em;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);}
+.cp-switcher select{font:inherit;font-size:14px;max-width:11em;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:var(--paper);color:var(--ink);}
 .cp-switcher .cpd-btn{padding:6px 12px;}
 .hero .cp-switcher{margin:14px 0 0;}
 .hero .cp-switcher label{color:#DCE6DE;}
