@@ -299,6 +299,8 @@ module.exports = {
   floodOnly: tiers.find((t) => t.id === "flood-only"),
   topics: schema.topics,
   topicIcons,
+  // For the county switcher: every county and the slugs of the topics that have a page for it.
+  switcher: counties.map((c) => ({ slug: c.slug, name: c.name, topics: c.coverage.filter((t) => t.hasPage).map((t) => t.slug) })),
   increments,
   mapMinFt: MAP_MIN_FT,
   mapMaxFt: MAP_MAX_FT,

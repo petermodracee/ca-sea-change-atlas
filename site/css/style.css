@@ -1507,3 +1507,14 @@ a.cp-topic-card.is-available:hover,a.cp-topic-card.is-available:focus-visible{ba
 .cp-meta-list dd{margin:0;}
 .cp-meta-list .cp-snapshot-list{margin:0;}
 .cp-chooser-meta{margin-top:8px;}
+
+/* ---------- county switcher (_includes/county-profiles/county-switcher.njk, js/county-switcher.js) ---------- */
+.cp-switcher{display:flex;align-items:center;gap:8px;margin:0;}
+.cp-switcher[hidden]{display:none;}
+.cp-switcher label{font-size:13px;color:var(--ink-soft);}
+.cp-switcher select{font:inherit;font-size:14px;max-width:11em;padding:6px 8px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);}
+.cp-switcher .cpd-btn{padding:6px 12px;}
+.hero .cp-switcher{margin:14px 0 0;}
+.hero .cp-switcher label{color:#DCE6DE;}
+.cpd-topbar .cp-switcher label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+@media print{.cp-switcher{display:none !important;}}

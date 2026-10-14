@@ -18,6 +18,7 @@
 <div class="wrap">
 <p class="hero-nav"><a href="{{ '/county-profiles/' | url }}">All county profiles</a>{% if dated %} · <a href="{{ base | url }}">Current profile</a>{% endif %}</p>
 <h1>{{ county.name }} County</h1>
+{%- if not dated %}{% set switcherTopic = "" %}{% include "county-profiles/county-switcher.njk" %}{% endif %}
 {%- if profile %}
 <p class="cp-asof"><span class="cp-asof-label">Data as of</span> <time datetime="{{ profile.snapshot }}">{{ profile.snapshot }}</time><span class="cp-asof-meta">Methodology version {{ profile.method }} · generated {{ profile.generated }}</span></p>
 {%- else %}

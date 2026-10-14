@@ -15,6 +15,7 @@
 <a class="cpd-brand" href="{{ '/index.html' | url }}"><img src="{{ '/img/casca-logo.svg' | url }}" alt="" width="30" height="30"><span class="cpd-brand-name">{{ site.name }}</span></a>
 <div class="cpd-divider" aria-hidden="true"></div>
 <div class="cpd-crumb"><small><a href="{{ '/county-profiles/' | url }}">County Profiles</a></small><strong>{{ county.name }} County</strong></div>
+{%- if not dated %}{% set switcherTopic = topic.slug %}{% include "county-profiles/county-switcher.njk" %}{% endif %}
 <nav class="cpd-topics" aria-label="Topics for {{ county.name }} County">
 {%- for t in county.coverage %}
 {%- if t.hasPage %}
