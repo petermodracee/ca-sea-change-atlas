@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        PETER: one or two sentences on how reports are handled, for example that each one is checked against its source and a confirmed error is fixed in a new dated snapshot.
+        This is an independent project and inaccuracies may surface. Please report any suspected errors in methodology or data and I will do my best to address them; the more details you have, the easier it will be to correct any issues. Tool issues with correct underlying data (e.g a display issue) will be updated with a note in the changelog. Refreshed data will result in a new snapshot. Changes in sources or methodology will result in a new method number.
   - type: input
     id: county
     attributes:
