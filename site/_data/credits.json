@@ -125,8 +125,8 @@
       "intro": "Non-flood layers you can overlay on the flood data, each loaded from the agency that publishes it.",
       "items": [
         {
-          "name": "California OPC State Sea Level Rise Guidance (2024), Appendix F",
-          "url": "https://www.oceansciencetrust.org/in-practice/2024slrguidance",
+          "name": "State of California Sea Level Rise Guidance: 2024 Science & Policy Update (California Ocean Protection Council), Appendix 2",
+          "url": "https://www.opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf",
           "note": "Median sea level rise projections for 14 tide gauges, hand-transcribed into the repository (site/_data/opcGaugeProjections.json) and used to compute the County Profiles timing table. The numbers are facts, not the guidance's text, and it states no license; cite the guidance.",
           "licenses": []
         },

@@ -1,5 +1,6 @@
 {
- "source": "California Coastal Commission, Sea Level Rise Policy Guidance, Final Adopted 2024 Update (Nov 13, 2024), Appendix F; values from the OPC State Sea Level Rise Guidance (2024)",
+ "_meta": "Median sea level rise scenarios at 14 NOAA tide gauges, hand-transcribed from Appendix 2 of the Ocean Protection Council's State of California Sea Level Rise Guidance (2024 Science & Policy Update), which prints them as Tables 1 to 14 for 2020 to 2150; this file keeps 2030 to 2150. `table` is that guidance's table number. Cross-checked value by value against the same tables as reprinted in Appendix F of the California Coastal Commission's Sea Level Rise Policy Guidance (Final Adopted 2024 Update, Nov 13, 2024). Checked again against the OPC PDF itself: 910 of 910 values match.",
+ "source": "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2",
  "units": "feet",
  "baseline": 2000,
  "statistic": "median",
@@ -34,7 +35,7 @@
  "gauges": {
   "crescent-city": {
    "name": "Crescent City",
-   "table": "F-1",
+   "table": "1",
    "low": [
     0.1,
     0.1,
@@ -113,7 +114,7 @@
   },
   "north-spit": {
    "name": "North Spit, Humboldt Bay",
-   "table": "F-2",
+   "table": "2",
    "low": [
     0.5,
     0.7,
@@ -192,7 +193,7 @@
   },
   "arena-cove": {
    "name": "Arena Cove",
-   "table": "F-3",
+   "table": "3",
    "low": [
     0.2,
     0.3,
@@ -271,7 +272,7 @@
   },
   "point-reyes": {
    "name": "Point Reyes",
-   "table": "F-4",
+   "table": "5",
    "low": [
     0.3,
     0.4,
@@ -350,7 +351,7 @@
   },
   "san-francisco": {
    "name": "San Francisco",
-   "table": "F-5",
+   "table": "6",
    "low": [
     0.3,
     0.4,
@@ -429,7 +430,7 @@
   },
   "alameda": {
    "name": "Alameda",
-   "table": "F-6",
+   "table": "7",
    "low": [
     0.2,
     0.3,
@@ -508,7 +509,7 @@
   },
   "port-chicago": {
    "name": "Port Chicago",
-   "table": "F-7",
+   "table": "4",
    "low": [
     0.3,
     0.4,
@@ -587,7 +588,7 @@
   },
   "monterey": {
    "name": "Monterey",
-   "table": "F-8",
+   "table": "8",
    "low": [
     0.2,
     0.3,
@@ -666,7 +667,7 @@
   },
   "port-san-luis": {
    "name": "Port San Luis",
-   "table": "F-9",
+   "table": "9",
    "low": [
     0.2,
     0.3,
@@ -745,7 +746,7 @@
   },
   "santa-barbara": {
    "name": "Santa Barbara",
-   "table": "F-10",
+   "table": "10",
    "low": [
     0.2,
     0.3,
@@ -824,7 +825,7 @@
   },
   "santa-monica": {
    "name": "Santa Monica",
-   "table": "F-11",
+   "table": "11",
    "low": [
     0.3,
     0.3,
@@ -903,7 +904,7 @@
   },
   "los-angeles": {
    "name": "Los Angeles",
-   "table": "F-12",
+   "table": "12",
    "low": [
     0.2,
     0.3,
@@ -982,7 +983,7 @@
   },
   "la-jolla": {
    "name": "La Jolla",
-   "table": "F-13",
+   "table": "13",
    "low": [
     0.3,
     0.4,
@@ -1061,7 +1062,7 @@
   },
   "san-diego": {
    "name": "San Diego",
-   "table": "F-14",
+   "table": "14",
    "low": [
     0.3,
     0.4,

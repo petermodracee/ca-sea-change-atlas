@@ -1,6 +1,6 @@
 // Rewrites only the `gauge` block of every snapshot in site/data/county-profiles/latest/ from the spine
 // and the committed OPC reference file, leaving every computed figure untouched. Use it when the gauge
-// assignments or the Appendix F table change, without re-running the network pipeline.
+// assignments or the Appendix 2 table change, without re-running the network pipeline.
 //   node scripts/county-profiles/pipeline/refresh-gauge.js
 
 const fs = require("fs");

@@ -107,11 +107,11 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
     const ref = opcReference.gauges[g.id];
     const p = g.projections;
     if (!ref || !isObj(p)) fail("gauge.projections is required");
-    if (p.baseline !== opcReference.baseline || p.units !== opcReference.units) fail("gauge.projections baseline/units do not match Appendix F");
-    if (JSON.stringify(p.decades) !== JSON.stringify(opcReference.decades)) fail("gauge.projections.decades must be the thirteen Appendix F decades");
+    if (p.baseline !== opcReference.baseline || p.units !== opcReference.units) fail("gauge.projections baseline/units do not match Appendix 2");
+    if (JSON.stringify(p.decades) !== JSON.stringify(opcReference.decades)) fail("gauge.projections.decades must be the thirteen Appendix 2 decades");
     if (JSON.stringify(Object.keys(p.scenarios || {})) !== JSON.stringify(opcReference.recommendedScenarios)) fail("gauge.projections.scenarios must be exactly the three recommended scenarios");
     for (const sc of opcReference.recommendedScenarios) {
-      if (JSON.stringify(p.scenarios[sc]) !== JSON.stringify(ref[sc])) fail("gauge.projections." + sc + " does not match Appendix F for " + g.id);
+      if (JSON.stringify(p.scenarios[sc]) !== JSON.stringify(ref[sc])) fail("gauge.projections." + sc + " does not match Appendix 2 for " + g.id);
     }
     if ("altGauge" in g) fail("gauge.altGauge is not allowed: each county has exactly one gauge");
     for (const stale of ["straddles", "straddleNote"]) {

@@ -1,6 +1,6 @@
 // "When is the time to act?": the year a sea level rise increment is reached at a tide gauge, per
-// scenario, from the committed OPC 2024 Appendix F table (site/_data/opcGaugeProjections.json).
-// Pure build-time maths; no network. Method: piecewise-linear interpolation between the Appendix F
+// scenario, from the committed OPC 2024 Appendix 2 table (site/_data/opcGaugeProjections.json).
+// Pure build-time maths; no network. Method: piecewise-linear interpolation between the Appendix 2
 // decades, starting from 0 ft in 2000, rounded to the nearest year; ">2150" beyond the table.
 
 const SCENARIOS = ["intermediate", "intermediate-high", "high"];
@@ -50,7 +50,7 @@ const ENVELOPE_NOTE = {
   above: "over " + MAP_MAX_FT + " ft, the highest level the map shows",
 };
 
-// The Appendix F values the snapshot carries for a gauge: the three recommended scenarios, every decade.
+// The Appendix 2 values the snapshot carries for a gauge: the three recommended scenarios, every decade.
 function projectionsFor(reference, gaugeId) {
   const g = reference.gauges[gaugeId];
   if (!g) throw new Error("no OPC gauge " + gaugeId);

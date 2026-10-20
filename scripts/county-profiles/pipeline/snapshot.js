@@ -54,7 +54,7 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
     slr: { label: "NOAA Sea Level Rise Viewer inundation extents", url: "https://coast.noaa.gov/slrdata/", vintage: null, retrieved: meta.slr.retrieved, verified: meta.verified.slr },
     lodes: { label: "LEHD LODES8 workplace area characteristics", url: "https://lehd.ces.census.gov/data/lodes/LODES8/ca/wac/", vintage: vintageYear(meta.lodes.year), retrieved: meta.lodes.retrieved, verified: meta.verified.lodes },
     ccap: { label: "NOAA C-CAP regional land cover", url: "https://coast.noaa.gov/digitalcoast/data/ccapregional.html", vintage: { kind: "period", start: "1996-01-01", end: "2016-12-31" }, retrieved: meta.ccap.retrieved, verified: meta.verified.ccap },
-    opc: { label: "California OPC State Sea Level Rise Guidance, Appendix F", url: "https://www.oceansciencetrust.org/in-practice/2024slrguidance", vintage: vintageYear(2024), retrieved: snapshotDate, verified: snapshotDate },
+    opc: { label: "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2", url: "https://www.opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf", vintage: vintageYear(2024), retrieved: snapshotDate, verified: snapshotDate },
   };
 
   // --- flood hazard ---------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
   };
 }
 
-// The reference tide gauge and the OPC 2024 Appendix F projections behind it (the three recommended
+// The reference tide gauge and the OPC 2024 Appendix 2 projections behind it (the three recommended
 // scenarios, all thirteen decades, feet above 2000). One gauge per county.
 function gaugeBlock(entry, spine) {
   if (!entry.gauge) return null;

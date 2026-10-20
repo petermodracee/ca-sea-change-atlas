@@ -467,7 +467,7 @@ export function slrCurves(reference, gaugeId, increments) {
 // ---- projected rise in 2050 and 2100, by scenario (the timing slide's third view) ---------------
 
 // Two groups (the horizons) of three columns (the recommended scenarios, ramp steps 1, 3, 5), in feet
-// above 2000 straight from Appendix F. A value under the map's lowest level or over its highest gets
+// above 2000 straight from Appendix 2. A value under the map's lowest level or over its highest gets
 // a ¤ or ¶; the footnote flags say which are needed. Every column's value is labelled above it.
 export function horizonColumns(reference, gaugeId) {
   const g = reference.gauges[gaugeId];
