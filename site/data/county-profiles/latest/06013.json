@@ -80,7 +80,7 @@
   "sources": {
     "nfhl": {
       "label": "FEMA National Flood Hazard Layer",
-      "url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer",
+      "url": "https://www.fema.gov/flood-maps/national-flood-hazard-layer",
       "vintage": {
         "kind": "period",
         "start": "2009-06-16",
@@ -111,7 +111,7 @@
     },
     "usgs": {
       "label": "USGS National Structures Dataset",
-      "url": "https://www.usgs.gov/core-science-systems/ngp/tnm-corps/structures",
+      "url": "https://data.usgs.gov/datacatalog/data/USGS:db4fb1b6-1282-4e5b-9866-87a68912c5d1",
       "vintage": {
         "kind": "date",
         "date": "2026-03-18"
@@ -132,7 +132,10 @@
     "slr": {
       "label": "NOAA Sea Level Rise Viewer inundation extents",
       "url": "https://coast.noaa.gov/slrdata/",
-      "vintage": null,
+      "vintage": {
+        "kind": "year",
+        "year": 2026
+      },
       "retrieved": "2026-09-24",
       "verified": "2026-09-24"
     },
@@ -159,7 +162,7 @@
     },
     "opc": {
       "label": "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2",
-      "url": "https://www.opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf",
+      "url": "https://opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf",
       "vintage": {
         "kind": "year",
         "year": 2024
@@ -239,7 +242,7 @@
     },
     "open-enow": {
       "label": "NOAA Open ENOW (California and All Coastal States)",
-      "url": "https://coast.noaa.gov/digitalcoast/data/openenow.html",
+      "url": "https://coast.noaa.gov/digitalcoast/data/enow.html",
       "vintage": {
         "kind": "year",
         "year": 2024

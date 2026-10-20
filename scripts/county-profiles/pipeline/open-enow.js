@@ -3,7 +3,7 @@
 //
 // Served by the Digital Coast data API behind the ENOW Explorer: coast.noaa.gov/enow/api/v1/openEnow
 // (?geoid=06000 for California, 00000 for "All Coastal States"; the API ignores `geotype`). The dataset page
-// is https://coast.noaa.gov/digitalcoast/data/openenow.html (redirects) and the method is
+// is https://coast.noaa.gov/digitalcoast/data/enow.html (the ENOW page, which lists Open ENOW) and the method is
 // https://coast.noaa.gov/data/digitalcoast/pdf/enow-introducing-open.pdf. "National" here is "All Coastal
 // States": the coastal portions of the 30 shoreline states, not the whole United States, matching the
 // original ENOW's coastal-U.S. series (NOAA, "Open ENOW ... for the coastal portions of 30 U.S. states").

@@ -126,7 +126,7 @@
       "items": [
         {
           "name": "State of California Sea Level Rise Guidance: 2024 Science & Policy Update (California Ocean Protection Council), Appendix 2",
-          "url": "https://www.opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf",
+          "url": "https://opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf",
           "note": "Median sea level rise projections for 14 tide gauges, hand-transcribed into the repository (site/_data/opcGaugeProjections.json) and used to compute the County Profiles timing table. The numbers are facts, not the guidance's text, and it states no license; cite the guidance.",
           "licenses": []
         },
@@ -205,7 +205,7 @@
         },
         {
           "name": "NOAA Open ENOW",
-          "url": "https://coast.noaa.gov/digitalcoast/data/openenow.html",
+          "url": "https://coast.noaa.gov/digitalcoast/data/enow.html",
           "note": "County Profiles: the method (sector and NAICS definitions, the imputation ladder, the GDP approach) that the county marine economy estimates follow, and the California and All Coastal States (the coastal portions of 30 states) values on the marine wages chart, read through NOAA's data API.",
           "licenses": [
             "pd-us"
@@ -244,8 +244,8 @@
           ]
         },
         {
-          "name": "USGS The National Map — Structures",
-          "url": "https://www.usgs.gov/national-digital-trends/structures",
+          "name": "USGS National Structures Dataset",
+          "url": "https://data.usgs.gov/datacatalog/data/USGS:db4fb1b6-1282-4e5b-9866-87a68912c5d1",
           "note": "Critical facilities: hospitals, fire/EMS, police, schools.",
           "licenses": [
             "pd-us"

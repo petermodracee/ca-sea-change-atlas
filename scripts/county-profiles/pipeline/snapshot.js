@@ -46,15 +46,15 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
   const S = econ ? econ.value : null;
   const vintageYear = (year) => ({ kind: "year", year });
   const sources = {
-    nfhl: { label: "FEMA National Flood Hazard Layer", url: "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer", vintage: meta.nfhl.effStart ? { kind: "period", start: meta.nfhl.effStart, end: meta.nfhl.effEnd } : null, retrieved: meta.nfhl.retrieved, verified: meta.verified.nfhl },
+    nfhl: { label: "FEMA National Flood Hazard Layer", url: "https://www.fema.gov/flood-maps/national-flood-hazard-layer", vintage: meta.nfhl.effStart ? { kind: "period", start: meta.nfhl.effStart, end: meta.nfhl.effEnd } : null, retrieved: meta.nfhl.retrieved, verified: meta.verified.nfhl },
     acs: { label: "Census ACS 5-year estimates (2020–2024)", url: "https://www.census.gov/programs-surveys/acs/data.html", vintage: vintageYear(2024), retrieved: meta.acs.retrieved, verified: meta.verified.acs },
     tiger: { label: "Census 2020 tabulation blocks (TIGERweb)", url: "https://tigerweb.geo.census.gov/arcgis/rest/services/Census2020/Tracts_Blocks/MapServer", vintage: vintageYear(2020), retrieved: meta.tiger.retrieved, verified: meta.verified.tiger },
-    usgs: { label: "USGS National Structures Dataset", url: "https://www.usgs.gov/core-science-systems/ngp/tnm-corps/structures", vintage: { kind: "date", date: meta.usgs.latestLoad }, retrieved: meta.usgs.retrieved, verified: meta.verified.usgs },
+    usgs: { label: "USGS National Structures Dataset", url: "https://data.usgs.gov/datacatalog/data/USGS:db4fb1b6-1282-4e5b-9866-87a68912c5d1", vintage: { kind: "date", date: meta.usgs.latestLoad }, retrieved: meta.usgs.retrieved, verified: meta.verified.usgs },
     openfema: { label: "OpenFEMA NFIP claims", url: "https://www.fema.gov/openfema-data-page/nfip-redacted-claims-v3", vintage: { kind: "date", date: meta.openfema.asOf }, retrieved: meta.openfema.retrieved, verified: meta.verified.openfema },
-    slr: { label: "NOAA Sea Level Rise Viewer inundation extents", url: "https://coast.noaa.gov/slrdata/", vintage: null, retrieved: meta.slr.retrieved, verified: meta.verified.slr },
+    slr: { label: "NOAA Sea Level Rise Viewer inundation extents", url: "https://coast.noaa.gov/slrdata/", vintage: { kind: "year", year: 2026 }, retrieved: meta.slr.retrieved, verified: meta.verified.slr },
     lodes: { label: "LEHD LODES8 workplace area characteristics", url: "https://lehd.ces.census.gov/data/lodes/LODES8/ca/wac/", vintage: vintageYear(meta.lodes.year), retrieved: meta.lodes.retrieved, verified: meta.verified.lodes },
     ccap: { label: "NOAA C-CAP regional land cover", url: "https://coast.noaa.gov/digitalcoast/data/ccapregional.html", vintage: { kind: "period", start: "1996-01-01", end: "2016-12-31" }, retrieved: meta.ccap.retrieved, verified: meta.verified.ccap },
-    opc: { label: "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2", url: "https://www.opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf", vintage: vintageYear(2024), retrieved: snapshotDate, verified: snapshotDate },
+    opc: { label: "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2", url: "https://opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf", vintage: vintageYear(2024), retrieved: snapshotDate, verified: snapshotDate },
   };
 
   // --- flood hazard ---------------------------------------------------------------------------------

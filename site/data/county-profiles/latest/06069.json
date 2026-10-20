@@ -11,7 +11,7 @@
   "sources": {
     "nfhl": {
       "label": "FEMA National Flood Hazard Layer",
-      "url": "https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer",
+      "url": "https://www.fema.gov/flood-maps/national-flood-hazard-layer",
       "vintage": {
         "kind": "period",
         "start": "2009-04-16",
@@ -42,7 +42,7 @@
     },
     "usgs": {
       "label": "USGS National Structures Dataset",
-      "url": "https://www.usgs.gov/core-science-systems/ngp/tnm-corps/structures",
+      "url": "https://data.usgs.gov/datacatalog/data/USGS:db4fb1b6-1282-4e5b-9866-87a68912c5d1",
       "vintage": {
         "kind": "date",
         "date": "2026-04-22"
