@@ -1852,7 +1852,7 @@ Peter decided these. None needs a site change beyond the five fixes of that revi
 
 **Source citations corrected in the same pass (same exception, same proof).** From the Part 2 source check, only the citation fields of `sources` changed in the snapshots, and the pipeline definitions and `credits.json` changed to match. Open ENOW's URL moved to `coast.noaa.gov/digitalcoast/data/enow.html` (the old `openenow.html` redirects to NOAA's 404 page; the ENOW page lists Open ENOW 2001 to 2024). USGS Structures keeps its label and now links the USGS Data Catalog record. FEMA NFHL's citation URL is now FEMA's National Flood Hazard Layer page; the ArcGIS service endpoint that the pipeline and the map query is unchanged. The NOAA Sea Level Rise Viewer data entry gains the vintage the viewer's "Data updates" page gives, April 2026, recorded as `{kind: "year", year: 2026}` because the vintage kinds are date, period and year, and a day would claim more precision than the page does. OPC's URL drops the `www.`.
 
-**Older entries.** The current descriptions ("Timing by linear interpolation", "SLR horizons") now say Appendix 2, and the one that states the reconciliation points here. Two historical records are left as written: the colour-key note under "Text pass" and the Phase 4 entry in `site/_data/changelog/county-profiles.json`, which names Appendix F.
+**Older entries.** The current descriptions ("Timing by linear interpolation", "SLR horizons") now say Appendix 2, and the one that states the reconciliation points here. One historical record is left as written: the colour-key note under "Text pass". The Phase 4 entry in `site/_data/changelog/county-profiles.json` now says "the full gauge table" instead of naming the appendix.
 
 ## Behavior
 
