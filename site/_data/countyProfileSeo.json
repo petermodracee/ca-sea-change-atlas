@@ -47,7 +47,16 @@
   "card": {
     "_note": "The preview card (1200 by 630). It carries no figures and no date, so it never goes stale and a dated page shares its current page's card. The layout is scripts/county-profiles/og/cards.js; change CARD_VERSION there when the layout changes, so cached cards are redrawn.",
     "label": "County Profiles",
-    "toolLine": "Flood, sea level rise and coastal economy exposure, from public data",
-    "genericTitle": "California coastal counties"
+    "genericTitle": "California coastal counties",
+    "lines": {
+      "_note": "The line under the county name, one per card type, used exactly as written. Topic keys are the schema's topic ids. A county with no sea level rise topic gets chooserFloodOnly on its chooser.",
+      "generic": "Flood, sea level rise and coastal economy exposure, from public data",
+      "chooser": "Summaries of flood and economic exposure to sea level rise",
+      "chooserFloodOnly": "Summaries of flood exposure",
+      "flood": "Local vulnerability data with maps that depict the 100-year floodplain",
+      "slr": "Exposure from rising sea levels, high tide flooding, and storm surge",
+      "total-economy": "Economic activity in the county at risk from a changing climate",
+      "marine-economy": "Marine jobs vulnerable to coastal hazards"
+    }
   }
 }

@@ -60,7 +60,7 @@ module.exports = async function (eleventyConfig) {
   eleventyConfig.on("eleventy.after", async ({ directories }) => {
     const start = Date.now();
     const r = await cards.buildCards(directories.output, require("./site/_data/countyProfiles.js"));
-    console.log("[county-profiles] preview cards: " + r.drawn + " drawn, " + r.cached + " from cache, " + (Date.now() - start) + " ms");
+    console.log("[county-profiles] preview cards: " + r.drawn + " drawn, " + r.cached + " from cache, " + (Date.now() - start) + " ms" + (r.stepped.length ? "; line stepped down on " + r.stepped.join(", ") : ""));
     cards.checkCards(directories.output);
   });
 
