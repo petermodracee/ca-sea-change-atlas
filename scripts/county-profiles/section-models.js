@@ -101,7 +101,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
   const mark = (cell) => { const on = isEstimatedCell(cell); if (on) marks.push(cellEst(cell).share); return on; };
 
   // Rings: flood People at Risk (independent shares) and flood natural features (development
-  // added 1996–2016 as a share of land developed by 2016, inside vs. outside the floodplain). The
+  // added 1996–2021 as a share of land developed by 2021, inside vs. outside the floodplain). The
   // only two sections that render as rings; each ring's percentage and counts are visible text.
   const ringItems = (items) => items.map((it) => {
     show(pct(it.count, it.total), num(it.count), num(it.total));

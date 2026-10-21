@@ -173,7 +173,7 @@
         {
           "name": "NOAA C-CAP land cover and Wetland Potential",
           "url": "https://coast.noaa.gov/digitalcoast/data/ccapregional.html",
-          "note": "The map: served through NOAA's Coastal Flood Exposure Mapper services. County Profiles: the 1996 and 2016 regional 30 m land cover rasters, read by window and intersected with the hazard extents (build time only).",
+          "note": "The map: served through NOAA's Coastal Flood Exposure Mapper services. County Profiles: the 1996 and 2021 regional 30 m land cover rasters, read by window and intersected with the hazard extents (build time only).",
           "licenses": [
             "pd-us"
           ]

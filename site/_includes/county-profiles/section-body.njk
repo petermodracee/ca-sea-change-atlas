@@ -30,7 +30,7 @@
 {%- if v %}
 {%- if v.type == "rings" %}
 {%- set basis = "" if def.id == "natural-features" else topic.basis %}
-{%- if def.id == "natural-features" %}<p class="cpd-chart-title">Development added, 1996–2016, as a share of land developed by 2016</p>
+{%- if def.id == "natural-features" %}<p class="cpd-chart-title">Development added, 1996–2021, as a share of land developed by 2021</p>
 {%- elif def.id == "people-at-risk" %}<p class="cpd-chart-title">Share of population at risk</p>{% endif %}
 <div class="share-row">{% for it in v.items %}{{ shareRing(cid ~ "-" ~ loop.index, it.label, it.label, it.count, it.total, it.unit, basis, it.showCounts) }}{% endfor %}</div>
 {%- if def.id == "natural-features" %}<ul class="cpd-legend" aria-hidden="true"><li><span class="cpd-swatch" style="background:var(--teal-text)"></span>Development added</li><li><span class="cpd-swatch" style="background:var(--line)"></span>Already developed in 1996</li></ul>
