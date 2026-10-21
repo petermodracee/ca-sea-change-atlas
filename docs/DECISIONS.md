@@ -341,6 +341,16 @@ The Phase 2 gate: if the intersect method is wrong it is wrong the same way for 
 
 NOAA's population sits between the two computed series at 2 ft and within 5 to 8% of the connected-plus-low-lying series at 4 ft and above (63,422 against 60,511; 88,941 against 96,930; 129,267 against 139,181), and much further from the connected-only series. That is evidence NOAA's snapshot counted both, which is consistent with the decision below. The 2 ft gap (NOAA 20,242 between 4,499 and 32,672) is not explained: NOAA's SLR data is older and its vintage unstated. SLR jobs are not compared: NOAA counts businesses, and the two measures cannot be reconciled.
 
+*Follow-up: San Mateo does not fit that reading.* The same comparison for San Mateo (population, NOAA from its snapshot API, `coast.noaa.gov/snapshots/api/futureFlood/06081.json`, fetched 2026-10-21; computed from the published snapshot):
+
+| San Mateo population | 2 ft | 4 ft | 6 ft | 8 ft | 10 ft |
+|---|---|---|---|---|---|
+| Computed, ocean-connected | 4,777 | 21,483 | 122,610 | 137,899 | 152,444 |
+| Computed, connected plus low-lying | 85,484 | 107,427 | 124,244 | 138,861 | 152,673 |
+| NOAA | 13,088 | 35,300 | 126,644 | 139,879 | 153,785 |
+
+At 2 ft NOAA's 13,088 is far below the combined 85,484 and much nearer the connected-only series, and at 4 ft it is still nearer connected only (35,300 against 21,483 and 107,427), so NOAA did not count San Mateo's low-lying bayfront. From 6 ft the two computed series converge and NOAA sits within 3% of both, which says nothing either way. The evidence is mixed: in Orange at 4 ft and above NOAA sits near the combined series, in San Mateo at 2 and 4 ft it does not. Neither county is a clean test, since NOAA's population is ACS 2014–2018 (its API's data source) and the snapshots here use ACS 2020–2024, and NOAA's SLR data vintage is unstated. The About methodology page says NOAA "seemed to" count only direct exposure in some counties, which is consistent with this; nothing changes in the pipeline or the decision below.
+
 **What this establishes for Phase 3.** The block-level machinery is sound: every input the intersect can be checked against reproduces (the county totals, the land share, the NFIP payouts, the facility counts, and NOAA's own population figure once run NOAA's way). Populated blocks outside FEMA's panels: none (22 blocks, no residents). Extents nest at every increment (zero violations). Every LODES block exists in the TIGER block list. One item is not closed: the 2016–2020 payout gap (diagnosed above, cause not found and not the county filter). The block-point against areal question is closed: areal is published, point is recorded, and every mask's areal fractions were checked to be disjoint, nested and unclamped (below).
 
 ### Areal apportionment is the published method, for every hazard mask
