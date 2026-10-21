@@ -443,7 +443,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       if (wholeWithheld(pairWithheld).length) footnotes.push(withheldLine(wholeWithheld(pairWithheld).map((c) => c.name)));
       if (isPartialCell(data.employed)) keyItems.push({ glyph: MARK_INCOMPLETE, text: KEY_INCOMPLETE.key });
       // Each tile's label carries its own year, and the sources row gives each source and vintage; they are
-      // separate counts, never added (About page, #economy-years).
+      // separate counts, never added (About economy page, #economy-reference).
       const present = data.sectors.filter((s) => !isSuppressed(s.selfEmployed)).sort((a, b) => b.selfEmployed - a.selfEmployed);
       const withheld = data.sectors.some((s) => isSuppressed(s.selfEmployed));
       const tied = present.length > 1 && present[1].selfEmployed === present[0].selfEmployed;
