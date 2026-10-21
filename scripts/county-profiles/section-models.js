@@ -373,6 +373,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
     case "sector-wages": {
       // As with sector-measures, no per-sector value is drawn as chart text.
       // Marine: Open ENOW's "All Coastal States" series, the coastal portions of 30 states (not the whole country).
+      // Total: NOAA Total Economy (Coastal), shoreline counties of 29 states, DC, Puerto Rico and the Virgin Islands.
       const marine = topicId === "marine-economy";
       const series = ["County", "Coastal California", marine ? "All Coastal States" : "Coastal U.S."];
       const keys = ["county", "coastalState", "coastalUS"];
@@ -387,7 +388,9 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         }),
       }));
       // The comparison year is given by the sources row (each source's own vintage), not repeated here.
-      if (marine) notes.push("All Coastal States means the coastal portions of 30 states, not the whole country.");
+      notes.push(marine
+        ? "All Coastal States means the coastal portions of 30 states, not the whole country."
+        : "Coastal U.S. means the shoreline counties of 29 states and the District of Columbia, Puerto Rico and the U.S. Virgin Islands, not the whole country.");
       notes.push(...caveatsFor(topicId, county, data.items.filter((i) => !isSuppressed(i.county)).map((i) => i.label)));
       const partial = data.items.some((i) => keys.some((k) => isSuppressed(i[k])));
       visual = { type: "dots", items, series, partial };
