@@ -76,7 +76,7 @@ A subpage opts in with front matter, usually through a directory data file such 
 |---|---|
 | `layout: about-section.njk` | Uses the shared layout |
 | `aboutSection` | The tool's key in `site/_data/aboutSections.json` (`tools`: name, home link, CSS class) |
-| `aboutKind` | `overview`, `methodology`, `data` or `changelog`. The sidebar lists a tool's subpages in that fixed order (`aboutSections.json` `kinds`); a tool skips any it does not need |
+| `aboutKind` | `overview`, `methodology`, `economy`, `data` or `changelog`. The sidebar lists a tool's subpages in that fixed order (`aboutSections.json` `kinds`); a tool skips any it does not need |
 | `aboutWide` | `true` lets the body fill the width, for a page with wide tables |
 | `heading`, `lede` | The hero's title (the overview defaults to "About <tool>") and one-line lede |
 

@@ -36,7 +36,7 @@ const EST_PCT = Math.round(ESTIMATED_SHARE_THRESHOLD * 100);
 
 // Marks and keys. A mark is a printable glyph on a label (never on the figure); each has the words a screen
 // reader gets instead (`sr`), and each is explained once in the slide's one-line key. The reasons behind a
-// withheld figure are not stated on a slide: they are on the About page (#withheld-reasons), and the JSON
+// withheld figure are not stated on a slide: they are on the About page (/county-profiles/about/economy/#withheld-reasons), and the JSON
 // `reason` field is unchanged. A slide only says which figure is withheld and that the data was not reliable.
 const MARK_YEAR = "†";
 const MARK_GDP_YEAR = "‡";
@@ -415,7 +415,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         }
       }
       // A sector the county has no jobs in (data.noJobs) is simply not a row: the slide says nothing
-      // about it, and /county-profiles/about/methodology/#sectors-not-shown explains it once for every county.
+      // about it, and /county-profiles/about/economy/#sectors-not-shown explains it once for every county.
       // A withheld value is different (the publisher would not say), so it keeps its footnote.
       const cells = [];
       data.items.forEach((i) => keys.forEach((k, n) => { if (isSuppressed(i[k])) cells.push({ reason: i[k].reason, name: k === "county" ? i.label : i.label + " (" + series[n] + ")" }); }));

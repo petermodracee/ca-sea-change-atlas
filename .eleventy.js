@@ -5,7 +5,7 @@ module.exports = async function (eleventyConfig) {
   eleventyConfig.ignores.add("site/data/**/*.md"); // READMEs next to the data, not pages
 
   // A tool's About subpages: every page with `aboutSection` and `aboutKind` front matter, in the fixed
-  // order of _data/aboutSections.json "kinds" (overview, methodology, data, changelog). The layout
+  // order of _data/aboutSections.json "kinds" (overview, methodology, economy, data, changelog). The layout
   // _includes/about-section.njk filters this by tool, so a new subpage is one new file.
   const aboutKinds = require("./site/_data/aboutSections.json").kinds;
   eleventyConfig.addCollection("aboutPages", (api) => {

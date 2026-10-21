@@ -1,8 +1,9 @@
 {
-  "kinds": ["overview", "methodology", "data", "changelog"],
+  "kinds": ["overview", "methodology", "economy", "data", "changelog"],
   "labels": {
     "overview": "Overview",
     "methodology": "Methodology",
+    "economy": "Economy figures in detail",
     "data": "Data",
     "changelog": "Changelog"
   },
