@@ -155,10 +155,10 @@
       "vintage": {
         "kind": "period",
         "start": "1996-01-01",
-        "end": "2016-12-31"
+        "end": "2021-12-31"
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-21",
+      "verified": "2026-10-21"
     },
     "opc": {
       "label": "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2",
@@ -427,18 +427,18 @@
               {
                 "label": "Inside the floodplain",
                 "count": 0.2,
-                "total": 9.5,
+                "total": 9.6,
                 "unit": "square miles"
               },
               {
                 "label": "Outside the floodplain",
-                "count": 0.7,
-                "total": 53.1,
+                "count": 0.9,
+                "total": 53.2,
                 "unit": "square miles"
               }
             ],
-            "naturalSqMi": 21.8,
-            "floodplainSqMi": 38.1
+            "naturalSqMi": 21.7,
+            "floodplainSqMi": 38
           }
         }
       }
@@ -691,20 +691,20 @@
               {
                 "label": "Wetlands",
                 "values": [
-                  12.2,
+                  11.7,
+                  12.5,
                   13,
-                  13.5,
-                  13.9,
-                  14.1
+                  13.4,
+                  13.7
                 ]
               },
               {
                 "label": "Upland",
                 "values": [
                   1.4,
-                  2,
-                  2.5,
-                  3,
+                  1.9,
+                  2.4,
+                  2.9,
                   3.4
                 ]
               },

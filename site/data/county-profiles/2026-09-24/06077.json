@@ -155,10 +155,10 @@
       "vintage": {
         "kind": "period",
         "start": "1996-01-01",
-        "end": "2016-12-31"
+        "end": "2021-12-31"
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-21",
+      "verified": "2026-10-21"
     },
     "opc": {
       "label": "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2",
@@ -386,19 +386,19 @@
             "items": [
               {
                 "label": "Inside the floodplain",
-                "count": 2.5,
-                "total": 17.4,
+                "count": 3.6,
+                "total": 18.4,
                 "unit": "square miles"
               },
               {
                 "label": "Outside the floodplain",
-                "count": 27.7,
-                "total": 168.9,
+                "count": 33.5,
+                "total": 174.8,
                 "unit": "square miles"
               }
             ],
-            "naturalSqMi": 21.7,
-            "floodplainSqMi": 428.3
+            "naturalSqMi": 22,
+            "floodplainSqMi": 428.6
           }
         }
       }
@@ -651,11 +651,11 @@
               {
                 "label": "Wetlands",
                 "values": [
-                  9.3,
-                  9.9,
+                  9.7,
                   10.3,
                   10.7,
-                  11
+                  11,
+                  11.3
                 ]
               },
               {
@@ -664,18 +664,18 @@
                   1.4,
                   1.6,
                   1.9,
-                  2.2,
-                  2.4
+                  2.1,
+                  2.3
                 ]
               },
               {
                 "label": "Other",
                 "values": [
-                  268.5,
-                  291.2,
-                  316.1,
-                  337.4,
-                  356.1
+                  268.9,
+                  291.6,
+                  316.5,
+                  337.9,
+                  356.6
                 ]
               }
             ]

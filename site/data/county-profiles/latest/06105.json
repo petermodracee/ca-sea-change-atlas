@@ -76,10 +76,10 @@
       "vintage": {
         "kind": "period",
         "start": "1996-01-01",
-        "end": "2016-12-31"
+        "end": "2021-12-31"
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-21",
+      "verified": "2026-10-21"
     }
   },
   "topics": {
@@ -237,19 +237,19 @@
             "items": [
               {
                 "label": "Inside the floodplain",
-                "count": 0,
+                "count": 0.1,
                 "total": 1.1,
                 "unit": "square miles"
               },
               {
                 "label": "Outside the floodplain",
-                "count": 0.3,
-                "total": 20.1,
+                "count": 0.9,
+                "total": 20.6,
                 "unit": "square miles"
               }
             ],
-            "naturalSqMi": 11.5,
-            "floodplainSqMi": 14
+            "naturalSqMi": 11.7,
+            "floodplainSqMi": 14.1
           }
         }
       }

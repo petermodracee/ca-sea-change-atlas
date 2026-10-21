@@ -155,10 +155,10 @@
       "vintage": {
         "kind": "period",
         "start": "1996-01-01",
-        "end": "2016-12-31"
+        "end": "2021-12-31"
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-21",
+      "verified": "2026-10-21"
     },
     "opc": {
       "label": "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2",
@@ -426,18 +426,18 @@
             "items": [
               {
                 "label": "Inside the floodplain",
-                "count": 0.2,
+                "count": 0.3,
                 "total": 14.8,
                 "unit": "square miles"
               },
               {
                 "label": "Outside the floodplain",
-                "count": 9,
-                "total": 230.3,
+                "count": 10.1,
+                "total": 231.5,
                 "unit": "square miles"
               }
             ],
-            "naturalSqMi": 18.8,
+            "naturalSqMi": 18.3,
             "floodplainSqMi": 39.7
           }
         }
@@ -691,11 +691,11 @@
               {
                 "label": "Wetlands",
                 "values": [
-                  15.4,
+                  14.9,
+                  15.9,
                   16.4,
-                  17,
-                  17.2,
-                  17.3
+                  16.6,
+                  16.7
                 ]
               },
               {
@@ -704,18 +704,18 @@
                   0.5,
                   0.9,
                   1.2,
-                  1.5,
+                  1.4,
                   1.6
                 ]
               },
               {
                 "label": "Other",
                 "values": [
-                  10.9,
-                  17.5,
-                  27.9,
-                  38.4,
-                  45.8
+                  11.2,
+                  18,
+                  28.5,
+                  39,
+                  46.4
                 ]
               }
             ]

@@ -155,10 +155,10 @@
       "vintage": {
         "kind": "period",
         "start": "1996-01-01",
-        "end": "2016-12-31"
+        "end": "2021-12-31"
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-21",
+      "verified": "2026-10-21"
     },
     "opc": {
       "label": "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2",
@@ -426,19 +426,19 @@
             "items": [
               {
                 "label": "Inside the floodplain",
-                "count": 0.2,
-                "total": 7.4,
+                "count": 0.5,
+                "total": 7.6,
                 "unit": "square miles"
               },
               {
                 "label": "Outside the floodplain",
-                "count": 4.2,
-                "total": 121.9,
+                "count": 8.6,
+                "total": 126.3,
                 "unit": "square miles"
               }
             ],
-            "naturalSqMi": 37.4,
-            "floodplainSqMi": 91.9
+            "naturalSqMi": 36.1,
+            "floodplainSqMi": 91.7
           }
         }
       }
@@ -691,31 +691,31 @@
               {
                 "label": "Wetlands",
                 "values": [
-                  12.2,
+                  11.8,
+                  12.4,
                   12.8,
-                  13.2,
-                  13.5,
-                  13.7
+                  13.1,
+                  13.3
                 ]
               },
               {
                 "label": "Upland",
                 "values": [
+                  7.2,
+                  7.8,
                   8.2,
                   8.7,
-                  9.2,
-                  9.7,
-                  10.2
+                  9.2
                 ]
               },
               {
                 "label": "Other",
                 "values": [
-                  20.8,
                   21.7,
-                  22.8,
+                  22.6,
                   23.8,
-                  24.9
+                  24.9,
+                  25.9
                 ]
               }
             ]

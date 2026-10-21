@@ -76,10 +76,10 @@
       "vintage": {
         "kind": "period",
         "start": "1996-01-01",
-        "end": "2016-12-31"
+        "end": "2021-12-31"
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-21",
+      "verified": "2026-10-21"
     }
   },
   "topics": {
@@ -243,13 +243,13 @@
               },
               {
                 "label": "Outside the floodplain",
-                "count": 0.7,
-                "total": 31.7,
+                "count": 1.2,
+                "total": 32.2,
                 "unit": "square miles"
               }
             ],
-            "naturalSqMi": 23.4,
-            "floodplainSqMi": 38.4
+            "naturalSqMi": 23.3,
+            "floodplainSqMi": 39.2
           }
         }
       }
