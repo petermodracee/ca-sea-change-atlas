@@ -1,14 +1,8 @@
 [
   {
-    "date": "2026-09-24",
-    "type": "update",
-    "summary": "Phase 4 (still version 1)",
-    "details": "Sea level rise sections are framed against the OPC scenarios: the projected rise at 2050 and 2100 for each recommended scenario, the full gauge table on this page, and every snapshot carrying its gauge's thirteen decades. No exposure figure, and no crossing year, moved; the version stays 1."
-  },
-  {
     "date": "2026-09-23",
     "type": "method",
-    "summary": "Version 1",
-    "details": "The version in development. Orange County was first computed from real data in Phase 2 (block-level areal apportionment of people and jobs to the flood and sea level rise extents); Phase 3 extended the same method to all 27 counties (FEMA flood zones found through the political-jurisdiction layer, sea level rise polygons read from every NOAA regional file a county touches, each county measured on a projection centred on it). The version stays 1 until the tool is published; from then on any change that could move a figure increments it."
+    "summary": "Version 1 (release version)",
+    "details": "Initial release. Uses Census block-level areal apportionment of people and jobs to FEMA flood zones and sea level rise extent polygons derived from NOAA SLR data. Uses OPC scenarios and gauge tables and a readapted ENOW methodology for imputed values. See about pages for more details."
   }
 ]
