@@ -11,6 +11,8 @@ Non-Eleventy tooling for [`docs/COUNTY-PROFILES.md`](../../docs/COUNTY-PROFILES.
 
 - `pipeline/run.js <fips|all> --economy-only` rebuilds only the marine and total economy topics of the existing snapshot (Phase 7); `--reset-archive` overwrites the dated snapshot in place (never used by the workflow). `analysis/economy-validation.js` prints the validation tables in `docs/DECISIONS.md`; `analysis/diff-hazard.js <baseline dir>` proves the flood hazard and sea level rise figures did not move. `estimated.js` holds the estimated state's one threshold constant.
 
+- `structured-data.js` builds the schema.org `Dataset` markup for the current chooser pages and the collection, and checks it after every build (`SITE_DIR=<dir> node scripts/county-profiles/structured-data.js` on its own).
+
 Print is the reader's browser (Phase 6); no PDFs are generated.
 
 These scripts run once per Actions workflow invocation and write their output directly into `site/data/county-profiles/` — they are build-time tooling, not site source, which is why they live outside `site/`.

@@ -361,6 +361,22 @@ How it is drawn: in People at Risk each column is the combined count, the ocean-
 
 Every dated chooser page (`county/<slug>/<date>/`) and dated topic page (`county/<slug>/<date>/<topic>/`) carries `<link rel="canonical">` pointing at the current, undated page of the same kind, and is left out of the sitemap. Archived pages are not `noindex`: a canonical keeps them crawlable, so someone who cites a figure can be found by a reader who later searches for it, without the archive competing with the live profile for ranking. The build enforces it: `checkArchiveCanonicals` (`scripts/county-profiles/validate.js`, run in `eleventy.after`) fails the build if any dated page lacks exactly one canonical to its current equivalent, or carries a `noindex`.
 
+## Structured data and previews
+
+### Dataset markup
+
+Every current chooser page (`county/<slug>/`) carries one schema.org `Dataset` in `<script type="application/ld+json">`, built from the county's latest snapshot by `countyDataset` in `scripts/county-profiles/structured-data.js` and rendered by `site/county-profiles/county.njk` with `jsonify`, the same pattern as the homepage and `compare/tool.njk`. It holds `name`, a `description` generated from the county's available topics (a flood-only county names flood hazard alone), the canonical `url`, `version` and `dateModified` (the snapshot date), `license` (CC BY-SA 4.0), `creator` and `publisher` (the site, from `site.js`), `spatialCoverage`, `temporalCoverage`, `isBasedOn` (the snapshot's source URLs), a `DataDownload` of the county's `latest/<fips>.json`, and `isPartOf` the collection. `temporalCoverage` is the earliest to the latest year in the sources' vintages (a period's start and end, a date's year, a year), written as an ISO 8601 interval such as `1996/2026`; a `year` vintage counts as that year alone, so ACS's five-year span is represented by its final year.
+
+`/county-profiles/` carries the parent: one `Dataset` for the whole collection, listing each county in `hasPart`. A `Dataset` with `hasPart` rather than a `DataCatalog`: the profiles are one dataset made of county parts (they will be one Zenodo record), which is how schema.org and Google's dataset guidance describe `hasPart`; a `DataCatalog` is a repository of independent datasets.
+
+Dated pages carry none: they canonicalise to the current page, so search engines ignore them, and a dated snapshot's DOI describes it once minted.
+
+**The DOI hook.** When `dois.json` has a DOI for the county's snapshot date, the `Dataset` gains `identifier: "https://doi.org/<doi>"` (through `countyProfiles.doiFor`); with the file empty, nothing renders.
+
+**The words** (the name, the description template, the per-topic phrases, the collection's name and description) are in `site/_data/countyProfileSeo.json`, under `dataset`.
+
+**The check.** `checkStructuredData` (same file, run in `eleventy.after`; on its own, `SITE_DIR=<dir> node scripts/county-profiles/structured-data.js`) fails the build unless every current chooser page has exactly one `Dataset` that parses and carries `name`, `description` (50 to 5,000 characters), its own canonical `url`, `license` and `distribution.contentUrl`; no dated page has one; and the collection's `hasPart` lists exactly the county pages.
+
 ## Automation and the archive
 
 ### The workflow

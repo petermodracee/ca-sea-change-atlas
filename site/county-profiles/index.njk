@@ -11,6 +11,9 @@ extraScripts:
   - /js/county-picker.js
 ---
 {%- set cp = countyProfiles %}
+{#- The parent Dataset: the whole collection, each county in hasPart (scripts/county-profiles/structured-data.js). -#}
+{%- set schema = cp.counties | countyCollectionDataset %}
+<script type="application/ld+json">{{ schema | jsonify | safe }}</script>
 <div class="hero">
 <svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
 <path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>

@@ -15,4 +15,7 @@ eleventyComputed:
   description: "Flood, sea level rise and economy exposure for {{ county.name }} County, California, with the year each figure covers."
 ---
 {%- set dated = false %}
+{#- schema.org Dataset for the current page only (dated pages canonicalise here); built by scripts/county-profiles/structured-data.js. -#}
+{%- set schema = county | countyDataset(countyProfiles.doiFor(county.profile.snapshot)) %}
+<script type="application/ld+json">{{ schema | jsonify | safe }}</script>
 {% include "county-profiles/landing.njk" %}

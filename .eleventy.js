@@ -41,6 +41,13 @@ module.exports = async function (eleventyConfig) {
   const { checkArchiveCanonicals } = require("./scripts/county-profiles/validate.js");
   eleventyConfig.on("eleventy.after", ({ dir }) => checkArchiveCanonicals(dir.output));
 
+  // schema.org Dataset markup: one per current county page and a collection on /county-profiles/, checked
+  // after the build (none on dated pages).
+  const structuredData = require("./scripts/county-profiles/structured-data.js");
+  eleventyConfig.addFilter("countyDataset", structuredData.countyDataset);
+  eleventyConfig.addFilter("countyCollectionDataset", structuredData.collectionDataset);
+  eleventyConfig.on("eleventy.after", ({ dir }) => structuredData.checkStructuredData(dir.output));
+
   // "View on map" links: generated from one table, then checked against the map's real controls after the build.
   const { mapLink, checkMapLinks } = require("./scripts/county-profiles/map-links.js");
   eleventyConfig.addFilter("mapLink", mapLink);

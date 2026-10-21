@@ -1,0 +1,16 @@
+{
+  "_meta": "The words County Profiles uses about itself outside its slides: the schema.org Dataset text (scripts/county-profiles/structured-data.js). Edit freely; {county}, {topics} and {count} are filled in at build. The build checks each county's Dataset description is 50 to 5,000 characters. No em dashes.",
+  "dataset": {
+    "countyName": "County Profile: {county} County, California",
+    "countyDescription": "{topics} for {county} County, California. Rebuilt from public data in the style of NOAA's Coastal County Snapshots, with the year each figure covers and the source it comes from. A dated snapshot, downloadable as JSON.",
+    "topicPhrases": {
+      "flood": "flood hazard exposure (people, critical facilities, flood insurance claims, jobs and natural features in the FEMA 100-year floodplain)",
+      "slr": "sea level rise exposure (people, critical facilities, jobs and land in areas exposed to 2 to 10 feet of sea level rise, and when each height may be reached)",
+      "total-economy": "total economy exposure (establishments, jobs, wages, GDP, economic diversity and jobs at risk)",
+      "marine-economy": "marine economy exposure (establishments, jobs, wages, GDP and the sectors of the ocean economy)"
+    },
+    "collectionName": "County Profiles: California coastal and Delta counties",
+    "collectionDescription": "Flood hazard, sea level rise, and marine and total economy exposure for the {count} California counties in NOAA's Coastal County Snapshots, rebuilt from public data in the style of those snapshots. One dated profile per county, each with the year every figure covers and a JSON download.",
+    "collectionPlace": "California, United States"
+  }
+}

@@ -1908,6 +1908,11 @@ Both scripts are on demand (not part of the build or the workflow), read-only, a
 
 **The map is unchanged.** Its "converted to development" layer is still served by `CFEM_LandCover_19962010Change` and labelled 1996 to 2016 (see the Phase 8 entry); its years now differ from the profiles' 1996 to 2021.
 
+### County Profiles structured data, snapshot license and preview cards (stacked on PR #36)
+
+- **`Dataset` markup on current pages only.** Each current chooser page describes its county as a schema.org `Dataset`, and `/county-profiles/` describes the collection with `hasPart`. Dated pages carry none: they canonicalise to the current page, so a search engine would discard their markup, and two `Dataset`s for one county would compete. An old snapshot will be described by its DOI record instead.
+- **CC BY-SA 4.0.** The `license` is the site's content license, the one every page footer states, so the markup and the footer agree. Each source keeps its own terms; the markup lists them in `isBasedOn`.
+
 ## Behavior
 
 ### Nominatim: submit only
