@@ -1,10 +1,11 @@
-// NOAA C-CAP land cover (30 m, CONUS, epochs 1996 and 2016), intersected with the same hazard
+// NOAA C-CAP land cover (30 m, CONUS, epochs 1996 and 2021), intersected with the same hazard
 // extents as the rest of the pipeline.
 //
-// The two epochs are ~400 MB Cloud-Optimized-style tiled GeoTIFFs (NAD83 / Conus Albers, EPSG:5070,
-// an equal-area projection, so a pixel is exactly 900 m2). Only the window a county covers is read
-// (HTTP range requests, no download). Polygons are projected to Albers and scan-filled onto the
-// window's pixel grid, and each pixel is counted once, by the class it has in the 2016 epoch:
+// The two epochs are ~650 MB tiled GeoTIFFs (NAD83 / Conus Albers, EPSG:5070, an equal-area
+// projection, so a pixel is exactly 900 m2), both from NOAA's current bulk folder. Only the window a
+// county covers is read (HTTP range requests, no download). Polygons are projected to Albers and
+// scan-filled onto the window's pixel grid, and each pixel is counted once, by the class it has in
+// the 2021 epoch:
 //
 //   - county land: pixels whose centre is inside a census block that has land, and that are not open
 //     water (class 21). Pixels C-CAP left as background (class 0) inside such a block are counted as
@@ -12,7 +13,7 @@
 //     county (`source-geography`: the C-CAP footprint is the coastal zone and stops short of some
 //     inland counties).
 //   - developed: classes 2-5 (high/medium/low intensity and open space). Development added
-//     1996-2016 is developed in 2016 and not developed in 1996.
+//     1996-2021 is developed in 2021 and not developed in 1996.
 //   - wetland: 13-18 (palustrine/estuarine forested, scrub/shrub, emergent) and 22-23 (aquatic bed).
 //   - upland: 8-12 (grassland, deciduous/evergreen/mixed forest, scrub/shrub) and 24 (tundra).
 //   - other: everything else that is land (developed, cultivated, pasture, unconsolidated shore,
@@ -24,9 +25,10 @@ const path = require("path");
 const { cachePath, cachedJson } = require("./http");
 const { toMulti } = require("./geo");
 
-const BASE = "https://chs.coast.noaa.gov/htdata/raster1/landcover/bulkdownload/30m_lc/";
-const FILES = { 1996: "conus_1996_ccap_landcover_20200311.tif", 2016: "conus_2016_ccap_landcover_20200311.tif" };
-const ENDPOINT = BASE + FILES[2016];
+const BASE = "https://ocmgeodatastor1.blob.core.windows.net/ccap/bulk_download/C-CAP_Regional_30-meter_Data/C-CAP_Regional_Land_Cover_Classification/CONUS/";
+// Both epochs come from this one folder, never one from each (docs/DECISIONS.md, C-CAP 2021).
+const CURRENT = { base: BASE, start: 1996, end: 2021, files: { 1996: "conus_1996_ccap_landcover.tif", 2021: "conus_2021_ccap_landcover.tif" } };
+const ENDPOINT = CURRENT.base + CURRENT.files[CURRENT.end];
 const PX_M2 = 900;
 const SQ_M_PER_SQ_MI = 2589988.110336;
 
@@ -124,16 +126,18 @@ function tally(band, mask, inCounty) {
 }
 
 // `masks`: {sfha: [geoms], slr: {ft: [geoms]}, low: {ft: [geoms]}}; `blocks` as elsewhere.
-async function computeCcap({ blocks, sfha, slr, low, increments, log }) {
+// `source` is {base, start, end, files}; analysis scripts pass another one to compare vintages.
+async function computeCcap({ blocks, sfha, slr, low, increments, log }, source = CURRENT) {
   const { fromUrl } = await import("geotiff");
   const proj = albers();
   const tiffs = {};
-  for (const y of [1996, 2016]) {
+  for (const y of [source.start, source.end]) {
     for (let attempt = 1; ; attempt++) {
-      try { tiffs[y] = await fromUrl(BASE + FILES[y]); break; } catch (e) { if (attempt >= 5) throw e; await new Promise((r) => setTimeout(r, 2000 * attempt)); }
+      try { tiffs[y] = await fromUrl(source.base + source.files[y]); break; } catch (e) { if (attempt >= 5) throw e; await new Promise((r) => setTimeout(r, 2000 * attempt)); }
     }
   }
-  const img = await tiffs[2016].getImage();
+  // The end epoch's grid defines the window; the epochs share an origin, so a row index is the same in both.
+  const img = await tiffs[source.end].getImage();
   const [bx0, , , by1] = img.getBoundingBox();
   const W = img.getWidth(), H = img.getHeight();
 
@@ -146,14 +150,14 @@ async function computeCcap({ blocks, sfha, slr, low, increments, log }) {
   log && log("C-CAP window " + win.w + " x " + win.h + " px");
 
   const inCounty = rasterize(blocks.filter((b) => b.landM2 > 0).map((b) => b.geometry), proj, win);
-  const band16 = await readWindow(tiffs, 2016, win, [c0, r0]);
-  const band96 = await readWindow(tiffs, 1996, win, [c0, r0]);
+  const bandEnd = await readWindow(tiffs, source.end, win, [c0, r0]);
+  const bandStart = await readWindow(tiffs, source.start, win, [c0, r0]);
 
   let countyPx = 0, uncovered = 0, water = 0, landPx = 0;
   for (let i = 0; i < inCounty.length; i++) {
     if (!inCounty[i]) continue;
     countyPx++;
-    const c = band16[i];
+    const c = bandEnd[i];
     if (c === 0) uncovered++;
     else if (c === 21) water++;
     else landPx++;
@@ -161,29 +165,29 @@ async function computeCcap({ blocks, sfha, slr, low, increments, log }) {
 
   const sfhaMask = rasterize(sfha, proj, win);
   let insideLand = 0, insideNatural = 0, devIn = 0, addedIn = 0, devOut = 0, addedOut = 0;
-  for (let i = 0; i < band16.length; i++) {
+  for (let i = 0; i < bandEnd.length; i++) {
     if (!inCounty[i]) continue;
-    const c = band16[i];
+    const c = bandEnd[i];
     if (!isLand[c]) continue;
-    const dev16 = isDev[c], added = dev16 && !isDev[band96[i]];
+    const devEnd = isDev[c], added = devEnd && !isDev[bandStart[i]];
     if (sfhaMask[i]) {
       insideLand++;
       if (isWet[c] || isUp[c]) insideNatural++;
-      if (dev16) devIn++;
+      if (devEnd) devIn++;
       if (added) addedIn++;
     } else {
-      if (dev16) devOut++;
+      if (devEnd) devOut++;
       if (added) addedOut++;
     }
   }
 
-  // SLR: combined (ocean-connected plus low-lying) at each increment, by 2016 class.
+  // SLR: combined (ocean-connected plus low-lying) at each increment, by end-epoch class.
   const comp = [], connectedOnly = [];
   for (const ft of increments) {
     const m = rasterize(slr[ft] || [], proj, win);
-    connectedOnly.push(tally(band16, m, inCounty));
+    connectedOnly.push(tally(bandEnd, m, inCounty));
     rasterize(low[ft] || [], proj, win, m);
-    comp.push(tally(band16, m, inCounty));
+    comp.push(tally(bandEnd, m, inCounty));
   }
 
   const sq = (px) => (px * PX_M2) / SQ_M_PER_SQ_MI;
@@ -208,4 +212,4 @@ async function fetchCcap(fips, args, opts) {
   return { value: r.value, fetched: r.fetched };
 }
 
-module.exports = { ENDPOINT, fetchCcap, computeCcap, albers, rasterize };
+module.exports = { ENDPOINT, CURRENT, fetchCcap, computeCcap, albers, rasterize };

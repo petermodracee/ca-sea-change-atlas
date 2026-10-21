@@ -12,6 +12,9 @@
 // --refresh   ignore the download cache and re-fetch every source
 // --economy-only  rebuild only the marine and total economy topics from the existing latest/ snapshot (flood
 //             hazard and sea level rise are carried over untouched); for an economy source or method change
+// --ccap-only  recompute only the C-CAP land cover sections (flood natural features, sea level rise natural
+//             landscapes) and the `ccap` source entry of the existing latest/ snapshot; every other section, source
+//             and stamp (including `generated`) is carried over byte for byte. For a C-CAP source or vintage change
 // --reset-archive  overwrite the dated snapshot and latest/ in place, keeping the snapshot date. For a snapshot
 //             that has never been published (docs/DECISIONS.md, Phase 7); never used by the workflow
 //
@@ -24,7 +27,7 @@ const fs = require("fs");
 const path = require("path");
 const S = require("./sources");
 const { compute } = require("./intersect");
-const { buildSnapshot, pruneSources, USE } = require("./snapshot");
+const { buildSnapshot, gapOf, ccapSource, naturalFeaturesSection, naturalLandscapesSection, pruneSources, USE } = require("./snapshot");
 const { buildEconomyTopics } = require("./economy-topics");
 const { loadEconomyInputs, economyFor } = require("./economy-run");
 const { validateSnapshot } = require("../validate");
@@ -106,6 +109,46 @@ async function economyOnly(entry, fipsList, opts) {
   outcomes.push({ fips, county: entry.name, ...outcome });
   if (eco && eco.estimate) fs.writeFileSync(cachePath("enow-cells-" + fips + ".json"), JSON.stringify(eco.estimate.cells));
   log("latest/" + fips + ".json economy rebuilt (" + outcome.action + ")" + (gaps.length ? " (gaps: " + gaps.join("; ") + ")" : ""));
+}
+
+// --ccap-only: recompute the two sections that read C-CAP (and the `ccap` source entry) of an existing snapshot.
+// The inputs C-CAP is intersected with (blocks, the floodplain, the sea level rise extents) are fetched as in a
+// full run, but nothing else is rebuilt: every other section, source and stamp is carried over untouched.
+async function ccapOnly(entry, opts) {
+  const fips = entry.fips;
+  const tierTopics = schema.tiers[entry.tier].topics;
+  const wantsSlr = tierTopics.slr.available;
+  const log = (m) => console.error("[" + fips + " " + entry.name + "] " + m);
+  const file = path.join(DATA, "latest", fips + ".json");
+  const prev = readJson(file);
+  log("blocks"); const blocks = await S.fetchBlocks(fips, opts);
+  const bbox = bboxOf(blocks.value);
+  log("NFHL"); const nfhl = await S.fetchNfhl(fips, opts);
+  let slr = null;
+  if (wantsSlr) { log("NOAA SLR"); slr = await S.fetchSlr(bbox, schema.increments, fips, opts, log); }
+  const nfhlCovered = nfhl.value.dfirms.length > 0, slrHasExtent = slr ? slr.value.regions.length > 0 : false;
+  // The sections carried over were built from the same inputs; if they have since changed availability,
+  // a narrow recompute would leave the snapshot inconsistent, so stop and run the full pipeline instead.
+  if (nfhlCovered !== prev.topics.flood.sections["people-at-risk"].available) throw new Error(entry.name + ": NFHL coverage no longer matches the snapshot; run the full pipeline");
+  if (wantsSlr && slrHasExtent !== prev.topics.slr.sections["people-at-risk"].available) throw new Error(entry.name + ": SLR extent no longer matches the snapshot; run the full pipeline");
+
+  log("C-CAP land cover");
+  const ccap = await S.fetchCcap(fips, {
+    blocks: blocks.value, sfha: nfhl.value.sfha.map((f) => f.geometry), slr: slr ? slr.value.increments : {}, low: slr ? slr.value.low : {}, increments: schema.increments, log,
+  }, opts);
+  const verified = await S.verifyEndpoint(S.SOURCE_ENDPOINTS.ccap);
+
+  const gaps = [];
+  const noteGap = (where, reason) => { gaps.push(where + ": " + reason); return gapOf(reason); };
+  const topics = JSON.parse(JSON.stringify(prev.topics));
+  topics.flood.sections["natural-features"] = naturalFeaturesSection({ ccap, nfhlCovered, noteGap });
+  if (wantsSlr) topics.slr.sections["natural-landscapes"] = naturalLandscapesSection({ ccap, slrHasExtent, increments: schema.increments, noteGap });
+  const snap = { ...prev, topics };
+  snap.sources = pruneSources({ ...prev.sources, ccap: ccapSource({ ccap: { retrieved: ccap.fetched }, verified: { ccap: verified } }) }, topics);
+  validateSnapshot(snap, { schema, spine, file: fips + ".json", fixture: false });
+  const outcome = process.argv.includes("--reset-archive") ? resetCounty(snap, { date: prev.snapshot }) : commitCounty(snap, { today: today() });
+  outcomes.push({ fips, county: entry.name, ...outcome });
+  log("latest/" + fips + ".json C-CAP sections rebuilt (" + outcome.action + ")" + (gaps.length ? " (gaps: " + gaps.join("; ") + ")" : ""));
 }
 
 async function runCounty(entry, fipsList, opts) {
@@ -212,7 +255,7 @@ async function main() {
   const failures = [];
   for (const fips of todo) {
     const entry = spine.counties.find((c) => c.fips === fips);
-    try { await (process.argv.includes("--economy-only") ? economyOnly(entry, all, opts) : runCounty(entry, all, opts)); } catch (e) { console.error("[" + fips + " " + entry.name + "] FAILED: " + (e.stack || e)); failures.push(fips); if (todo.length === 1) throw e; }
+    try { await (process.argv.includes("--ccap-only") ? ccapOnly(entry, opts) : process.argv.includes("--economy-only") ? economyOnly(entry, all, opts) : runCounty(entry, all, opts)); } catch (e) { console.error("[" + fips + " " + entry.name + "] FAILED: " + (e.stack || e)); failures.push(fips); if (todo.length === 1) throw e; }
   }
   // A per-run summary for the workflow: which counties minted a dated snapshot and which only refreshed.
   fs.writeFileSync(cachePath("run-outcomes.json"), JSON.stringify(outcomes, null, 2));

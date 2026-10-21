@@ -30,6 +30,45 @@ function pruneSources(sources, topics) {
   return Object.fromEntries(Object.entries(sources).filter(([k]) => cited.has(k)));
 }
 
+const gapOf = (reason) => ({ available: false, reason, use: { ...USE }, sources: [], data: null });
+const sectionOf = (sources, data) => ({ available: true, reason: null, use: { ...USE }, sources, data });
+
+// C-CAP: the source entry and the two sections that read it. buildSnapshot and the pipeline's
+// --ccap-only mode both go through these, so a land-cover recompute cannot drift from a full run.
+const CCAP_USABLE_SHARE = 0.5; // a county is usable if C-CAP left at most this share of its land as background
+
+function ccapSource(meta) {
+  return { label: "NOAA C-CAP regional land cover", url: "https://coast.noaa.gov/digitalcoast/data/ccapregional.html", vintage: { kind: "period", start: "1996-01-01", end: "2021-12-31" }, retrieved: meta.ccap.retrieved, verified: meta.verified.ccap };
+}
+
+// `noteGap(where, reason)` records the gap and returns the unavailable section, as in buildSnapshot.
+function naturalFeaturesSection({ ccap, nfhlCovered, noteGap }) {
+  if (!nfhlCovered) return noteGap("flood", "no-nfhl-coverage");
+  if (!(ccap && ccap.value.uncoveredShare <= CCAP_USABLE_SHARE)) return noteGap("flood/natural-features", "source-geography");
+  const f = ccap.value.flood;
+  return sectionOf(["ccap", "nfhl"], {
+    items: [
+      { label: "Inside the floodplain", count: round1(f.addedInsideSqMi), total: round1(f.developedInsideSqMi), unit: "square miles" },
+      { label: "Outside the floodplain", count: round1(f.addedOutsideSqMi), total: round1(f.developedOutsideSqMi), unit: "square miles" },
+    ],
+    naturalSqMi: round1(f.naturalInsideSqMi),
+    floodplainSqMi: round1(f.floodplainLandSqMi),
+  });
+}
+
+function naturalLandscapesSection({ ccap, slrHasExtent, increments, noteGap }) {
+  if (!slrHasExtent || (ccap && ccap.value.slr[increments.length - 1].land <= 0)) return noteGap("slr", "no-slr-extent");
+  if (!(ccap && ccap.value.uncoveredShare <= CCAP_USABLE_SHARE)) return noteGap("slr/natural-landscapes", "source-geography");
+  return sectionOf(["ccap", "slr"], {
+    increments,
+    classes: [
+      { label: "Wetlands", values: ccap.value.slr.map((c) => round1(c.wetland)) },
+      { label: "Upland", values: ccap.value.slr.map((c) => round1(c.upland)) },
+      { label: "Other", values: ccap.value.slr.map((c) => round1(c.other)) },
+    ],
+  });
+}
+
 function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, nes, nfhlCovered, slrHasExtent, snapshotDate, generated, gaps }) {
   const inc = schema.increments;
   const r = results;
@@ -39,9 +78,8 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
   const facilityLabels = { schools: "Schools", police: "Police stations", fire: "Fire stations", medical: "Medical facilities" };
   const facKeys = Object.keys(facilityLabels);
 
-  const gap = (reason) => ({ available: false, reason, use: { ...USE }, sources: [], data: null });
-  const section = (sources, data) => ({ available: true, reason: null, use: { ...USE }, sources, data });
-  const noteGap = (where, reason) => { gaps.push(where + ": " + reason); return gap(reason); };
+  const section = sectionOf;
+  const noteGap = (where, reason) => { gaps.push(where + ": " + reason); return gapOf(reason); };
 
   const S = econ ? econ.value : null;
   const vintageYear = (year) => ({ kind: "year", year });
@@ -53,13 +91,12 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
     openfema: { label: "OpenFEMA NFIP claims", url: "https://www.fema.gov/openfema-data-page/nfip-redacted-claims-v3", vintage: { kind: "date", date: meta.openfema.asOf }, retrieved: meta.openfema.retrieved, verified: meta.verified.openfema },
     slr: { label: "NOAA Sea Level Rise Viewer inundation extents", url: "https://coast.noaa.gov/slrdata/", vintage: { kind: "year", year: 2026 }, retrieved: meta.slr.retrieved, verified: meta.verified.slr },
     lodes: { label: "LEHD LODES8 workplace area characteristics", url: "https://lehd.ces.census.gov/data/lodes/LODES8/ca/wac/", vintage: vintageYear(meta.lodes.year), retrieved: meta.lodes.retrieved, verified: meta.verified.lodes },
-    ccap: { label: "NOAA C-CAP regional land cover", url: "https://coast.noaa.gov/digitalcoast/data/ccapregional.html", vintage: { kind: "period", start: "1996-01-01", end: "2016-12-31" }, retrieved: meta.ccap.retrieved, verified: meta.verified.ccap },
+    ccap: ccapSource(meta),
     opc: { label: "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2", url: "https://opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf", vintage: vintageYear(2024), retrieved: snapshotDate, verified: snapshotDate },
   };
 
   // --- flood hazard ---------------------------------------------------------------------------------
   const noNfhl = () => noteGap("flood", "no-nfhl-coverage");
-  const ccapUsable = ccap && ccap.value.uncoveredShare <= 0.5;
   const flood = {
     "people-at-risk": !nfhlCovered ? noNfhl() : section(["acs", "tiger", "nfhl"], {
       items: [
@@ -78,17 +115,7 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
       claims: r.byPeriod.filter((p) => p.start >= 1996).reduce((s, p) => s + p.claimsAll, 0),
     }),
     "jobs-at-risk": !nfhlCovered ? noNfhl() : section(["lodes", "tiger", "nfhl"], { count: round(r.jobs.sfha), total: round(r.jobs.total) }),
-    "natural-features": !nfhlCovered ? noNfhl() : !ccapUsable ? noteGap("flood/natural-features", "source-geography") : (() => {
-      const f = ccap.value.flood;
-      return section(["ccap", "nfhl"], {
-        items: [
-          { label: "Inside the floodplain", count: round1(f.addedInsideSqMi), total: round1(f.developedInsideSqMi), unit: "square miles" },
-          { label: "Outside the floodplain", count: round1(f.addedOutsideSqMi), total: round1(f.developedOutsideSqMi), unit: "square miles" },
-        ],
-        naturalSqMi: round1(f.naturalInsideSqMi),
-        floodplainSqMi: round1(f.floodplainLandSqMi),
-      });
-    })(),
+    "natural-features": naturalFeaturesSection({ ccap, nfhlCovered, noteGap }),
   };
 
   // --- sea level rise (full tier only) ---------------------------------------------------------------
@@ -110,14 +137,7 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
         measures: facKeys.map((k) => ({ label: facilityLabels[k], unit: "facilities", total: r.facilities[k].total, counts: r.facilities[k].slr, countsWithLow: r.facilities[k].slrWithLow })),
       }),
       "jobs-at-risk": !slrHasExtent ? noSlr() : section(["lodes", "tiger", "slr"], { increments: inc, total: round(r.jobs.total), counts: r.jobs.slr.map(round), countsWithLow: r.jobs.slrWithLow.map(round) }),
-      "natural-landscapes": !slrHasExtent || (ccap && ccap.value.slr[inc.length - 1].land <= 0) ? noSlr() : !ccapUsable ? noteGap("slr/natural-landscapes", "source-geography") : section(["ccap", "slr"], {
-        increments: inc,
-        classes: [
-          { label: "Wetlands", values: ccap.value.slr.map((c) => round1(c.wetland)) },
-          { label: "Upland", values: ccap.value.slr.map((c) => round1(c.upland)) },
-          { label: "Other", values: ccap.value.slr.map((c) => round1(c.other)) },
-        ],
-      }),
+      "natural-landscapes": naturalLandscapesSection({ ccap, slrHasExtent, increments: inc, noteGap }),
       "when-to-act": section(["opc"], {}),
     };
   }
@@ -166,4 +186,4 @@ function gaugeBlock(entry, spine) {
   return { id: entry.gauge, name: spine.gauges[entry.gauge].name, projections: projectionsFor(reference, entry.gauge) };
 }
 
-module.exports = { buildSnapshot, gaugeBlock, pruneSources, METHOD, USE };
+module.exports = { buildSnapshot, gapOf, ccapSource, naturalFeaturesSection, naturalLandscapesSection, gaugeBlock, pruneSources, METHOD, USE };
