@@ -1,12 +1,35 @@
 ---
 aboutKind: overview
-title: About County Profiles — CA Sea Change Atlas
-description: What County Profiles is, who it is for, and where its methods, data and changes are documented.
-lede: How the figures are computed, and what is left out on purpose.
+title: About County Profiles | CA Sea Change Atlas
+description: An overview of the County Profiles Tool, including features and high level differences from the NOAA tool.
 ---
-<p>What does sea level rise and flooding mean for my jurisdiction? Find your county and see its exposure, with the source and the year each figure covers.</p>
-<p>Every figure is computed from public data and carries its source and the year it covers. The tool is still being built: <a href="{{ '/county-profiles/about/methodology/' | url }}">see how the figures are computed</a>.</p>
-<!-- PETER: write the overview here: what County Profiles is, who it is for, and what it is not. Keep it short; the subpages carry the detail. -->
-<div class="cp-draft" role="note">
-<p><strong>Draft.</strong> The overview text is not written yet. The subpages below hold the detail.</p>
-</div>
+<section class="cp-topic" id="overview">
+    <h2>Overview</h2>
+
+    <p>The CASCA County Profiles tool is a re-implementation of the <a href="https://coast.noaa.gov/digitalcoast/tools/snapshots.html" target="_blank" rel="noopener">Coastal County Snapshots</a> tool created by the <a href="https://coast.noaa.gov/digitalcoast/" target="_blank" rel="noopener">National Oceanic and Atmospheric Administration (NOAA) Office for Coastal Management Digital Coast</a> program. This tool, like the NOAA Coastal County Snapshots, can be used as an easy-to-digest summary of a county's given risks and exposure related to sea level rise and delta flooding. This can be a helpful starting place when considering interventions or assessing community resilience to climate change. As with other CASCA tools, these county profiles are scoped to California; the original NOAA tool had national coverage.</p> 
+
+    <p>Updates to the original NOAA tool stopped when updates to the original <a href="https://coast.noaa.gov/digitalcoast/data/enow.html" target="_blank" rel="noopener">Economics: National Ocean Watch (ENOW)</a> dataset were paused due to unavailable employer-level microdata. This tool is built on a recalculated dataset excluding that microdata, using a similar methodology to ENOW.</p>
+</section>
+
+<section class="cp-topic" id="features">
+    <h2>Features</h2>
+
+    <p>This tool recreates the main features of the NOAA tool for 27 California shoreline and inland counties exposed to risks associated with sea level rise, both coastal and inland (delta flooding). This tool also adds sea level rise data for the three delta counties. As with the original NOAA tool, each county has up to four topics (what NOAA called "snapshots"):</p>
+
+        <ul>
+            <li><b>Flood Hazard:</b> Overlays local vulnerability data over FEMA 100-year (1% annual chance) flood plain. This is titled "Special Flood Hazard" in the NOAA tool.</li>
+            <li><b>Sea Level Rise:</b> Highlights social and environmental risks based on 2-, 4-, 6-, 8-, and 10-foot sea level rise increments at the local tide gauge.</li>
+            <li><b>Total Economy:</b> A summary of economic county data. This is titled "Total Coastal Economy" in the NOAA tool.</li>
+            <li><b>Marine Economy:</b> Highlights economic data specifically relating to sectors reliant on coastal resources.</li>
+        </ul>
+
+    <p>The Sea Level Rise topic references the nearest relevant tide gauge and follows <a href="https://opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf" target="_blank" rel="noopener">California's 2024 guidance</a> regarding sea level rise scenarios. Certain topics for some counties are excluded when not enough data is available. Each topic is presented digitally in a slide-show-style format mirroring the original NOAA Coastal County Snapshot tool. When printing, each topic is formatted so it can be used as a handout.</p>
+</section>
+
+<section class="cp-topic" id="tool-differences">
+    <h2>Differences from the NOAA tool</h2>
+
+    <p>Graphs and charts have been mostly recreated from the original Coastal County Snapshots tool but in some cases changed for clarity such as economic charts which were illegible as pie charts. Because the original datasets are unavailable, imputed values are used where source data is not available in Total Economy and Marine Economy topics; see <a href="{{ '/county-profiles/about/economy/' | url }}">Economy figures in detail</a> for how these are calculated. Instead of presenting an inset map like in the original NOAA tool, maps in this tool provide links to the selected county and relevant layers in the <a href="{{ '/map/' | url }}">CASCA Map tool</a>. This is because map data in CASCA is pulled from live data sources, while presumably the NOAA tool does some processing and caching of map data.</p>
+    
+    <p>This tool pulls the latest available data from existing datasets along with a CASCA-derived version of the ENOW dataset. Because data sources are often country-wide and need to be bounded by county, a cross section of data is compiled for each county into a downloadable JSON file. The JSON includes the sources, values, and confidence signals for estimated or withheld figures. These figures are saved as dated snapshots, allowing for retrievable (and citeable) historical versions. Methodology changes are tracked on the <a href="{{ '/county-profiles/about/changelog/' | url }}">changelog</a>. See the links below for more information such as significant differences, how the economic figures are calculated, and how the data was selected.</p>
+</section>

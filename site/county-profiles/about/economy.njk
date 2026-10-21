@@ -1,0 +1,137 @@
+---
+aboutKind: economy
+heading: Economy figures in detail
+title: Economy figures in detail, About County Profiles | CA Sea Change Atlas
+description: Step-by-step process description for building marine and total economy figures, adapting the ENOW methodology.
+---
+{%- set em = countyProfiles.economyMethod %}
+
+<section class="cp-topic" id="overview">
+<h2>Overview and version</h2>
+<p>This page describes the process for imputing the dataset used to populate the Total Economy and Marine Economy topics in the CASCA County Profiles tool.</p>
+</section>
+
+<section class="cp-topic" id="economy-method">
+<h2>Why these are estimates</h2>
+<p>The original Marine Economy snapshots in the NOAA tool were built on <a href="https://coast.noaa.gov/digitalcoast/data/enow.html" target="_blank" rel="noopener">Economics: National Ocean Watch (ENOW)</a>, a dataset compiling economic and employment data for coastal and marine economies across the United States at the county level. However, this dataset was built on confidential Bureau of Labor Statistics (BLS) data at the employer-level which is <a href="https://coast.noaa.gov/digitalcoast/data/enow.html#:~:text=the%20original%20dataset%20uses%20employer%2Dlevel%20microdata%20that%20is%20not%20currently%20available." target="_blank" rel="noopener">"not currently available"</a>; the last available data is from 2021. As a stopgap, NOAA released <a href="https://coast.noaa.gov/data/digitalcoast/pdf/enow-introducing-open.pdf" target="_blank" rel="noopener">Open ENOW</a> which aggregates county and state level data provided by the publicly available <a href="https://www.bls.gov/cew/" target="_blank" rel="noopener">BLS Quarterly Census of Employment and Wages (QCEW)</a> which publishes most of the same data minus the employer level microdata. However, because this data is noisier at the county level, Open ENOW rolls up all data to state level figures for which they can correlate with the original ENOW.</p>
+
+<p>NOAA computes these values at the county level but does not publish them; the values derived here are close but there is no way to verify they match NOAA's calculation exactly. <strong>Consider these county economic figures as good-faith estimates, not official NOAA or government figures.</strong></p>
+<p>The Marine Economy topic in this County Profiles tool uses a dataset derived from open data sources including the QCEW following a slightly modified version of the <a href="https://coast.noaa.gov/data/digitalcoast/pdf/enow-introducing-open.pdf" target="_blank" rel="noopener">Open ENOW methodology</a>, described below in order. The Total Economy topic is simpler and has <a href="#total-economy">its own section</a>.</p>
+</section>
+
+<section class="cp-topic" id="marine-sectors">
+<h2>1. Define the marine economy</h2>
+<p>The marine economy is Open ENOW's six sectors: living resources, marine construction, marine transportation, offshore mineral resources, ship and boat building, and tourism and recreation. Each sector is a list of industry (NAICS) codes. County Profiles uses Open ENOW's lists, not the original ENOW's, so the figures can be compared with NOAA's current state totals.</p>
+<p>Open ENOW's lists differ from the original in two ways. They add five codes (493190, 713110, 721199, 721214 and 722410), and they use some 4- and 5-digit codes in place of groups of 6-digit ones, where every industry under the code belongs to the same sector. Broader codes are hidden less often in the public data.</p>
+<p id="navigation-instruments">Some codes include products that are not all maritime. Marine transportation includes navigation instruments manufacturing (NAICS 334511), which can be most of a county's marine transportation jobs: in Santa Barbara, an estimated 700 jobs in 2025.</p>
+</section>
+
+<section class="cp-topic" id="imputation">
+<h2>2. Fill in the values BLS hides</h2>
+<p>The jobs, wages and business counts come from the BLS Quarterly Census of Employment and Wages (QCEW), by county, industry and type of owner (private, local government and so on). QCEW withholds a value whenever publishing it could reveal one employer's figures. Business counts are always published; jobs and wages often are not, especially in sectors with only a few employers, such as ship and boat building.</p>
+<p>Each hidden value is estimated from the best information available, in Open ENOW's order. The order runs from the closest evidence (the same industry in the same county) to the weakest (a broader industry's averages):</p>
+<ol>
+<li>Interpolate between the county's published values for the years before and after.</li>
+<li>Take the nearest published year and scale it by California's change in that industry.</li>
+<li>Take the nearest published year and scale it by the change in the county's number of businesses in that industry.</li>
+<li>Use the jobs per business (and wages per job) of the next broader industry in the same county and year.</li>
+<li>Do the same with a still broader industry in another year.</li>
+</ol>
+<p>This differs from Open ENOW's description in three places:</p>
+<ul>
+<li>Each type of owner is estimated separately, so a published private figure is kept even when the local government figure next to it is hidden.</li>
+<li>Step 5 also looks at later years when no earlier year works. Without this, about 6% of hidden values had no estimate at all.</li>
+<li>Estimates are capped so that an industry's parts never add up to more than the published total of the industry that contains them.</li>
+</ul>
+</section>
+
+<section class="cp-topic" id="tourism-calibration">
+<h2>3. Count only tourism near the shore</h2>
+<p>Hotels, restaurants and similar businesses count toward the marine economy only near the coast. Open ENOW does this with a list of shoreline ZIP codes, which NOAA does not publish, so one was built for this tool: a ZIP code area counts if it lies within {{ em.shoreMetres if em else 1000 }} metres of the coastline or of a tidal bay or estuary. Census ZIP Code Business Patterns then gives the share of each county's jobs in those industries that sit in those ZIP codes. Marinas, boat dealers and similar businesses that depend on the water count in full, wherever they are.</p>
+<p>That rule matches Open ENOW's California total to within 1%, but individual counties are off by about 7% at the median. So <strong>each county's share is calibrated</strong>: it is set so the county's 2021 tourism jobs (and, separately, businesses) equal the original ENOW's 2021 figure, then held fixed for every other year{% if em and em.clampedCounties.length %} (capped at 100%: {{ em.clampedCounties | join(', ') }}){% endif %}. As a result, tourism agrees with the original in 2021 because it was made to, and that agreement says nothing about accuracy.</p>
+<p>Where the original's 2021 figure is withheld or zero, there is nothing to calibrate to. In those counties ({{ em.noAnchorCounties | join(', ') if em else '' }}), tourism and recreation is withheld rather than shown from the ZIP rule alone, which would put tourism where the original found none.</p>
+<p>Each county's share, how it was set and the uncalibrated ZIP rule share are in its <a href="{{ '/county-profiles/about/data/' | url }}#json-fields">JSON download</a>.</p>
+</section>
+
+<section class="cp-topic" id="gdp-model">
+<h2>4. Model GDP</h2>
+<p>No one publishes GDP by county and industry, so it is modeled, as Open ENOW does. A sector's GDP is the county's wages in each of its industries times California's ratio of GDP to wages for the matching industry (BEA table SAGDP2, current dollars). Marine GDP runs a year behind jobs and wages, because BEA publishes detailed industries a year later.</p>
+<p>The model is only as good as the match between an industry and its BEA line. Fishing shares a line with forestry, and seafood processing with all food manufacturing, so fishing, seafood and offshore minerals GDP are the least certain marine figures.</p>
+<p>For the total economy, the same model can be checked against NOAA's 2023 county GDP. Education and health comes within about 1% at the median county, and most other sectors within 1% to 10%. Other services is about 25% off, probably because NOAA used an earlier BEA release (not tested).</p>
+<p id="public-administration">Public administration GDP is withheld in every county. BEA's government GDP includes public schools and hospitals, which QCEW counts under other sectors, and no ratio tried reproduced NOAA's. The total economy GDP figure therefore leaves it out and says so.</p>
+</section>
+
+<section class="cp-topic" id="reliability">
+<h2>5. Decide what to show</h2>
+<p>To test the estimates, values that QCEW does publish were hidden, estimated with the same steps and compared with the real values. Typical (median) error in jobs, by step:</p>
+<div class="cp-table-wrap"><table>
+<caption class="sr-only">Median error in jobs when published values were hidden and re-estimated, by step</caption>
+<thead><tr><th scope="col">Step</th><th scope="col">Median error</th></tr></thead>
+<tbody>
+<tr><th scope="row">1. Interpolate between years</th><td>5%</td></tr>
+<tr><th scope="row">2. Scale by California's trend</th><td>6%</td></tr>
+<tr><th scope="row">3. Scale by number of businesses</th><td>8%</td></tr>
+<tr><th scope="row">4. Broader industry, same year</th><td>18%</td></tr>
+<tr><th scope="row">5. Broader industry, another year</th><td>27%</td></tr>
+</tbody>
+</table></div>
+<p>This is a best case. QCEW hides a value when one or a few employers dominate it, and those values are harder to estimate than the published ones used in the test. Hiding several years in a row, as often happens in practice, raises the typical error from about 6% to between 7% and 11%.</p>
+<p>Two rules follow from these results.</p>
+<h3 id="estimated">Marked as estimated (&#8776;)</h3>
+<p>A figure is marked when {{ em.thresholdPercent if em else 25 }}% or more of its value is estimated, at any step. At that share and these error rates, a figure is likely off by a few percent; marking smaller shares would mark nearly every figure and tell the reader nothing. The mark is a &#8776; before a number, a diagonal hatch on a bar and a dashed ring on a dot, so it does not rely on colour and survives a greyscale print. Figures below the threshold are shown plain, but the JSON download still records each figure's estimated share and the weakest step used.</p>
+<h3 id="withheld-reasons">Withheld</h3>
+<p>A figure is withheld when {{ em.withholdPercent if em else 25 }}% or more of it rests on steps 4 and 5, which were three to five times less accurate than the others. The slide says the figure is withheld for lack of reliable data. The JSON <code>reason</code> field says which of four reasons applies:</p>
+<dl class="cp-reasons">
+<div><dt><code>weak-share</code></dt><dd>{{ em.withholdPercent if em else 25 }}% or more of the estimate would rest on steps 4 and 5.</dd></div>
+<div><dt><code>no-data</code></dt><dd>The value is hidden and there is nothing to estimate it from.</dd></div>
+<div><dt><code>gdp-unreproducible</code></dt><dd>Public administration GDP (<a href="#public-administration">see step 4</a>). The slide marks total GDP with an asterisk and "Excludes Public administration."</dd></div>
+<div><dt><code>no-calibration-anchor</code></dt><dd>Tourism and recreation where there was no 2021 figure to calibrate to (<a href="#tourism-calibration">see step 3</a>).</dd></div>
+</dl>
+<h3 id="withheld-totals">Totals and headlines</h3>
+<p>A total that leaves out a withheld figure is marked incomplete with an asterisk, and sector shares are shares of the known sectors only. A headline never states an exact figure built on an incomplete total. The marine share of employment reads "More than N%" (known sectors only, rounded down, so it is always true), or "More than N jobs" below 0.1%. A headline that depends on a missing sector, such as the largest sector's share, is left out.</p>
+</section>
+
+<section class="cp-topic" id="total-economy">
+<h2>Total economy</h2>
+<p>The total economy needs almost none of the steps above. It uses QCEW's county totals for the eleven supersectors that NOAA's Total Economy (Coastal) series uses, and QCEW publishes a supersector total even when the industries inside it are hidden. Jobs, wages and business counts match NOAA's series exactly for 2023, its newest year. That shows the data was pulled correctly; it is not an independent check, since NOAA's series is built from the same QCEW.</p>
+<p>GDP is modeled as in <a href="#gdp-model">step 4</a>. Self-employed workers come from Census Nonemployer Statistics and are shown separately from employed workers, not added to them, because the two sources cover different years.</p>
+</section>
+
+<section class="cp-topic" id="enow-differences">
+<h2>How the figures compare with NOAA's</h2>
+<p><strong>With Open ENOW.</strong> Added up across counties, the figures here come close to Open ENOW's published California totals, mostly within 10% for jobs and wages, and business counts match exactly in four of the six sectors.</p>
+<p id="enow-county-figures"><strong>With the original ENOW's 2021 county figures.</strong> Outside tourism (which is calibrated to them), the county figures here are higher in every county, by about a quarter at the median. The gap is as large where little is estimated as where much is, so the filling-in step is not the cause. Part of the explanation is that the original's own county figures add up to 6% to 48% less than its California totals in those five sectors. Treat the two as different series: a figure here is not a drop-in replacement for an original one.</p>
+<div class="cp-table-wrap"><table>
+<caption class="sr-only">The original ENOW, Open ENOW and County Profiles compared</caption>
+<thead><tr><th scope="col"></th><th scope="col">Original ENOW</th><th scope="col">Open ENOW</th><th scope="col">County Profiles</th></tr></thead>
+<tbody>
+<tr><th scope="row">Data</th><td>Confidential BLS business records</td><td>Public QCEW</td><td>Public QCEW</td></tr>
+<tr><th scope="row">Published for</th><td>Counties, states, nation</td><td>California and the coastal states; no counties</td><td>California counties</td></tr>
+<tr><th scope="row">Years</th><td>To 2021</td><td>To {{ em.openEnow if em else 2024 }}</td><td>To {{ em.qcew if em else 2025 }} (marine GDP {{ em.beaMarine if em else 2024 }})</td></tr>
+<tr><th scope="row">Hidden values</th><td>None; NOAA saw every record</td><td>Five-step estimate</td><td>Same five steps, with the <a href="#imputation">three differences</a></td></tr>
+<tr><th scope="row">Shoreline tourism</th><td>Exact business locations</td><td>Shoreline ZIP codes (list not published)</td><td>Derived ZIP rule, calibrated per county</td></tr>
+<tr><th scope="row">Uncertain figures</th><td>Not applicable</td><td>Not flagged</td><td>&#8776; or withheld</td></tr>
+</tbody>
+</table></div>
+</section>
+
+<section class="cp-topic" id="economy-reference">
+<h2>Reading the slides</h2>
+<p>The source and year behind each economy figure, and what the comparison areas on the Wages slides cover, are listed on each slide. Note that some side-by-side figures do not have matching data years, for example the Marine Economy Total Jobs slide. In instances where data years are different, figures are kept separate.</p>
+
+<h3 id="economy-symbols">Symbols on the slides</h3>
+<p>Each symbol sits on a label, not on a number, and is explained in a key on the slide and in words for screen readers. All survive a greyscale print.</p>
+<dl class="cp-reasons">
+<div><dt>&#8224;</dt><dd>The headline year (marine economy: 2025 for businesses, jobs and wages).</dd></div>
+<div><dt>&#8225;</dt><dd>The year before (marine economy GDP, 2024).</dd></div>
+<div><dt>*</dt><dd>A total that leaves something out: withheld sectors, or Public administration GDP.</dd></div>
+<div><dt>&#167;</dt><dd>A sector withheld entirely. Not used for Public administration, whose jobs and wages are shown; the asterisk on GDP covers it.</dd></div>
+<div><dt>&#8776;</dt><dd>An <a href="#estimated">estimate</a>. Also a diagonal hatch on bars and a dashed ring on dots.</dd></div>
+</dl>
+
+<h3 id="sectors-not-shown">Sectors missing from a county's Wages chart</h3>
+<p>The Wages chart shows average wage per job, so a sector with no jobs in a county has nothing to average and is left off. That is a zero, not a withheld value: several counties have no ship and boat building, for example. The county's other charts, such as Business Diversity, still show the zero.</p>
+
+<h3 id="marine-jobs">Why there is no "marine jobs at risk" figure</h3>
+<p>NOAA's original snapshot counted marine businesses in the floodplain, using licensed business location data that cannot be reused. The open alternative, Census LEHD job counts by location, only identifies broad (2-digit) industries, while the marine sectors are defined at up to 6 digits. No open source places marine jobs on a map, so the figure is left out.</p>
+</section>
