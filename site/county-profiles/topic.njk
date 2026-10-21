@@ -13,7 +13,8 @@ extraScripts:
   - /js/county-switcher.js
 eleventyComputed:
   title: "{{ entry.topic.label }} | {{ entry.county.name }} County profile | CA Sea Change Atlas"
-  description: "{{ entry.topic.label }} exposure for {{ entry.county.name }} County, California, with the year each figure covers."
+  description: "{{ entry.county | topicDescription(entry.topic) | safe }}"
+  ogImage: "{{ entry.county.slug | ogCard(entry.topic.slug) }}"
 ---
 {%- set county = entry.county %}
 {%- set topic = entry.topic %}

@@ -13,6 +13,7 @@ Non-Eleventy tooling for [`docs/COUNTY-PROFILES.md`](../../docs/COUNTY-PROFILES.
 
 - `citation.js` builds the one recommended citation: the pages render it, and the pipeline writes it into each snapshot's `attribution`.
 - `structured-data.js` builds the schema.org `Dataset` markup for the current chooser pages and the collection, and checks it after every build (`SITE_DIR=<dir> node scripts/county-profiles/structured-data.js` on its own).
+- `headline.js` builds each chooser's and topic deck's link description from the section models; `og/cards.js` draws the preview cards (Satori and resvg-js) after the build and checks every County Profiles page's `og:image`. Their words are in `site/_data/countyProfileSeo.json`.
 
 Print is the reader's browser (Phase 6); no PDFs are generated.
 

@@ -112,7 +112,8 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
     case "rings":
       visual = { type: "rings", items: ringItems(data.items) };
       if (topicId === "flood" && def.id === "people-at-risk") {
-        callout = { figure: pc(data.landInsideSqMi, data.landTotalSqMi), caption: "of " + C + "’s land area is inside the FEMA 100-year floodplain." };
+        const pop = data.items.find((it) => it.label === "Population") || data.items[0];
+        callout = { figure: pc(data.landInsideSqMi, data.landTotalSqMi), caption: "of " + C + "’s land area is inside the FEMA 100-year floodplain.", vars: { popShare: pct(pop.count, pop.total), popCount: num(pop.count) } };
       } else if (topicId === "flood" && def.id === "natural-features") {
         callout = { figure: pc(data.naturalSqMi, data.floodplainSqMi), caption: "(" + num(data.naturalSqMi) + (num(data.naturalSqMi) === "1" ? " square mile" : " square miles") + ") of the designated 100-year floodplain are natural features." };
       }
@@ -133,7 +134,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       rows.forEach((r) => { show(r.keyLabel); r.segments.forEach((s) => show(num(s.value))); });
       const insideTotal = sum(data.items.map((i) => i.inside));
       const outsideTotal = sum(data.items.map((i) => i.outside));
-      callout = { figure: pc(insideTotal, insideTotal + outsideTotal), caption: "of the critical facilities in " + C + " falls within the FEMA 100-year floodplain." };
+      callout = { figure: pc(insideTotal, insideTotal + outsideTotal), caption: "of the critical facilities in " + C + " falls within the FEMA 100-year floodplain.", vars: {} };
       break;
     }
 
@@ -150,7 +151,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
     }
 
     case "single-share": {
-      callout = { figure: pc(data.count, data.total), caption: "of all " + num(data.total) + " jobs in " + C + " are in the FEMA 100-year floodplain." };
+      callout = { figure: pc(data.count, data.total), caption: "of all " + num(data.total) + " jobs in " + C + " are in the FEMA 100-year floodplain.", vars: { total: num(data.total) } };
       break;
     }
 
@@ -176,6 +177,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         callout = {
           figure: pc(headCount, headTotal),
           caption: "(" + num(headCount) + " people) of " + C + "’s total population lives in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ". As is already the case in many parts of the country, these areas are the first to experience impacts.",
+          vars: { count: num(headCount), ft: increments[0] },
         };
       } else {
         // NOAA pattern: each facility type is a stacked bar (exposed at the selected increment,
@@ -192,7 +194,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         data.measures.forEach((m) => show(num(head(m)[m.counts.length - 1])));
         const p = pc(sum(data.measures.map((m) => head(m)[0])), sum(data.measures.map((m) => m.total)));
         const n0 = sum(data.measures.map((m) => head(m)[0])), nAll = sum(data.measures.map((m) => m.total));
-        callout = { figure: p, caption: "(" + num(n0) + " of " + num(nAll) + " facilities) of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ". These areas are the first to experience impacts." };
+        callout = { figure: p, caption: "(" + num(n0) + " of " + num(nAll) + " facilities) of " + C + "’s critical facilities are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ". These areas are the first to experience impacts.", vars: { count: num(n0), total: num(nAll), ft: increments[0] } };
       }
       break;
     }
@@ -249,7 +251,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         })),
         opts: { unit: "jobs", keyTitle: "Total jobs" },
       };
-      callout = { figure: pc((hasLow ? data.countsWithLow : data.counts)[0], data.total), caption: "(" + num((hasLow ? data.countsWithLow : data.counts)[0]) + " jobs) of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + "." };
+      callout = { figure: pc((hasLow ? data.countsWithLow : data.counts)[0], data.total), caption: "(" + num((hasLow ? data.countsWithLow : data.counts)[0]) + " jobs) of " + C + "’s jobs are in areas exposed to just " + increments[0] + " ft of sea level rise" + "" + ".", vars: { count: num((hasLow ? data.countsWithLow : data.counts)[0]), ft: increments[0] } };
       break;
     }
 
@@ -293,8 +295,8 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       else if (!isPartialCell(data.jobs)) {
         const p = pc(cv(data.jobs), data.denominator);
         callout = topicId === "marine-economy"
-          ? { figure: p, caption: "of total employment in " + C + " is in the marine economy.", est: isEstimatedCell(data.jobs) }
-          : { figure: p, caption: "of all employment in California is in " + C + ".", est: isEstimatedCell(data.jobs) };
+          ? { figure: p, caption: "of total employment in " + C + " is in the marine economy.", est: isEstimatedCell(data.jobs), vars: { jobs: num(cv(data.jobs)) } }
+          : { figure: p, caption: "of all employment in California is in " + C + ".", est: isEstimatedCell(data.jobs), vars: { jobs: num(cv(data.jobs)) } };
       } else {
         const floorShare = Math.floor((cv(data.jobs) / data.denominator) * 1000) / 10;
         callout = floorShare >= 0.1
@@ -351,6 +353,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         figure: pc(cv(top.employment), totalEmployment),
         caption: "of " + C + "’s " + whose + " works in " + top.label + ", its largest sector by employment.",
         est: isEstimatedCell(top.employment),
+        vars: { sector: top.label },
       };
       // Key: the year marks, the GDP star, then one § line for every sector with a withheld figure, on its legend
       // label. One wording for all reasons (the reason is on the About page and in the JSON), except that Public
@@ -460,6 +463,8 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
         figure: num(present[0].selfEmployed),
         caption: sector + rest,
         parts: [{ t: sector, b: true }, { t: rest }],
+        // `est` here only keeps an estimated count out of the link description; the slide's marks are unchanged.
+        vars: { caption: sector + rest, est: isEstimatedCell(present[0].selfEmployed) || isPartialCell(present[0].selfEmployed) },
       };
       break;
     }
@@ -501,6 +506,9 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
     throw new Error("callout for " + topicId + "/" + def.id + " (" + county + ") repeats a figure its chart already shows: " + callout.figure);
   }
 
+  // `vars` are the values a callout is built from, as the slide prints them, for the page's link description
+  // (scripts/county-profiles/headline.js); `share` is the callout's final figure.
+  if (callout && callout.vars) callout = { ...callout, vars: { ...callout.vars, share: callout.figure } };
   const partial = Boolean((visual && visual.partial) || (callout && callout.partial));
   // `estimated` is set when any figure on this section carries the "≈" mark: the template then prints the
   // one-line explanation, and the callout's figure gets the mark when what it is built from is estimated.

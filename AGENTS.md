@@ -25,7 +25,7 @@ npm run check:links   # after a build: every internal href/src and #fragment mus
 | The tool dataset (and per-tool status) | `site/data/tools.json`; [`docs/TOOLS.md`](docs/TOOLS.md) |
 | Tool list page | `site/compare/index.njk`, `site/js/sources.js` |
 | Tool page and compare page | `site/compare/tool.njk`; `site/compare/side-by-side.njk`, `site/js/compare.js`; layout in `site/data/toolDetailSchema.json`, resolved by `site/js/tool-detail.js` |
-| County profiles tool | `site/county-profiles/`, `site/data/countyProfileSchema.json`, `site/_data/countySpine.json`, `site/_data/opcGaugeProjections.json`, `scripts/county-profiles/`; [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md) |
+| County profiles tool | `site/county-profiles/`, `site/data/countyProfileSchema.json`, `site/_data/countySpine.json`, `site/_data/opcGaugeProjections.json`, `site/_data/countyProfileSeo.json` (Dataset text, link descriptions, preview-card words), `scripts/county-profiles/`; [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md) |
 | About sections (shared layout and per-tool subpages) | `site/_includes/about-section.njk`, `site/_data/aboutSections.json`, `site/county-profiles/about/`; [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#about-sections) |
 | Issue templates (the County Profiles data-problem form) | `.github/ISSUE_TEMPLATE/`, `scripts/county-profiles/report-link.js`; [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md#reporting-a-problem) |
 | Licenses and credits page | `site/about/licenses.njk` fed by `site/_data/credits.json`; [`docs/LICENSING.md`](docs/LICENSING.md) |

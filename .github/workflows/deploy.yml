@@ -23,6 +23,13 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
+      # County Profiles preview cards are cached by a hash of their inputs (scripts/county-profiles/og/cards.js),
+      # so restoring the folder skips redrawing unchanged cards; a stale entry is never used.
+      - uses: actions/cache@v4
+        with:
+          path: scripts/county-profiles/.cache/og
+          key: og-cards-${{ hashFiles('scripts/county-profiles/og/**', 'site/_data/countyProfileSeo.json', 'site/_data/countySpine.json', 'site/img/casca-logo.svg') }}
+          restore-keys: og-cards-
       - run: npx eleventy
       - uses: actions/upload-pages-artifact@v3
         with:

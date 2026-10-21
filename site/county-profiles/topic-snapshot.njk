@@ -14,6 +14,7 @@ eleventyComputed:
   title: "{{ entry.topic.label }} | {{ entry.county.name }} County profile, snapshot {{ entry.county.profile.snapshot }} | CA Sea Change Atlas"
   description: "The {{ entry.county.profile.snapshot }} snapshot of {{ entry.county.name }} County's {{ entry.topic.label }} profile."
   canonical: "{{ site.url }}/county-profiles/county/{{ entry.county.slug }}/{{ entry.topic.slug }}/"
+  ogImage: "{{ entry.county.slug | ogCard(entry.topic.slug) }}"
 ---
 {%- set county = entry.county %}
 {%- set topic = entry.topic %}

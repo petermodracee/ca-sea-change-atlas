@@ -1,5 +1,5 @@
 {
-  "_meta": "The words County Profiles uses about itself outside its slides: the schema.org Dataset text (scripts/county-profiles/structured-data.js). Edit freely; {county}, {topics} and {count} are filled in at build. The build checks each county's Dataset description is 50 to 5,000 characters. No em dashes.",
+  "_meta": "The words County Profiles uses about itself outside its slides: the schema.org Dataset text (scripts/county-profiles/structured-data.js), the link descriptions of the choosers and topic decks (scripts/county-profiles/headline.js) and the preview card (scripts/county-profiles/og/cards.js). Edit freely; the {names} in braces are filled in at build. No em dashes.",
   "dataset": {
     "countyName": "County Profile: {county} County, California",
     "countyDescription": "{topics} for {county} County, California. Rebuilt from public data in the style of NOAA's Coastal County Snapshots, with the year each figure covers and the source it comes from. A dated snapshot, downloadable as JSON.",
@@ -12,5 +12,40 @@
     "collectionName": "County Profiles: California coastal and Delta counties",
     "collectionDescription": "Flood hazard, sea level rise, and marine and total economy exposure for the {count} California counties in NOAA's Coastal County Snapshots, rebuilt from public data in the style of those snapshots. One dated profile per county, each with the year every figure covers and a JSON download.",
     "collectionPlace": "California, United States"
+  },
+  "headlines": {
+    "_note": "One sentence per section that may lead a page's description, in the order tried. The helper takes the first section, in the topic's own order, that is available, has its callout, and whose callout figure is plain (not withheld, partial, a floor or marked estimated), and whose sentence has every {name} it uses. {share} is the callout's own figure; the others are the values the callout or chart prints (section-models.js, `vars`). {caption} is the self-employment callout's own sentence. {county} is the county name. Remove a section's line to stop it being used; a topic with none usable falls back to noFigure.",
+    "flood": {
+      "people-at-risk": "{popCount} people ({popShare} of residents) in {county} County live in the FEMA 100-year floodplain.",
+      "critical-facilities": "{share} of the critical facilities in {county} County are in the FEMA 100-year floodplain.",
+      "jobs-at-risk": "{share} of the {total} jobs in {county} County are in the FEMA 100-year floodplain."
+    },
+    "slr": {
+      "people-at-risk": "{count} people ({share} of residents) in {county} County live in areas exposed to {ft} ft of sea level rise.",
+      "critical-facilities": "{count} of the {total} critical facilities in {county} County are in areas exposed to {ft} ft of sea level rise.",
+      "jobs-at-risk": "{count} jobs ({share} of all jobs) in {county} County are in areas exposed to {ft} ft of sea level rise."
+    },
+    "total-economy": {
+      "measuring": "{county} County has {jobs} jobs, {share} of all employment in California.",
+      "diversity": "{share} of the workforce in {county} County works in {sector}, its largest sector.",
+      "total-jobs": "{share} {caption}"
+    },
+    "marine-economy": {
+      "measuring": "{jobs} jobs in {county} County are in the marine economy, {share} of total employment.",
+      "diversity": "{share} of the marine economy workforce in {county} County works in {sector}.",
+      "total-jobs": "{share} {caption}"
+    }
+  },
+  "noFigure": {
+    "chooser": "County profile of {county} County, California: {topics}.",
+    "topic": "{topic} exposure for {county} County, California, with the year each figure covers."
+  },
+  "descriptionTail": "County Profile, data as of {date}.",
+  "descriptionMax": 160,
+  "card": {
+    "_note": "The preview card (1200 by 630). It carries no figures and no date, so it never goes stale and a dated page shares its current page's card. The layout is scripts/county-profiles/og/cards.js; change CARD_VERSION there when the layout changes, so cached cards are redrawn.",
+    "label": "County Profiles",
+    "toolLine": "Flood, sea level rise and coastal economy exposure, from public data",
+    "genericTitle": "California coastal counties"
   }
 }

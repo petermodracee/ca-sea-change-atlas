@@ -364,6 +364,8 @@ Every dated chooser page (`county/<slug>/<date>/`) and dated topic page (`county
 
 ## Structured data and previews
 
+What search engines and link previews see of County Profiles: `Dataset` markup, the license fields every snapshot carries, the link descriptions and the preview cards. The editable words are all in `site/_data/countyProfileSeo.json`.
+
 ### Dataset markup
 
 Every current chooser page (`county/<slug>/`) carries one schema.org `Dataset` in `<script type="application/ld+json">`, built from the county's latest snapshot by `countyDataset` in `scripts/county-profiles/structured-data.js` and rendered by `site/county-profiles/county.njk` with `jsonify`, the same pattern as the homepage and `compare/tool.njk`. It holds `name`, a `description` generated from the county's available topics (a flood-only county names flood hazard alone), the canonical `url`, `version` and `dateModified` (the snapshot date), `license` (CC BY-SA 4.0), `creator` and `publisher` (the site, from `site.js`), `spatialCoverage`, `temporalCoverage`, `isBasedOn` (the snapshot's source URLs), a `DataDownload` of the county's `latest/<fips>.json`, and `isPartOf` the collection. `temporalCoverage` is the earliest to the latest year in the sources' vintages (a period's start and end, a date's year, a year), written as an ISO 8601 interval such as `1996/2026`; a `year` vintage counts as that year alone, so ACS's five-year span is represented by its final year.
@@ -386,6 +388,25 @@ A downloaded snapshot travels without its page, so it states its own terms. Ever
 - `attribution`: the plain-text recommended citation of the county page at that snapshot, for example `California Sea Change Atlas. (2026, September 24). Alameda County coastal county profile. https://seachangeatlas.org/county-profiles/county/alameda/2026-09-24/`. It is built by `scripts/county-profiles/citation.js`, the same helper behind every citation on the pages (the `citation` macro renders its parts), so the file and the About this data slide cannot cite differently. It carries no DOI, which is minted after the file.
 
 `pipeline/snapshot.js` writes both; `pipeline/archive.js` rewrites `attribution` whenever it stamps a snapshot date, and leaves it out of the content comparison, like `snapshot` itself. `validate.js` requires `license` to equal the schema's and `attribution` to equal what the helper builds.
+
+### Link descriptions: the headline helper
+
+The `description` (and so `og:description` and `twitter:description`) of each current chooser and topic deck leads with the page's headline figure, then a fixed tail with the snapshot date: `40,942 people (2.5% of residents) in Alameda County live in the FEMA 100-year floodplain. County Profile, data as of 24 September 2026.` Dated pages and the About pages keep their own descriptions.
+
+`scripts/county-profiles/headline.js` builds it from the section models the slides draw (`section-models.js`), so a description and a slide cannot disagree: `{share}` is a callout's own `figure` (after any two-decimal restatement), and the other values are what the callout or chart prints, carried on the callout as `vars` (`{popCount}` and `{popShare}` are the flood People at Risk ring for population; `{count}`, `{total}`, `{ft}`, `{jobs}`, `{sector}`, `{caption}` as named). For a topic deck it tries the topic's sections in their own order and takes the first that has a sentence in `countyProfileSeo.json` (`headlines`), is available, and whose figure is plain: not withheld, not partial, not a "More than" floor, not marked estimated. Otherwise it goes on to the next section; with none, the page gets the `noFigure` sentence. The chooser uses the first available topic's headline, which for every county today is flood hazard (a flood-only county uses its flood figure). The whole is at most `descriptionMax` (160) characters: if the headline and the tail do not fit, the tail is dropped and the headline is cut at a word boundary, never inside a number or an open parenthesis. Today every description fits whole (112 to 151 characters).
+
+To change the wording, edit `headlines`, `noFigure` and `descriptionTail` in `site/_data/countyProfileSeo.json`. To lead with a different figure, reorder or remove a topic's sentences, or point a sentence at another of its section's `vars` (the flood People at Risk callout's own figure, the share of land in the floodplain, is `{share}`). A new value needs a `vars` entry in `section-models.js`.
+
+### Preview cards
+
+Every County Profiles page has its own `og:image`, a 1200 by 630 PNG drawn at build time by `scripts/county-profiles/og/cards.js` with Satori (layout to SVG) and `@resvg/resvg-js` (SVG to PNG), both pinned exactly in `package.json`. No headless browser. The card uses the deck's dark theme (background `#0F1D26`, cream text, teal accent) and shows the "County Profiles" label, the county name in Spectral, the topic (on a topic deck), one line describing the tool, and the site name with the logo. All text sits in a centred 560-pixel column, inside a square crop. It carries no figures and no date.
+
+- **Which card.** A chooser and each topic deck get `img/og/<slug>.png` and `img/og/<slug>-<topic slug>.png`; a dated chooser or deck shares its current page's card. The index, the About pages and the print pages get the generic `img/og/county-profiles.png`. Templates set `ogImage` through the `ogCard` filter (static pages name the generic file); `base.njk` makes it absolute. 121 cards today: 27 choosers, 93 topic decks and the generic one.
+- **Where.** The cards are written to `<output>/img/og/` after each build; they are never committed. The words are `card` in `site/_data/countyProfileSeo.json`; the layout is `cardTree()` in `cards.js`, and the fonts (Spectral SemiBold, IBM Plex Sans Regular and SemiBold, OFL, with their license files) are in `scripts/county-profiles/og/fonts/`.
+- **Cache.** A card is redrawn only when the hash of its inputs changes (its county and topic, the `card` words, the site name, the fonts, the logo and `CARD_VERSION`); otherwise it is copied from `scripts/county-profiles/.cache/og/` (gitignored), which is pruned to the current cards. Bump `CARD_VERSION` when changing the layout. The deploy workflow restores the folder with `actions/cache`. A cold build draws all 121 in about 10 seconds; a warm one copies them in about 30 ms.
+- **The check.** `checkCards` (same file, run in `eleventy.after` after the cards are drawn; on its own, `SITE_DIR=<dir> node scripts/county-profiles/og/cards.js --check`) fails the build unless every County Profiles page's `og:image` is a file in the built site, a 1200 by 630 PNG, under 1 MB.
+
+The `eleventy.after` checks all read `directories.output`, which honours `--output`; the deprecated `dir.output` they used before is always the configured `_site/`, so a build into another directory was checked against whatever `_site/` held.
 
 ## Automation and the archive
 

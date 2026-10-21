@@ -33,20 +33,36 @@ module.exports = async function (eleventyConfig) {
   eleventyConfig.addWatchTarget("site/data/county-profiles/");
   eleventyConfig.addWatchTarget("site/data/countyProfileSchema.json");
 
+  // The post-build checks read `directories.output`, which honours `--output`; the deprecated `dir.output` is
+  // always the configured _site/.
   // Fails the build if the old GitHub Pages host or path prefix leaked into the output — see the
   // comment on checkNoStaleHost.
   const { checkNoStaleHost } = require("./scripts/county-profiles/validate.js");
-  eleventyConfig.on("eleventy.after", ({ dir }) => checkNoStaleHost(dir.output));
+  eleventyConfig.on("eleventy.after", ({ directories }) => checkNoStaleHost(directories.output));
   // Every archived page must canonicalise to its current, undated equivalent.
   const { checkArchiveCanonicals } = require("./scripts/county-profiles/validate.js");
-  eleventyConfig.on("eleventy.after", ({ dir }) => checkArchiveCanonicals(dir.output));
+  eleventyConfig.on("eleventy.after", ({ directories }) => checkArchiveCanonicals(directories.output));
 
   // schema.org Dataset markup: one per current county page and a collection on /county-profiles/, checked
   // after the build (none on dated pages).
   const structuredData = require("./scripts/county-profiles/structured-data.js");
   eleventyConfig.addFilter("countyDataset", structuredData.countyDataset);
   eleventyConfig.addFilter("countyCollectionDataset", structuredData.collectionDataset);
-  eleventyConfig.on("eleventy.after", ({ dir }) => structuredData.checkStructuredData(dir.output));
+  eleventyConfig.on("eleventy.after", ({ directories }) => structuredData.checkStructuredData(directories.output));
+
+  // Link descriptions led by the page's headline figure (scripts/county-profiles/headline.js), and preview cards
+  // (og:image) drawn after the build with Satori and resvg-js, then checked (scripts/county-profiles/og/cards.js).
+  const headline = require("./scripts/county-profiles/headline.js");
+  eleventyConfig.addFilter("chooserDescription", headline.chooserDescription);
+  eleventyConfig.addFilter("topicDescription", headline.topicDescription);
+  const cards = require("./scripts/county-profiles/og/cards.js");
+  eleventyConfig.addFilter("ogCard", (slug, topicSlug) => cards.cardPath(slug, topicSlug));
+  eleventyConfig.on("eleventy.after", async ({ directories }) => {
+    const start = Date.now();
+    const r = await cards.buildCards(directories.output, require("./site/_data/countyProfiles.js"));
+    console.log("[county-profiles] preview cards: " + r.drawn + " drawn, " + r.cached + " from cache, " + (Date.now() - start) + " ms");
+    cards.checkCards(directories.output);
+  });
 
   // "View on map" links: generated from one table, then checked against the map's real controls after the build.
   const { mapLink, checkMapLinks } = require("./scripts/county-profiles/map-links.js");

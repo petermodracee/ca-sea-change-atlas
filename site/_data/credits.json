@@ -456,7 +456,7 @@
         {
           "name": "Spectral and IBM Plex Sans",
           "url": "https://fonts.google.com/",
-          "note": "Page fonts, via Google Fonts.",
+          "note": "Page fonts, via Google Fonts. The County Profiles preview cards use copies of Spectral SemiBold and IBM Plex Sans Regular and SemiBold bundled in the repository (scripts/county-profiles/og/fonts/, with their license files).",
           "licenses": [
             "ofl"
           ]
@@ -475,6 +475,22 @@
           "note": "Polygon intersection and union for County Profiles land-in-floodplain areas (build time only).",
           "licenses": [
             "mit"
+          ]
+        },
+        {
+          "name": "resvg-js",
+          "url": "https://github.com/yisibl/resvg-js",
+          "note": "Turns the County Profiles preview cards from SVG into PNG (build time only).",
+          "licenses": [
+            "mpl-2"
+          ]
+        },
+        {
+          "name": "Satori",
+          "url": "https://github.com/vercel/satori",
+          "note": "Lays out the County Profiles preview cards as SVG (build time only).",
+          "licenses": [
+            "mpl-2"
           ]
         }
       ]
