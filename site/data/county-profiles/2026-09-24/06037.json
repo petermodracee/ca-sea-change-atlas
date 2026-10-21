@@ -6,6 +6,12 @@
   "snapshot": "2026-09-24",
   "method": 1,
   "generated": "2026-10-01T05:56:10Z",
+  "license": {
+    "id": "CC-BY-SA-4.0",
+    "name": "Creative Commons Attribution-ShareAlike 4.0 International",
+    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  "attribution": "California Sea Change Atlas. (2026, September 24). Los Angeles County coastal county profile. https://seachangeatlas.org/county-profiles/county/los-angeles/2026-09-24/",
   "gauge": {
     "id": "los-angeles",
     "name": "Los Angeles",

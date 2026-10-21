@@ -51,6 +51,7 @@ module.exports = async function (eleventyConfig) {
   // "View on map" links: generated from one table, then checked against the map's real controls after the build.
   const { mapLink, checkMapLinks } = require("./scripts/county-profiles/map-links.js");
   eleventyConfig.addFilter("mapLink", mapLink);
+  eleventyConfig.addFilter("citationParts", require("./scripts/county-profiles/citation.js").citationParts);
   eleventyConfig.addFilter("reportUrl", require("./scripts/county-profiles/report-link.js").reportUrl);
   eleventyConfig.addFilter("topicMapLink", require("./scripts/county-profiles/map-links.js").topicMapLink);
   eleventyConfig.addFilter("compareLink", require("./scripts/county-profiles/tool-links.js").compareLink);

@@ -8,14 +8,18 @@
 const fs = require("fs");
 const path = require("path");
 
+const { attributionFor } = require("../citation");
+
 const DATA = path.join(__dirname, "..", "..", "..", "site", "data", "county-profiles");
 const DATED = /^\d{4}-\d{2}-\d{2}$/;
 
 // `snapshot`, `generated` and each source's `retrieved` / `verified` say when a build ran, not what
-// it found. Everything else (figures, vintages, method) is content.
+// it found, and `attribution` is the citation for `snapshot`. Everything else (figures, vintages, method,
+// license) is content.
 function contentOf(snap) {
   const c = JSON.parse(JSON.stringify(snap));
   delete c.snapshot;
+  delete c.attribution;
   delete c.generated;
   for (const s of Object.values(c.sources || {})) { delete s.retrieved; delete s.verified; }
   return c;
@@ -25,6 +29,8 @@ const stable = (v) => JSON.stringify(v, (k, x) => (x && typeof x === "object" &&
 const sameContent = (a, b) => stable(contentOf(a)) === stable(contentOf(b));
 
 const readJson = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
+// A snapshot stamped with its archive date, and the citation for that date.
+const stamp = (snap, date) => { const next = { ...snap, snapshot: date }; next.attribution = attributionFor(next); return next; };
 const write = (f, snap) => { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, JSON.stringify(snap, null, 2) + "\n"); };
 
 function datedDirs(dataDir = DATA) {
@@ -41,10 +47,10 @@ function commitCounty(fresh, { dataDir = DATA, today }) {
   const latestFile = path.join(dataDir, "latest", fips + ".json");
   const prev = fs.existsSync(latestFile) ? readJson(latestFile) : null;
   if (prev && sameContent(prev, fresh)) {
-    write(latestFile, { ...fresh, snapshot: prev.snapshot });
+    write(latestFile, stamp(fresh, prev.snapshot));
     return { action: "refreshed", snapshot: prev.snapshot };
   }
-  const next = { ...fresh, snapshot: today };
+  const next = stamp(fresh, today);
   const datedFile = path.join(dataDir, today, fips + ".json");
   if (fs.existsSync(datedFile)) {
     // A published snapshot is never overwritten: a fix minted the same day cannot replace it.
@@ -60,7 +66,7 @@ function commitCounty(fresh, { dataDir = DATA, today }) {
 // never been published; run.js needs --reset-archive to call it, and check-archive.js's git baseline has to be
 // moved to match. Never used by the scheduled workflow.
 function resetCounty(fresh, { dataDir = DATA, date }) {
-  const next = { ...fresh, snapshot: date };
+  const next = stamp(fresh, date);
   write(path.join(dataDir, date, fresh.fips + ".json"), next);
   write(path.join(dataDir, "latest", fresh.fips + ".json"), next);
   return { action: "reset", snapshot: date };

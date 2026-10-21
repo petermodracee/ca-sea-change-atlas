@@ -17,6 +17,7 @@
 const { projectionsFor } = require("../timing");
 const reference = require("../../../site/_data/opcGaugeProjections.json");
 const { buildEconomyTopics } = require("./economy-topics");
+const { attributionFor } = require("../citation");
 
 const USE = { ui: true, pdf: true, present: true };
 const METHOD = 1; // Still in development: stays 1 until the tool is fully published (see docs/COUNTY-PROFILES.md).
@@ -171,6 +172,9 @@ function buildSnapshot({ entry, schema, spine, results, meta, ccap, econ, eco, n
     snapshot: snapshotDate,
     method: METHOD,
     generated,
+    // The compiled figures' license, and the citation for this date (archive.js rewrites it with `snapshot`).
+    license: { ...schema.snapshotLicense },
+    attribution: attributionFor({ county: entry.name, slug: entry.slug, snapshot: snapshotDate }),
     gauge: gaugeBlock(entry, spine),
     geometry: null,
     sources: pruneSources(sources, topics),

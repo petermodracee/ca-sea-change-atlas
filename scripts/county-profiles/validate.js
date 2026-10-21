@@ -8,6 +8,7 @@ const path = require("path");
 const opcReference = require("../../site/_data/opcGaugeProjections.json");
 const site = require("../../site/_data/site.js");
 const { WITHHOLD_REASONS } = require("./estimated");
+const { attributionFor } = require("./citation");
 
 // A stale reference to the site's old GitHub Pages home (petermodracee.github.io/ca-sea-change-atlas/),
 // left over from before the seachangeatlas.org move. Every internal link and generated URL (canonical,
@@ -93,6 +94,10 @@ function validateSnapshot(snap, { schema, spine, file, fixture }) {
   } else if (snap.fixture !== undefined) {
     fail("\"fixture\" must not appear on a real snapshot");
   }
+
+  // The license of the compiled figures and the recommended citation travel with the file (schema `license`, `attribution`).
+  if (JSON.stringify(snap.license) !== JSON.stringify(schema.snapshotLicense)) fail("license must be " + JSON.stringify(schema.snapshotLicense));
+  if (snap.attribution !== attributionFor(snap)) fail("attribution must be the county page's citation for this snapshot: " + attributionFor(snap));
 
   if (!("geometry" in snap)) fail("geometry key is required (null in Phase 1)");
   if (snap.geometry !== null) fail("geometry must be null until the inset map lands");
