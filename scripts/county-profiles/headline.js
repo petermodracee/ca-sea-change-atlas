@@ -4,8 +4,8 @@
 // sentences are in site/_data/countyProfileSeo.json (`headlines`, `noFigure`, `descriptionTail`).
 //
 //   topicHeadline(county, topicId)  the first section of the topic, in its own order, that has a sentence and a
-//                                   plain figure; null when none has (the figure is withheld, partial, a floor
-//                                   or marked estimated in every one)
+//                                   plain figure (or a floor, where the topic has a floor sentence); null when
+//                                   none has (the figure is withheld, partial, a floor or marked estimated in every one)
 //   countyHeadline(county)          the first available topic's headline (a flood-only county: its flood figure)
 //   chooserDescription(county), topicDescription(county, topic)
 //                                   headline, then the tail with the snapshot date, at most `descriptionMax`
@@ -21,11 +21,19 @@ const unfilled = (text) => /\{\w+\}/.test(text);
 const plain = (model) => Boolean(model && model.callout && model.callout.figure && model.callout.vars
   && !model.callout.est && !model.callout.floor && !model.callout.partial && !model.callout.vars.est);
 
+// A "More than" floor stated as the slide states it, where the topic has a sentence for it ("<section>:floor-share"
+// or "<section>:floor-jobs"); never an estimated one.
+const floorTemplate = (sentences, s) => {
+  const c = s.model && s.model.callout;
+  return c && c.floor && !c.est && c.figure && c.vars && c.vars.floorKind ? sentences[s.def.id + ":floor-" + c.vars.floorKind] : null;
+};
+
 function topicHeadline(county, topicId) {
   const sentences = seo.headlines[topicId] || {};
   for (const s of (county.topicSections && county.topicSections[topicId]) || []) {
-    const template = sentences[s.def.id];
-    if (!template || !s.sec.available || !plain(s.model)) continue;
+    if (!s.sec.available) continue;
+    const template = plain(s.model) ? sentences[s.def.id] : floorTemplate(sentences, s);
+    if (!template) continue;
     const text = fill(template, { ...s.model.callout.vars, county: county.name });
     if (!unfilled(text)) return text;
   }

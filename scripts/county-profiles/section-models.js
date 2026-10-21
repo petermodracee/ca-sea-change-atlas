@@ -300,8 +300,8 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       } else {
         const floorShare = Math.floor((cv(data.jobs) / data.denominator) * 1000) / 10;
         callout = floorShare >= 0.1
-          ? { figure: floorShare.toFixed(1) + "%", prefix: "More than", floor: true, est: false, caption: (topicId === "marine-economy" ? "of total employment in " + C + " is" : "of all employment in California is in " + C + ".") + (topicId === "marine-economy" ? " in the marine economy." : "") }
-          : { figure: num(floorSig(cv(data.jobs), 2)), prefix: "More than", floor: true, est: false, caption: topicId === "marine-economy" ? "jobs in " + C + " are in the marine economy." : "jobs are in " + C + "." };
+          ? { figure: floorShare.toFixed(1) + "%", prefix: "More than", floor: true, est: false, caption: (topicId === "marine-economy" ? "of total employment in " + C + " is" : "of all employment in California is in " + C + ".") + (topicId === "marine-economy" ? " in the marine economy." : ""), vars: { floorKind: "share" } }
+          : { figure: num(floorSig(cv(data.jobs), 2)), prefix: "More than", floor: true, est: false, caption: topicId === "marine-economy" ? "jobs in " + C + " are in the marine economy." : "jobs are in " + C + ".", vars: { floorKind: "jobs" } };
       }
       break;
     }

@@ -14,7 +14,7 @@
     "collectionPlace": "California, United States"
   },
   "headlines": {
-    "_note": "One sentence per section that may lead a page's description, in the order tried. The helper takes the first section, in the topic's own order, that is available, has its callout, and whose callout figure is plain (not withheld, partial, a floor or marked estimated), and whose sentence has every {name} it uses. {share} is the callout's own figure; the others are the values the callout or chart prints (section-models.js, `vars`). {caption} is the self-employment callout's own sentence. {county} is the county name. Remove a section's line to stop it being used; a topic with none usable falls back to noFigure.",
+    "_note": "One sentence per section that may lead a page's description, in the order tried. The helper takes the first section, in the topic's own order, that is available, has its callout, and whose callout figure is plain (not withheld, partial, a floor or marked estimated), and whose sentence has every {name} it uses. {share} is the callout's own figure; the others are the values the callout or chart prints (section-models.js, `vars`). {caption} is the self-employment callout's own sentence. {county} is the county name. A \"<section>:floor-share\" or \"<section>:floor-jobs\" line states that section's \"More than\" floor as the slide does ({share} is the floor), used when the plain figure is a floor. Remove a section's line to stop it being used; a topic with none usable falls back to noFigure.",
     "flood": {
       "people-at-risk": "{popCount} people ({popShare} of residents) in {county} County live in the FEMA 100-year floodplain.",
       "critical-facilities": "{share} of the critical facilities in {county} County are in the FEMA 100-year floodplain.",
@@ -32,6 +32,8 @@
     },
     "marine-economy": {
       "measuring": "{jobs} jobs in {county} County are in the marine economy, {share} of total employment.",
+      "measuring:floor-share": "More than {share} of total employment in {county} County is in the marine economy.",
+      "measuring:floor-jobs": "More than {share} jobs in {county} County are in the marine economy.",
       "diversity": "{share} of the marine economy workforce in {county} County works in {sector}.",
       "total-jobs": "{share} {caption}"
     }
