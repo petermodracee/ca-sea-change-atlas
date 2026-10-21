@@ -570,7 +570,7 @@
       "mapEligibility": "excluded",
       "released": "2015, no longer updated",
       "url": "https://coast.noaa.gov/snapshots/",
-      "description": "County-level report pages (Flood Exposure, Ocean Jobs, Wetland Benefits) that turn FEMA flood hazard, Census, labor and land-cover data into printable charts and maps. NOAA states the datasets are no longer updated, so the reports do not reflect the most current conditions. External tool only: it is a per-county report, not a queryable map service, and its flood inputs are already mapped here.",
+      "description": "County-level report pages (Flood Exposure, Exposure to Sea Level Rise, Marine Economy, Total Economy) that turn FEMA flood hazard, NOAA sea level rise, Census, labor and land-cover data into printable charts and maps. NOAA states the datasets are no longer updated, so the reports do not reflect the most current conditions. External tool only: it is a per-county report, not a queryable map service, and its flood inputs are already mapped here.",
       "processes": ["SLR inundation", "Riverine and coastal flood zones"],
       "exposure": ["Population / demographics", "Economic / property value", "Critical facilities"],
       "floodInfo": ["FEMA flood zones"],
@@ -578,7 +578,7 @@
       "slrModel": "NOAA Sea Level Rise Viewer inundation scenarios, as of the last update.",
       "strengths": [
         "Quick county-wide summary for a planning or grant document",
-        "Combines flood, economic and wetland facts in one page"
+        "Combines flood, sea level rise and economic facts in one page"
       ],
       "limitations": [
         "Data is no longer updated",

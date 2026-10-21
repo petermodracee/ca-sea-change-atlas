@@ -80,7 +80,7 @@ A subpage opts in with front matter, usually through a directory data file such 
 | `aboutWide` | `true` lets the body fill the width, for a page with wide tables |
 | `heading`, `lede` | The hero's title (the overview defaults to "About <tool>") and one-line lede |
 
-The sidebar is built from the `aboutPages` collection (`.eleventy.js`: every page with `aboutSection` and `aboutKind`), filtered to the tool, so adding a subpage is adding one file. The Map, Compare and site About pages are meant to adopt this layout.
+The sidebar is built from the `aboutPages` collection (`.eleventy.js`: every page with `aboutSection` and `aboutKind`), filtered to the tool, so adding a subpage is adding one file. `.eleventy.js` reads `aboutSections.json` with `require()` at startup (for the `kinds` order), so a running dev server must be restarted after a page type is added or renamed; it does not pick up the change on reload. The Map, Compare and site About pages are meant to adopt this layout.
 
 ## Data
 
