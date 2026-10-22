@@ -214,23 +214,29 @@ jobs:
           git commit -q -m "County Profiles data: $what (run $GITHUB_RUN_NUMBER, attempt $GITHUB_RUN_ATTEMPT)"
           git push origin "HEAD:refs/heads/$branch"
 
+          # The body's Changes section compares the branch's latest/ with main's; when the body would be too long
+          # for GitHub, the per-county detail goes to PR comments, which pr-comments.js replaces on every attempt.
           body="$RUNNER_TEMP/pr-body.md"
+          changes="$RUNNER_TEMP/pr-changes"
           if [ -n "$PR_NUMBER" ]; then
             gh pr view "$PR_NUMBER" --json body --jq .body > "$RUNNER_TEMP/pr-previous.md"
-            title=$(node scripts/county-profiles/pipeline/data-pr.js --body "$body" --previous "$RUNNER_TEMP/pr-previous.md")
+            title=$(node scripts/county-profiles/pipeline/data-pr.js --body "$body" --comments "$changes" --previous "$RUNNER_TEMP/pr-previous.md")
             gh pr edit "$PR_NUMBER" --title "$title" --body-file "$body"
+            node scripts/county-profiles/pipeline/pr-comments.js "$PR_NUMBER" "$changes"
             echo "Added a commit to data PR #$PR_NUMBER: $title" | tee -a "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
 
-          title=$(node scripts/county-profiles/pipeline/data-pr.js --body "$body")
+          title=$(node scripts/county-profiles/pipeline/data-pr.js --body "$body" --comments "$changes")
           gh label create "$DATA_LABEL" --force --color 0e8a16 --description "County Profiles data PR opened by the refresh workflow"
-          if ! gh pr create --base main --head "$branch" \
+          if ! url=$(gh pr create --base main --head "$branch" \
               --title "$title" --body-file "$body" \
-              --label "$DATA_LABEL" --label "$TOPIC_LABEL"; then
+              --label "$DATA_LABEL" --label "$TOPIC_LABEL"); then
             echo "::error::The branch $branch was pushed, but opening its PR failed. The repository setting \"Allow GitHub Actions to create and approve pull requests\" (Settings > Actions > General > Workflow permissions) may be off; open the PR from $branch by hand or turn the setting on."
             exit 1
           fi
+          echo "Opened $url"
+          node scripts/county-profiles/pipeline/pr-comments.js "${url##*/}" "$changes"
 
       # Every county failed while a data PR is open: nothing to commit, but the attempt still goes in the
       # PR's Runs section, so its log is one click from the PR.
@@ -241,9 +247,11 @@ jobs:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
         run: |
           body="$RUNNER_TEMP/pr-body.md"
+          changes="$RUNNER_TEMP/pr-changes"
           gh pr view "$PR_NUMBER" --json body --jq .body > "$RUNNER_TEMP/pr-previous.md"
-          title=$(node scripts/county-profiles/pipeline/data-pr.js --body "$body" --previous "$RUNNER_TEMP/pr-previous.md" --no-data)
+          title=$(node scripts/county-profiles/pipeline/data-pr.js --body "$body" --comments "$changes" --previous "$RUNNER_TEMP/pr-previous.md" --no-data)
           gh pr edit "$PR_NUMBER" --title "$title" --body-file "$body"
+          node scripts/county-profiles/pipeline/pr-comments.js "$PR_NUMBER" "$changes"
 
       # Some counties failed: the PR is open (or updated) with the others, and the run is marked failed.
       - name: Fail the run if any county failed
