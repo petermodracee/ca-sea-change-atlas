@@ -202,6 +202,8 @@ async function runCounty(entry, fipsList, opts) {
   if (!reuse) fs.writeFileSync(cachePath("intersect-" + fips + ".json"), JSON.stringify(results));
   const computeSeconds = +((Date.now() - tCompute) / 1000).toFixed(1);
   log("intersect took " + computeSeconds + "s " + JSON.stringify(results.timings));
+  const noId = Object.entries(results.diag.facilities).filter(([, d]) => d.withoutId).map(([k, d]) => k + " " + d.withoutId);
+  log("USGS records without a permanent id, deduplicated by coordinates: " + (noId.length ? noId.join(", ") : "none"));
 
   log("C-CAP land cover");
   const ccap = await S.fetchCcap(fips, {

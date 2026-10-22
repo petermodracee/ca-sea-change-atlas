@@ -50,6 +50,46 @@ function apportionAcs(blocks, acsBg) {
   return { perBlock: out, diag };
 }
 
+// One facility type's counts. A facility is deduplicated by its USGS permanent id; a record without
+// one falls back to its coordinates and name, and is counted (`withoutId`). The ids counted under each
+// hazard go in the run's report (diag), so a count that changes between runs can be traced to the
+// records behind it.
+function countFacilities(list, { blockSet, sfhaSet, slrSets, lowSets, increments }) {
+  const seen = new Set();
+  let raw = 0, dup = 0, outside = 0, withoutId = 0;
+  const kept = [];
+  for (const f of list) {
+    raw++;
+    if (!f.id) withoutId++;
+    const key = f.id || f.x + "," + f.y + "," + f.name;
+    if (seen.has(key)) { dup++; continue; }
+    seen.add(key);
+    if (!blockSet.contains(f.x, f.y)) { outside++; continue; }
+    kept.push({ ...f, key });
+  }
+  const inSfha = kept.filter((f) => sfhaSet.contains(f.x, f.y));
+  const inSlr = Object.fromEntries(increments.map((ft) => [ft, kept.filter((f) => slrSets[ft].contains(f.x, f.y))]));
+  const inSlrWithLow = Object.fromEntries(increments.map((ft) => [ft, kept.filter((f) => slrSets[ft].contains(f.x, f.y) || lowSets[ft].contains(f.x, f.y))]));
+  const ids = (fs) => fs.map((f) => f.key).sort();
+  return {
+    diag: {
+      raw, duplicates: dup, outsideCounty: outside, kept: kept.length, withoutId,
+      ids: {
+        total: ids(kept), sfha: ids(inSfha),
+        slr: Object.fromEntries(increments.map((ft) => [ft, ids(inSlr[ft])])),
+        slrWithLow: Object.fromEntries(increments.map((ft) => [ft, ids(inSlrWithLow[ft])])),
+      },
+    },
+    counts: {
+      total: kept.length,
+      sfha: inSfha.length,
+      slr: increments.map((ft) => inSlr[ft].length),
+      slrWithLow: increments.map((ft) => inSlrWithLow[ft].length),
+      loaded: kept.map((f) => f.loaded).filter(Boolean).map((ms) => new Date(ms).toISOString().slice(0, 10)),
+    },
+  };
+}
+
 function compute({ fips, blocks, nfhl, acs, lodes, usgs, slr, claims, facilityDefs, increments, periods, center }) {
   // A flood-only or delta county has no sea level rise run: every SLR mask is then empty.
   const slrIn = slr;
@@ -160,25 +200,9 @@ function compute({ fips, blocks, nfhl, acs, lodes, usgs, slr, claims, facilityDe
   const facilities = {};
   diag.facilities = {};
   for (const def of facilityDefs) {
-    const seen = new Set();
-    let raw = 0, dup = 0, outside = 0;
-    const kept = [];
-    for (const f of usgs[def.key]) {
-      raw++;
-      const key = f.id || f.x + "," + f.y + "," + f.name;
-      if (seen.has(key)) { dup++; continue; }
-      seen.add(key);
-      if (!blockSet.contains(f.x, f.y)) { outside++; continue; }
-      kept.push(f);
-    }
-    diag.facilities[def.key] = { raw, duplicates: dup, outsideCounty: outside, kept: kept.length };
-    facilities[def.key] = {
-      total: kept.length,
-      sfha: kept.filter((f) => sfhaSet.contains(f.x, f.y)).length,
-      slr: increments.map((ft) => kept.filter((f) => slrSets[ft].contains(f.x, f.y)).length),
-      slrWithLow: increments.map((ft) => kept.filter((f) => slrSets[ft].contains(f.x, f.y) || lowSets[ft].contains(f.x, f.y)).length),
-      loaded: kept.map((f) => f.loaded).filter(Boolean).map((ms) => new Date(ms).toISOString().slice(0, 10)),
-    };
+    const c = countFacilities(usgs[def.key], { blockSet, sfhaSet, slrSets, lowSets, increments });
+    diag.facilities[def.key] = c.diag;
+    facilities[def.key] = c.counts;
   }
 
   // --- land area in the floodplain: land area times areal share (unchanged) ---
@@ -217,4 +241,4 @@ function compute({ fips, blocks, nfhl, acs, lodes, usgs, slr, claims, facilityDe
   return { people, jobs: { ...jobs, total: lodesTotal }, facilities, landTotalSqMi, landInsideSqMi, arealSens, byPeriod, claimsAsOf: claims.map((c) => c.asOfDate).filter(Boolean).sort().pop(), diag, timings, increments };
 }
 
-module.exports = { compute, SQ_M_PER_SQ_MI };
+module.exports = { compute, countFacilities, SQ_M_PER_SQ_MI };

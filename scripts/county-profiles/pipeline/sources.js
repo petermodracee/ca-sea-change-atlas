@@ -251,18 +251,32 @@ const FACILITY_LAYERS = [
   { key: "medical", label: "Medical facilities", layer: 14 },
 ];
 
+// The layers' metadata lists the fields in upper case, but a query returns them in lower case
+// (`permanent_identifier`, `loaddate`), so attribute names are folded to lower case before reading.
+// Until October 2026 they were read in upper case and every record came back without its id or name,
+// so facilities were deduplicated by coordinates (docs/DECISIONS.md, "LOMRs in the gate, and the USGS
+// field names"). A cache written then holds no names and is fetched again.
+const lowerKeys = (a) => Object.fromEntries(Object.entries(a || {}).map(([k, v]) => [k.toLowerCase(), v]));
+
 async function fetchUsgs(bbox, fips, opts) {
-  const r = await cachedJson("usgs-structures-" + fips + ".json", async () => {
+  const name = "usgs-structures-" + fips + ".json";
+  const produce = async () => {
     const out = {};
     for (const f of FACILITY_LAYERS) {
       const feats = await arcgisQueryAll(`${USGS}/${f.layer}`, {
         where: "1=1", geometry: bbox.join(","), geometryType: "esriGeometryEnvelope", inSR: "4326", outSR: "4326", spatialRel: "esriSpatialRelIntersects",
         outFields: "PERMANENT_IDENTIFIER,NAME,FTYPE,FCODE,CITY,LOADDATE", returnGeometry: "true", orderByFields: "OBJECTID",
       }, { pageSize: 2000 });
-      out[f.key] = feats.map((x) => ({ id: x.attributes.PERMANENT_IDENTIFIER, name: x.attributes.NAME, ftype: x.attributes.FTYPE, fcode: x.attributes.FCODE, city: x.attributes.CITY, loaded: x.attributes.loaddate ?? x.attributes.LOADDATE, x: x.geometry.x, y: x.geometry.y }));
+      out[f.key] = feats.map((x) => {
+        const a = lowerKeys(x.attributes);
+        return { id: a.permanent_identifier ?? null, name: a.name ?? null, ftype: a.ftype ?? null, fcode: a.fcode ?? null, city: a.city ?? null, loaded: a.loaddate ?? null, x: x.geometry.x, y: x.geometry.y };
+      });
     }
     return out;
-  }, opts);
+  };
+  let r = await cachedJson(name, produce, opts);
+  const recs = Object.values(r.value).flat();
+  if (recs.length && !recs.some((x) => "name" in x)) r = await cachedJson(name, produce, { ...opts, refresh: true });
   return { value: r.value, fetched: r.fetched };
 }
 
