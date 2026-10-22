@@ -43,7 +43,7 @@ Then open <http://localhost:8080/>. The site deploys at the root of <https://sea
 ## Licenses
 
 - **Code**: GNU GPL v3.0, see [`LICENSE`](LICENSE).
-- **Written content** (page copy, tool descriptions, the About page) and the **County Profiles figures** (the snapshot JSON): CC BY-SA 4.0, see [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md).
+- **Written content** (page copy, tool descriptions, the About page) and the **County Profiles figures** (the snapshot JSON): CC BY 4.0, see [`LICENSE-CONTENT.md`](LICENSE-CONTENT.md).
 - **Third-party data and libraries** keep their own terms, listed by category at [`/about/licenses/`](https://seachangeatlas.org/about/licenses/) (source: [`site/_data/credits.json`](site/_data/credits.json)).
 
 Not affiliated with the California State Coastal Conservancy, NOAA, or any agency or organization mentioned on the site. Original tool description: <https://www.adaptationclearinghouse.org/resources/california-e-sea-the-future-e-tool.html>
