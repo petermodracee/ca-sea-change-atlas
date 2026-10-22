@@ -74,7 +74,7 @@ module.exports = async function (eleventyConfig) {
   const { VALUE_CONTROL_IDS } = await import(require("url").pathToFileURL(require("path").resolve("site/js/map/permalink.js")).href);
   const spineFips = require("./site/_data/countySpine.json").counties.map((c) => c.fips);
   eleventyConfig.on("eleventy.after", ({ results }) => checkMapLinks({
-    results, mapSource: fs.readFileSync("site/map/index.njk", "utf8"), valueControlIds: VALUE_CONTROL_IDS, spineFips,
+    results, mapSource: fs.readFileSync("site/_includes/map-panel.njk", "utf8"), valueControlIds: VALUE_CONTROL_IDS, spineFips,
   }));
 
   eleventyConfig.addPassthroughCopy({ "site/css": "css" });

@@ -305,7 +305,7 @@ const LAYERS = [
     id: "geoFacilities", paneKey: "geoFacilities", swatch: "#D62839", label: "Critical facilities (hospitals, fire/EMS, police, schools)",
     build: (map, pane) => L.layerGroup([
       new FacilityOverviewLayer({
-        pane, serviceUrl: STRUCTURES_URL, layerIds: FACILITY_TYPES.map(t => t.layer),
+        pane, attribution: USGS_ATTR, serviceUrl: STRUCTURES_URL, layerIds: FACILITY_TYPES.map(t => t.layer),
         onStatus: text => { document.getElementById("geoFacilitiesResult").textContent = text; }
       }),
       ...FACILITY_TYPES.map(t => L.esri.featureLayer({

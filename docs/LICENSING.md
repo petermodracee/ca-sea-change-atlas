@@ -2,7 +2,7 @@
 
 This is the reasoning behind what is and isn't drawn on the map. The visitor-facing list of licenses and attributions is `/about/licenses/`, generated from [`site/_data/credits.json`](../site/_data/credits.json); keep that current first. This file records the evidence and the rules, so the decisions don't have to be re-researched.
 
-The project's own licenses (GPLv3 code, CC BY-SA 4.0 content) are in [`LICENSE`](../LICENSE) and [`LICENSE-CONTENT.md`](../LICENSE-CONTENT.md). Contribution rules are in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+The project's own licenses (GPLv3 code, CC BY 4.0 content; see [`DECISIONS.md`](DECISIONS.md#content-license-cc-by-40-not-cc-by-sa) for the switch from CC BY-SA) are in [`LICENSE`](../LICENSE) and [`LICENSE-CONTENT.md`](../LICENSE-CONTENT.md). Contribution rules are in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
 ## The rule
 

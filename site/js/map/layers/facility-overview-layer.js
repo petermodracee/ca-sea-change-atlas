@@ -22,7 +22,7 @@ const STATUS_FAILED = "Some facility data could not be loaded; pan or zoom to re
 const STATUS_NO_PLUGIN = "The heat overview could not load; zoom in to see facilities.";
 
 /** `L.HeatLayer` (leaflet.heat) always appends its canvas to the overlay pane; this puts it in `options.pane` so group opacity, Hide and bring-to-front apply. */
-function createHeatLayer(pane){
+function createHeatLayer(pane, attribution){
   if(!L.HeatLayer) return null;
   const PaneHeatLayer = L.HeatLayer.extend({
     onAdd(map){
@@ -43,7 +43,7 @@ function createHeatLayer(pane){
       if(this._map && this._canvas.width > 0 && this._canvas.height > 0) L.HeatLayer.prototype._redraw.call(this);
     }
   });
-  return new PaneHeatLayer([], { ...HEAT_OPTIONS, pane });
+  return new PaneHeatLayer([], { ...HEAT_OPTIONS, pane, attribution });
 }
 
 /** Snaps a lat/lng box outward to half a tile at this zoom, so nearby viewports share cache keys. */
@@ -67,11 +67,12 @@ async function parsePage(res){
 /** Facility density heat map for zoom FACILITY_HEAT_MIN_ZOOM up to FACILITY_MARKER_MIN_ZOOM, with a status line below that. Add it next to the marker layers. */
 export class FacilityOverviewLayer extends L.Layer {
   /**
-   * @param {{pane: string, serviceUrl: string, layerIds: number[], onStatus: (text: string) => void}} options
+   * @param {{pane: string, attribution: string, serviceUrl: string, layerIds: number[], onStatus: (text: string) => void}} options -
+   *   `attribution` is the credit the heat layer shows in the map corner (the marker layers carry their own).
    */
   constructor(options){
     super();
-    this.options = { pane: options.pane };
+    this.options = { pane: options.pane, attribution: options.attribution };
     this.serviceUrl = options.serviceUrl;
     this.layerIds = options.layerIds;
     this.onStatus = options.onStatus;
@@ -81,7 +82,7 @@ export class FacilityOverviewLayer extends L.Layer {
   }
 
   onAdd(map){
-    this.heat = createHeatLayer(this.options.pane);
+    this.heat = createHeatLayer(this.options.pane, this.options.attribution);
     if(this.heat) this.heat.addTo(map);
     map.on("moveend", this.update, this);
     this.update();

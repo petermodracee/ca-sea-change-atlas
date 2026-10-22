@@ -97,7 +97,10 @@ const CONSEQUENCE_LAYERS = {
   "vulcom_contam": { prefix: "consequence_vulcom_contam_" }
 };
 
-export function buildBcdcWmsLayer(map, layerName, opacity, paneKey = "bcdc"){
+const BCDC_BAY_ATTRIBUTION = 'Flood data: <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Adapting to Rising Tides</a>';
+
+/** @param {string} [attribution] - corner credit for this layer; defaults to the Bay Shoreline Flood Explorer's. */
+export function buildBcdcWmsLayer(map, layerName, opacity, paneKey = "bcdc", attribution = BCDC_BAY_ATTRIBUTION){
   return new CachedWmsTileLayer(BCDC_WMS_URL, {
     layers: layerName,
     version: "1.3.0",
@@ -105,7 +108,7 @@ export function buildBcdcWmsLayer(map, layerName, opacity, paneKey = "bcdc"){
     transparent: true,
     opacity: opacity,
     pane: groupPane(map, paneKey),
-    attribution: 'Flood data: <a href="https://explorer.adaptingtorisingtides.org/" target="_blank" rel="noopener">BCDC Adapting to Rising Tides</a>'
+    attribution
   });
 }
 

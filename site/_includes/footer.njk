@@ -1,3 +1,4 @@
+{%- set contentLicense = licenseTypes[site.contentLicense] %}
 <footer class="site-footer">
 <div class="wrap">
 <div class="site-footer-links">
@@ -15,14 +16,14 @@
 <details class="site-footer-details">
 <summary>Copyright, data sources &amp; licenses</summary>
 <div class="site-footer-details-body">
-<p class="site-footer-note">Copyright © 2026 CA Sea Change Atlas. Content licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>, code under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" rel="noopener">GPLv3</a>, except where noted. Not affiliated with any government or private agency.</p>
+<p class="site-footer-note">Copyright © 2026 CA Sea Change Atlas. Content licensed under <a href="{{ contentLicense.url }}" target="_blank" rel="noopener">{{ contentLicense.name }}</a>, code under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" rel="noopener">GPLv3</a>, except where noted. Not affiliated with any government or private agency.</p>
 {%- if footerAttribution %}
 <p class="site-footer-attribution">{{ footerAttribution | safe }}</p>
 {%- endif %}
 </div>
 </details>
 {%- else %}
-<p class="site-footer-note">Copyright © 2026 CA Sea Change Atlas. Content licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>, code under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" rel="noopener">GPLv3</a>, except where noted. Not affiliated with any government or private agency.</p>
+<p class="site-footer-note">Copyright © 2026 CA Sea Change Atlas. Content licensed under <a href="{{ contentLicense.url }}" target="_blank" rel="noopener">{{ contentLicense.name }}</a>, code under <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank" rel="noopener">GPLv3</a>, except where noted. Not affiliated with any government or private agency.</p>
 {%- if footerAttribution %}
 <p class="site-footer-attribution">{{ footerAttribution | safe }}</p>
 {%- endif %}

@@ -9,6 +9,9 @@ import { createMap, createMarkerState, wireMapClick, initGroupCollapse, initGrou
 import { initOpacitySliders, initLayerOrder, initLoadingIndicators } from "./shared/panes.js";
 import { readPermalink, applyPanelState, replayLayerToggles, initPermalink } from "./permalink.js";
 import { initPrint } from "./print.js";
+import { initPanelCollapse } from "./panel-collapse.js";
+import { initEmbedDialog } from "./embed-dialog.js";
+import { isEmbed, isPanelLocked, applyEmbedBodyState, initEmbed } from "./embed.js";
 import { initControls } from "./controls.js";
 import { wireSearch } from "./search.js";
 import { BcdcLegalDeltaLayer, BcdcFloodLayer } from "./layers/bcdc-flood-layer.js";
@@ -24,9 +27,11 @@ import { CfemCompositeLayer } from "./layers/cfem-composite-layer.js";
 import { initGeoInfoLayers } from "./layers/geo-info-layer.js";
 
 async function main(){
+  const embed = isEmbed();
+  if(embed) applyEmbedBodyState();
   const permalink = readPermalink();
   applyPanelState(permalink); // before layer init(), which reads the panel controls
-  const { map, getBasemap } = createMap(permalink);
+  const { map, getBasemap } = createMap({ ...permalink, embed });
   initLoadingIndicators(map); // before any layer is added, so every layer's loading events are seen
   const infoPopup = createInfoPopup(map);
   const markerState = createMarkerState();
@@ -46,16 +51,19 @@ async function main(){
   initGeoInfoLayers(map, infoPopup);
 
   replayLayerToggles(permalink);
-  initControls(map);
-  initPermalink(map, getBasemap);
-  wireSearch(map, markerState);
+  initControls(map, { embed });
+  const { flush } = initPermalink(map, getBasemap);
+  if(!embed) wireSearch(map, markerState); // the embed has no address search
   initGroupCollapse();
-  initPrint(map);
+  if(!embed) initPrint(map);
   initBottomSheet(map);
   initGroupHide();
   initOpacitySliders(map);
   initLayerOrder(map);
   initActiveIndicator();
+  initPanelCollapse(map, { embed, locked: embed && isPanelLocked() });
+  if(embed) initEmbed(map, { flush });
+  else initEmbedDialog({ flush });
 }
 
 main();

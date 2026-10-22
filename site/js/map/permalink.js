@@ -107,9 +107,11 @@ function buildHash(map, getBasemap){
 }
 
 /**
- * Keeps the URL hash in sync with the map and wires the "Copy link" button.
+ * Keeps the URL hash in sync with the map and wires the "Copy link" button (absent in the embed).
  * @param {L.Map} map
  * @param {() => string|null} getBasemap - returns the currently selected basemap's name.
+ * @returns {{flush: () => void}} `flush` writes the hash now instead of after the debounce, so a
+ *   caller about to read `location.hash` (the embed's "Open full map" link) sees the current view.
  */
 export function initPermalink(map, getBasemap){
   let timer = null;
@@ -125,9 +127,13 @@ export function initPermalink(map, getBasemap){
   panel.addEventListener("change", write);
   panel.addEventListener("input", write);
   write();
+  const flush = () => {
+    clearTimeout(timer);
+    history.replaceState(null, "", buildHash(map, getBasemap));
+  };
 
   const button = document.getElementById("copyLinkBtn");
-  if(!button) return;
+  if(!button) return { flush };
   button.addEventListener("click", async () => {
     history.replaceState(null, "", buildHash(map, getBasemap));
     try {
@@ -138,4 +144,5 @@ export function initPermalink(map, getBasemap){
     }
     setTimeout(() => { button.textContent = "Copy link"; }, 2000);
   });
+  return { flush };
 }

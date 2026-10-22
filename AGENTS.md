@@ -20,7 +20,7 @@ npm run check:links   # after a build: every internal href/src and #fragment mus
 | Looking for | Go to |
 |---|---|
 | Page templates and front-matter keys | `site/**/*.njk`, `site/_includes/`; [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| The map (modules, layer table, popups, permalink) | `site/js/map/`, `site/map/index.njk`; [`docs/MAP.md`](docs/MAP.md) |
+| The map (modules, layer table, popups, permalink) | `site/js/map/`, `site/map/index.njk`, `site/map/embed/index.njk`, `site/_includes/map-panel.njk`; [`docs/MAP.md`](docs/MAP.md) |
 | One map layer | `site/js/map/layers/<source>-layer.js` |
 | The tool dataset (and per-tool status) | `site/data/tools.json`; [`docs/TOOLS.md`](docs/TOOLS.md) |
 | Tool list page | `site/compare/index.njk`, `site/js/sources.js` |
