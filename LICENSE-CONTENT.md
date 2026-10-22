@@ -6,7 +6,7 @@ is licensed under the GNU General Public License v3.0 — see [`LICENSE`](LICENS
 This project's **written content** — page copy, tool descriptions and
 comparisons, the About page's project history, and other original text
 authored for this site — is licensed separately under the **Creative
-Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)**.
+Commons Attribution 4.0 International License (CC BY 4.0)**.
 
 This does not apply to third-party material embedded or linked on the
 site (data pulled live from government agencies, geometry derived from
@@ -26,18 +26,15 @@ for any purpose, even commercially, under the following terms:
   Atlas, provide a link to this license, and indicate if changes were
   made. You may do so in any reasonable manner, but not in any way that
   suggests the licensor endorses you or your use.
-- **ShareAlike** — If you remix, transform, or build upon the material,
-  you must distribute your contributions under the same license as the
-  original.
 - No additional restrictions — You may not apply legal terms or
   technological measures that legally restrict others from doing
   anything the license permits.
 
 This summary is not a substitute for the license. The full legal text is
 available at:
-<https://creativecommons.org/licenses/by-sa/4.0/legalcode>
+<https://creativecommons.org/licenses/by/4.0/legalcode>
 
 A human-readable deed is available at:
-<https://creativecommons.org/licenses/by-sa/4.0/>
+<https://creativecommons.org/licenses/by/4.0/>
 
 Copyright © 2026 CA Sea Change Atlas.
