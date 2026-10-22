@@ -53,7 +53,7 @@ const lines = [
   "",
   "How the figures are computed: " + SITE_URL + "/county-profiles/about/methodology/. What changed between methodology versions: " + SITE_URL + "/county-profiles/about/changelog/.",
   "",
-  "Licensed CC BY-SA 4.0. Third-party source data keeps its own terms; see " + SITE_URL + "/about/licenses/.",
+  "Licensed CC BY 4.0. Third-party source data keeps its own terms; see " + SITE_URL + "/about/licenses/.",
   "",
 ];
 fs.writeFileSync(path.join(outDir, "README.md"), lines.join("\n"));
@@ -65,7 +65,7 @@ const metadata = {
     creators: [{ name: "Modracee, Peter" }],
     description: "County-level flood hazard, sea level rise, total economy and marine economy exposure for California counties, computed from public data for the California Sea Change Atlas. Snapshot of " + date + " (" + rows.length + " count" + (rows.length === 1 ? "y" : "ies") + "). Each file carries its own sources, vintages and methodology version.",
     access_right: "open",
-    license: "cc-by-sa-4.0",
+    license: "cc-by-4.0",
     version: date,
     publication_date: date,
     related_identifiers: [
