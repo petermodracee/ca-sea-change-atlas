@@ -31,6 +31,15 @@ Moving a page from a root-level file to a nested directory (`/sources.html` → 
 ### `LICENSE-CONTENT.md` isn't served
 It used to be passthrough-copied and linked from the licenses page as CC BY-SA 4.0's "full text," but it never contained the full text — it's a 43-line summary that itself links out to creativecommons.org for the real legal text. The licenses page now links straight to that legal text instead. `LICENSE-CONTENT.md` stays in the repo unpassed-through, since it's a GitHub-browsing convenience (GitHub auto-detects `LICENSE` for the code license; this is the equivalent declaration for the separately-licensed written content, for anyone reading the repo rather than the live site).
 
+### Content license: CC BY 4.0, not CC BY-SA
+The project's own written content moved from CC BY-SA 4.0 to CC BY 4.0 (Peter's decision, October 2026). The code stays GPLv3. The reasons:
+- The site is meant to be reused by planners, agencies, consultants and researchers. Share-alike adds friction for exactly that use (a paragraph lifted into a report, a slide deck or a journal article would pull the whole work under BY-SA) while protecting little.
+- The site's explanatory writing isn't the kind of work share-alike is meant to keep open.
+- One simple license is easier to state and follow.
+- Attribution is still required.
+
+Before switching, the repo was checked for third-party BY-SA material incorporated into the site's own content (text, images, data files) rather than displayed live or credited; none was found. The only BY-SA sources, BCDC's two Adapting to Rising Tides explorers, are loaded live and keep their own terms on `/about/licenses/`. Copies of the content already obtained under CC BY-SA stay under CC BY-SA, since a Creative Commons license can't be withdrawn for copies already obtained. Nothing else published under the site's name changes. The license shown in the footer and on the licenses page comes from `contentLicense` in `site/_data/site.js`, a key into `site/_data/licenseTypes.json`.
+
 ## Data services
 
 ### CoSMoS is not an ArcGIS service
