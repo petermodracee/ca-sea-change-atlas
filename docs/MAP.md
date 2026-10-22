@@ -125,7 +125,7 @@ BCDC, ECC and CoSMoS tiles and identify calls, the CFEM composite identify, and 
 
 ## Linkable control ids
 
-**`/map/embed/` and the hash format are a stable public interface.** Embeds on other sites live for years, and County Profiles generates map links from these ids and values. A renamed or removed hash key or control id must keep reading its old name (accept both, mapping the old to the new); there is no versioning scheme. Change ids together with the County Profiles generator.
+**`/map/embed/` and the hash format are a stable public interface.** Embeds on other sites live for years, and County Profiles generates map links from these ids and values. A renamed or removed hash key or control id must keep reading its old name (accept both, mapping the old to the new); there is no versioning scheme. The County Profiles build fails if an id or value it links to disappears (`checkMapLinks` in `scripts/county-profiles/map-links.js`; the generator is the table in the same file), so change ids together with that table.
 
 | Control | Id | Hash key | Values |
 |---|---|---|---|

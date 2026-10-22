@@ -1,5 +1,20 @@
 # County Profiles build scripts
 
-Placeholder. This is where the county-profiles tool's non-Eleventy build tooling will live once Phase 2 of [`docs/COUNTY-PROFILES.md`](../../docs/COUNTY-PROFILES.md) starts: fetchers for FEMA NFHL, Census ACS, USGS Structures, OpenFEMA, NOAA C-CAP, NOAA SLR inundation, ENOW and LODES; the block-level intersect pipeline; the `EFF_DATE` change-detection gate; the Playwright PDF renderer.
+Non-Eleventy tooling for [`docs/COUNTY-PROFILES.md`](../../docs/COUNTY-PROFILES.md).
+
+- `validate.js` validates a snapshot against `site/data/countyProfileSchema.json` and the county spine. `site/_data/countyProfiles.js` runs it at build time and the pipeline runs it before writing a file.
+- `section-models.js`, `timing.js`, `format.js` and `template-helpers.mjs` turn snapshot data into what the templates draw.
+- `pipeline/` is the data pipeline. `node scripts/county-profiles/pipeline/run.js <fips | fips,fips | all>` fetches FEMA NFHL, Census blocks and ACS, LODES, USGS Structures, OpenFEMA, NOAA SLR inundation (seven regional files), BLS QCEW, BEA GDP by industry, Census ZIP Code Business Patterns and TIGER shoreline geography, NOAA Open ENOW, ENOW and Total Economy (comparators and footprint), Census Nonemployer Statistics and NOAA C-CAP land cover, runs the block-level intersect and writes `site/data/county-profiles/latest/<fips>.json`. See the "Data pipeline" section of the doc for the method and the sources.
+- `.cache/` (gitignored) holds the raw downloads, so a re-run does not fetch them again, plus the run's diagnostics report. Delete it or pass `--refresh` to re-fetch.
+
+- `pipeline/gate.js` is the `EFF_DATE` change gate, `pipeline/archive.js` decides when a dated snapshot is minted, and `check-archive.js` fails if a published dated snapshot was edited (Phase 5; see "Automation and the archive" in the doc). The workflow is `.github/workflows/county-profiles.yml`.
+
+- `pipeline/run.js <fips|all> --economy-only` rebuilds only the marine and total economy topics of the existing snapshot (Phase 7); `--reset-archive` overwrites the dated snapshot in place (never used by the workflow). `analysis/economy-validation.js` prints the validation tables in `docs/DECISIONS.md`; `analysis/diff-hazard.js <baseline dir>` proves the flood hazard and sea level rise figures did not move. `estimated.js` holds the estimated state's one threshold constant.
+
+- `citation.js` builds the one recommended citation: the pages render it, and the pipeline writes it into each snapshot's `attribution`.
+- `structured-data.js` builds the schema.org `Dataset` markup for the current chooser pages and the collection, and checks it after every build (`SITE_DIR=<dir> node scripts/county-profiles/structured-data.js` on its own).
+- `headline.js` builds each chooser's and topic deck's link description from the section models; `og/cards.js` draws the preview cards (Satori and resvg-js) after the build and checks every County Profiles page's `og:image`. Their words are in `site/_data/countyProfileSeo.json`.
+
+Print is the reader's browser (Phase 6); no PDFs are generated.
 
 These scripts run once per Actions workflow invocation and write their output directly into `site/data/county-profiles/` — they are build-time tooling, not site source, which is why they live outside `site/`.

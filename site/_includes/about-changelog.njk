@@ -1,0 +1,8 @@
+{#- A changelog list from a data file in site/_data/changelog/<tool>.json. Expects `entries`: an array of
+    {date, type, summary, details}, newest first. `type` is "method" (a change that can move a figure)
+    or "update" (nothing moved). -#}
+<dl class="cp-reasons about-changelog">
+{%- for e in entries %}
+<div><dt>{{ e.summary }} <span class="cp-muted"><time datetime="{{ e.date }}">{{ e.date }}</time> · {{ "Method change" if e.type == "method" else "No figure moved" }}</span></dt><dd>{{ e.details }}</dd></div>
+{%- endfor %}
+</dl>

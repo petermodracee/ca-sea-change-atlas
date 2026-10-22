@@ -1,0 +1,118 @@
+{#- The county chooser page body: a normal document (not a deck), shared by the current route
+    (county.njk) and the dated route (county-snapshot.njk). Expects `county` and `dated`. Ctrl+P prints this
+    layout (see the body.cp-landing rules in @media print), not a separate paper version. -#}
+{%- from "county-profiles/citation.njk" import citation with context %}
+{%- from "county-profiles/card-icon.njk" import cardIcon %}
+{#- An available card shows the topic's intro; an unavailable one shows only the icon, the title and the reason. -#}
+{%- set profile = county.profile %}
+{%- set reasons = countyProfiles.reasonsById %}
+{%- set base = "/county-profiles/county/" + county.slug + "/" %}
+
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<p class="hero-nav"><a href="{{ '/county-profiles/' | url }}">All county profiles</a></p>
+<h1>{{ county.name }} County</h1>
+</div>
+</div>
+
+<div class="main">
+<div class="wrap cp">
+
+{%- if dated %}
+{%- if county.correction %}
+{%- set fix = county.correction %}
+<div class="cp-fixture" role="note">
+<p><strong>Correction notice ({{ fix.date }}).</strong> {{ fix.note }} The corrected figures are in the <a href="{{ (base + fix.supersededBy + '/') | url }}">{{ fix.supersededBy }} snapshot</a>. This snapshot is left as published.</p>
+</div>
+{%- endif %}
+{%- elif county.isFixture %}
+<div class="cp-fixture" role="note">
+<p><strong>Placeholder figures.</strong> This county's topic pages show invented numbers to exercise the layout; they are not measurements of {{ county.name }} County.</p>
+</div>
+{%- endif %}
+
+<div class="cp-toolbar">
+{%- if profile %}
+<p class="cp-toolbar-asof">{{ "Snapshot dated" if dated else "Data as of" }} <time datetime="{{ profile.snapshot }}">{{ profile.snapshot | longDate }}</time> · <a href="{{ '/county-profiles/about/changelog/' | url }}">Methodology version {{ profile.method }}</a></p>
+{%- else %}
+<p class="cp-toolbar-asof">No data snapshot yet. The topics below follow the {{ county.tierLabel | lower }} tier rules.</p>
+{%- endif %}
+<div class="cp-toolbar-actions">
+{%- if dated %}
+<a href="{{ base | url }}">Current profile</a>
+{%- else %}
+{%- set switcherTopic = "" %}
+{% include "county-profiles/county-switcher.njk" %}
+<a class="cp-toolbar-print" href="{{ (base + 'print/') | url }}">Print full profile</a>
+{%- endif %}
+</div>
+</div>
+
+<section class="cp-topic" id="topics">
+<h2 class="sr-only">Topics</h2>
+<div class="cp-topic-cards">
+{%- for t in county.coverage %}
+{%- set ic = countyProfiles.topicIcons[t.id] %}
+{%- if t.hasPage %}
+<a class="cp-topic-card is-available" href="{{ (base + (profile.snapshot + '/' if dated else '') + t.slug + '/') | url }}">
+{{ cardIcon(ic, true) }}
+<h3>{{ t.label }}</h3>
+<p class="cp-topic-desc">{{ t.description }}</p>
+{%- if t.sectionGaps.length %}
+<p class="cp-topic-gaps">{{ t.sectionTotal - t.sectionGaps.length }} of {{ t.sectionTotal }} sections. Not available: {% for g in t.sectionGaps %}{{ g.title }} ({{ g.reasonLabel }}){% if not loop.last %}; {% endif %}{% endfor %}</p>
+{%- endif %}
+</a>
+{%- elif t.available %}
+<div class="cp-topic-card is-unavailable">
+{{ cardIcon(ic, false) }}
+<h3>{{ t.label }}</h3>
+<p class="cp-topic-reason">No data snapshot yet. This topic is available for {{ county.name }} County; its figures have not been built.</p>
+</div>
+{%- else %}
+<div class="cp-topic-card is-unavailable">
+{{ cardIcon(ic, false) }}
+<h3>{{ t.label }}</h3>
+<p class="cp-topic-reason"><strong>Not available: {{ t.reasonLabel }}.</strong> {{ t.reasonSummary }} <a href="{{ ('/county-profiles/about/data/#reason-' + t.reason) | url }}">About this reason</a></p>
+</div>
+{%- endif %}
+{%- endfor %}
+</div>
+</section>
+
+<section class="cp-topic cp-chooser-meta" id="earlier-snapshots">
+<h2 class="sr-only">Download, citation and snapshots</h2>
+{%- if profile %}
+<dl class="cp-meta-list">
+<dt class="no-print">Data</dt><dd class="no-print"><a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a></dd>
+<dt>Cite</dt><dd class="cp-cite">{{ citation(county, null, profile.snapshot) }}</dd>
+<dt class="no-print">Report</dt><dd class="no-print"><a href="{{ { county: county.name, snapshot: profile.snapshot, method: profile.method, page: site.url ~ page.url } | reportUrl }}" target="_blank" rel="noopener">Report a problem with these figures</a></dd>
+<dt class="no-print">Earlier snapshots</dt>
+<dd class="no-print">
+{%- if county.snapshots.length %}
+<ul class="cp-snapshot-list">
+{%- for s in county.snapshots %}
+<li><a href="{{ (base + s.date + '/') | url }}">{{ s.date }}</a>{% if s.isCurrent %} (current){% endif %}{% if dated and s.date == profile.snapshot %} (you are here){% endif %}</li>
+{%- endfor %}
+</ul>
+{%- if county.snapshots.length < 2 %}
+<span class="cp-note">A new dated snapshot is added only when this county's figures change, so there is one snapshot until a source revises.</span>
+{%- endif %}
+{%- else %}
+<span class="cp-note">No snapshots yet.</span>
+{%- endif %}
+</dd>
+</dl>
+{%- endif %}
+</section>
+{%- if profile and not dated %}
+<p class="cp-print-line print-only">Full profile: {{ site.url }}{{ (base + 'print/') | url }}</p>
+{%- endif %}
+
+</div>
+</div>

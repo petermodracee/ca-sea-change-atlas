@@ -1,0 +1,98 @@
+---
+aboutKind: data
+aboutWide: true
+heading: Data
+title: Data Descriptions and JSON Download | County Profiles | CA Sea Change Atlas
+description: JSON download availability, field descriptions, and a matrix of which county profile topics are available for all 27 California coastal and delta counties.
+---
+{%- set cp = countyProfiles %}
+{%- set em = countyProfiles.economyMethod %}
+
+<section class="cp-topic" id="json-download">
+<h2 id="json-fields">JSON fields and downloads</h2>
+<p>The processed data used to populate each County Profile is saved as a per-county JSON, which can be downloaded from each county profile chooser page. The top-level of each file includes the <a href="https://www.census.gov/library/reference/code-lists/ansi.html" target="_blank" rel="noopener"><code>fips</code> code</a> and name for each county (<code>slug</code>, <code>county</code>), the coverage level (<code>tier</code>), the <code>snapshot</code> date, the <a href="{{ '/county-profiles/about/changelog/' | url }}"><code>method</code> number</a>, the <code>generated</code> time and date, and the license and suggested citation.</p>
+
+<p>New snapshots are generated when data is updated, and historical snapshots are saved by date for reference.</p>
+
+<h3 id="license-attribution">License and attribution</h3>
+<p>Like the content of this site, <code>license</code> for the generated figures, meaning the output of how they're selected, arranged, and processed, is <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. The underlying data comes mostly from public domain data; per-source license details are available on the <a href="{{ '/about/licenses/' | url }}">licenses page</a>. Some of the text on the County Profiles topics is used verbatim from the NOAA tool, which is permissible since it's in the public domain.</p>
+
+<p>Each JSON file's <code>attribution</code> field holds the recommended citation for that county's snapshot and follows APA format:</p>
+<div class="cpd-citebox">
+<p class="cpd-cite">California Sea Change Atlas. (Year, Month Day). <em>County Name County coastal county profile</em>. https://seachangeatlas.org/county-profiles/county/county-name/YYYY-MM-DD/</p>
+</div>
+<p>Note the citation URL references the dated county profile page which is where the specific dated JSON data file lives.</p>
+
+<h3 id="json-gauge">Gauges</h3>
+<p>The <code>gauge</code> block covers the sea level heights <code>projections</code> at <code>intermediate</code>, <code>intermediate-high</code>, and <code>high</code> <code>scenarios</code> in <code>"feet"</code> (for <code>units</code>) at the assigned tide gauge (<code>id</code>/<code>name</code>), pulled from <a href="https://opc.ca.gov/" target="_blank" rel="noopener">Ocean Protection Council (OPC)</a> <a href="https://opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf" target="_blank" rel="noopener">2024 California Sea Level Rise Guidance</a> Appendix 2; flood-only counties have a <code>null</code> gauge. This data supports the "When is the time to act?" section.</p>
+
+<h3 id="json-sources">Sources</h3>
+<p>The JSON also includes a list of all of the <code>sources</code> used to generate the file including the human-readable <code>label</code>; the <code>url</code> to each source's home page or description; and each source's <code>vintage</code> (what period the source covers), when it was <code>retrieved</code> (when the script grabs the data), and when it was <code>verified</code> (when the tool last confirmed the data is still accessible).</p>
+
+<h3 id="json-topics">Topics</h3>
+<p>The topics block covers one entry per topic: <code>flood</code> hazard, sea level rise (<code>slr</code>), <code>total-economy</code>, <code>marine-economy</code>. Each topic includes if it is <code>available</code> and if not the <code>reason</code> listed below. Available topics get a <code>null</code> reason. Available topics have entries for each of the <code>sections</code> within the topic, each with:</p>
+<ul>
+    <li>A unique key mirroring the headline (e.g. <code>critical-facilities</code> for "Flooded Facilities Can't Provide Critical Services").</li>
+    <li>If the section is <code>available</code> and the <code>reason</code> if not, like the topic.</li>
+    <li>A list of the <code>sources</code> used.</li>
+    <li>The calculated or imputed <code>data</code> used to populate each section.</li>
+    <li>And a <code>use</code> field with flags for where and how figures and charts show up for printing or display. This has no bearing on the data and can generally be ignored.</li>
+</ul>
+
+<h3 id="json-section-data">Section data</h3>
+<p>The shape of the <code>data</code> section varies based on the topic. Flood hazard and sea level rise topics are mostly straightforward counts as described on the <a href="{{ '/county-profiles/about/methodology/' | url }}">methodology page</a>. Sea level rise distinguishes between ocean-connected (<code>counts</code>) and ocean-connected plus low-lying areas (<code>countsWithLow</code>) exposure. To get <em>only</em> low-lying area exposure, subtract the two. Economy topic data are derived as described on the <a href="{{ '/county-profiles/about/economy/' | url }}">Economy</a> page, with the following confidence indicators for each figure:</p>
+<dl class="cp-reasons">
+<div><dt>A plain number</dt><dd>A figure built only from published values has no <code>est</code> object and no <code>suppressed</code> flag. To keep only figures built from published values, drop any figure that has either.</dd></div>
+<div><dt><code>est</code></dt><dd>The figure was partly imputed (estimated). <code>share</code> is the imputed fraction of its value (0 to 1), <code>weakShare</code> the part imputed at the two weakest steps of the ladder (4 and 5), and <code>step</code> the weakest step used. The page marks it &#8776; when <code>share</code> is {{ em.thresholdPercent if em else 25 }}% or more.</dd></div>
+<div><dt><code>"suppressed": true</code></dt><dd>The figure is withheld, and <code>reason</code> says why: <code>weak-share</code>, <code>no-data</code>, <code>gdp-unreproducible</code> or <code>no-calibration-anchor</code> (each explained <a href="{{ '/county-profiles/about/economy/' | url }}#withheld-reasons">in Withheld reasons on the Economy page</a>).</dd></div>
+</dl>
+<p>A total that leaves a withheld or partial component out is stored as <code>{value, partial: true}</code>, where <code>value</code> is the sum of the components that are present.</p>
+
+<h3 id="json-estimation">Estimation</h3>
+<p>The <code>estimation</code> block contains estimation/imputation <code>thresholds</code> and tourism/recreation shoreline share tuning values and methods (<code>tourismShoreShare</code>) for the economy sections.</p>
+</section>
+
+<section class="cp-topic" id="withheld">
+<h2>Withheld values, zeros and gaps</h2>
+<p>Reasoning behind missing values is explicitly marked in the tool:</p>
+<ul>
+    <li><strong>Zero</strong> values are shown and indicated. It might not be obvious, for example on some of the bar charts; it shows up in the data table when printing and in the JSON.</li>
+    <li><strong>Withheld</strong> figures are indicated as such due to one of the reasons listed <a href="{{ '/county-profiles/about/economy/' | url }}#withheld-reasons">in Withheld reasons on the Economy page</a> and given in the JSON <code>reason</code> field.</li>
+    <li><strong>Estimated</strong> figures, indicated with a &#8776; mark, a diagonal hatch on a bar, and a dashed ring on a dot, are partly built from values the source withholds for confidentiality; more details <a href="{{ '/county-profiles/about/economy/' | url }}#estimated">in Estimated notes on the Economy page</a>.</li>
+    <li><strong>Unavailable</strong> indicates no data is present, along with the reason why.</li></ul>
+</section>
+
+<section class="cp-topic" id="topic-matrix">
+<h2>Topic matrix</h2>
+<p class="cp-note">Not every county has all four topics; the table below lists all counties, coverage, and reason for exclusion if any. Exclusion explanations are listed below the table.</p>
+<div class="cp-table-wrap">
+<table class="cp-matrix">
+<thead>
+<tr><th scope="col">County</th>{% for t in cp.topics %}<th scope="col">{{ t.label }}</th>{% endfor %}</tr>
+</thead>
+<tbody>
+{%- for c in cp.counties %}
+<tr>
+<th scope="row"><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}">{{ c.name }}</a><span class="cp-matrix-tier">{{ c.tierLabel }}</span></th>
+{%- for t in c.coverage %}
+{%- if t.available %}
+<td class="is-available"><span aria-hidden="true">●</span> Available</td>
+{%- else %}
+<td class="is-unavailable" title="{{ cp.reasonsById[t.reason].rule }}"><span aria-hidden="true">○</span> {{ t.reasonLabel }}</td>
+{%- endif %}
+{%- endfor %}
+</tr>
+{%- endfor %}
+</tbody>
+</table>
+</div>
+
+<h3>Reasons for topic exclusion</h3>
+<p>In addition to being listed on the table, the topic exclusion reasons are also listed in each snapshot's JSON.</p>
+<dl class="cp-reasons">
+{%- for r in cp.reasons %}
+<div><dt id="reason-{{ r.id }}">{{ r.label }} <code>{{ r.id }}</code></dt><dd>{{ r.rule }}</dd></div>
+{%- endfor %}
+</dl>
+</section>
+

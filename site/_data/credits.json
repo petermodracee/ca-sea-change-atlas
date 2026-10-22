@@ -125,6 +125,12 @@
       "intro": "Non-flood layers you can overlay on the flood data, each loaded from the agency that publishes it.",
       "items": [
         {
+          "name": "State of California Sea Level Rise Guidance: 2024 Science & Policy Update (California Ocean Protection Council), Appendix 2",
+          "url": "https://opc.ca.gov/wp-content/uploads/2024/05/California-Sea-Level-Rise-Guidance-2024-508.pdf",
+          "note": "Median sea level rise projections for 14 tide gauges, hand-transcribed into the repository (site/_data/opcGaugeProjections.json) and used to compute the County Profiles timing table. The numbers are facts, not the guidance's text, and it states no license; cite the guidance.",
+          "licenses": []
+        },
+        {
           "name": "Caltrans traffic volumes (AADT)",
           "url": "https://data.ca.gov/dataset/annual-average-daily-traffic",
           "licenses": [
@@ -167,7 +173,64 @@
         {
           "name": "NOAA C-CAP land cover and Wetland Potential",
           "url": "https://coast.noaa.gov/digitalcoast/data/ccapregional.html",
-          "note": "Served through NOAA's Coastal Flood Exposure Mapper services.",
+          "note": "The map: served through NOAA's Coastal Flood Exposure Mapper services. County Profiles: the 1996 and 2021 regional 30 m land cover rasters, read by window and intersected with the hazard extents (build time only).",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA Coastal County Snapshots (section text)",
+          "url": "https://coast.noaa.gov/digitalcoast/tools/snapshots.html",
+          "toolId": "noaa-coastal-county-snapshots",
+          "note": "The explanatory prose of each County Profiles section is NOAA's own, reused with the adaptations listed in docs/COUNTY-PROFILES.md. NOAA's figures are not used.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA Economics: National Ocean Watch (ENOW)",
+          "url": "https://coast.noaa.gov/digitalcoast/data/enow.html",
+          "note": "County Profiles: the self-employed workers series (county, through 2021) and the 2021 county figures the estimates are checked against, read through NOAA's Quick Report data API. The marine economy figures themselves are built from public QCEW (see the entries below).",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA Total Economy (Coastal)",
+          "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
+          "note": "County Profiles: the coastal California and coastal U.S. comparison values on the total economy wages chart (2023, its newest year), and the series the county totals are checked against, read through NOAA's Quick Report data API.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "NOAA Open ENOW",
+          "url": "https://coast.noaa.gov/digitalcoast/data/enow.html",
+          "note": "County Profiles: the method (sector and NAICS definitions, the imputation ladder, the GDP approach) that the county marine economy estimates follow, and the California and All Coastal States (the coastal portions of 30 states) values on the marine wages chart, read through NOAA's data API.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Bureau of Labor Statistics — Quarterly Census of Employment and Wages",
+          "url": "https://www.bls.gov/cew/",
+          "note": "County Profiles: annual average establishments, employment and wages by county, NAICS code and ownership, from the public annual by-area files. The basis of the marine and total economy figures.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Bureau of Economic Analysis — GDP by state and industry",
+          "url": "https://www.bea.gov/data/gdp/gdp-industry",
+          "note": "County Profiles: California GDP by industry (table SAGDP2, current dollars), used with QCEW wages to estimate sector GDP.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Census Bureau — ZIP Code Business Patterns and TIGER shoreline geography",
+          "url": "https://www.census.gov/programs-surveys/cbp/data/datasets.html",
+          "note": "County Profiles: establishments by ZIP code, industry and size class (ZIP Code Business Patterns), and the 2020 ZIP code tabulation areas, coastline and tidal water areas (TIGER), used to estimate the share of tourism and recreation in shoreline-adjacent ZIP codes.",
           "licenses": [
             "pd-us"
           ]
@@ -181,9 +244,49 @@
           ]
         },
         {
-          "name": "USGS The National Map — Structures",
-          "url": "https://www.usgs.gov/national-digital-trends/structures",
+          "name": "USGS National Structures Dataset",
+          "url": "https://data.usgs.gov/datacatalog/data/USGS:db4fb1b6-1282-4e5b-9866-87a68912c5d1",
           "note": "Critical facilities: hospitals, fire/EMS, police, schools.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Census Bureau — American Community Survey (5-year)",
+          "url": "https://www.census.gov/programs-surveys/acs/data.html",
+          "note": "County Profiles: population, residents aged 65 and over and residents below the poverty line, by block group, from the bulk summary files.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Census Bureau — 2020 tabulation blocks (TIGER/TIGERweb)",
+          "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/Census2020/Tracts_Blocks/MapServer",
+          "note": "County Profiles: block boundaries, internal points, 2020 populations and land areas, the block-level geography every hazard intersect is made at.",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Census Bureau — LEHD LODES",
+          "url": "https://lehd.ces.census.gov/data/lodes/",
+          "note": "County Profiles: jobs by workplace block (LODES8 workplace area characteristics, all jobs).",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "U.S. Census Bureau — Nonemployer Statistics",
+          "url": "https://www.census.gov/programs-surveys/nonemployer-statistics.html",
+          "note": "County Profiles: self-employed workers by sector for the total economy (nonemployer establishments by 2-digit NAICS, county file).",
+          "licenses": [
+            "pd-us"
+          ]
+        },
+        {
+          "name": "FEMA OpenFEMA — NFIP claims",
+          "url": "https://www.fema.gov/openfema-data-page/nfip-redacted-claims-v3",
+          "note": "County Profiles: National Flood Insurance Program claims and payouts by five-year period.",
           "licenses": [
             "pd-us"
           ]
@@ -259,8 +362,24 @@
     {
       "id": "libraries",
       "title": "Libraries & fonts",
-      "intro": "Loaded from public CDNs at pinned versions with Subresource Integrity hashes, not bundled into this repository (except Eleventy, which only runs at build time).",
+      "intro": "Loaded from public CDNs at pinned versions with Subresource Integrity hashes, not bundled into this repository (except Eleventy, d3-array and d3-scale, which only run at build time).",
       "items": [
+        {
+          "name": "d3-array",
+          "url": "https://github.com/d3/d3-array",
+          "note": "Sums for the County Profiles charts (build time only).",
+          "licenses": [
+            "isc"
+          ]
+        },
+        {
+          "name": "d3-scale",
+          "url": "https://github.com/d3/d3-scale",
+          "note": "Scale maths for the County Profiles share rings (build time only).",
+          "licenses": [
+            "isc"
+          ]
+        },
         {
           "name": "Eleventy",
           "url": "https://www.11ty.dev/",
@@ -275,6 +394,14 @@
           "note": "ArcGIS REST client for the NOAA and FEMA layers.",
           "licenses": [
             "apache-2"
+          ]
+        },
+        {
+          "name": "geotiff",
+          "url": "https://github.com/geotiffjs/geotiff.js",
+          "note": "Reads windows of the C-CAP land cover GeoTIFFs for County Profiles (build time only).",
+          "licenses": [
+            "mit"
           ]
         },
         {
@@ -329,9 +456,41 @@
         {
           "name": "Spectral and IBM Plex Sans",
           "url": "https://fonts.google.com/",
-          "note": "Page fonts, via Google Fonts.",
+          "note": "Page fonts, via Google Fonts. The County Profiles preview cards use copies of Spectral SemiBold and IBM Plex Sans Regular and SemiBold bundled in the repository (scripts/county-profiles/og/fonts/, with their license files).",
           "licenses": [
             "ofl"
+          ]
+        },
+        {
+          "name": "Material Symbols",
+          "url": "https://github.com/marella/material-symbols",
+          "note": "County Profiles' Diverse Economies chart: one small icon per economic sector, pulled from the @material-symbols/svg-400 package at build time.",
+          "licenses": [
+            "apache-2"
+          ]
+        },
+        {
+          "name": "polygon-clipping",
+          "url": "https://github.com/mfogel/polygon-clipping",
+          "note": "Polygon intersection and union for County Profiles land-in-floodplain areas (build time only).",
+          "licenses": [
+            "mit"
+          ]
+        },
+        {
+          "name": "resvg-js",
+          "url": "https://github.com/yisibl/resvg-js",
+          "note": "Turns the County Profiles preview cards from SVG into PNG (build time only).",
+          "licenses": [
+            "mpl-2"
+          ]
+        },
+        {
+          "name": "Satori",
+          "url": "https://github.com/vercel/satori",
+          "note": "Lays out the County Profiles preview cards as SVG (build time only).",
+          "licenses": [
+            "mpl-2"
           ]
         }
       ]

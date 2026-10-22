@@ -1,0 +1,18 @@
+{
+  "_note": "The text of the Digging Deeper slide that closes every topic deck. {county} and {topic} are filled in per page. The links are generated (scripts/county-profiles/map-links.js and tool-links.js); only the words live here.",
+  "heading": "Digging Deeper",
+  "lede": "Go further with {county} County's {topic} in the atlas's other tools.",
+  "map": {
+    "icon": "map",
+    "title": "See {county} County on the map",
+    "line": "Opens the map on the county, highlighted.",
+    "lineWithLayers": "Opens the map on the county, highlighted, with {layers} switched on.",
+    "layers": { "flood": "flood zones", "slr": "the sea level rise layer" },
+    "datedNote": "The map shows current data, not this snapshot's."
+  },
+  "compare": {
+    "icon": "compare",
+    "title": "Compare the flood and sea level rise resources",
+    "line": "Explore descriptions fo the different resources available, including those listed in the OPC guidance."
+  }
+}

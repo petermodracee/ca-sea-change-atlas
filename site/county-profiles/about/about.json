@@ -1,0 +1,6 @@
+{
+  "layout": "about-section.njk",
+  "aboutSection": "county-profiles",
+  "nav": "county-profiles",
+  "ogImage": "/img/og/county-profiles.png"
+}

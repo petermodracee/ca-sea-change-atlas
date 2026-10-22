@@ -1,0 +1,8 @@
+[
+  {
+    "date": "2026-09-23",
+    "type": "method",
+    "summary": "Version 1 (release version)",
+    "details": "Initial release. Uses Census block-level areal apportionment of people and jobs to FEMA flood zones and sea level rise extent polygons derived from NOAA SLR data. Uses OPC scenarios and gauge tables and a readapted Open ENOW methodology for imputed values. See about pages for more details."
+  }
+]

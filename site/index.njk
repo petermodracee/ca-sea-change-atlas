@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 title: CA Sea Change Atlas
-description: A map of open California sea-level-rise flood data, and a side-by-side comparison of coastal-flooding tools.
+description: A map of open California sea-level-rise flood data, a side-by-side comparison of coastal-flooding tools, and flood and sea-level-rise profiles for California counties.
 nav: home
 ---
 {%- set schema = {
@@ -25,7 +25,7 @@ nav: home
 <span class="hero-logo" id="heroLogo"><img src="{{ '/img/casca-logo.svg' | url }}" alt=""></span>
 <h1>California Sea Change Atlas</h1>
 </div>
-<p class="lede">The CA Sea Change Atlas (CASCA) is two tools for making sense of California's sea-level-rise and coastal-flooding visualisation tools: a side-by-side map collating publicly accessible data, and a side-by-side comparison of select tools.</p>
+<p class="lede">The CA Sea Change Atlas (CASCA) is three tools for making sense of California's sea-level-rise and coastal-flooding visualisation tools: a side-by-side map collating publicly accessible data, a side-by-side comparison of select tools, and county profiles of flood and sea-level-rise exposure.</p>
 <p class="hero-about-link">This site is under active development; some things may break and some may not yet have been verified by a human. Inspired by "Sea the Future," a decision tool summarizing California sea level rise and flood visualization tools. <a href="{{ '/about/' | url }}">Read more</a></p>
 </div>
 </div>
@@ -39,6 +39,11 @@ nav: home
 <h2>CASCA Map</h2>
 <p>A Leaflet map with toggleable layers collated from the sea-level-rise and coastal-flooding mapping tools that have publicly accessible endpoints. Use this when you want to compare layers side-by-side and scenarios for a specific piece of California coastline. Not every resource appears here; see the comparison tool for the full list.</p>
 <a class="landing-card-cta" href="{{ '/map/' | url }}">Open the map</a>
+</div>
+<div class="landing-card">
+<h2>CASCA County Profiles</h2>
+<p>Flood hazard, sea level rise, total economy and marine economy exposure for {{ countyProfiles.counties | length }} California counties, rebuilding the function of NOAA's discontinued Coastal County Snapshots. Use this when you want to know what flooding and sea level rise mean for a specific county, with the source and the year each figure covers.</p>
+<a class="landing-card-cta" href="{{ '/county-profiles/' | url }}">Find a county</a>
 </div>
 <div class="landing-card">
 <img src="{{ '/img/preview-sources.png' | url }}" alt="Screenshot of the CASCA tool comparison page" loading="lazy" onerror="this.remove()">

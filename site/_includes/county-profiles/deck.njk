@@ -1,0 +1,179 @@
+{#- The body of a topic deck: one page per (county, topic), shared by the current route
+    (topic.njk) and the dated route (topic-snapshot.njk). Expects `county`, `topic`, `sections`,
+    `placeholders` and `dated` (boolean) from the pagination context. -#}
+{% from "county-profiles/blocks-deck.njk" import gap, sources, bars, stackedBars, stacked100Bars, columns, facilitiesStack, dots, curves %}
+{% from "county-profiles/share-ring.njk" import shareRing %}
+{%- from "county-profiles/card-icon.njk" import cardIcon %}
+{%- from "county-profiles/citation.njk" import citation, citationUrl with context %}
+{%- set profile = county.profile %}
+{%- set reasons = countyProfiles.reasonsById %}
+{%- set base = "/county-profiles/county/" + county.slug + "/" %}
+{%- set datedBase = base + profile.snapshot + "/" %}
+{%- set permalink = citationUrl(county, topic, profile.snapshot) %}
+{%- set landingPermalink = site.url + datedBase %}
+{%- set printMode = false %}
+
+<header class="cpd-topbar">
+<a class="cpd-brand" href="{{ '/index.html' | url }}"><img src="{{ '/img/casca-logo.svg' | url }}" alt="" width="30" height="30"><span class="cpd-brand-name">{{ site.name }}</span></a>
+<div class="cpd-divider" aria-hidden="true"></div>
+<div class="cpd-crumb"><small><a href="{{ '/county-profiles/' | url }}">County Profiles</a></small>
+{%- if not dated %}{% set switcherTopic = topic.slug %}{% include "county-profiles/county-switcher.njk" %}{% endif %}
+<strong data-cp-switcher-fallback>{{ county.name }} County</strong></div>
+<nav class="cpd-topics" aria-label="Topics for {{ county.name }} County">
+{%- for t in county.coverage %}
+{%- if t.hasPage %}
+<a href="{{ (base + (profile.snapshot + '/' if dated else '') + t.slug + '/') | url }}"{% if t.id == topic.id %} aria-current="page"{% endif %}>{{ t.label }}</a>
+{%- else %}
+<span class="cpd-tab-off" aria-disabled="true" title="{{ t.reasonLabel if not t.available else 'No data snapshot yet' }}">{{ t.label }}<span class="sr-only"> (not available for this county)</span></span>
+{%- endif %}
+{%- endfor %}
+</nav>
+<div class="cpd-bar-right">
+{%- if dated %}<span class="cpd-tag">Snapshot {{ profile.snapshot }}</span>{% elif county.isFixture %}<span class="cpd-tag">Placeholder figures</span>{% endif %}
+<span class="cpd-asof">Data as of <b>{{ profile.snapshot }}</b></span>
+<button class="cpd-btn" type="button" onclick="window.print()">Print</button>
+</div>
+</header>
+
+<nav class="cpd-dots" aria-label="Sections" data-cpd-dots></nav>
+
+<main class="cpd-deck" data-cpd-deck tabindex="0">
+
+<section class="cpd-slide" id="s-title" data-label="{{ topic.label }}">
+<div class="cpd-left">
+<p class="cpd-eyebrow">{{ topic.label }} · {{ county.name }} County, CA</p>
+<h1>{{ topic.label }}</h1>
+<p class="cpd-prose">{{ topic.intro }}</p>
+{%- if topic.id == "slr" and county.gaugeName %}
+<p class="cpd-meta">Projections for the {{ county.gaugeName }} tide gauge, assigned to {{ county.name }} County · Exposure at {{ countyProfiles.increments | join(", ") }} ft above MHHW</p>
+{%- endif %}
+{%- if dated %}
+<p class="cpd-meta">This is the {{ profile.snapshot }} snapshot. <a href="{{ (base + topic.slug + '/') | url }}">See the current profile</a>.</p>
+{%- if county.correction %}
+<p class="cpd-meta"><strong>Correction notice ({{ county.correction.date }}).</strong> {{ county.correction.note }} See the <a href="{{ (base + county.correction.supersededBy + '/' + topic.slug + '/') | url }}">{{ county.correction.supersededBy }} snapshot</a>. This snapshot is left as published.</p>
+{%- endif %}
+{%- endif %}
+</div>
+<div class="cpd-panel">
+<div class="cpd-panel-body">
+<p class="cpd-eyebrow">In this profile</p>
+<ol class="cpd-contents">
+{%- for s in sections %}
+{%- if s.sec.available %}
+<li><a href="#s-{{ s.def.id }}">{{ s.def.title }} <span>{{ "0" if loop.index < 10 }}{{ loop.index }}</span></a></li>
+{%- else %}
+<li class="cpd-contents-off"><span aria-disabled="true">{{ s.def.title }}<span class="sr-only"> (not available for this county)</span> <span>{{ "0" if loop.index < 10 }}{{ loop.index }}</span></span></li>
+{%- endif %}
+{%- endfor %}
+<li><a href="#s-digging-deeper">{{ countyProfiles.diggingDeeper.heading }} <span>{{ "0" if (sections.length + 1) < 10 }}{{ sections.length + 1 }}</span></a></li>
+<li><a href="#s-about">About this data <span>{{ "0" if (sections.length + 2) < 10 }}{{ sections.length + 2 }}</span></a></li>
+</ol>
+</div>
+</div>
+</section>
+
+{%- for s in sections %}
+{%- set def = s.def %}
+{%- set sec = s.sec %}
+{%- set model = s.model %}
+{%- set uid = county.fips + "-" + topic.id + "-" + def.id %}
+<section class="cpd-slide" id="s-{{ def.id }}" data-label="{{ def.title }}">
+<div class="cpd-left">
+<h2>{{ def.title }}</h2>
+{%- if def.prose.length %}<p class="cpd-prose">{{ def.prose[0] }}</p>{% endif %}
+{%- set ml = (topic.id | mapLink(def.id, county.fips)) if sec.available else null %}
+{%- if ml %}
+<p class="cpd-maplink"><a class="cpd-btn" href="{{ ml.href | url }}" target="_blank" rel="noopener"{% if ml.follows %} data-cpd-map-follows{% endif %}>View on map<span class="sr-only"> for {{ def.title }}: opens {{ ml.opens }} for {{ county.name }} County in a new tab</span></a></p>
+{%- if dated %}<p class="cpd-maplink-note">The map shows current data, not this snapshot's.</p>{% endif %}
+{%- endif %}
+</div>
+<div class="cpd-panel">
+<div class="cpd-panel-body">
+{% include "county-profiles/section-body.njk" %}
+</div>
+{{ sources(sec.sources, county.sources, false) }}
+</div>
+</section>
+{%- endfor %}
+
+{#- Digging Deeper: generated links into the atlas's other tools; the words are in countyProfileDiggingDeeper.json. Screen only (never in print). -#}
+{%- set dd = countyProfiles.diggingDeeper %}
+{%- set ddMap = topic.id | topicMapLink(county.fips) %}
+{%- set ddCompare = county.fips | compareLink %}
+<section class="cpd-slide cpd-digging" id="s-digging-deeper" data-label="{{ dd.heading }}">
+<div class="cpd-left">
+<h2>{{ dd.heading }}</h2>
+<p class="cpd-prose">{{ dd.lede | replace("{county}", county.name) | replace("{topic}", topic.label | lower) }}</p>
+</div>
+<div class="cpd-panel">
+<div class="cpd-panel-body">
+<div class="cp-topic-cards cpd-digging-cards">
+<a class="cp-topic-card is-available" href="{{ ddMap.href | url }}" target="_blank" rel="noopener">
+{{ cardIcon(dd.icons.map, true) }}
+<h3>{{ dd.map.title | replace("{county}", county.name) }}</h3>
+<p>{% if ddMap.layers %}{{ dd.map.lineWithLayers | replace("{layers}", dd.map.layers[topic.id]) }}{% else %}{{ dd.map.line }}{% endif %}</p>
+{%- if dated %}
+<p class="cp-topic-gaps">{{ dd.map.datedNote }}</p>
+{%- endif %}
+</a>
+<a class="cp-topic-card is-available" href="{{ ddCompare.href | url }}">
+{{ cardIcon(dd.icons.compare, true) }}
+<h3>{{ dd.compare.title }}</h3>
+<p>{{ dd.compare.line }}</p>
+</a>
+</div>
+</div>
+</div>
+</section>
+
+<section class="cpd-slide" id="s-about" data-label="About this data">
+<div class="cpd-left">
+<p class="cpd-eyebrow">About this data</p>
+<h2>Data, methods and citation</h2>
+<dl class="cpd-facts">
+<dt>Snapshot</dt><dd>{{ profile.snapshot }} · <a href="{{ (base | url) }}#earlier-snapshots">all snapshots</a></dd>
+<dt>Methodology</dt><dd>Version {{ profile.method }} · <a href="{{ '/county-profiles/about/changelog/' | url }}">what changed</a></dd>
+{%- if topic.id == "slr" and county.gaugeName %}
+<dt>Tide gauge</dt><dd>{{ county.gaugeName }} (OPC 2024, Appendix 2)</dd>
+<dt>Scenarios</dt><dd>Intermediate, Intermediate-High, High</dd>
+{%- endif %}
+</dl>
+<p class="cpd-note cpd-report"><a href="{{ { county: county.name, topic: topic.label, snapshot: profile.snapshot, method: profile.method, page: site.url ~ page.url } | reportUrl }}" target="_blank" rel="noopener">Report a problem with these figures</a></p>
+{%- if topic.id == "marine-economy" or topic.id == "total-economy" %}
+<p class="cpd-note">Some figures are estimated with NOAA's Open ENOW method, and some are withheld. <a href="{{ '/county-profiles/about/economy/' | url }}#estimated">How estimates are made</a> · <a href="{{ '/county-profiles/about/economy/' | url }}#withheld-reasons">Why figures are withheld</a></p>
+{%- endif %}
+</div>
+<div class="cpd-panel">
+<div class="cpd-panel-body">
+<div class="cpd-citebox">
+<p class="cpd-eyebrow">Recommended citation</p>
+<p class="cpd-cite" id="cpd-cite">{{ citation(county, topic, profile.snapshot) }}</p>
+<button class="cpd-btn" type="button" id="cpd-copy">Copy citation</button>
+</div>
+<div class="cpd-tview" style="max-height:none">
+{#- Three columns only: the slides themselves already say what each source is used for. -#}
+<table class="cpd-srctable"><thead><tr><th scope="col">Source</th><th scope="col">Period covered</th><th scope="col">Retrieved</th></tr></thead>
+<tbody>
+{%- for s in sourcesUsed %}
+<tr><th scope="row"><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a></th><td class="cpd-vintage-cell">{{ s.vintage }}</td><td class="cpd-num">{{ s.retrieved }}</td></tr>
+{%- endfor %}
+</tbody>
+</table>
+</div>
+</div>
+{%- set footerAttribution %}<a href="{{ '/county-profiles/about/changelog/' | url }}#methodology-changelog">Methodology</a> · <a href="{{ ('/data/county-profiles/' + (profile.snapshot if dated else 'latest') + '/' + county.fips + '.json') | url }}">Download this snapshot (JSON)</a> (<a href="{{ '/county-profiles/about/data/' | url }}#json-fields">what the fields mean</a>) · <a href="{{ '/county-profiles/about/' | url }}">About County Profiles</a>{% endset %}
+{% include "footer.njk" %}
+</div>
+</section>
+
+</main>
+
+{#- The paper version of this page: same sections, rendered at build time, hidden on screen and shown by @media print (see the .cpp rules in style.css), so Ctrl+P, File > Print and the Print button all print it. -#}
+<div class="cpp print-only">
+{%- set frameLabel = topic.label %}
+{%- set frameCite = permalink %}
+{% include "county-profiles/print-frame.njk" %}
+<table class="cpp-layout" role="presentation"><thead><tr><td><div class="cpp-sp-h"></div></td></tr></thead><tfoot><tr><td><div class="cpp-sp-f"></div></td></tr></tfoot><tbody><tr><td class="cpp-body">
+{% include "county-profiles/print-topic.njk" %}
+</td></tr></tbody></table>
+</div>

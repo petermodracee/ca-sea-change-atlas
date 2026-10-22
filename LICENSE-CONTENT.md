@@ -8,6 +8,12 @@ comparisons, the About page's project history, and other original text
 authored for this site — is licensed separately under the **Creative
 Commons Attribution 4.0 International License (CC BY 4.0)**.
 
+The same license covers the **County Profiles figures**: the compiled and
+derived statistics in each county snapshot (`site/data/county-profiles/`,
+downloadable as JSON from each profile), which state it in their own
+`license` field. The source data they are computed from keeps its own terms,
+listed in each snapshot's `sources`.
+
 This does not apply to third-party material embedded or linked on the
 site (data pulled live from government agencies, geometry derived from
 other open datasets, quoted third-party sources, etc.) — see

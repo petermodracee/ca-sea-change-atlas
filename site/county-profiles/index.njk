@@ -1,0 +1,61 @@
+---
+layout: base.njk
+title: County profiles | CA Sea Change Atlas
+description: Flood, sea level rise and ocean-economy exposure for California's coastal and Delta counties, with the year each figure covers and the reason behind every gap.
+nav: county-profiles
+ogImage: /img/og/county-profiles.png
+subtitle: "Select a coastal California county to see insights related to socioeconomic risks and impacts as a result of sea level rise. Displayed in a presentation-ready slideshow or as printable handouts. A reimplementation of NOAA's Coastal County Snapshots."
+subtitleLink:
+  text: About County Profiles
+  href: /county-profiles/about/
+extraScripts:
+  - /js/county-picker.js
+---
+{%- set cp = countyProfiles %}
+{#- The parent Dataset: the whole collection, each county in hasPart (scripts/county-profiles/structured-data.js). -#}
+{%- set schema = cp.counties | countyCollectionDataset %}
+<script type="application/ld+json">{{ schema | jsonify | safe }}</script>
+<div class="hero">
+<svg class="contours" viewBox="0 0 1180 260" preserveAspectRatio="none" aria-hidden="true">
+<path d="M0 220 Q 150 180 300 220 T 600 220 T 900 220 T 1180 220" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 240 Q 150 205 300 240 T 600 240 T 900 240 T 1180 240" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 260 Q 150 230 300 260 T 600 260 T 900 260 T 1180 260" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+<path d="M0 200 Q 150 160 300 200 T 600 200 T 900 200 T 1180 200" stroke="#F3EFE0" stroke-width="1.5" fill="none"/>
+</svg>
+<div class="wrap">
+<h1>County profiles</h1>
+{% include "hero-subtitle.njk" %}
+</div>
+</div>
+
+<div class="main">
+<div class="wrap cp">
+
+<section class="cp-picker" aria-labelledby="cp-picker-title">
+<div class="cp-picker-row">
+<h2 id="cp-picker-title" class="cp-picker-label">Choose a county</h2>
+<div class="cp-picker-box">
+{#- The combobox is built from this list and shown by js/county-picker.js; without JavaScript the plain list in <noscript> is the way in. -#}
+<div class="cp-combo" data-cp-combo hidden>
+<input id="cp-combo-input" class="cp-combo-input" type="text" role="combobox" aria-labelledby="cp-picker-title" aria-expanded="false" aria-controls="cp-combo-list" aria-autocomplete="list" aria-activedescendant="" autocomplete="off" spellcheck="false" placeholder="Search {{ cp.counties | length }} counties">
+<ul id="cp-combo-list" class="cp-combo-list" role="listbox" aria-labelledby="cp-picker-title" hidden>
+{%- for c in cp.counties %}
+<li id="cp-opt-{{ c.slug }}" role="option" aria-selected="false" data-name="{{ c.name | lower }}" data-href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}"><span class="cp-opt-name">{{ c.name }}</span>{% if c.coverageNote %} <span class="cp-opt-note">{{ c.coverageNote }}</span>{% endif %}</li>
+{%- endfor %}
+</ul>
+<p class="sr-only" role="status" aria-live="polite" id="cp-combo-status"></p>
+</div>
+<noscript>
+<ul class="cp-county-list">
+{%- for c in cp.counties %}
+<li><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/') | url }}">{{ c.name }}</a>{% if c.coverageNote %} <span class="cp-county-note">{{ c.coverageNote }}</span>{% endif %}</li>
+{%- endfor %}
+</ul>
+</noscript>
+</div>
+</div>
+<p class="cp-picker-note">This tool covers the 27 California counties originally in the NOAA tool. <a href="{{ '/county-profiles/about/methodology/#coverage' | url }}">Find out more.</a></p>
+</section>
+
+</div>
+</div>

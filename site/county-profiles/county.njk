@@ -1,0 +1,22 @@
+---
+layout: base.njk
+pagination:
+  data: countyProfiles.counties
+  size: 1
+  alias: county
+  addAllPagesToCollections: true
+permalink: "county-profiles/county/{{ county.slug }}/index.html"
+nav: county-profiles
+bodyClass: cp-landing
+extraScripts:
+  - /js/county-switcher.js
+eleventyComputed:
+  title: "{{ county.name }} County profile | CA Sea Change Atlas"
+  description: "{{ county | chooserDescription | safe }}"
+  ogImage: "{{ county.slug | ogCard }}"
+---
+{%- set dated = false %}
+{#- schema.org Dataset for the current page only (dated pages canonicalise here); built by scripts/county-profiles/structured-data.js. -#}
+{%- set schema = county | countyDataset(countyProfiles.doiFor(county.profile.snapshot)) %}
+<script type="application/ld+json">{{ schema | jsonify | safe }}</script>
+{% include "county-profiles/landing.njk" %}
