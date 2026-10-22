@@ -22,6 +22,9 @@ const LODES = "https://lehd.ces.census.gov/data/lodes/LODES8/ca";
 const ACS_DIR = "https://www2.census.gov/programs-surveys/acs/summary_file/2024/table-based-SF/data/5YRData";
 const SLR_BASE = "https://chs.coast.noaa.gov/htdata/Inundation/SLR/BulkDownload/Sea_Level_Rise_Vectors/CA/";
 const SLR_REGIONS = ["Catalina", "Central", "Delta", "North1", "North2", "SFBay", "South"];
+// Each region's bounding box, read once from the GeoPackages by slr-extents.js, so a county downloads
+// only the regions its box touches rather than all seven. Without the file every region is opened.
+const SLR_EXTENTS = fs.existsSync(path.join(__dirname, "slr-regions.json")) ? require("./slr-regions.json").regions : {};
 const OPENFEMA = "https://www.fema.gov/api/open/v3/NfipClaims";
 
 const SOURCE_ENDPOINTS = {
@@ -278,7 +281,34 @@ async function fetchClaims(fips, opts) {
 // NOAA publishes seven regional GeoPackages for California. A county can sit in more than one (the
 // Bay counties span SFBay, North and Delta; Los Angeles has Catalina), and neighbouring regions
 // overlap where they meet, so each polygon carries its `region` and the areal intersect unions
-// fragments that come from different regions before counting them (areal.js).
+// fragments that come from different regions before counting them (areal.js). Only the regions whose
+// extent (slr-regions.json) intersects the county's box are downloaded: a region outside it has no
+// polygon the rtree query below could return.
+
+// The regions to open for a county's (margined) box. A region with no recorded extent is always
+// opened, with a warning, rather than silently skipped.
+function slrRegionsFor(box, log) {
+  return SLR_REGIONS.filter((region) => {
+    const e = SLR_EXTENTS[region];
+    if (!e) { log && log("warning: no extent for NOAA SLR " + region + " in slr-regions.json; downloading it anyway"); return true; }
+    return e.bbox[0] <= box[2] && e.bbox[2] >= box[0] && e.bbox[1] <= box[3] && e.bbox[3] >= box[1];
+  });
+}
+
+// Warns when an opened GeoPackage reaches past its recorded extent (NOAA republished it wider), since
+// a county outside the old box would then skip a region it needs. Re-run slr-extents.js to fix.
+function checkExtent(region, db, log) {
+  const e = SLR_EXTENTS[region];
+  if (!e) return;
+  const rtrees = db.prepare("select name from sqlite_master where type = 'table' and name like 'rtree\\_%\\_Shape' escape '\\'").all();
+  for (const { name } of rtrees) {
+    const x = db.prepare(`select min(minx) a, min(miny) b, max(maxx) c, max(maxy) d from "${name}"`).get();
+    if (x.a !== null && (x.a < e.bbox[0] || x.b < e.bbox[1] || x.c > e.bbox[2] || x.d > e.bbox[3])) {
+      log && log("warning: NOAA SLR " + region + " table " + name.slice(6, -6) + " reaches past its extent in slr-regions.json; re-run slr-extents.js");
+      return;
+    }
+  }
+}
 
 async function slrGpkg(region, log) {
   const known = [cachePath("slr/CA_" + region + "_slr_final_dist.gpkg"), ...(fs.existsSync(cachePath("slr/" + region)) ? fs.readdirSync(cachePath("slr/" + region)).filter((f) => f.endsWith(".gpkg")).map((f) => cachePath("slr/" + region + "/" + f)) : [])];
@@ -308,9 +338,10 @@ async function fetchSlr(bbox, increments, fips, opts, log) {
   // NOAA's coastal polygons are enormous dissolved shapes, and a bbox query returns a whole one.
   const box = [bbox[0] - 0.02, bbox[1] - 0.02, bbox[2] + 0.02, bbox[3] + 0.02];
   const value = { regions: [], increments: Object.fromEntries(increments.map((ft) => [ft, []])), low: Object.fromEntries(increments.map((ft) => [ft, []])) };
-  for (const region of SLR_REGIONS) {
+  for (const region of slrRegionsFor(box, log)) {
     const gpkg = await slrGpkg(region, log);
     const db = new DatabaseSync(gpkg, { readOnly: true });
+    checkExtent(region, db, log);
     let contributed = 0;
     for (const [kind, into] of [["slr", value.increments], ["low", value.low]]) {
       for (const ft of increments) {
@@ -377,7 +408,7 @@ function gpkgToGeoJSON(buf) {
 }
 
 module.exports = {
-  SOURCE_ENDPOINTS, FACILITY_LAYERS, SLR_REGIONS,
+  SOURCE_ENDPOINTS, FACILITY_LAYERS, SLR_REGIONS, slrRegionsFor,
   fetchBlocks, fetchNfhl, nfhlFingerprint, fetchAcs, fetchLodes, fetchUsgs, fetchClaims, fetchSlr, verifyEndpoint,
   fetchEconomy: econ.fetchEconomy, fetchNonemployer: econ.fetchNonemployer, fetchCcap: ccap.fetchCcap,
 };
