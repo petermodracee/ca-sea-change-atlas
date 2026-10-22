@@ -31,6 +31,23 @@ const SECTOR_MEASURES = [
 ];
 // `print` is what the printed data table shows: the same abbreviation as the big-number callouts
 // ("$2.81B"), so a dollar amount reads one way on paper. The screen keeps `fmt`.
+// The other labels a slide draws, exported with SECTOR_MEASURES so the snapshot comparison
+// (snapshot-diff.js) names a figure the way its slide does.
+const STAT_MEASURES = [
+  { key: "establishments", label: "Establishments", fmt: num },
+  { key: "jobs", label: "Jobs", fmt: num },
+  { key: "wages", label: "Wages", fmt: usdCompact },
+  { key: "gdp", label: "GDP", fmt: usdCompact },
+];
+const WAGE_KEYS = ["county", "coastalState", "coastalUS"];
+// Marine: Open ENOW's "All Coastal States" series, the coastal portions of 30 states (not the whole country).
+// Total: NOAA Total Economy (Coastal), shoreline counties of 29 states, DC, Puerto Rico and the Virgin Islands.
+const wageSeries = (topicId) => ["County", "Coastal California", topicId === "marine-economy" ? "All Coastal States" : "Coastal U.S."];
+const PAIR_LABELS = { employed: "Employed workers", selfEmployed: "Self-employed workers" };
+const STAT_PAIR = [
+  { key: "sfha", label: "Potential jobs affected by current flooding" },
+  { key: "slr6", label: "Potential jobs affected by future flooding" },
+];
 
 const EST_PCT = Math.round(ESTIMATED_SHARE_THRESHOLD * 100);
 
@@ -267,12 +284,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       // A starred total leaves out something withheld: Public administration's GDP (total economy) or a withheld sector (marine economy).
       const gdpStar = topicId === "total-economy" && isPartialCell(data.gdp);
       const raw = [data.establishments, data.jobs, data.wages, data.gdp];
-      const items = [
-        { label: "Establishments", v: data.establishments, fmt: num },
-        { label: "Jobs", v: data.jobs, fmt: num },
-        { label: "Wages", v: data.wages, fmt: usdCompact },
-        { label: "GDP", v: data.gdp, fmt: usdCompact },
-      ].map((s, k) => {
+      const items = STAT_MEASURES.map((m) => ({ label: m.label, v: data[m.key], fmt: m.fmt })).map((s, k) => {
         const text = cellText(s.v, s.fmt);
         show(text);
         const marks = [];
@@ -375,11 +387,9 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
 
     case "sector-wages": {
       // As with sector-measures, no per-sector value is drawn as chart text.
-      // Marine: Open ENOW's "All Coastal States" series, the coastal portions of 30 states (not the whole country).
-      // Total: NOAA Total Economy (Coastal), shoreline counties of 29 states, DC, Puerto Rico and the Virgin Islands.
       const marine = topicId === "marine-economy";
-      const series = ["County", "Coastal California", marine ? "All Coastal States" : "Coastal U.S."];
-      const keys = ["county", "coastalState", "coastalUS"];
+      const series = wageSeries(topicId);
+      const keys = WAGE_KEYS;
       const items = data.items.map((i) => ({
         label: i.label,
         // A sector with any withheld value carries the withheld mark on its label (and the key says what it means).
@@ -436,15 +446,15 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
       // counts describe different years, so they are not added. Employed leads; a withheld self-employed count
       // is dropped from the row and named in the footnote, like any withheld stat.
       const pairItems = [
-        { label: "Employed workers, " + data.employedYear, v: data.employed },
-        { label: "Self-employed workers, " + data.selfEmployedYear, v: data.selfEmployed },
+        { label: PAIR_LABELS.employed + ", " + data.employedYear, v: data.employed },
+        { label: PAIR_LABELS.selfEmployed + ", " + data.selfEmployedYear, v: data.selfEmployed },
       ].map((p) => {
         const text = cellText(p.v, num);
         show(text);
         return { label: p.label, text, suppressed: text === null, est: mark(p.v), marks: isPartialCell(p.v) ? [KEY_INCOMPLETE] : [] };
       });
       visual = { type: "stats", pair: true, items: pairItems, count: pairItems.filter((i) => !i.suppressed).length, partial: pairItems.some((i) => i.suppressed) || isPartialCell(data.employed) };
-      const pairWithheld = [[data.employed, "Employed workers"], [data.selfEmployed, "Self-employed workers"]].filter(([v]) => isSuppressed(v)).map(([v, name]) => ({ reason: v.reason, name }));
+      const pairWithheld = [[data.employed, PAIR_LABELS.employed], [data.selfEmployed, PAIR_LABELS.selfEmployed]].filter(([v]) => isSuppressed(v)).map(([v, name]) => ({ reason: v.reason, name }));
       checkReasons(pairWithheld);
       if (wholeWithheld(pairWithheld).length) footnotes.push(withheldLine(wholeWithheld(pairWithheld).map((c) => c.name)));
       if (isPartialCell(data.employed)) keyItems.push({ glyph: MARK_INCOMPLETE, text: KEY_INCOMPLETE.key });
@@ -472,10 +482,7 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
     case "stat-pair": {
       // No callout on this section — these two counts are the slide's whole content, so the
       // template draws them at big-number scale; the label says "jobs" since nothing else here does.
-      const items = [
-        { label: "Potential jobs affected by current flooding", count: data.sfha.count },
-        { label: "Potential jobs affected by future flooding", count: data.slr6.count },
-      ].map((s) => {
+      const items = STAT_PAIR.map((p) => ({ label: p.label, count: data[p.key].count })).map((s) => {
         show(num(s.count));
         return { label: s.label, text: num(s.count) };
       });
@@ -516,4 +523,4 @@ function buildSectionModel({ county, topicId, def, data, increments, estimation,
   return { visual, callout, calloutSkip, partial, footnotes, estimated, notes, keys: keyItems };
 }
 
-module.exports = { buildSectionModel };
+module.exports = { buildSectionModel, SECTOR_MEASURES, STAT_MEASURES, WAGE_KEYS, wageSeries, PAIR_LABELS, STAT_PAIR };

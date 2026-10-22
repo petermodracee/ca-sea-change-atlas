@@ -7,7 +7,8 @@
   "scripts": {
     "build": "eleventy",
     "serve": "eleventy --serve",
-    "check:links": "node scripts/check-links.js"
+    "check:links": "node scripts/check-links.js",
+    "test": "node --test \"scripts/**/*.test.js\""
   },
   "devDependencies": {
     "@11ty/eleventy": "^3.0.0",

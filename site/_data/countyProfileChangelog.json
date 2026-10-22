@@ -1,0 +1,9 @@
+{
+  "_doc": "Wording for County Profiles change reports. `sourceNames` names a source in a vintage change where its snapshot label is ambiguous (both BEA entries share one label). Read by scripts/county-profiles/snapshot-diff.js, so the data PR and the site use the same names.",
+  "sourceNames": {
+    "bea-marine": "BEA GDP by industry (marine detail)",
+    "bea-total": "BEA GDP by industry (total economy)",
+    "qcew-wages": "BLS QCEW, marine wages comparison year",
+    "qcew-total-wages": "BLS QCEW, total economy wages comparison year"
+  }
+}
