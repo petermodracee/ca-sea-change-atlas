@@ -10,7 +10,7 @@
     "snapshot": "ISO date, YYYY-MM-DD. The archive key.",
     "method": "Positive integer. See `method` below.",
     "generated": "ISO 8601 UTC timestamp of the build that wrote the file.",
-    "license": "The license of the snapshot's compiled and derived figures, equal to `snapshotLicense` below: CC BY-SA 4.0, the site's content license. It covers this file's own work (the figures computed from the sources, their selection and arrangement), not the sources: each source keeps its own terms and is listed in `sources` with its URL. The validator requires it.",
+    "license": "The license of the snapshot's compiled and derived figures, equal to `snapshotLicense` below: CC BY 4.0, the site's content license. It covers this file's own work (the figures computed from the sources, their selection and arrangement), not the sources: each source keeps its own terms and is listed in `sources` with its URL. The validator requires it.",
     "attribution": "The recommended citation for the county's page at this snapshot, as plain text: the same APA 7 text the About this data slide and the chooser show, built by the same helper (scripts/county-profiles/citation.js, `attributionFor`). It names the dated address and carries no DOI (a DOI is minted after the file is written). The archive rewrites it whenever it stamps `snapshot` (pipeline/archive.js), so, like `snapshot`, it is not content. The validator requires it to equal what the helper builds.",
     "gauge": "null for a county with no reference tide gauge (flood-only tier), else {id, name, projections}. `id` must match the spine; there is exactly one gauge per county. `projections` is {baseline, units, decades, scenarios}: the thirteen OPC 2024 Appendix 2 decades for the three recommended scenarios, equal to site/_data/opcGaugeProjections.json. Whether the county straddles two sea level regimes is computed at build from the two gauges' timing tables and is never stored.",
     "geometry": "null in Phase 1. Provisioned for the inset map: later {\"nfhl\": \"nfhl-2009-12-03\"}, a reference to vintage-keyed geometry shared across snapshots (see docs/COUNTY-PROFILES.md).",
@@ -19,9 +19,9 @@
   },
 
   "snapshotLicense": {
-    "id": "CC-BY-SA-4.0",
-    "name": "Creative Commons Attribution-ShareAlike 4.0 International",
-    "url": "https://creativecommons.org/licenses/by-sa/4.0/"
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Attribution 4.0 International",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
   },
 
   "vintageKinds": {
