@@ -27,7 +27,7 @@ npm install
 npm run serve
 ```
 
-Then open <http://localhost:8080/>. The site deploys at the root of <https://seachangeatlas.org>, so there is no path prefix. `npm run build` writes a one-off build to `_site/`. Pushes to `main` deploy to GitHub Pages automatically.
+Then open <http://localhost:8080/>. The site deploys at the root of <https://seachangeatlas.org>, so there is no path prefix. `npm run build` writes a one-off build to `_site/`. Every merge to `main` deploys to GitHub Pages automatically (`main` takes changes only through pull requests).
 
 ## Documentation
 

@@ -186,6 +186,18 @@ Phase 1's placeholder snapshots are in `site/_data/countyProfileFixtures/`, not 
 ### One workflow for refresh, commit, build and deploy
 The quarterly refresh is a single workflow (`county-profiles.yml`) with the deploy inside it, not a data workflow that commits to `main` and lets `deploy.yml` deploy on the push. A push made with the default `GITHUB_TOKEN` does not trigger other workflows, so that split would commit data and never deploy it. The alternatives (a personal access token, or `workflow_run`) add a secret or a second moving part for no gain.
 
+Superseded by [Scheduled refresh opens a PR instead of pushing](#scheduled-refresh-opens-a-pr-instead-of-pushing) (October 2026).
+
+### Scheduled refresh opens a PR instead of pushing
+The quarterly run now ends in a pull request instead of a commit to `main` (Peter's decision, October 2026). The first scheduled run on Node 22 passed the gate, the checks, the build and `check-links`, then failed at the commit: the repository ruleset "default" covers the default branch with no bypass actors and requires a pull request, so the `GITHUB_TOKEN` push was rejected (`GH013`). The reasons for a PR rather than a bypass:
+
+- **The ruleset requires it.** A bypass for the workflow would be the one unreviewed path into `main`.
+- **Data changes get reviewed before they publish.** A minted snapshot is a citable record that can never be edited, so it is worth a look before it goes live.
+- **No deploy of unmerged data.** The workflow no longer deploys; `deploy.yml` publishes on the merge, so the live site only ever shows what is on `main`.
+- **No heartbeat commit.** A run with no data changes commits nothing and opens nothing. It used to commit anyway, because the gate rewrote a `checked` date for every county on every run (`1 file changed, 27 insertions(+), 27 deletions(-)` with nothing recomputed). Nothing read that field, so it was removed from `gate.js` and from the committed `gate.json` (only that key; the fingerprints and `computed` dates are unchanged). The run's step summary carries the check date instead.
+
+Only one data PR may be open at a time (label `data refresh`): two unmerged ones could each mint a dated snapshot from a different base. The old reason for a single workflow (a `GITHUB_TOKEN` push does not trigger `deploy.yml`) no longer applies, because the merge is Peter's own and triggers it normally. The workflow needs "Allow GitHub Actions to create and approve pull requests" turned on; see [`COUNTY-PROFILES.md`](COUNTY-PROFILES.md#the-workflow).
+
 ### Snapshot on change, with an age cap on the gate
 A dated snapshot is minted only when a county's content differs from `latest/`; `snapshot`, `generated` and the per-source `retrieved` / `verified` stamps are excluded from the comparison, so a run that finds the same numbers changes stamps in `latest/` and mints nothing. The `EFF_DATE` gate covers NFHL only; ACS, LODES, OpenFEMA and ENOW have no cheap revision probe, so a county is also recomputed when its last computation is over 200 days old. Snapshot-on-change keeps that recompute from minting anything when nothing moved.
 
