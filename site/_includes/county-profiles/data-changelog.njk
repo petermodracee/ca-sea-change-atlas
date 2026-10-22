@@ -1,0 +1,55 @@
+{#- The data changelog: one entry per dated snapshot directory, newest first, built at build time from the archive by
+    scripts/county-profiles/data-changelog.js (countyProfiles.dataChangelog). The words, and any notes per refresh
+    and per county, are in site/_data/countyProfileChangelog.json. Each county's detail is collapsed under its
+    summary line; the county name links its dated page. -#}
+{%- set w = countyProfileChangelog %}
+<section class="cp-topic" id="data-changelog">
+<h2>{{ w.heading }}</h2>
+<p>{{ w.intro }}</p>
+<dl class="cp-reasons about-changelog data-changelog">
+{%- for e in countyProfiles.dataChangelog %}
+<div id="data-{{ e.date }}"><dt>{{ e.label }} <span class="cp-muted"><time datetime="{{ e.date }}">{{ e.date }}</time> · {{ e.countyCount }} {{ w.countyCount.one if e.countyCount == 1 else w.countyCount.many }}</span></dt>
+<dd>
+{%- if e.note %}<p>{{ e.note }}</p>{% endif %}
+{%- if e.vintages.length %}
+<p class="data-changelog-label">{{ w.sourcesHeading }}</p>
+<ul>
+{%- for v in e.vintages %}<li>{{ v }}</li>{% endfor %}
+</ul>
+{%- endif %}
+{%- if e.counties.length %}
+<p class="data-changelog-label">{{ w.countiesHeading }}</p>
+<ul class="data-changelog-counties">
+{%- for c in e.counties %}
+<li><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/' ~ e.date ~ '/') | url }}">{{ c.name }}</a>{% if c.kind != "data" %} <span class="cp-muted">({{ c.kindLabel }})</span>{% endif %}: {{ c.summary }}
+{%- if c.note %}<br><span class="cp-muted">{{ c.note }}</span>{% endif %}
+{%- if c.correction %}<br><span class="cp-muted"><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/' ~ c.correction.snapshot ~ '/') | url }}">{{ w.correction | replace("{snapshot}", c.correction.snapshot) }}</a> {{ c.correction.note }}</span>{% endif %}
+<details class="data-changelog-detail"><summary>{{ w.detailSummary | replace("{previous}", c.previous) }}</summary>
+{%- set d = c.detail %}
+{%- if d.numbers.length %}
+<div class="cp-table-wrap"><table>
+<caption class="sr-only">{{ w.detail.caption | replace("{county}", c.name) | replace("{previous}", c.previous) }}</caption>
+<thead><tr>{% for h in w.detail.columns %}<th scope="col">{{ h }}</th>{% endfor %}</tr></thead>
+<tbody>
+{%- for f in d.numbers %}
+<tr><td>{{ f.section }}</td><td>{{ f.label }}</td><td>{{ f.from }}</td><td>{{ f.to }}</td><td>{{ f.change }}</td></tr>
+{%- endfor %}
+</tbody>
+</table></div>
+{%- endif %}
+{%- for block in [[w.detail.states, d.states], [w.detail.periods, d.periods], [w.detail.availability, d.availability], [w.detail.vintages, d.vintages], [w.detail.other, d.other]] %}
+{%- if block[1].length %}
+<p class="data-changelog-label">{{ block[0] }}</p>
+<ul>{% for x in block[1] %}<li>{{ x }}</li>{% endfor %}</ul>
+{%- endif %}
+{%- endfor %}
+{%- if d.estimation %}<p class="cp-muted">{{ d.estimation }}</p>{% endif %}
+</details>
+</li>
+{%- endfor %}
+</ul>
+{%- endif %}
+</dd></div>
+{%- endfor %}
+</dl>
+</section>

@@ -40,6 +40,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol@0.90.1/dist/L.Control.Locate.min.css" integrity="sha384-71M4mrilXHJO54OLYzaJ+wRg/RuwOXcMW4OaLe/G0WamhbdNCNpCn6SvpVZ6Lf5N" crossorigin="">
 {%- endif %}
 <link rel="stylesheet" href="{{ '/css/style.css' | url }}">
+{%- if page.url == countyProfileChangelog.feed.page %}
+<link rel="alternate" type="application/atom+xml" title="{{ countyProfileChangelog.feed.title }}" href="{{ countyProfileChangelog.feed.path | url }}">
+{%- endif %}
 </head>
 <body class="{{ bodyClass }}">
 

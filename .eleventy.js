@@ -71,6 +71,8 @@ module.exports = async function (eleventyConfig) {
   eleventyConfig.addFilter("reportUrl", require("./scripts/county-profiles/report-link.js").reportUrl);
   eleventyConfig.addFilter("topicMapLink", require("./scripts/county-profiles/map-links.js").topicMapLink);
   eleventyConfig.addFilter("compareLink", require("./scripts/county-profiles/tool-links.js").compareLink);
+  // A changelog entry's type -> its label; an unknown type fails the build (scripts/county-profiles/data-changelog.js).
+  eleventyConfig.addFilter("changelogKind", (type) => require("./scripts/county-profiles/data-changelog.js").changelogKind(type, require("./site/_data/countyProfileChangelog.json")));
   const { VALUE_CONTROL_IDS } = await import(require("url").pathToFileURL(require("path").resolve("site/js/map/permalink.js")).href);
   const spineFips = require("./site/_data/countySpine.json").counties.map((c) => c.fips);
   eleventyConfig.on("eleventy.after", ({ results }) => checkMapLinks({

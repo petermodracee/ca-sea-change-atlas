@@ -1,9 +1,57 @@
 {
-  "_doc": "Wording for County Profiles change reports. `sourceNames` names a source in a vintage change where its snapshot label is ambiguous (both BEA entries share one label). Read by scripts/county-profiles/snapshot-diff.js, so the data PR and the site use the same names.",
+  "_doc": "Wording for the generated data changelog on /county-profiles/about/changelog/ (site/_includes/county-profiles/data-changelog.njk) and its Atom feed; the entries themselves are built from the snapshot archive at build time (scripts/county-profiles/data-changelog.js), so nothing here lists a refresh. `kinds` labels each kind of changelog entry, for this changelog and the methodology changelog (site/_data/changelog/county-profiles.json, rendered by site/_includes/about-changelog.njk); an entry of any other type fails the build. `sourceNames` names a source in a vintage change where its snapshot label is ambiguous (both BEA entries share one label); the data PR's Changes section uses the same names. `notes` is optional, per refresh date: `note` is shown with that date's entry and `counties` (by FIPS) with a county's line. A note explains a change the data cannot explain by itself (a FEMA LOMR, a deleted USGS record, a publisher's revision). Plain fact: no \"I\" or \"we\", no em dashes. The build fails if a note names a date with no dated snapshot directory or a county with no snapshot that date. See docs/COUNTY-PROFILES.md, \"The data changelog\".",
+  "heading": "Data changelog",
+  "intro": "Each entry is a refresh that published new dated snapshots, newest first, built from the snapshot archive when the site is built. Each county is compared with its own previous dated snapshot. Refreshes that changed no figures publish no new snapshot and are not listed.",
+  "initialRelease": "Initial release",
+  "countiesHeading": "Counties with a new snapshot",
+  "sourcesHeading": "Source updates",
+  "countyCount": {
+    "one": "county",
+    "many": "counties"
+  },
+  "detailSummary": "What changed since {previous}",
+  "detail": {
+    "caption": "Figures that changed in {county} County since {previous}",
+    "columns": [
+      "Section",
+      "Figure",
+      "Before",
+      "After",
+      "Change"
+    ],
+    "states": "Changes of state",
+    "periods": "Changes of period",
+    "availability": "Availability",
+    "vintages": "Source vintages",
+    "other": "Other changes"
+  },
+  "correction": "Corrects the {snapshot} snapshot:",
+  "kinds": {
+    "tooling": "No figure moved",
+    "correction": "Correction",
+    "method": "Method change",
+    "data": "New source data"
+  },
+  "feed": {
+    "page": "/county-profiles/about/changelog/",
+    "path": "/county-profiles/changelog.xml",
+    "title": "County Profiles data changelog"
+  },
   "sourceNames": {
     "bea-marine": "BEA GDP by industry (marine detail)",
     "bea-total": "BEA GDP by industry (total economy)",
     "qcew-wages": "BLS QCEW, marine wages comparison year",
     "qcew-total-wages": "BLS QCEW, total economy wages comparison year"
+  },
+  "notes": {
+    "2026-10-22": {
+      "note": "Marine economy GDP moved from 2024 to 2025. BEA revised its 2025 GDP by industry, so total economy GDP changed with no change of source year.",
+      "counties": {
+        "06013": "FEMA Letter of Map Revision 25-09-0871P (effective 2026-10-13). USGS deleted two records: Contra Costa College Campus Police and CHP Golden Gate Division Martinez.",
+        "06059": "FEMA Letter of Map Revision 25-09-0579P (effective 2026-09-28).",
+        "06055": "USGS deleted one record: Rutherford Fire Department.",
+        "06077": "FEMA Letters of Map Revision 25-09-0568P and 26-09-0283P (effective 2026-09-28)."
+      }
+    }
   }
 }

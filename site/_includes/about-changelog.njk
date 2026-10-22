@@ -1,8 +1,10 @@
 {#- A changelog list from a data file in site/_data/changelog/<tool>.json. Expects `entries`: an array of
-    {date, type, summary, details}, newest first. `type` is "method" (a change that can move a figure)
-    or "update" (nothing moved). -#}
+    {date, type, summary, details}, newest first. `type` is one of the kinds in docs/COUNTY-PROFILES.md
+    ("Kinds of change"): "method" (the documented method changed), "correction" (figures moved, the method
+    did not) or "tooling" (no figure moved). The `changelogKind` filter gives the label and fails the build on
+    any other type, so only a tooling entry can read "No figure moved". -#}
 <dl class="cp-reasons about-changelog">
 {%- for e in entries %}
-<div><dt>{{ e.summary }} <span class="cp-muted"><time datetime="{{ e.date }}">{{ e.date }}</time> · {{ "Method change" if e.type == "method" else "No figure moved" }}</span></dt><dd>{{ e.details }}</dd></div>
+<div><dt>{{ e.summary }} <span class="cp-muted"><time datetime="{{ e.date }}">{{ e.date }}</time> · {{ e.type | changelogKind }}</span></dt><dd>{{ e.details }}</dd></div>
 {%- endfor %}
 </dl>
