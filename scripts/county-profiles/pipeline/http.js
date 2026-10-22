@@ -3,12 +3,21 @@
 // gitignored) so a re-run does not re-download what it already has. A cache entry is a payload file
 // plus a sidecar `<name>.meta.json` recording when it was fetched; that date becomes the source's
 // `retrieved` stamp in the snapshot.
+//
+// Every request goes through undici's own fetch with one shared Agent, not Node's built-in fetch:
+// the built-in one allows 10 s to connect, TLS handshake included, and chs.coast.noaa.gov took 17 to
+// 24 s to finish its handshake from every location tested on 2026-10-22 (docs/DECISIONS.md). The
+// Agent is used with the undici package's fetch rather than passed to the built-in fetch as a
+// dispatcher, because the bundled and npm copies of undici are different versions and mixing them
+// is not supported.
 
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 const readline = require("readline");
 const { Readable } = require("stream");
+const { pipeline } = require("stream/promises");
+const { fetch, Agent } = require("undici");
 
 const CACHE_DIR = path.join(__dirname, "..", ".cache");
 fs.mkdirSync(CACHE_DIR, { recursive: true });
@@ -16,19 +25,65 @@ fs.mkdirSync(CACHE_DIR, { recursive: true });
 const today = () => new Date().toISOString().slice(0, 10);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function request(url, opts = {}) {
-  let lastErr;
-  for (let attempt = 1; attempt <= 4; attempt++) {
+// connect.timeout covers the TCP connect and the TLS handshake. undici's headers and body timeouts
+// (300 s each, the body one between chunks) stay at their defaults.
+const agent = new Agent({ connect: { timeout: 90_000 } });
+const UA = "seachangeatlas-county-profiles-pipeline (+https://seachangeatlas.org)";
+
+// Six attempts, waiting about 7.5, 15, 30, 60 and 120 s between them (each scaled by a random 0.5
+// to 1.5), so a source that is down for a few minutes does not fail the county. A 4xx other than 408
+// and 429 is the server's answer, not an outage, and is thrown at once: the LODES and Nonemployer
+// year probes rely on a 404 for a year not yet published coming back quickly.
+const RETRY = { attempts: 6, baseMs: 7500 };
+const backoff = (attempt) => Math.round(RETRY.baseMs * 2 ** (attempt - 1) * (0.5 + Math.random()));
+
+class HttpError extends Error {
+  constructor(status, url) { super("HTTP " + status + " for " + url); this.status = status; }
+}
+const retryable = (e) => !(e instanceof HttpError) || e.status >= 500 || e.status === 408 || e.status === 429;
+const errorCode = (e) => (e instanceof HttpError ? "HTTP " + e.status : e.cause?.code || e.code || e.cause?.message || e.message);
+
+// Runs `attempt()` up to RETRY.attempts times, logging each retry with the host and the error code.
+async function withRetries(url, attempt) {
+  const host = new URL(url).host;
+  for (let n = 1; ; n++) {
     try {
-      const res = await fetch(url, { headers: { "user-agent": "seachangeatlas-county-profiles-pipeline (+https://seachangeatlas.org)" }, ...opts });
-      if (!res.ok) throw new Error("HTTP " + res.status + " for " + url);
-      return res;
+      return await attempt();
     } catch (e) {
-      lastErr = e;
-      await sleep(1500 * attempt);
+      if (n >= RETRY.attempts || !retryable(e)) throw e;
+      const wait = backoff(n);
+      console.error("[http] " + host + ": " + errorCode(e) + " (attempt " + n + " of " + RETRY.attempts + "), retrying in " + Math.round(wait / 1000) + " s");
+      await sleep(wait);
     }
   }
-  throw lastErr;
+}
+
+async function fetchOnce(url, opts) {
+  const res = await fetch(url, { dispatcher: agent, ...opts, headers: { "user-agent": UA, ...opts.headers } });
+  if (!res.ok) { await res.body?.cancel(); throw new HttpError(res.status, url); }
+  return res;
+}
+
+// Resolves once the response headers are in; reading the body is the caller's job and is not retried.
+async function request(url, opts = {}) {
+  return withRetries(url, () => fetchOnce(url, opts));
+}
+
+// Downloads a large file to `dest`. It is written to `dest + ".part"` and renamed only once complete,
+// so a broken transfer never leaves a truncated file for the next run to open; a transfer that fails
+// mid-stream is retried from the start.
+async function downloadFile(url, dest) {
+  const part = dest + ".part";
+  try {
+    await withRetries(url, async () => {
+      fs.rmSync(part, { force: true });
+      const res = await fetchOnce(url, {});
+      await pipeline(Readable.fromWeb(res.body), fs.createWriteStream(part));
+    });
+    fs.renameSync(part, dest);
+  } finally {
+    fs.rmSync(part, { force: true });
+  }
 }
 
 // ArcGIS REST reports failures as HTTP 200 with an `error` body.
@@ -94,9 +149,9 @@ async function streamLines(url, onLine, { gunzip = false } = {}) {
 
 // Confirms an endpoint still answers; returns today's date for the source's `verified` stamp.
 async function verifyEndpoint(url) {
-  const res = await request(url, { method: "GET", headers: { range: "bytes=0-0", "user-agent": "seachangeatlas-county-profiles-pipeline" } });
+  const res = await request(url, { method: "GET", headers: { range: "bytes=0-0" } });
   await res.body?.cancel();
   return today();
 }
 
-module.exports = { CACHE_DIR, today, request, getJson, cachePath, readMeta, writeMeta, cachedJson, arcgisQueryAll, streamLines, verifyEndpoint };
+module.exports = { CACHE_DIR, today, request, downloadFile, getJson, cachePath, readMeta, writeMeta, cachedJson, arcgisQueryAll, streamLines, verifyEndpoint };

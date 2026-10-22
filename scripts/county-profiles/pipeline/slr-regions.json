@@ -1,0 +1,56 @@
+{
+  "_comment": "Bounding boxes (lon/lat, [minx, miny, maxx, maxy]) of NOAA's California SLR GeoPackages, read by slr-extents.js from the union of each GeoPackage's rtree extents and rounded outward. fetchSlr in sources.js uses them to download only the regions a county's box touches. They are bounding boxes computed from the downloads, not NOAA data: no polygon is copied into the repo. lastChange is the GeoPackage's latest gpkg_contents.last_change, to tell when NOAA has republished a region; downloaded is the date the zip was fetched.",
+  "generated": "2026-10-22",
+  "source": "https://chs.coast.noaa.gov/htdata/Inundation/SLR/BulkDownload/Sea_Level_Rise_Vectors/CA/",
+  "regions": {
+    "Catalina": {
+      "bbox": [-118.6683, 33.248, -118.241, 33.5324],
+      "gpkg": "CA_Catalina_slr_final_dist.gpkg",
+      "lastChange": "2023-06-02T17:18:36.439Z",
+      "downloaded": "2026-10-21",
+      "tables": 36
+    },
+    "Central": {
+      "bbox": [-122.3151, 34.9667, -120.592, 37.1079],
+      "gpkg": "CA_Central_slr_final_dist.gpkg",
+      "lastChange": "2024-10-21T19:01:18.024Z",
+      "downloaded": "2026-10-21",
+      "tables": 42
+    },
+    "Delta": {
+      "bbox": [-122.202, 37.6268, -121.1927, 38.8135],
+      "gpkg": "CA_Delta_slr_final_dist.gpkg",
+      "lastChange": "2025-09-10T23:09:52.837Z",
+      "downloaded": "2026-10-21",
+      "tables": 42
+    },
+    "North1": {
+      "bbox": [-124.4832, 40.0003, -123.9626, 41.9994],
+      "gpkg": "CA_North1_slr_final_dist.gpkg",
+      "lastChange": "2025-10-27T02:08:21.286Z",
+      "downloaded": "2026-10-21",
+      "tables": 42
+    },
+    "North2": {
+      "bbox": [-124.1361, 38.7572, -123.4971, 40.0034],
+      "gpkg": "CA_North2_slr_final_dist.gpkg",
+      "lastChange": "2025-10-27T07:14:47.143Z",
+      "downloaded": "2026-10-21",
+      "tables": 42
+    },
+    "SFBay": {
+      "bbox": [-123.6337, 37.0529, -121.8947, 38.7792],
+      "gpkg": "CA_SFBay_slr_final_dist.gpkg",
+      "lastChange": "2025-09-17T17:15:25.654Z",
+      "downloaded": "2026-10-21",
+      "tables": 42
+    },
+    "South": {
+      "bbox": [-120.7355, 32.5279, -117.0723, 35.0009],
+      "gpkg": "CA_South_slr_final_dist.gpkg",
+      "lastChange": "2024-10-21T19:01:23.177Z",
+      "downloaded": "2026-10-21",
+      "tables": 42
+    }
+  }
+}

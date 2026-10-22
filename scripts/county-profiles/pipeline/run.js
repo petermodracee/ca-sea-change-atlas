@@ -18,6 +18,12 @@
 // --reset-archive  overwrite the dated snapshot and latest/ in place, keeping the snapshot date. For a snapshot
 //             that has never been published (docs/DECISIONS.md, Phase 7); never used by the workflow
 //
+// A run of several counties carries on past a county that fails; the failures are written to
+// .cache/run-failures.json ([{fips, county, error}]) next to run-outcomes.json, and the exit code is 2
+// when some counties failed and others succeeded, 1 when every county failed (or the run itself
+// did). A single-county run that fails exits 1. A failed county's gate.json entry is not touched
+// (recordComputed runs only after its snapshot is written), so the next run picks it up again.
+//
 // Raw downloads live in scripts/county-profiles/.cache/ (gitignored). A full diagnostics report,
 // including the sensitivity figures and everything the reconciliation in docs/DECISIONS.md cites,
 // is written next to them as report-<fips>.json. A big county needs a bigger heap:
@@ -253,16 +259,35 @@ async function main() {
   const todo = arg === "all" ? all : arg.split(",");
   for (const f of todo) if (!all.includes(f)) throw new Error(f + " is not in countySpine.json");
   const failures = [];
+  // A per-run summary for the workflow: which counties minted a dated snapshot and which only refreshed,
+  // and which failed. Written even when a single-county run fails.
+  const writeSummary = () => {
+    fs.writeFileSync(cachePath("run-outcomes.json"), JSON.stringify(outcomes, null, 2));
+    fs.writeFileSync(cachePath("run-failures.json"), JSON.stringify(failures, null, 2));
+  };
   for (const fips of todo) {
     const entry = spine.counties.find((c) => c.fips === fips);
-    try { await (process.argv.includes("--ccap-only") ? ccapOnly(entry, opts) : process.argv.includes("--economy-only") ? economyOnly(entry, all, opts) : runCounty(entry, all, opts)); } catch (e) { console.error("[" + fips + " " + entry.name + "] FAILED: " + (e.stack || e)); failures.push(fips); if (todo.length === 1) throw e; }
+    try { await (process.argv.includes("--ccap-only") ? ccapOnly(entry, opts) : process.argv.includes("--economy-only") ? economyOnly(entry, all, opts) : runCounty(entry, all, opts)); } catch (e) { console.error("[" + fips + " " + entry.name + "] FAILED: " + (e.stack || e)); failures.push({ fips, county: entry.name, error: errorLine(e) }); if (todo.length === 1) { writeSummary(); throw e; } }
   }
-  // A per-run summary for the workflow: which counties minted a dated snapshot and which only refreshed.
-  fs.writeFileSync(cachePath("run-outcomes.json"), JSON.stringify(outcomes, null, 2));
+  writeSummary();
   if (process.env.GITHUB_STEP_SUMMARY && outcomes.length) {
     fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "\n### Recomputed counties\n\n| County | Result | Snapshot |\n|---|---|---|\n" + outcomes.map((o) => "| " + o.county + " | " + o.action + " | " + o.snapshot + " |").join("\n") + "\n");
   }
-  if (failures.length) { console.error("failed: " + failures.join(", ")); process.exit(1); }
+  if (process.env.GITHUB_STEP_SUMMARY && failures.length) {
+    fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "\n### Failed counties\n\n| County | Error |\n|---|---|\n" + failures.map((f) => "| " + f.county + " (" + f.fips + ") | " + f.error.replace(/\|/g, "\\|") + " |").join("\n") + "\n");
+  }
+  if (failures.length) {
+    console.error("failed: " + failures.map((f) => f.fips).join(", "));
+    process.exit(failures.length === todo.length ? 1 : 2);
+  }
+}
+
+// One line for the failures file and the PR: the message plus the underlying cause's code, which is
+// where fetch puts the useful part ("fetch failed (UND_ERR_CONNECT_TIMEOUT)").
+function errorLine(e) {
+  const msg = String((e && e.message) || e).split("\n")[0];
+  const cause = e && e.cause && (e.cause.code || e.cause.message);
+  return cause && !msg.includes(cause) ? msg + " (" + cause + ")" : msg;
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

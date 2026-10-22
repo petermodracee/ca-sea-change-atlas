@@ -4,7 +4,7 @@
 // them with what the last build of that county saw, so the expensive fetch and intersect only runs for
 // a county whose flood-hazard source actually revised.
 //
-//   node scripts/county-profiles/pipeline/gate.js [all | fips[,fips...]] [--force] [--baseline]
+//   node scripts/county-profiles/pipeline/gate.js [all | fips[,fips...]] [--force [--force-since YYYY-MM-DD]] [--baseline]
 //
 // Prints one line per county and a JSON report on stdout's last line. When $GITHUB_OUTPUT is set it
 // writes `changed=<comma-separated fips>` for the workflow. State is site/data/county-profiles/gate.json.
@@ -15,6 +15,10 @@
 // last computation is older than MAX_AGE_DAYS (NFHL is not the only source: ACS, LODES, OpenFEMA claims
 // and the ENOW series move on their own schedules, and would otherwise never be picked up); or --force.
 // A recompute that finds no difference in the numbers still mints no dated snapshot (archive.js).
+//
+// --force-since limits --force to counties last computed before that date. The workflow passes the open
+// data PR's opening date when it adds to that PR, so a retry of a forced run (or "Re-run failed jobs",
+// which reuses the inputs) recomputes only the counties the PR does not have yet.
 //
 // --baseline records the live fingerprint for every county as the current state without recomputing,
 // but only where it agrees with the vintage the county's published snapshot carries; a disagreement is
@@ -46,7 +50,9 @@ function recordComputed(fips, nfhl) {
 async function main() {
   const args = process.argv.slice(2);
   const force = args.includes("--force"), baseline = args.includes("--baseline");
-  const arg = args.find((a) => !a.startsWith("--")) || "all";
+  const sinceAt = args.indexOf("--force-since"), since = sinceAt >= 0 ? args[sinceAt + 1] : null;
+  if (sinceAt >= 0 && !/^\d{4}-\d{2}-\d{2}$/.test(since || "")) throw new Error("--force-since needs a YYYY-MM-DD date");
+  const arg = args.find((a, i) => !a.startsWith("--") && (sinceAt < 0 || i !== sinceAt + 1)) || "all";
   const all = spine.counties.map((c) => c.fips);
   const todo = arg === "all" ? all : arg.split(",");
   for (const f of todo) if (!all.includes(f)) throw new Error(f + " is not in countySpine.json");
@@ -69,7 +75,7 @@ async function main() {
       console.log(fips + " " + name + ": baselined at " + live.effStart + ".." + live.effEnd + ", " + live.panelCount + " panels");
       continue;
     }
-    if (force) reason = "forced";
+    if (force && !(since && prev && prev.computed >= since)) reason = "forced";
     else if (!prev) reason = "no previous build recorded";
     else if (!fs.existsSync(snapFile)) reason = "no snapshot";
     else if (key(prev) !== key(live)) { reason = "NFHL revised: " + prev.effStart + ".." + prev.effEnd + " (" + prev.panelCount + " panels) -> " + live.effStart + ".." + live.effEnd + " (" + live.panelCount + ")"; report.revised.push(fips); }

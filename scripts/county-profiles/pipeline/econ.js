@@ -14,6 +14,7 @@
 
 const fs = require("fs");
 const { execFileSync } = require("child_process");
+const path = require("path");
 const { cachePath, cachedJson, getJson, request, readMeta, writeMeta, today } = require("./http");
 
 const API = "https://coast.noaa.gov/enow/api/v1/";
@@ -97,7 +98,9 @@ async function fetchNonemployer(fipsList, opts) {
   if (!year) throw new Error("no Nonemployer Statistics county file found");
   const yy = String(year).slice(2);
   const zip = cachePath("nonemp" + yy + "co.zip");
-  if (!fs.existsSync(zip)) fs.writeFileSync(zip, Buffer.from(await (await request(`${NES_BASE}${year}/historical-datasets/nonemp${yy}co.zip`)).arrayBuffer()));
+  if (!fs.existsSync(zip)) { fs.writeFileSync(zip, Buffer.from(await (await request(`${NES_BASE}${year}/historical-datasets/nonemp${yy}co.zip`)).arrayBuffer())); writeMeta(path.basename(zip)); }
+  // A zip restored from the cache keeps the date it was downloaded (one from before the sidecar counts as today's).
+  const fetched = readMeta(path.basename(zip))?.fetched || today();
   execFileSync("unzip", ["-o", "-q", zip, "-d", cachePath("nes")]);
   const set = new Set(fipsList);
   const counties = Object.fromEntries(fipsList.map((f) => [f, {}]));
@@ -113,8 +116,8 @@ async function fetchNonemployer(fipsList, opts) {
   }
   const value = { year, counties };
   fs.writeFileSync(cachePath(name), JSON.stringify(value));
-  writeMeta(name);
-  return { value, fetched: today() };
+  writeMeta(name, { fetched });
+  return { value, fetched };
 }
 
 module.exports = { ENDPOINTS, fetchEconomy, fetchNonemployer };
