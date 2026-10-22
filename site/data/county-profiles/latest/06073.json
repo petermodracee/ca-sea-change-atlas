@@ -3,15 +3,15 @@
   "slug": "san-diego",
   "county": "San Diego",
   "tier": "full",
-  "snapshot": "2026-09-24",
+  "snapshot": "2026-10-22",
   "method": 1,
-  "generated": "2026-10-01T05:59:35Z",
+  "generated": "2026-10-22T20:05:26Z",
   "license": {
     "id": "CC-BY-4.0",
     "name": "Creative Commons Attribution 4.0 International",
     "url": "https://creativecommons.org/licenses/by/4.0/"
   },
-  "attribution": "California Sea Change Atlas. (2026, September 24). San Diego County coastal county profile. https://seachangeatlas.org/county-profiles/county/san-diego/2026-09-24/",
+  "attribution": "California Sea Change Atlas. (2026, October 22). San Diego County coastal county profile. https://seachangeatlas.org/county-profiles/county/san-diego/2026-10-22/",
   "gauge": {
     "id": "san-diego",
     "name": "San Diego",
@@ -92,8 +92,8 @@
         "start": "2012-05-16",
         "end": "2026-03-03"
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "acs": {
       "label": "Census ACS 5-year estimates (2020–2024)",
@@ -102,8 +102,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "tiger": {
       "label": "Census 2020 tabulation blocks (TIGERweb)",
@@ -112,18 +112,18 @@
         "kind": "year",
         "year": 2020
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "usgs": {
       "label": "USGS National Structures Dataset",
       "url": "https://data.usgs.gov/datacatalog/data/USGS:db4fb1b6-1282-4e5b-9866-87a68912c5d1",
       "vintage": {
         "kind": "date",
-        "date": "2026-04-27"
+        "date": "2026-07-30"
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "openfema": {
       "label": "OpenFEMA NFIP claims",
@@ -132,8 +132,8 @@
         "kind": "date",
         "date": "2026-09-08"
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "slr": {
       "label": "NOAA Sea Level Rise Viewer inundation extents",
@@ -142,8 +142,8 @@
         "kind": "year",
         "year": 2026
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "lodes": {
       "label": "LEHD LODES8 workplace area characteristics",
@@ -152,8 +152,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "ccap": {
       "label": "NOAA C-CAP regional land cover",
@@ -163,8 +163,8 @@
         "start": "1996-01-01",
         "end": "2021-12-31"
       },
-      "retrieved": "2026-10-21",
-      "verified": "2026-10-21"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "opc": {
       "label": "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2",
@@ -173,38 +173,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-09-24",
-      "verified": "2026-09-24"
-    },
-    "enow-self": {
-      "label": "NOAA ENOW self-employed workers",
-      "url": "https://coast.noaa.gov/digitalcoast/data/enow-nes.html",
-      "vintage": {
-        "kind": "year",
-        "year": 2021
-      },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
-    },
-    "coastal-economy": {
-      "label": "NOAA Total Economy (Coastal), shoreline counties of California and of the U.S.",
-      "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
-      "vintage": {
-        "kind": "year",
-        "year": 2023
-      },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
-    },
-    "nes": {
-      "label": "Census Nonemployer Statistics",
-      "url": "https://www.census.gov/programs-surveys/nonemployer-statistics.html",
-      "vintage": {
-        "kind": "year",
-        "year": 2024
-      },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "qcew": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages)",
@@ -213,8 +183,8 @@
         "kind": "year",
         "year": 2025
       },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "qcew-wages": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
@@ -223,18 +193,18 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "bea-marine": {
       "label": "BEA GDP by state and industry (SAGDP2), California",
       "url": "https://www.bea.gov/data/gdp/gdp-industry",
       "vintage": {
         "kind": "year",
-        "year": 2024
+        "year": 2025
       },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "zbp": {
       "label": "Census ZIP Code Business Patterns and shoreline-adjacent ZIP codes",
@@ -243,8 +213,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "open-enow": {
       "label": "NOAA Open ENOW (California and All Coastal States)",
@@ -253,8 +223,18 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
+    },
+    "enow-self": {
+      "label": "NOAA ENOW self-employed workers",
+      "url": "https://coast.noaa.gov/digitalcoast/data/enow-nes.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2021
+      },
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "qcew-total-wages": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
@@ -263,8 +243,8 @@
         "kind": "year",
         "year": 2023
       },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     },
     "bea-total": {
       "label": "BEA GDP by state and industry (SAGDP2), California",
@@ -273,8 +253,28 @@
         "kind": "year",
         "year": 2025
       },
-      "retrieved": "2026-10-01",
-      "verified": "2026-10-01"
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
+    },
+    "coastal-economy": {
+      "label": "NOAA Total Economy (Coastal), shoreline counties of California and of the U.S.",
+      "url": "https://coast.noaa.gov/digitalcoast/data/coastaleconomy.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2023
+      },
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
+    },
+    "nes": {
+      "label": "Census Nonemployer Statistics",
+      "url": "https://www.census.gov/programs-surveys/nonemployer-statistics.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
+      },
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-22"
     }
   },
   "topics": {
@@ -337,7 +337,7 @@
               {
                 "label": "Schools",
                 "inside": 18,
-                "outside": 817
+                "outside": 816
               },
               {
                 "label": "Police stations",
@@ -559,7 +559,7 @@
               {
                 "label": "Schools",
                 "unit": "facilities",
-                "total": 835,
+                "total": 834,
                 "counts": [
                   0,
                   0,
@@ -763,7 +763,7 @@
             "jobs": 1535067,
             "wages": 131098437922,
             "gdp": {
-              "value": 263719704965,
+              "value": 265298578484,
               "partial": true
             },
             "denominator": 18210243,
@@ -790,63 +790,63 @@
                 "establishments": 9108,
                 "wages": 7888235282,
                 "employment": 89591,
-                "gdp": 14598004698
+                "gdp": 14298124098
               },
               {
                 "label": "Financial activities",
                 "establishments": 11869,
                 "wages": 8724302070,
                 "employment": 70230,
-                "gdp": 57144345970
+                "gdp": 59470104065
               },
               {
                 "label": "Education and health services",
                 "establishments": 48847,
                 "wages": 28952157974,
                 "employment": 394596,
-                "gdp": 29145749337
+                "gdp": 28702796755
               },
               {
                 "label": "Information",
                 "establishments": 1382,
                 "wages": 3419826874,
                 "employment": 18774,
-                "gdp": 9459373931
+                "gdp": 10006333902
               },
               {
                 "label": "Leisure and hospitality",
                 "establishments": 10264,
                 "wages": 8924099571,
                 "employment": 214672,
-                "gdp": 18933034970
+                "gdp": 17728078302
               },
               {
                 "label": "Manufacturing",
                 "establishments": 3627,
                 "wages": 13552922849,
                 "employment": 109768,
-                "gdp": 32506279328
+                "gdp": 32960956104
               },
               {
                 "label": "Natural resources and mining",
                 "establishments": 648,
                 "wages": 490984451,
                 "employment": 9020,
-                "gdp": 1473472337
+                "gdp": 1424519618
               },
               {
                 "label": "Other services",
                 "establishments": 9179,
                 "wages": 2736444083,
                 "employment": 55728,
-                "gdp": 6726543381
+                "gdp": 6503080044
               },
               {
                 "label": "Professional and business services",
                 "establishments": 23724,
                 "wages": 32011575892,
                 "employment": 259921,
-                "gdp": 51346729129
+                "gdp": 51157427003
               },
               {
                 "label": "Public administration",
@@ -863,7 +863,7 @@
                 "establishments": 15567,
                 "wages": 15202833983,
                 "employment": 230240,
-                "gdp": 42386171883
+                "gdp": 43047158593
               }
             ],
             "year": 2025,
@@ -1082,16 +1082,16 @@
               }
             },
             "gdp": {
-              "value": 10774155211,
+              "value": 10891231570,
               "est": {
-                "share": 0.0096,
+                "share": 0.0074,
                 "step": 5,
                 "weakShare": 0.0037
               }
             },
             "denominator": 1535067,
             "year": 2025,
-            "gdpYear": 2024
+            "gdpYear": 2025
           }
         },
         "diversity": {
@@ -1129,9 +1129,9 @@
                   }
                 },
                 "gdp": {
-                  "value": 76042323,
+                  "value": 83373392,
                   "est": {
-                    "share": 0.2933,
+                    "share": 0.647,
                     "step": 2,
                     "weakShare": 0
                   }
@@ -1142,7 +1142,7 @@
                 "establishments": 50,
                 "wages": 122771238,
                 "employment": 1199,
-                "gdp": 220559861
+                "gdp": 222533727
               },
               {
                 "label": "Marine transportation",
@@ -1164,9 +1164,9 @@
                   }
                 },
                 "gdp": {
-                  "value": 1845705385,
+                  "value": 1718416069,
                   "est": {
-                    "share": 0.0009,
+                    "share": 0.001,
                     "step": 3,
                     "weakShare": 0
                   }
@@ -1192,11 +1192,11 @@
                   }
                 },
                 "gdp": {
-                  "value": 123416163,
+                  "value": 122215992,
                   "est": {
-                    "share": 0.0791,
+                    "share": 0.0668,
                     "step": 5,
-                    "weakShare": 0.0482
+                    "weakShare": 0.0441
                   }
                 }
               },
@@ -1205,7 +1205,7 @@
                 "establishments": 53,
                 "wages": 618545237,
                 "employment": 6622,
-                "gdp": 1033428820
+                "gdp": 1269693900
               },
               {
                 "label": "Tourism and recreation",
@@ -1227,17 +1227,17 @@
                   }
                 },
                 "gdp": {
-                  "value": 7475002660,
+                  "value": 7474998490,
                   "est": {
-                    "share": 0.0114,
+                    "share": 0.0054,
                     "step": 5,
-                    "weakShare": 0.0053
+                    "weakShare": 0.0052
                   }
                 }
               }
             ],
             "year": 2025,
-            "gdpYear": 2024
+            "gdpYear": 2025
           }
         },
         "wages": {
