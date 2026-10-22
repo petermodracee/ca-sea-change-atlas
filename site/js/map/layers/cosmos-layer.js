@@ -36,7 +36,8 @@ import { buildButtonGrid } from "../shared/button-grid.js";
 // `COSMOS_REGIONS` mirrors OCOF's own `regionsMetadata.json` (fetched and
 // verified directly this session) — which topics exist per region, and
 // each region's valid SLR/storm-frequency stops.
-const COSMOS_LAYERS_URL = "../data/cosmos-layers.json";
+// Resolved against this module, not the page, so it works from /map/ and /map/embed/ alike.
+const COSMOS_LAYERS_URL = new URL("../../../data/cosmos-layers.json", import.meta.url);
 const COSMOS_TILE_ATTRIBUTION = 'Flood data: <a href="https://ourcoastourfuture.org/" target="_blank" rel="noopener">USGS CoSMoS, via Point Blue Conservation Science\'s Our Coast, Our Future</a>';
 // Every scenario topic has its own color scale (rendered server-side by
 // GeoServer) rather than one fixed project color, so there's no single

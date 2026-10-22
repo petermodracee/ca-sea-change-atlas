@@ -96,7 +96,7 @@ function hashProblems(hash, controls, valueControlIds) {
   const params = new URLSearchParams(hash);
   for (const key of (params.get("on") || "").split(",").filter(Boolean)) {
     const id = key.startsWith("id:") ? key.slice(3) : null;
-    if (!id || !controls.checkboxes.has(id)) problems.push(`on=${key}: no such checkbox in site/map/index.njk`);
+    if (!id || !controls.checkboxes.has(id)) problems.push(`on=${key}: no such checkbox in site/_includes/map-panel.njk`);
   }
   // The picker rewrites the slider in the browser, so every increment must be a legal slider value, not just the default.
   const pairs = (params.get("v") || "").split("|").filter(Boolean);
@@ -110,7 +110,7 @@ function hashProblems(hash, controls, valueControlIds) {
       const { min, max, step } = controls.ranges.get(id);
       const n = Number(value);
       if (!Number.isInteger(n) || n < min || n > max || (n - min) % step !== 0) problems.push(`v=${key}~${value}: outside #${id} (${min} to ${max}, step ${step})`);
-    } else problems.push(`v=${key}: no such select or range in site/map/index.njk`);
+    } else problems.push(`v=${key}: no such select or range in site/_includes/map-panel.njk`);
   }
   return problems;
 }

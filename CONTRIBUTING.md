@@ -19,7 +19,7 @@ Everything in this project stays open. Two rules follow from that.
 
 By submitting a pull request you agree that:
 
-- your original **written content** (page copy, tool descriptions, comparisons, documentation) is licensed under **[CC BY-SA 4.0](LICENSE-CONTENT.md)**, and
+- your original **written content** (page copy, tool descriptions, comparisons, documentation) is licensed under **[CC BY 4.0](LICENSE-CONTENT.md)**, and
 - your original **code** (templates, JavaScript, CSS, build config) is licensed under **[GPL v3.0](LICENSE)**.
 
 Don't paste in text or code you didn't write unless it is covered by the next rule.

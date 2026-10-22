@@ -159,24 +159,88 @@ body.map-page{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direc
   background:var(--paper-2);padding:16px 18px;
 }
 .sheet-handle{display:none;}
-/* Small screens: the panel becomes a bottom sheet — a one-row tab under the map when closed, an overlay over the map's lower 70% when open. */
+/* Small screens: the panel becomes a bottom sheet — a one-row tab under the map when closed, an overlay over the map's lower 70% when open.
+   Full map: frames/windows up to 768px. Embed: only under 480px; wider embeds get the Layers button and a right-hand drawer (below). */
 @media (max-width:768px){
-  .map-layout{position:relative;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;}
-  .layer-panel{
+  body:not(.map-embed) .map-layout{position:relative;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;}
+  body:not(.map-embed) .layer-panel{
     border-left:0;border-top:1px solid var(--line);padding:0 18px;
     max-height:48px;overflow:hidden;
   }
-  .layer-panel.sheet-open{position:absolute;left:0;right:0;bottom:0;z-index:1000;max-height:70%;overflow-y:auto;padding-bottom:16px;}
-  .sheet-handle{
+  body:not(.map-embed) .layer-panel.sheet-open{position:absolute;left:0;right:0;bottom:0;z-index:1000;max-height:70%;overflow-y:auto;padding-bottom:16px;}
+  body:not(.map-embed) .sheet-handle{
     display:flex;align-items:center;justify-content:space-between;width:calc(100% + 36px);height:48px;
     margin:0 -18px 8px;padding:0 18px;border:0;border-bottom:1px solid var(--line);
     background:var(--paper-2);color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;
     position:sticky;top:0;z-index:2;
   }
-  .sheet-handle .sheet-chevron{transition:transform .15s ease;}
-  .sheet-handle[aria-expanded="true"] .sheet-chevron{transform:rotate(180deg);}
+  body:not(.map-embed) .sheet-handle .sheet-chevron{transition:transform .15s ease;}
+  body:not(.map-embed) .sheet-handle[aria-expanded="true"] .sheet-chevron{transform:rotate(180deg);}
+}
+@media (max-width:479px){
+  body.map-embed .map-layout{position:relative;grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;}
+  body.map-embed .layer-panel{
+    border-left:0;border-top:1px solid var(--line);padding:0 18px;
+    max-height:48px;overflow:hidden;
+  }
+  body.map-embed .layer-panel.sheet-open{position:absolute;left:0;right:0;bottom:0;z-index:1000;max-height:70%;overflow-y:auto;padding-bottom:16px;}
+  body.map-embed .sheet-handle{
+    display:flex;align-items:center;justify-content:space-between;width:calc(100% + 36px);height:48px;
+    margin:0 -18px 8px;padding:0 18px;border:0;border-bottom:1px solid var(--line);
+    background:var(--paper-2);color:var(--ink);font-size:13px;font-weight:600;cursor:pointer;
+    position:sticky;top:0;z-index:2;
+  }
+  body.map-embed .sheet-handle .sheet-chevron{transition:transform .15s ease;}
+  body.map-embed .sheet-handle[aria-expanded="true"] .sheet-chevron{transform:rotate(180deg);}
 }
 .panel-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+.panel-heading-actions{display:flex;align-items:center;gap:6px;}
+.panel-collapse-btn{display:none;}
+
+/* Collapsible panel (desktop only): the panel column goes away and the legend control shows over the map. */
+.legend-control{display:none;width:max-content;max-width:min(300px,calc(100vw - 32px));text-align:right;}
+@media screen and (min-width:769px){
+  body:not(.map-embed) .panel-collapse-btn{display:inline-block;}
+  body:not(.map-embed) .map-layout.panel-collapsed{grid-template-columns:minmax(0,1fr);}
+  body:not(.map-embed) .map-layout.panel-collapsed .layer-panel{display:none;}
+  body:not(.map-embed) .map-layout.panel-collapsed .legend-control{display:block;}
+}
+/* Embed at 480px and wider: the panel is a drawer over the right of the map (the map never resizes), capped so some map stays visible. */
+@media screen and (min-width:480px){
+  body.map-embed .panel-collapse-btn{display:inline-block;}
+  body.map-embed .map-layout{position:relative;grid-template-columns:minmax(0,1fr);}
+  body.map-embed .map-layout.panel-collapsed .layer-panel{display:none;}
+  body.map-embed .map-layout:not(.panel-collapsed) .layer-panel{
+    position:absolute;top:0;right:0;bottom:0;z-index:1100;width:min(300px,60%);
+    border-left:1px solid var(--line);box-shadow:-2px 0 10px rgba(0,0,0,.3);
+  }
+  body.map-embed .sheet-handle{display:none;}
+}
+/* The embed also shows the legend card beside the mobile bottom sheet. */
+.legend-control.is-embed{display:block;}
+.legend-layers-btn,.legend-pill{
+  padding:6px 12px;border:1px solid var(--line);border-radius:5px;background:var(--paper);color:var(--ink);
+  font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25);
+}
+.legend-layers-btn:hover,.legend-pill:hover{border-color:var(--teal);color:var(--teal-text);}
+.legend-layers-btn[hidden]{display:none;}
+.map-layout:not(.panel-collapsed) .legend-layers-btn{display:none;}
+@media (max-width:768px){ body:not(.map-embed) .legend-layers-btn{display:none;} }
+@media (max-width:479px){ body.map-embed .legend-layers-btn{display:none;} }
+.legend-card{margin-top:8px;text-align:left;}
+.legend-card[hidden]{display:none;}
+.legend-card .legend-pill{display:block;margin-left:auto;font-size:12px;padding:4px 10px;}
+.legend-card-body{
+  margin-top:6px;padding:8px 10px;overflow-y:auto;border:1px solid var(--line);border-radius:5px;
+  background:var(--paper);color:var(--ink);font-size:12px;line-height:1.35;box-shadow:0 1px 4px rgba(0,0,0,.25);
+}
+.legend-card-body[hidden]{display:none;}
+.legend-card-body h3{font-size:11px;margin:8px 0 2px;text-transform:uppercase;letter-spacing:.03em;color:var(--teal-text);}
+.legend-card-body section:first-child h3{margin-top:0;}
+.legend-card-body .print-scenario{margin:1px 0;font-weight:600;}
+.legend-card-body ul{margin:2px 0 4px;padding-left:16px;}
+.legend-card-body .bcdc-legend{margin-top:4px;padding-top:4px;border-top:0;}
+.legend-card-body img{max-width:100%;}
 .layer-panel h2{font-size:14px;margin:0;}
 .layer-group{margin-bottom:20px;}
 .layer-group-title{
@@ -628,6 +692,37 @@ legend{
   .cmp-table th,.cmp-table td{font-size:12.8px;padding-right:10px;}
 }
 
+/* Embed snippet dialog (full map). */
+.embed-dialog{
+  width:min(560px,calc(100vw - 32px));padding:18px 20px;border:1px solid var(--line);border-radius:8px;
+  background:var(--paper);color:var(--ink);box-shadow:0 8px 32px rgba(0,0,0,.35);
+}
+.embed-dialog::backdrop{background:rgba(0,0,0,.45);}
+.embed-dialog h2{font-size:16px;margin:0 0 8px;}
+.embed-dialog p{margin:0 0 12px;font-size:13px;color:var(--ink-soft);}
+.embed-option{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13.5px;}
+.embed-code-label{display:block;margin-bottom:4px;font-size:12px;color:var(--ink-soft);}
+.embed-code{
+  width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid var(--line);border-radius:5px;
+  background:var(--paper-2);color:var(--ink);font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;resize:vertical;
+}
+.embed-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;}
+
+/* ---------- embedded map (/map/embed/) ---------- */
+/* Same app shell as the map page (body.map-page), minus header, toolbar and footer; the bar replaces the footer. */
+.embed-bar{
+  flex:0 0 auto;padding:4px 10px;border-top:1px solid var(--line);background:var(--paper-2);
+  color:var(--ink-soft);font-size:11.5px;line-height:1.4;text-align:center;
+}
+.embed-bar a{color:var(--ink-soft);}
+.embed-bar a:hover{color:var(--teal-text);}
+/* Keep the credit visible and compact in small frames. */
+/* The attribution wraps upward in the space right of the scale bar instead of running under it. */
+.map-embed .leaflet-bottom.leaflet-right{max-width:calc(100% - 160px);}
+.map-embed .leaflet-control-attribution{font-size:10px;line-height:1.3;white-space:normal;}
+/* Locked: viewers can't reopen the panel, at any width (below 480px that includes the bottom sheet). */
+body.map-embed-locked .layer-panel{display:none !important;}
+
 /* Measure tool button + cursor. */
 .leaflet-control-measure a{display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;}
 .leaflet-control-measure a.active{background:var(--teal);}
@@ -644,7 +739,7 @@ legend{
   @page{size:landscape;margin:.4in;}
   body.map-page{display:block;height:auto;overflow:visible;background:#fff;color:#000;}
   .site-header,.map-toolbar,.search-status,.search-results,.site-footer-links,.layer-panel{display:none !important;}
-  .leaflet-control-zoom,.leaflet-control-layers,.leaflet-control-locate,.leaflet-control-measure{display:none;}
+  .leaflet-control-zoom,.leaflet-control-layers,.leaflet-control-locate,.leaflet-control-measure,.legend-control{display:none !important;}
   .map-layout{display:grid;grid-template-columns:700px 1fr;grid-template-rows:auto;gap:0 14px;overflow:visible;}
   #map{width:700px;height:610px;min-height:0;border:1px solid #999;}
   #printSheet{
@@ -664,6 +759,39 @@ legend{
   .site-footer-details-body{position:static;max-height:none;overflow:visible;box-shadow:none;border:0;padding:0;background:none;}
   .site-footer-details-body p{margin:0 0 3px;}
   .site-footer a{color:#000;text-decoration:none;}
+}
+
+/* Embed print: a host page with embeds prints each one as it looks on screen at its frame size, not as the full map's
+   700x610 landscape sheet. Overrides the block above, which is for /map/ only (an @page rule can't be scoped, but browsers
+   apply only the top-level document's @page, so it has no effect inside a frame). Keeps the bar, attribution, scale bar and an
+   expanded legend card; hides only what's interactive. */
+@media print{
+  html:has(body.map-embed){height:100%;overflow:hidden;}
+  body.map-page.map-embed{
+    display:flex;flex-direction:column;height:100%;overflow:hidden;background:#fff;color:#000;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  body.map-embed .map-layout{
+    display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:0;
+    flex:1;min-height:0;overflow:hidden;
+  }
+  body.map-embed #map{width:100%;height:100%;min-height:0;border:0;}
+  body.map-embed .leaflet-control-zoom,
+  body.map-embed .legend-layers-btn,
+  body.map-embed .legend-pill,
+  body.map-embed .layer-panel,
+  body.map-embed .sheet-handle,
+  body.map-embed .leaflet-popup{display:none !important;}
+  body.map-embed .legend-control{display:block !important;}
+  /* No height cap (the on-screen one would cut the legend short on paper); the map's own overflow clips anything past the frame. */
+  body.map-embed .legend-card-body,
+  body.map-embed .legend-card-body[hidden]{display:block !important;overflow:hidden;max-height:none !important;background:#fff;box-shadow:none;font-size:10px;line-height:1.25;}
+  body.map-embed .legend-card-body,
+  body.map-embed .legend-card-body *{color:#000 !important;}
+  /* Leaflet fades tiles in from opacity 0 with a rAF-driven loop; a frame that isn't being painted (below the fold) can still have them at 0 when it is printed. */
+  body.map-embed .leaflet-tile{opacity:1 !important;transition:none !important;}
+  body.map-embed .embed-bar{background:#fff;color:#000;}
+  body.map-embed .embed-bar a{color:inherit;text-decoration:none;}
 }
 
 /* ---------- county profiles ---------- */

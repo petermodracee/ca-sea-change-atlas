@@ -11,15 +11,16 @@ export function createMarkerState(){
 
 /**
  * Creates the Leaflet map and installs the basemap switcher (greyscale by default).
- * @param {{view?: {center: [number, number], zoom: number}|null, basemap?: string|null}} [initial] -
- *   view/basemap restored from a shared link.
+ * @param {{view?: {center: [number, number], zoom: number}|null, basemap?: string|null, embed?: boolean}} [initial] -
+ *   view/basemap restored from a shared link; `embed` starts with scroll-wheel zoom off (embed.js turns it on
+ *   while the map has focus) and no basemap switcher.
  * @returns {{map: L.Map, getBasemap: () => string}}
  */
-export function createMap({ view = null, basemap = null } = {}){
+export function createMap({ view = null, basemap = null, embed = false } = {}){
   // maxZoom is set explicitly because the greyscale vector basemap doesn't declare one to Leaflet.
-  const map = L.map("map", { scrollWheelZoom: true, maxZoom: 18 }).setView(view ? view.center : [37.2, -119.4], view ? view.zoom : 6);
+  const map = L.map("map", { scrollWheelZoom: !embed, maxZoom: 18 }).setView(view ? view.center : [37.2, -119.4], view ? view.zoom : 6);
   window.map = map; // exposed for debugging/testing
-  const getBasemap = initBasemaps(map, basemap);
+  const getBasemap = initBasemaps(map, basemap, { embed });
   return { map, getBasemap };
 }
 

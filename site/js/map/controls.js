@@ -1,6 +1,7 @@
 /**
  * Small map controls that aren't layers: scale bar, "show my location"
  * (leaflet.locatecontrol, loaded in base.njk) and a distance-measure tool.
+ * The embed gets the scale bar only (zoom buttons come from Leaflet itself).
  */
 
 const METERS_PER_MILE = 1609.344;
@@ -78,9 +79,10 @@ const MeasureControl = L.Control.extend({
   }
 });
 
-/** Adds the scale bar, locate button and measure tool to the map. */
-export function initControls(map){
+/** Adds the scale bar, locate button and measure tool to the map (scale bar only when `embed`). */
+export function initControls(map, { embed = false } = {}){
   L.control.scale({ position: "bottomleft", maxWidth: 140 }).addTo(map);
+  if(embed) return;
   new MeasureControl().addTo(map);
   if(L.control.locate){
     L.control.locate({
