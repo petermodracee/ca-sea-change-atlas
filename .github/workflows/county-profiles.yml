@@ -8,7 +8,19 @@ name: County Profiles refresh
 # opens nothing; gate.json is left byte-identical when the gate skips every county.
 #
 # Only one data PR may be open at a time (label `data refresh`): two unmerged data PRs could each mint
-# a dated snapshot from a different base. While one is open, the run stops before the gate.
+# a dated snapshot from a different base. The rule is kept by reusing the open PR, not by refusing to
+# run: when one is open, the run checks out its branch instead of main, so the gate reads that branch's
+# gate.json and recomputes only what the PR does not have yet (a county that failed, or anything new),
+# and the result is a new commit on the same branch with the PR's title and body updated. This is how a
+# retry works, whether "Re-run failed jobs" or a dispatch with only the failed counties.
+#
+# A run where some counties fail still runs the checks and the build and opens (or updates) the PR,
+# titled "(partial: N failed)", then finishes as failed so the Actions tab shows it. A run where every
+# county fails commits nothing and fails.
+#
+# The pipeline's download cache (scripts/county-profiles/.cache/) is saved after the recompute, even a
+# failed one, and restored before the gate by any later run in the same calendar month (UTC), so a
+# retry skips what the failed run already fetched. A new month starts with an empty cache.
 #
 # Opening the PR needs Settings > Actions > General > Workflow permissions > "Allow GitHub Actions to
 # create and approve pull requests". A PR opened with the GITHUB_TOKEN does not trigger other
@@ -44,50 +56,115 @@ env:
   TOPIC_LABEL: county profiles
 
 jobs:
-  # 0. One data PR at a time.
-  open-data-pr:
-    runs-on: ubuntu-latest
-    outputs:
-      number: ${{ steps.find.outputs.number }}
-    steps:
-      - name: Look for an open data PR
-        id: find
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          number=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --label "$DATA_LABEL" --json number --jq '.[0].number // empty')
-          echo "number=$number" >> "$GITHUB_OUTPUT"
-          if [ -n "$number" ]; then
-            echo "Data PR #$number is still open; merge or close it first" | tee -a "$GITHUB_STEP_SUMMARY"
-          fi
-
   refresh-and-build:
-    needs: open-data-pr
-    if: needs.open-data-pr.outputs.number == ''
     runs-on: ubuntu-latest
     timeout-minutes: 350
     steps:
+      # 0. One data PR at a time: an open one is added to, not competed with. Looked up on every attempt,
+      # including "Re-run failed jobs", so a retry always sees the PR an earlier attempt opened.
+      - name: Look for an open data PR
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          found=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --label "$DATA_LABEL" \
+            --json number,headRefName,createdAt --jq '.[0] // empty | "\(.number) \(.headRefName) \(.createdAt[:10])"')
+          read -r number branch opened <<< "$found" || true
+          {
+            echo "number=$number"
+            echo "branch=$branch"
+            echo "opened=$opened"
+            echo "ref=${branch:-main}"
+          } >> "$GITHUB_OUTPUT"
+          if [ -n "$number" ]; then
+            echo "Adding to data PR #$number (branch \`$branch\`)" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
       - uses: actions/checkout@v5
         with:
-          ref: main
+          ref: ${{ steps.pr.outputs.ref }}
+          fetch-depth: 0 # the data branch is compared with, and may need to merge, origin/main
       - uses: actions/setup-node@v5
         with:
           node-version: 22
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      # An open data PR's branch may be behind main. Merge main into it first, so the recompute and the
+      # build run on current code; a conflict stops the run rather than being resolved by a bot.
+      - name: Merge main into the data branch
+        if: steps.pr.outputs.number != ''
+        env:
+          BRANCH: ${{ steps.pr.outputs.branch }}
+        run: |
+          if git merge-base --is-ancestor origin/main HEAD; then
+            echo "$BRANCH already contains main."
+          elif ! git merge --no-edit -m "Merge main into $BRANCH" origin/main; then
+            git merge --abort
+            echo "::error::Merging main into $BRANCH conflicts. Resolve it on the branch by hand (or close the PR), then run again."
+            exit 1
+          fi
+
       - run: npm ci
 
-      # 1. The EFF_DATE gate: cheap NFHL queries per county, diffed against the last build.
+      - name: Cache month
+        id: month
+        run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+
+      # Downloads saved by an earlier run this month (the latest one wins). The per-run summaries are
+      # removed: they describe that run, not this one.
+      - name: Restore the download cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: scripts/county-profiles/.cache
+          key: county-profiles-cache-${{ steps.month.outputs.month }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: county-profiles-cache-${{ steps.month.outputs.month }}-
+      - run: rm -f scripts/county-profiles/.cache/run-outcomes.json scripts/county-profiles/.cache/run-failures.json
+
+      # 1. The EFF_DATE gate: cheap NFHL queries per county, diffed against the last build. On an open data
+      # PR's branch, --force applies only to counties the PR has not recomputed since it opened.
       - name: Check NFHL effective dates
         id: gate
+        env:
+          SINCE: ${{ steps.pr.outputs.opened }}
         run: |
           set -o pipefail
-          node scripts/county-profiles/pipeline/gate.js "${{ inputs.counties || 'all' }}" ${{ inputs.force && '--force' || '' }} | tee gate.log
+          force=()
+          if [ "${{ inputs.force }}" = "true" ]; then
+            force=(--force)
+            if [ -n "$SINCE" ]; then force+=(--force-since "$SINCE"); fi
+          fi
+          node scripts/county-profiles/pipeline/gate.js "${{ inputs.counties || 'all' }}" "${force[@]}" | tee gate.log
 
-      # 2. Fetch, intersect and write JSON, only for counties the gate flagged.
+      # 2. Fetch, intersect and write JSON, only for counties the gate flagged. run.js exits 2 when some
+      # counties failed and others succeeded: the run carries on to open the PR and is failed at the end.
       - name: Recompute changed counties
+        id: recompute
         if: steps.gate.outputs.changed != ''
-        run: node --max-old-space-size=14336 scripts/county-profiles/pipeline/run.js "${{ steps.gate.outputs.changed }}"
+        run: |
+          set +e
+          node --max-old-space-size=14336 scripts/county-profiles/pipeline/run.js "${{ steps.gate.outputs.changed }}"
+          code=$?
+          echo "exit=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" = 2 ]; then
+            echo "::warning::Some counties failed (see Failed counties in the summary); the others go into the data PR."
+            exit 0
+          fi
+          exit "$code"
+
+      # Saved even when the recompute failed, so a retry starts from what this attempt fetched.
+      - name: Save the download cache
+        if: always() && steps.recompute.outcome != 'skipped' && steps.recompute.outcome != ''
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: scripts/county-profiles/.cache
+          key: county-profiles-cache-${{ steps.month.outputs.month }}-${{ github.run_id }}-${{ github.run_attempt }}
 
       - name: Summarise
+        if: always() && steps.gate.outcome == 'success'
         run: |
           counts=$(tail -n 1 gate.log | node -e 'const r = JSON.parse(require("fs").readFileSync(0, "utf8")); console.log("checked " + (r.changed.length + r.unchanged.length) + " counties, recomputed " + r.changed.length)')
           {
@@ -111,13 +188,13 @@ jobs:
       - run: npx eleventy
       - run: node scripts/check-links.js
 
-      # 5. No data changes: done. Otherwise commit the JSON (dated snapshots, latest/, gate state) to a
-      # new data/* branch and open a PR against main.
-      - name: Open a data PR
+      # 5. No data changes: done. Otherwise commit the JSON (dated snapshots, latest/, gate state): to the
+      # open data PR's branch, or to a new data/* branch with a new PR against main. Never a force-push.
+      - name: Open or update the data PR
         env:
           GH_TOKEN: ${{ github.token }}
-          CHANGED: ${{ steps.gate.outputs.changed }}
-          RUN_NUMBER: ${{ github.run_number }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          PR_BRANCH: ${{ steps.pr.outputs.branch }}
         run: |
           git add site/data/county-profiles
           if git diff --cached --quiet; then
@@ -125,49 +202,52 @@ jobs:
             exit 0
           fi
 
-          day=$(date -u +%Y-%m-%d)
-          branch="data/county-profiles-$day-run$RUN_NUMBER"
-          what="${CHANGED:-refresh}"
-          what="${what//,/, }"
-          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          # The counties this attempt recomputed successfully (a failed one adds nothing to the commit).
+          what=$(node -e 'const o = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")); console.log(o.map((x) => x.fips).join(", ") || "refresh")' scripts/county-profiles/.cache/run-outcomes.json 2>/dev/null || echo refresh)
+          if [ -n "$PR_NUMBER" ]; then
+            branch="$PR_BRANCH"
+          else
+            branch="data/county-profiles-$(date -u +%Y-%m-%d)-run$GITHUB_RUN_NUMBER"
+            if [ "$GITHUB_RUN_ATTEMPT" != 1 ]; then branch="$branch-attempt$GITHUB_RUN_ATTEMPT"; fi
+            git switch -c "$branch"
+          fi
+          git commit -q -m "County Profiles data: $what (run $GITHUB_RUN_NUMBER, attempt $GITHUB_RUN_ATTEMPT)"
+          git push origin "HEAD:refs/heads/$branch"
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git switch -c "$branch"
-          git commit -q -m "County Profiles data: $what"
-          git push origin "$branch"
-
-          recomputed=$(grep ': recompute (' gate.log | sed 's/^/- /' || true)
-          added=$(git diff --name-only --diff-filter=A HEAD~1 HEAD -- site/data/county-profiles \
-            | grep -E '^site/data/county-profiles/[0-9]{4}-[0-9]{2}-[0-9]{2}/' | cut -d/ -f1-4 | sort | uniq -c \
-            | awk '{ printf "- `%s/` (%d %s)\n", $2, $1, ($1 == 1 ? "county" : "counties") }' || true)
           body="$RUNNER_TEMP/pr-body.md"
-          {
-            echo "### Counties recomputed"
-            echo
-            echo "${recomputed:-- none}"
-            echo
-            echo "### Snapshots"
-            echo
-            if [ -n "$added" ]; then
-              echo "New dated snapshot directories:"
-              echo
-              echo "$added"
-            else
-              echo "No new dated snapshot: stamps in \`latest/\` refreshed only."
-            fi
-            echo
-            echo "### Checks"
-            echo
-            echo "\`check-archive.js\`, \`state-report.js\`, the Eleventy build and \`check-links.js\` passed in run [#$RUN_NUMBER]($run_url)."
-            echo
-            echo "Merge with Create a merge commit. \`deploy.yml\` publishes the site when this merges."
-          } > "$body"
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr view "$PR_NUMBER" --json body --jq .body > "$RUNNER_TEMP/pr-previous.md"
+            title=$(node scripts/county-profiles/pipeline/data-pr.js --body "$body" --previous "$RUNNER_TEMP/pr-previous.md")
+            gh pr edit "$PR_NUMBER" --title "$title" --body-file "$body"
+            echo "Added a commit to data PR #$PR_NUMBER: $title" | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
 
+          title=$(node scripts/county-profiles/pipeline/data-pr.js --body "$body")
           gh label create "$DATA_LABEL" --force --color 0e8a16 --description "County Profiles data PR opened by the refresh workflow"
           if ! gh pr create --base main --head "$branch" \
-              --title "County Profiles data: $what ($day)" --body-file "$body" \
+              --title "$title" --body-file "$body" \
               --label "$DATA_LABEL" --label "$TOPIC_LABEL"; then
             echo "::error::The branch $branch was pushed, but opening its PR failed. The repository setting \"Allow GitHub Actions to create and approve pull requests\" (Settings > Actions > General > Workflow permissions) may be off; open the PR from $branch by hand or turn the setting on."
             exit 1
           fi
+
+      # Every county failed while a data PR is open: nothing to commit, but the attempt still goes in the
+      # PR's Runs section, so its log is one click from the PR.
+      - name: Note the failed attempt on the data PR
+        if: failure() && steps.pr.outputs.number != '' && steps.recompute.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+        run: |
+          body="$RUNNER_TEMP/pr-body.md"
+          gh pr view "$PR_NUMBER" --json body --jq .body > "$RUNNER_TEMP/pr-previous.md"
+          title=$(node scripts/county-profiles/pipeline/data-pr.js --body "$body" --previous "$RUNNER_TEMP/pr-previous.md" --no-data)
+          gh pr edit "$PR_NUMBER" --title "$title" --body-file "$body"
+
+      # Some counties failed: the PR is open (or updated) with the others, and the run is marked failed.
+      - name: Fail the run if any county failed
+        if: steps.recompute.outputs.exit == '2'
+        run: |
+          echo "::error::Some counties failed to recompute; they are listed under Failed counties in the data PR and the summary. Retry with Re-run failed jobs or a dispatch with those counties."
+          exit 1
