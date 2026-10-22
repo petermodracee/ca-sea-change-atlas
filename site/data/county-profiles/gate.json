@@ -6,6 +6,8 @@
     "effStart": "2009-08-03",
     "effEnd": "2026-05-26",
     "panelCount": 164,
+    "lomrCount": 14,
+    "lomrLatest": "2026-04-29",
     "computed": "2026-10-22"
   },
   "06013": {
@@ -15,6 +17,8 @@
     "effStart": "2009-06-16",
     "effEnd": "2017-03-21",
     "panelCount": 182,
+    "lomrCount": 23,
+    "lomrLatest": "2026-10-13",
     "computed": "2026-10-22"
   },
   "06015": {
@@ -24,6 +28,8 @@
     "effStart": "2008-09-26",
     "effEnd": "2017-08-02",
     "panelCount": 74,
+    "lomrCount": 1,
+    "lomrLatest": "2010-11-29",
     "computed": "2026-10-22"
   },
   "06023": {
@@ -33,6 +39,8 @@
     "effStart": "2016-11-04",
     "effEnd": "2017-06-21",
     "panelCount": 161,
+    "lomrCount": 1,
+    "lomrLatest": "2021-09-03",
     "computed": "2026-10-22"
   },
   "06033": {
@@ -42,6 +50,8 @@
     "effStart": "2005-09-30",
     "effEnd": "2024-10-10",
     "panelCount": 171,
+    "lomrCount": 2,
+    "lomrLatest": "2020-06-08",
     "computed": "2026-10-22"
   },
   "06037": {
@@ -51,6 +61,8 @@
     "effStart": "2008-09-26",
     "effEnd": "2021-06-02",
     "panelCount": 399,
+    "lomrCount": 43,
+    "lomrLatest": "2026-01-28",
     "computed": "2026-10-22"
   },
   "06041": {
@@ -60,6 +72,8 @@
     "effStart": "2009-05-04",
     "effEnd": "2017-08-15",
     "panelCount": 111,
+    "lomrCount": 2,
+    "lomrLatest": "2023-08-04",
     "computed": "2026-10-22"
   },
   "06045": {
@@ -69,6 +83,8 @@
     "effStart": "2011-06-02",
     "effEnd": "2025-09-19",
     "panelCount": 158,
+    "lomrCount": 1,
+    "lomrLatest": "2015-01-29",
     "computed": "2026-10-22"
   },
   "06053": {
@@ -78,6 +94,8 @@
     "effStart": "2009-04-02",
     "effEnd": "2023-11-30",
     "panelCount": 283,
+    "lomrCount": 9,
+    "lomrLatest": "2024-05-06",
     "computed": "2026-10-22"
   },
   "06055": {
@@ -87,6 +105,8 @@
     "effStart": "2008-09-26",
     "effEnd": "2016-08-03",
     "panelCount": 82,
+    "lomrCount": 9,
+    "lomrLatest": "2024-06-26",
     "computed": "2026-10-22"
   },
   "06059": {
@@ -96,6 +116,8 @@
     "effStart": "2009-12-03",
     "effEnd": "2019-03-21",
     "panelCount": 199,
+    "lomrCount": 43,
+    "lomrLatest": "2026-09-28",
     "computed": "2026-10-22"
   },
   "06067": {
@@ -105,6 +127,8 @@
     "effStart": "2012-08-16",
     "effEnd": "2024-02-22",
     "panelCount": 161,
+    "lomrCount": 20,
+    "lomrLatest": "2026-09-30",
     "computed": "2026-10-22"
   },
   "06069": {
@@ -114,6 +138,8 @@
     "effStart": "2009-04-16",
     "effEnd": "2009-04-16",
     "panelCount": 54,
+    "lomrCount": 4,
+    "lomrLatest": "2026-07-20",
     "computed": "2026-10-22"
   },
   "06073": {
@@ -123,6 +149,8 @@
     "effStart": "2012-05-16",
     "effEnd": "2026-03-03",
     "panelCount": 408,
+    "lomrCount": 89,
+    "lomrLatest": "2026-09-04",
     "computed": "2026-10-22"
   },
   "06075": {
@@ -132,6 +160,8 @@
     "effStart": "2021-03-23",
     "effEnd": "2021-03-23",
     "panelCount": 46,
+    "lomrCount": 0,
+    "lomrLatest": null,
     "computed": "2026-10-22"
   },
   "06077": {
@@ -141,6 +171,8 @@
     "effStart": "2009-10-16",
     "effEnd": "2016-10-20",
     "panelCount": 130,
+    "lomrCount": 52,
+    "lomrLatest": "2026-09-28",
     "computed": "2026-10-22"
   },
   "06079": {
@@ -150,6 +182,8 @@
     "effStart": "2008-08-28",
     "effEnd": "2024-06-06",
     "panelCount": 268,
+    "lomrCount": 13,
+    "lomrLatest": "2025-07-23",
     "computed": "2026-10-22"
   },
   "06081": {
@@ -159,6 +193,8 @@
     "effStart": "2012-10-16",
     "effEnd": "2019-04-05",
     "panelCount": 147,
+    "lomrCount": 10,
+    "lomrLatest": "2026-09-11",
     "computed": "2026-10-22"
   },
   "06083": {
@@ -168,6 +204,8 @@
     "effStart": "2005-09-30",
     "effEnd": "2026-06-10",
     "panelCount": 277,
+    "lomrCount": 7,
+    "lomrLatest": "2022-05-23",
     "computed": "2026-10-22"
   },
   "06085": {
@@ -177,6 +215,8 @@
     "effStart": "2009-05-18",
     "effEnd": "2014-02-19",
     "panelCount": 187,
+    "lomrCount": 50,
+    "lomrLatest": "2026-01-19",
     "computed": "2026-10-22"
   },
   "06087": {
@@ -186,6 +226,8 @@
     "effStart": "2012-05-16",
     "effEnd": "2017-09-29",
     "panelCount": 128,
+    "lomrCount": 1,
+    "lomrLatest": "2019-07-11",
     "computed": "2026-10-22"
   },
   "06095": {
@@ -195,6 +237,8 @@
     "effStart": "2009-05-04",
     "effEnd": "2016-08-03",
     "panelCount": 188,
+    "lomrCount": 16,
+    "lomrLatest": "2026-06-26",
     "computed": "2026-10-22"
   },
   "06097": {
@@ -204,6 +248,8 @@
     "effStart": "2008-12-02",
     "effEnd": "2024-07-31",
     "panelCount": 259,
+    "lomrCount": 12,
+    "lomrLatest": "2026-02-16",
     "computed": "2026-10-22"
   },
   "06101": {
@@ -213,6 +259,8 @@
     "effStart": "2008-12-02",
     "effEnd": "2015-06-16",
     "panelCount": 27,
+    "lomrCount": 0,
+    "lomrLatest": null,
     "computed": "2026-10-22"
   },
   "06105": {
@@ -222,6 +270,8 @@
     "effStart": "2010-01-20",
     "effEnd": "2016-07-20",
     "panelCount": 135,
+    "lomrCount": 2,
+    "lomrLatest": "2019-06-13",
     "computed": "2026-10-22"
   },
   "06111": {
@@ -231,6 +281,8 @@
     "effStart": "2010-01-20",
     "effEnd": "2024-04-11",
     "panelCount": 249,
+    "lomrCount": 62,
+    "lomrLatest": "2026-04-29",
     "computed": "2026-10-22"
   },
   "06113": {
@@ -240,6 +292,8 @@
     "effStart": "2010-06-18",
     "effEnd": "2012-05-16",
     "panelCount": 91,
+    "lomrCount": 5,
+    "lomrLatest": "2025-06-12",
     "computed": "2026-10-22"
   }
 }
