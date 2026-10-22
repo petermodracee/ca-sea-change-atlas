@@ -16,7 +16,8 @@ const path = require("path");
 const site = require("../../site/_data/site.js");
 const seo = require("../../site/_data/countyProfileSeo.json").dataset;
 
-const LICENSE_URL = "https://creativecommons.org/licenses/by-sa/4.0/";
+// The same license every snapshot carries in its own `license` field.
+const LICENSE_URL = require("../../site/data/countyProfileSchema.json").snapshotLicense.url;
 const DESCRIPTION_MIN = 50, DESCRIPTION_MAX = 5000;
 
 const fill = (template, vars) => template.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
