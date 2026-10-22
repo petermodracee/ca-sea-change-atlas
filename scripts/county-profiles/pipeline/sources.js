@@ -316,6 +316,7 @@ async function slrGpkg(region, log) {
   if (!fs.existsSync(zip)) {
     log && log("downloading NOAA SLR " + region + " region");
     await downloadFile(SLR_BASE + "CA_" + region + "_slr_data_dist.zip", zip);
+    writeMeta(path.basename(zip));
   }
   const dir = cachePath("slr/" + region);
   fs.mkdirSync(dir, { recursive: true });
@@ -335,6 +336,7 @@ async function fetchSlr(bbox, increments, fips, opts, log) {
   // NOAA's coastal polygons are enormous dissolved shapes, and a bbox query returns a whole one.
   const box = [bbox[0] - 0.02, bbox[1] - 0.02, bbox[2] + 0.02, bbox[3] + 0.02];
   const value = { regions: [], increments: Object.fromEntries(increments.map((ft) => [ft, []])), low: Object.fromEntries(increments.map((ft) => [ft, []])) };
+  const dates = [];
   for (const region of slrRegionsFor(box, log)) {
     const gpkg = await slrGpkg(region, log);
     const db = new DatabaseSync(gpkg, { readOnly: true });
@@ -357,11 +359,14 @@ async function fetchSlr(bbox, increments, fips, opts, log) {
       }
     }
     db.close();
-    if (contributed) value.regions.push(region);
+    if (contributed) { value.regions.push(region); dates.push(readMeta("CA_" + region + "_slr_data_dist.zip")?.fetched || today()); }
   }
+  // The data is as old as the oldest zip it was read from: a zip restored from the cache keeps the date
+  // it was downloaded. A zip from before the sidecar was written counts as today's.
+  const fetched = dates.sort()[0] || today();
   fs.writeFileSync(cachePath(name), JSON.stringify(value));
-  writeMeta(name);
-  return { value, fetched: today() };
+  writeMeta(name, { fetched });
+  return { value, fetched };
 }
 
 // Clips a polygon to the box, so a coastline polygon with millions of vertices is cut down to the
