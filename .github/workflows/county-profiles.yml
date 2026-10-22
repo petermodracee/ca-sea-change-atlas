@@ -41,7 +41,7 @@ concurrency:
 
 env:
   DATA_LABEL: data refresh
-  TOPIC_LABEL: county profile
+  TOPIC_LABEL: county profiles
 
 jobs:
   # 0. One data PR at a time.
