@@ -1,14 +1,22 @@
-name: County Profiles refresh and deploy
+name: County Profiles refresh
 
-# One workflow does the whole job: check the sources, recompute what changed, commit the JSON, build
-# the site and deploy it to Pages. It is deliberately not split into a data-commit workflow plus the
-# push-triggered deploy.yml: a push made with the default GITHUB_TOKEN does not fire other workflows'
-# `push` events, so that split would commit new data and never deploy it. The deploy step here runs in
-# the same run as the commit.
+# Checks the sources, recomputes what changed, runs the checks and the build, and, when the data
+# changed, opens a pull request for review. It never pushes to main and never deploys: the repository
+# ruleset requires every change to the default branch to go through a pull request, and deploy.yml
+# publishes the site when the data PR is merged. The ruleset covers only the default branch, so pushing
+# a `data/*` branch with the GITHUB_TOKEN is allowed. A run with no data changes commits nothing and
+# opens nothing; gate.json is left byte-identical when the gate skips every county.
 #
-# Note: GitHub disables scheduled workflows after 60 days without repository activity.
-# docs/COUNTY-PROFILES.md ("Automation") records this as a known risk; the "data as of" stamp on every
-# county page is what makes a lapse visible.
+# Only one data PR may be open at a time (label `data refresh`): two unmerged data PRs could each mint
+# a dated snapshot from a different base. While one is open, the run stops before the gate.
+#
+# Opening the PR needs Settings > Actions > General > Workflow permissions > "Allow GitHub Actions to
+# create and approve pull requests". A PR opened with the GITHUB_TOKEN does not trigger other
+# workflows' pull_request events; the checks below are the PR's checks, and the PR body links this run.
+#
+# Note: GitHub disables scheduled workflows after 60 days without repository activity, and this
+# workflow makes no commits of its own. docs/COUNTY-PROFILES.md ("Automation") records this as a known
+# risk; the "data as of" stamp on every county page is what makes a lapse visible.
 
 on:
   schedule:
@@ -24,23 +32,45 @@ on:
         default: false
 
 permissions:
-  contents: write # commit the snapshot JSON
-  pages: write
-  id-token: write
+  contents: write # push the data/* branch
+  pull-requests: write # open the data PR and label it
 
 concurrency:
   group: county-profiles
   cancel-in-progress: false
 
+env:
+  DATA_LABEL: data refresh
+  TOPIC_LABEL: county profiles
+
 jobs:
+  # 0. One data PR at a time.
+  open-data-pr:
+    runs-on: ubuntu-latest
+    outputs:
+      number: ${{ steps.find.outputs.number }}
+    steps:
+      - name: Look for an open data PR
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          number=$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --label "$DATA_LABEL" --json number --jq '.[0].number // empty')
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          if [ -n "$number" ]; then
+            echo "Data PR #$number is still open; merge or close it first" | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
   refresh-and-build:
+    needs: open-data-pr
+    if: needs.open-data-pr.outputs.number == ''
     runs-on: ubuntu-latest
     timeout-minutes: 350
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: main
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - run: npm ci
@@ -59,8 +89,11 @@ jobs:
 
       - name: Summarise
         run: |
+          counts=$(tail -n 1 gate.log | node -e 'const r = JSON.parse(require("fs").readFileSync(0, "utf8")); console.log("checked " + (r.changed.length + r.unchanged.length) + " counties, recomputed " + r.changed.length)')
           {
             echo "## County Profiles run"
+            echo
+            echo "$(date -u +%Y-%m-%d): $counts"
             echo
             echo "Counties recomputed: \`${{ steps.gate.outputs.changed || 'none' }}\`"
             echo
@@ -73,39 +106,68 @@ jobs:
       - run: node scripts/county-profiles/check-archive.js
       - run: node scripts/county-profiles/state-report.js
 
-      # 4. Build before committing, so a snapshot that breaks the site is never pushed, then check every
-      # internal link and #fragment in the built site.
+      # 4. Build before opening a PR, so a snapshot that breaks the site is never proposed, then check
+      # every internal link and #fragment in the built site.
       - run: npx eleventy
       - run: node scripts/check-links.js
 
-      # 5. Commit the JSON (dated snapshots, latest/, gate state) and push.
-      - name: Commit data
+      # 5. No data changes: done. Otherwise commit the JSON (dated snapshots, latest/, gate state) to a
+      # new data/* branch and open a PR against main.
+      - name: Open a data PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHANGED: ${{ steps.gate.outputs.changed }}
+          RUN_NUMBER: ${{ github.run_number }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add site/data/county-profiles
           if git diff --cached --quiet; then
-            echo "No data changes to commit."
-          else
-            git commit -m "County Profiles data: ${{ steps.gate.outputs.changed || 'source check' }}"
-            git pull --rebase origin main
-            git push origin HEAD:main
+            echo "No data changes."
+            exit 0
           fi
 
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
+          day=$(date -u +%Y-%m-%d)
+          branch="data/county-profiles-$day-run$RUN_NUMBER"
+          what="${CHANGED:-refresh}"
+          what="${what//,/, }"
+          run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
 
-  # 6. Deploy in this same run.
-  deploy:
-    needs: refresh-and-build
-    runs-on: ubuntu-latest
-    concurrency:
-      group: pages
-      cancel-in-progress: false
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          git commit -q -m "County Profiles data: $what"
+          git push origin "$branch"
+
+          recomputed=$(grep ': recompute (' gate.log | sed 's/^/- /' || true)
+          added=$(git diff --name-only --diff-filter=A HEAD~1 HEAD -- site/data/county-profiles \
+            | grep -E '^site/data/county-profiles/[0-9]{4}-[0-9]{2}-[0-9]{2}/' | cut -d/ -f1-4 | sort | uniq -c \
+            | awk '{ printf "- `%s/` (%d %s)\n", $2, $1, ($1 == 1 ? "county" : "counties") }' || true)
+          body="$RUNNER_TEMP/pr-body.md"
+          {
+            echo "### Counties recomputed"
+            echo
+            echo "${recomputed:-- none}"
+            echo
+            echo "### Snapshots"
+            echo
+            if [ -n "$added" ]; then
+              echo "New dated snapshot directories:"
+              echo
+              echo "$added"
+            else
+              echo "No new dated snapshot: stamps in \`latest/\` refreshed only."
+            fi
+            echo
+            echo "### Checks"
+            echo
+            echo "\`check-archive.js\`, \`state-report.js\`, the Eleventy build and \`check-links.js\` passed in run [#$RUN_NUMBER]($run_url)."
+            echo
+            echo "Merge with Create a merge commit. \`deploy.yml\` publishes the site when this merges."
+          } > "$body"
+
+          gh label create "$DATA_LABEL" --force --color 0e8a16 --description "County Profiles data PR opened by the refresh workflow"
+          if ! gh pr create --base main --head "$branch" \
+              --title "County Profiles data: $what ($day)" --body-file "$body" \
+              --label "$DATA_LABEL" --label "$TOPIC_LABEL"; then
+            echo "::error::The branch $branch was pushed, but opening its PR failed. The repository setting \"Allow GitHub Actions to create and approve pull requests\" (Settings > Actions > General > Workflow permissions) may be off; open the PR from $branch by hand or turn the setting on."
+            exit 1
+          fi
