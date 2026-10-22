@@ -215,6 +215,17 @@ A dated snapshot is minted only when a county's content differs from `latest/`; 
 ### Correction notices are separate data, not edits
 A published dated snapshot is never edited, so a correction is a new snapshot plus a notice in `site/_data/countyProfileCorrections.json` that the old snapshot's dated pages render. The old JSON and figures stay byte-identical, which `check-archive.js` enforces against git.
 
+### Corrections are not method changes
+`method` used to be bumped by any pipeline change that could move a number, a bug fix included. That made the version count code history rather than methods: every fix would have archived the About pages and recomputed every county, though the About pages had been right all along. Changes now come in three kinds (October 2026; the table is in [`COUNTY-PROFILES.md`](COUNTY-PROFILES.md#kinds-of-change)), and the test is whether the documented method changed:
+
+- **Tooling** changes no data and has no version.
+- **A correction** is code that did not do what the method documents. It is fixed with `method` unchanged; the next run mints new dated snapshots for the counties it affects, the changelog gets a note, and a correction notice is added if a published figure was materially wrong.
+- **A method change** changes the documented method: `method` + 1, the archive steps (About pages copied to `/county-profiles/about/v{N}/`) and a full recompute.
+
+The worked example of a correction is the USGS field-name fix: the pipeline read a USGS structures field under a name that did not match what the method documents. The method was right and the code was wrong, so the fix is a correction and `method` stays 1.
+
+Method changes wait in the ['County Profiles methodology version 2'](https://github.com/petermodracee/ca-sea-change-atlas/milestone/1) milestone (label `method`) and ship together with the next bump. So does any change that alters snapshot content without moving a figure, such as adding the latest LOMR effective date to the NFHL vintage ([#47](https://github.com/petermodracee/ca-sea-change-atlas/issues/47)): shipped alone it would mint a dated snapshot for all 27 counties for a metadata change, so it rides with the next method change, which mints them anyway.
+
 ### Marine jobs at risk is removed
 NOAA's marine economy snapshot counted marine businesses in the floodplain and under 6 ft of sea level rise. That needs business locations, which are licensed data and excluded, and the open replacement does not reach it: LEHD LODES job counts are published by 2-digit NAICS industry, while ENOW's marine sectors are defined at up to 6 digits, so no open source isolates marine jobs by location. The section is removed rather than approximated, and the reason is stated on `/county-profiles/about/`. The total-economy jobs at risk section stays, because LODES covers all industries.
 
