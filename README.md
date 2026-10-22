@@ -20,7 +20,7 @@ A problem with a County Profiles figure goes to the "Report a data problem" issu
 
 ## Run it locally
 
-Requires Node.js 20 or newer.
+Requires Node.js 22.13 or newer.
 
 ```bash
 npm install
