@@ -59,8 +59,11 @@ jobs:
 
       - name: Summarise
         run: |
+          counts=$(tail -n 1 gate.log | node -e 'const r = JSON.parse(require("fs").readFileSync(0, "utf8")); console.log("checked " + (r.changed.length + r.unchanged.length) + " counties, recomputed " + r.changed.length)')
           {
             echo "## County Profiles run"
+            echo
+            echo "$(date -u +%Y-%m-%d): $counts"
             echo
             echo "Counties recomputed: \`${{ steps.gate.outputs.changed || 'none' }}\`"
             echo

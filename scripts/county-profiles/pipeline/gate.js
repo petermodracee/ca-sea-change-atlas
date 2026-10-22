@@ -8,6 +8,8 @@
 //
 // Prints one line per county and a JSON report on stdout's last line. When $GITHUB_OUTPUT is set it
 // writes `changed=<comma-separated fips>` for the workflow. State is site/data/county-profiles/gate.json.
+// A county the gate skips leaves its entry as it was, so a run that recomputes nothing leaves the file
+// byte-identical. The date of each check goes in the workflow run's step summary instead.
 //
 // A county is recomputed when: it has no gate entry or no snapshot; its NFHL fingerprint differs; its
 // last computation is older than MAX_AGE_DAYS (NFHL is not the only source: ACS, LODES, OpenFEMA claims
@@ -37,7 +39,7 @@ const ageDays = (date) => Math.floor((Date.parse(today()) - Date.parse(date)) / 
 // Called by run.js after a county is recomputed: what the build saw becomes the baseline.
 function recordComputed(fips, nfhl) {
   const g = readGate();
-  g[fips] = { dfirms: nfhl.dfirms, effStart: nfhl.effStart, effEnd: nfhl.effEnd, panelCount: nfhl.panelCount, computed: today(), checked: today() };
+  g[fips] = { dfirms: nfhl.dfirms, effStart: nfhl.effStart, effEnd: nfhl.effEnd, panelCount: nfhl.panelCount, computed: today() };
   writeGate(g);
 }
 
@@ -62,7 +64,7 @@ async function main() {
       const v = snap.sources.nfhl && snap.sources.nfhl.vintage;
       const pub = v ? [v.start, v.end] : [null, null];
       if (pub[0] !== live.effStart || pub[1] !== live.effEnd) { console.log(fips + " " + name + ": live " + live.effStart + ".." + live.effEnd + " differs from the snapshot's " + pub.join("..") + ", not baselined"); report.revised.push(fips); continue; }
-      gate[fips] = { ...live, computed: snap.generated.slice(0, 10), checked: today() };
+      gate[fips] = { ...live, computed: snap.generated.slice(0, 10) };
       report.unchanged.push(fips);
       console.log(fips + " " + name + ": baselined at " + live.effStart + ".." + live.effEnd + ", " + live.panelCount + " panels");
       continue;
@@ -73,7 +75,7 @@ async function main() {
     else if (key(prev) !== key(live)) { reason = "NFHL revised: " + prev.effStart + ".." + prev.effEnd + " (" + prev.panelCount + " panels) -> " + live.effStart + ".." + live.effEnd + " (" + live.panelCount + ")"; report.revised.push(fips); }
     else if (ageDays(prev.computed) > MAX_AGE_DAYS) reason = "last computed " + prev.computed + ", older than " + MAX_AGE_DAYS + " days";
     if (reason) { report.changed.push(fips); report.reasons[fips] = reason; console.log(fips + " " + name + ": recompute (" + reason + ")"); }
-    else { report.unchanged.push(fips); gate[fips] = { ...prev, checked: today() }; console.log(fips + " " + name + ": unchanged at " + live.effStart + ".." + live.effEnd + ", skipped"); }
+    else { report.unchanged.push(fips); console.log(fips + " " + name + ": unchanged at " + live.effStart + ".." + live.effEnd + ", skipped"); }
   }
   writeGate(gate);
   if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, "changed=" + report.changed.join(",") + "\n");
