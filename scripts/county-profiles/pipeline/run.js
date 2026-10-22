@@ -243,7 +243,7 @@ async function runCounty(entry, fipsList, opts) {
   fs.writeFileSync(cachePath("report-" + fips + ".json"), JSON.stringify({
     meta, results: { ...rest, diag }, gaps, computeSeconds,
     acsCountyPublished: acs.value.county, acsNulls: acs.value.nulls,
-    nfhl: { dfirms: nfhl.value.dfirms, panels: nfhl.value.panelCount, sfhaFeatures: nfhl.value.sfha.length, nullGeometry: nfhl.value.nullGeometry },
+    nfhl: { dfirms: nfhl.value.dfirms, panels: nfhl.value.panelCount, lomrs: nfhl.value.lomrCount ?? null, lomrLatest: nfhl.value.lomrLatest ?? null, sfhaFeatures: nfhl.value.sfha.length, nullGeometry: nfhl.value.nullGeometry },
     slrRegions: slr ? slr.value.regions : null,
     ccap: ccap.value,
     econ: { baseSeries: econ.value.baseSeries, oceanYear: econ.value.oceanYear, totalYear: econ.value.totalYear },

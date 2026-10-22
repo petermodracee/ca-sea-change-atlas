@@ -83,22 +83,36 @@ async function fetchBlocks(fips, opts) {
 // can have no panel rows at all, in which case the vintage is null ("no published vintage") rather
 // than invented.
 
-// The cheap live probe the Phase 5 change gate runs first: which DFIRM studies cover the county and
-// the earliest, latest and number of their FIRM panel EFF_DATEs. Three small queries, never cached
-// (a cached answer would defeat the point), and no geometry.
+// LOMRs (Letters of Map Revision, layer 1) on the county's studies: how many there are in any status,
+// and the latest EFF_DATE of one that is Effective. A LOMR revises the flood zones without touching a
+// FIRM panel's EFF_DATE, so the panel dates alone cannot see it. One grouped statistics query.
+async function nfhlLomrs(dfirms) {
+  if (!dfirms.length) return { lomrCount: 0, lomrLatest: null };
+  const j = await getJson(NFHL + "/1/query?" + new URLSearchParams({
+    where: `DFIRM_ID IN (${dfirms.map((d) => `'${d}'`).join(",")})`, f: "json", groupByFieldsForStatistics: "STATUS",
+    outStatistics: JSON.stringify([{ statisticType: "count", onStatisticField: "OBJECTID", outStatisticFieldName: "n" }, { statisticType: "max", onStatisticField: "EFF_DATE", outStatisticFieldName: "mx" }]),
+  }));
+  const rows = j.features.map((f) => f.attributes);
+  const eff = rows.find((a) => a.STATUS === "Effective");
+  return { lomrCount: rows.reduce((s, a) => s + a.n, 0), lomrLatest: eff && eff.mx ? new Date(eff.mx).toISOString().slice(0, 10) : null };
+}
+
+// The cheap live probe the Phase 5 change gate runs first: which DFIRM studies cover the county, the
+// earliest, latest and number of their FIRM panel EFF_DATEs, and their LOMRs (nfhlLomrs). Four small
+// queries, never cached (a cached answer would defeat the point), and no geometry.
 async function nfhlFingerprint(fips) {
   const jur = await getJson(NFHL + "/22/query?" + new URLSearchParams({
     where: `CO_FIPS='${fips.slice(2)}' AND (ST_FIPS='06' OR ST_FIPS='6')`, outFields: "DFIRM_ID", returnDistinctValues: "true", returnGeometry: "false", f: "json",
   }));
   const dfirms = [...new Set(jur.features.map((f) => f.attributes.DFIRM_ID))].sort();
-  if (!dfirms.length) return { dfirms, effStart: null, effEnd: null, panelCount: 0 };
+  if (!dfirms.length) return { dfirms, effStart: null, effEnd: null, panelCount: 0, lomrCount: 0, lomrLatest: null };
   const stats = await getJson(NFHL + "/3/query?" + new URLSearchParams({
     where: `DFIRM_ID IN (${dfirms.map((d) => `'${d}'`).join(",")})`, f: "json",
     outStatistics: JSON.stringify([{ statisticType: "min", onStatisticField: "EFF_DATE", outStatisticFieldName: "mn" }, { statisticType: "max", onStatisticField: "EFF_DATE", outStatisticFieldName: "mx" }, { statisticType: "count", onStatisticField: "EFF_DATE", outStatisticFieldName: "n" }]),
   }));
   const a = stats.features[0].attributes;
   const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
-  return { dfirms, effStart: a.n ? iso(a.mn) : null, effEnd: a.n ? iso(a.mx) : null, panelCount: a.n };
+  return { dfirms, effStart: a.n ? iso(a.mn) : null, effEnd: a.n ? iso(a.mx) : null, panelCount: a.n, ...(await nfhlLomrs(dfirms)) };
 }
 
 async function fetchNfhl(fips, opts) {
@@ -107,7 +121,7 @@ async function fetchNfhl(fips, opts) {
       where: `CO_FIPS='${fips.slice(2)}' AND (ST_FIPS='06' OR ST_FIPS='6')`, outFields: "DFIRM_ID", returnDistinctValues: "true", returnGeometry: "false", f: "json",
     }));
     const dfirms = [...new Set(jur.features.map((f) => f.attributes.DFIRM_ID))].sort();
-    if (!dfirms.length) return { dfirms, sfha: [], effStart: null, effEnd: null, panelCount: 0, panels: [] };
+    if (!dfirms.length) return { dfirms, sfha: [], effStart: null, effEnd: null, panelCount: 0, lomrCount: 0, lomrLatest: null, panels: [] };
     const inList = dfirms.map((d) => `'${d}'`).join(",");
     // Layer 28 Flood Hazard Zones (SFHA_TF = 'T' is the Special Flood Hazard Area); layer 3 FIRM Panels.
     const feats = await geojsonAll(NFHL + "/28", { where: `DFIRM_ID IN (${inList}) AND SFHA_TF='T'`, outFields: "FLD_ZONE,ZONE_SUBTY", outSR: "4326", geometryPrecision: "6", orderByFields: "OBJECTID" }, 100);
@@ -118,7 +132,7 @@ async function fetchNfhl(fips, opts) {
     const a = stats.features[0].attributes;
     const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
     const panels = a.n ? await geojsonAll(NFHL + "/3", { where: `DFIRM_ID IN (${inList})`, outFields: "FIRM_PAN,EFF_DATE", outSR: "4326", geometryPrecision: "5", orderByFields: "OBJECTID" }, 200) : [];
-    return { dfirms, sfha: feats.map((f) => ({ zone: f.properties.FLD_ZONE, subtype: f.properties.ZONE_SUBTY, geometry: f.geometry })), effStart: a.n ? iso(a.mn) : null, effEnd: a.n ? iso(a.mx) : null, panelCount: a.n, panels: panels.map((f) => f.geometry) };
+    return { dfirms, sfha: feats.map((f) => ({ zone: f.properties.FLD_ZONE, subtype: f.properties.ZONE_SUBTY, geometry: f.geometry })), effStart: a.n ? iso(a.mn) : null, effEnd: a.n ? iso(a.mx) : null, panelCount: a.n, ...(await nfhlLomrs(dfirms)), panels: panels.map((f) => f.geometry) };
   }, opts);
   // A feature the service returns with no geometry cannot be intersected; count and drop it.
   const v = r.value;
