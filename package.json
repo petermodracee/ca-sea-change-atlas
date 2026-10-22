@@ -17,6 +17,7 @@
     "d3-scale": "^4.0.2",
     "geotiff": "^3.0.5",
     "polygon-clipping": "^0.15.7",
-    "satori": "0.33.5"
+    "satori": "0.33.5",
+    "undici": "8.11.2"
   }
 }

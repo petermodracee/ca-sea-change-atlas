@@ -7,10 +7,8 @@
 const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
-const { pipeline } = require("stream/promises");
-const { Readable } = require("stream");
 const { DatabaseSync } = require("node:sqlite");
-const { cachePath, cachedJson, getJson, request, arcgisQueryAll, streamLines, verifyEndpoint, writeMeta, readMeta, today } = require("./http");
+const { cachePath, cachedJson, getJson, request, downloadFile, arcgisQueryAll, streamLines, verifyEndpoint, writeMeta, readMeta, today } = require("./http");
 const { clipRingToBox, toMulti } = require("./geo");
 const econ = require("./econ");
 const ccap = require("./ccap");
@@ -317,8 +315,7 @@ async function slrGpkg(region, log) {
   const zip = cachePath("CA_" + region + "_slr_data_dist.zip");
   if (!fs.existsSync(zip)) {
     log && log("downloading NOAA SLR " + region + " region");
-    const res = await request(SLR_BASE + "CA_" + region + "_slr_data_dist.zip");
-    await pipeline(Readable.fromWeb(res.body), fs.createWriteStream(zip));
+    await downloadFile(SLR_BASE + "CA_" + region + "_slr_data_dist.zip", zip);
   }
   const dir = cachePath("slr/" + region);
   fs.mkdirSync(dir, { recursive: true });

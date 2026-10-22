@@ -453,6 +453,8 @@ GitHub automatically disables scheduled workflows in a repository after 60 days 
 
 ### Operating notes
 
+Every pipeline request goes through `request()` in `pipeline/http.js`, which uses the `undici` package's `fetch` with a 90 s connect timeout (TCP and TLS handshake together; Node's built-in `fetch` allows 10 s, and NOAA's SLR server once took 17 to 24 s to finish its handshake). It makes up to six attempts, waiting about 7.5, 15, 30, 60 and 120 s between them (each scaled by a random 0.5 to 1.5), and logs each retry as `[http] <host>: <error code> (attempt n of 6), retrying in s`. A 4xx other than 408 or 429 is not retried: the LODES and Nonemployer year probes expect a quick 404 for a year not yet published. The NOAA SLR zips are written to `<name>.part` and renamed only once complete, and a transfer that breaks mid-stream starts again from the beginning, so a truncated zip never reaches the cache. The QCEW, ZBP and BEA bulk files and the C-CAP rasters still use their own requests.
+
 A full recompute of all 27 counties takes many hours on a hosted runner (Los Angeles is the slowest); the job timeout is 350 minutes, under the six-hour limit, and the pipeline needs the 12 GB heap the workflow sets. The pipeline's raw `.cache/` is not cached between runs. The repository ruleset "default" applies to the default branch, has no bypass actors and requires a pull request for every change, so the workflow cannot push to `main`; the ruleset covers no other branch, so it pushes `data/*` branches with the built-in `GITHUB_TOKEN` (`contents: write`, `pull-requests: write`). Opening the PR needs Settings → Actions → General → Workflow permissions → "Allow GitHub Actions to create and approve pull requests" turned on.
 
 ### Backlog

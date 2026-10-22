@@ -492,6 +492,14 @@
           "licenses": [
             "mpl-2"
           ]
+        },
+        {
+          "name": "undici",
+          "url": "https://github.com/nodejs/undici",
+          "note": "HTTP client for the County Profiles pipeline downloads, for its configurable connect timeout (runs in the pipeline only, never in the browser). Version 8.11.2.",
+          "licenses": [
+            "mit"
+          ]
         }
       ]
     }
