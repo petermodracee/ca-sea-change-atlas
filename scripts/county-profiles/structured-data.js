@@ -6,6 +6,8 @@
 // it with `jsonify`. Dated pages carry none: they canonicalise to the current page, so search engines
 // ignore them, and a dated snapshot's DOI (site/data/county-profiles/dois.json) will describe it instead.
 // collectionDataset(counties) is the parent Dataset on /county-profiles/, listing every county in `hasPart`.
+// It carries an `@id`, and each county's `isPartOf` is a bare reference to that id: a nested object with a
+// name or url reads to a validator as a second, incomplete Dataset.
 // The words are in site/_data/countyProfileSeo.json.
 //
 // checkStructuredData(outputDir) runs after every build (.eleventy.js) and on its own:
@@ -19,6 +21,7 @@ const seo = require("../../site/_data/countyProfileSeo.json").dataset;
 // The same license every snapshot carries in its own `license` field.
 const LICENSE_URL = require("../../site/data/countyProfileSchema.json").snapshotLicense.url;
 const DESCRIPTION_MIN = 50, DESCRIPTION_MAX = 5000;
+const COLLECTION_ID = site.url + "/county-profiles/#dataset";
 
 const fill = (template, vars) => template.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
 const listJoin = (xs) => (xs.length <= 2 ? xs.join(" and ") : xs.slice(0, -1).join(", ") + " and " + xs[xs.length - 1]);
@@ -80,7 +83,7 @@ function countyDataset(county, doi) {
       encodingFormat: "application/json",
       contentUrl: site.url + "/data/county-profiles/latest/" + county.fips + ".json",
     }],
-    isPartOf: { "@type": "Dataset", name: seo.collectionName, url: site.url + "/county-profiles/" },
+    isPartOf: { "@id": COLLECTION_ID },
   };
 }
 
@@ -90,6 +93,7 @@ function collectionDataset(counties) {
   return {
     "@context": "https://schema.org",
     "@type": "Dataset",
+    "@id": COLLECTION_ID,
     name: seo.collectionName,
     description: fill(seo.collectionDescription, { count: withData.length }),
     url: site.url + "/county-profiles/",
@@ -129,6 +133,32 @@ function datasetProblems(d) {
   const p = [];
   for (const k of ["name", "url", "license"]) if (typeof d[k] !== "string" || !d[k]) p.push("missing " + k);
   if (typeof d.description !== "string" || d.description.length < DESCRIPTION_MIN || d.description.length > DESCRIPTION_MAX) p.push("description must be " + DESCRIPTION_MIN + " to " + DESCRIPTION_MAX + " characters (is " + (d.description || "").length + ")");
+  if (!d.creator || typeof d.creator.name !== "string" || !d.creator.name) p.push("missing creator");
+  return p;
+}
+
+// Every Dataset nested anywhere in `obj` must be complete, and every untyped object a bare `{ "@id" }`
+// reference: an untyped object with a name or url, or a reference carrying more than its id, is what a
+// validator reads as a partial Dataset. `at` is the JSON path, for the message.
+function nestedProblems(obj, at) {
+  const p = [];
+  if (Array.isArray(obj)) obj.forEach((x, i) => p.push(...nestedProblems(x, at + "[" + i + "]")));
+  if (!obj || typeof obj !== "object" || Array.isArray(obj)) return p;
+  if (at !== "") {
+    if (obj["@type"] === "Dataset") p.push(...datasetProblems(obj).map((x) => at + ": " + x));
+    else if (!("@type" in obj)) {
+      if ("@id" in obj) { if (Object.keys(obj).length !== 1) p.push(at + ": a reference holds only @id, not " + Object.keys(obj).filter((k) => k !== "@id").join(", ")); }
+      else if ("name" in obj || "url" in obj) p.push(at + ": an object with a name or url needs an @type (a complete Dataset) or an @id (a bare reference)");
+    }
+  }
+  for (const [k, v] of Object.entries(obj)) if (v && typeof v === "object") p.push(...nestedProblems(v, at + "." + k));
+  return p;
+}
+
+// The whole-object checks every Dataset this file writes shares: complete itself, nothing partial inside,
+// no em dash.
+function fullProblems(d) {
+  const p = [...datasetProblems(d), ...nestedProblems(d, "")];
   if (/—/.test(JSON.stringify(d))) p.push("contains an em dash");
   return p;
 }
@@ -150,7 +180,8 @@ function checkStructuredData(outputDir) {
     if (sets.length !== 1) { bad.push(rel + ": expected exactly one Dataset, found " + sets.length); continue; }
     if (sets[0].error) { bad.push(rel + ": " + sets[0].error); continue; }
     const d = sets[0].obj;
-    const problems = datasetProblems(d);
+    const problems = fullProblems(d);
+    if (!d.isPartOf || d.isPartOf["@id"] !== COLLECTION_ID) problems.push("isPartOf must reference " + COLLECTION_ID);
     const download = Array.isArray(d.distribution) ? d.distribution[0] : d.distribution;
     if (!download || typeof download.contentUrl !== "string" || !/^https:\/\/.+\.json$/.test(download.contentUrl)) problems.push("distribution.contentUrl must be the absolute URL of the JSON download");
     if (d.url !== site.url + "/county-profiles/county/" + slug + "/") problems.push("url is " + d.url + ", not this page's canonical address");
@@ -171,8 +202,9 @@ function checkStructuredData(outputDir) {
   if (coll.length !== 1 || coll[0].error) bad.push("county-profiles/index.html: expected exactly one collection Dataset" + (coll[0] && coll[0].error ? " (" + coll[0].error + ")" : ", found " + coll.length));
   else {
     const c = coll[0].obj;
-    const problems = datasetProblems(c);
-    const parts = (c.hasPart || []).map((x) => x.url).sort();
+    const problems = fullProblems(c);
+    if (c["@id"] !== COLLECTION_ID) problems.push("@id must be " + COLLECTION_ID);
+    const parts = (c.hasPart || []).map((x) => x.url || x["@id"]).sort();
     if (JSON.stringify(parts) !== JSON.stringify(countyUrls.slice().sort())) problems.push("hasPart lists " + parts.length + " counties, the site has " + countyUrls.length + " county pages");
     if (problems.length) bad.push("county-profiles/index.html: " + problems.join("; "));
   }
