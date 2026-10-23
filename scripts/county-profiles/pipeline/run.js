@@ -202,6 +202,8 @@ async function runCounty(entry, fipsList, opts) {
   if (!reuse) fs.writeFileSync(cachePath("intersect-" + fips + ".json"), JSON.stringify(results));
   const computeSeconds = +((Date.now() - tCompute) / 1000).toFixed(1);
   log("intersect took " + computeSeconds + "s " + JSON.stringify(results.timings));
+  const noId = Object.entries(results.diag.facilities).filter(([, d]) => d.withoutId).map(([k, d]) => k + " " + d.withoutId);
+  log("USGS records without a permanent id, deduplicated by coordinates: " + (noId.length ? noId.join(", ") : "none"));
 
   log("C-CAP land cover");
   const ccap = await S.fetchCcap(fips, {
@@ -243,7 +245,7 @@ async function runCounty(entry, fipsList, opts) {
   fs.writeFileSync(cachePath("report-" + fips + ".json"), JSON.stringify({
     meta, results: { ...rest, diag }, gaps, computeSeconds,
     acsCountyPublished: acs.value.county, acsNulls: acs.value.nulls,
-    nfhl: { dfirms: nfhl.value.dfirms, panels: nfhl.value.panelCount, sfhaFeatures: nfhl.value.sfha.length, nullGeometry: nfhl.value.nullGeometry },
+    nfhl: { dfirms: nfhl.value.dfirms, panels: nfhl.value.panelCount, lomrs: nfhl.value.lomrCount ?? null, lomrLatest: nfhl.value.lomrLatest ?? null, sfhaFeatures: nfhl.value.sfha.length, nullGeometry: nfhl.value.nullGeometry },
     slrRegions: slr ? slr.value.regions : null,
     ccap: ccap.value,
     econ: { baseSeries: econ.value.baseSeries, oceanYear: econ.value.oceanYear, totalYear: econ.value.totalYear },
