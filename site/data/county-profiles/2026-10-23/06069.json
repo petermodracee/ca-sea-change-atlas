@@ -1,0 +1,279 @@
+{
+  "fips": "06069",
+  "slug": "san-benito",
+  "county": "San Benito",
+  "tier": "flood-only",
+  "snapshot": "2026-10-23",
+  "method": 1,
+  "generated": "2026-10-23T08:30:26Z",
+  "license": {
+    "id": "CC-BY-4.0",
+    "name": "Creative Commons Attribution 4.0 International",
+    "url": "https://creativecommons.org/licenses/by/4.0/"
+  },
+  "attribution": "California Sea Change Atlas. (2026, October 23). San Benito County coastal county profile. https://seachangeatlas.org/county-profiles/county/san-benito/2026-10-23/",
+  "gauge": null,
+  "geometry": null,
+  "sources": {
+    "nfhl": {
+      "label": "FEMA National Flood Hazard Layer",
+      "url": "https://www.fema.gov/flood-maps/national-flood-hazard-layer",
+      "vintage": {
+        "kind": "period",
+        "start": "2009-04-16",
+        "end": "2009-04-16"
+      },
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-23"
+    },
+    "acs": {
+      "label": "Census ACS 5-year estimates (2020–2024)",
+      "url": "https://www.census.gov/programs-surveys/acs/data.html",
+      "vintage": {
+        "kind": "year",
+        "year": 2024
+      },
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-23"
+    },
+    "tiger": {
+      "label": "Census 2020 tabulation blocks (TIGERweb)",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/Census2020/Tracts_Blocks/MapServer",
+      "vintage": {
+        "kind": "year",
+        "year": 2020
+      },
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-23"
+    },
+    "usgs": {
+      "label": "USGS National Structures Dataset",
+      "url": "https://data.usgs.gov/datacatalog/data/USGS:db4fb1b6-1282-4e5b-9866-87a68912c5d1",
+      "vintage": {
+        "kind": "date",
+        "date": "2026-04-22"
+      },
+      "retrieved": "2026-10-23",
+      "verified": "2026-10-23"
+    },
+    "openfema": {
+      "label": "OpenFEMA NFIP claims",
+      "url": "https://www.fema.gov/openfema-data-page/nfip-redacted-claims-v3",
+      "vintage": {
+        "kind": "date",
+        "date": "2026-09-08"
+      },
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-23"
+    },
+    "lodes": {
+      "label": "LEHD LODES8 workplace area characteristics",
+      "url": "https://lehd.ces.census.gov/data/lodes/LODES8/ca/wac/",
+      "vintage": {
+        "kind": "year",
+        "year": 2023
+      },
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-23"
+    },
+    "ccap": {
+      "label": "NOAA C-CAP regional land cover",
+      "url": "https://coast.noaa.gov/digitalcoast/data/ccapregional.html",
+      "vintage": {
+        "kind": "period",
+        "start": "1996-01-01",
+        "end": "2021-12-31"
+      },
+      "retrieved": "2026-10-22",
+      "verified": "2026-10-23"
+    }
+  },
+  "topics": {
+    "flood": {
+      "available": true,
+      "reason": null,
+      "sections": {
+        "people-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "acs",
+            "tiger",
+            "nfhl"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Population",
+                "count": 2482,
+                "total": 67290,
+                "unit": "residents"
+              },
+              {
+                "label": "Aged 65 and over",
+                "count": 381,
+                "total": 9234,
+                "unit": "residents aged 65 and over"
+              },
+              {
+                "label": "Below the poverty line",
+                "count": 127,
+                "total": 4465,
+                "unit": "residents below the poverty line"
+              }
+            ],
+            "landInsideSqMi": 51.1,
+            "landTotalSqMi": 1388.7
+          }
+        },
+        "critical-facilities": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "usgs",
+            "nfhl"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Schools",
+                "inside": 1,
+                "outside": 25
+              },
+              {
+                "label": "Police stations",
+                "inside": 0,
+                "outside": 2
+              },
+              {
+                "label": "Fire stations",
+                "inside": 0,
+                "outside": 9
+              },
+              {
+                "label": "Medical facilities",
+                "inside": 0,
+                "outside": 1
+              }
+            ]
+          }
+        },
+        "homes-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "openfema"
+          ],
+          "data": {
+            "items": [
+              {
+                "period": "1996–2000",
+                "amount": 520731
+              },
+              {
+                "period": "2001–2005",
+                "amount": 40350
+              },
+              {
+                "period": "2006–2010",
+                "amount": 0
+              },
+              {
+                "period": "2011–2015",
+                "amount": 0
+              },
+              {
+                "period": "2016–2020",
+                "amount": 1251479
+              },
+              {
+                "period": "2021–2025",
+                "amount": 1974683
+              }
+            ],
+            "claims": 119
+          }
+        },
+        "jobs-at-risk": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "lodes",
+            "tiger",
+            "nfhl"
+          ],
+          "data": {
+            "count": 1665,
+            "total": 17302
+          }
+        },
+        "natural-features": {
+          "available": true,
+          "reason": null,
+          "use": {
+            "ui": true,
+            "pdf": true,
+            "present": true
+          },
+          "sources": [
+            "ccap",
+            "nfhl"
+          ],
+          "data": {
+            "items": [
+              {
+                "label": "Inside the floodplain",
+                "count": 0.1,
+                "total": 2.7,
+                "unit": "square miles"
+              },
+              {
+                "label": "Outside the floodplain",
+                "count": 2,
+                "total": 24.4,
+                "unit": "square miles"
+              }
+            ],
+            "naturalSqMi": 22.7,
+            "floodplainSqMi": 50.6
+          }
+        }
+      }
+    },
+    "slr": {
+      "available": false,
+      "reason": "no-slr-extent",
+      "sections": {}
+    },
+    "total-economy": {
+      "available": false,
+      "reason": "outside-enow",
+      "sections": {}
+    },
+    "marine-economy": {
+      "available": false,
+      "reason": "outside-enow",
+      "sections": {}
+    }
+  }
+}

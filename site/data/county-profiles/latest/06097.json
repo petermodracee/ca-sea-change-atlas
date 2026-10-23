@@ -3,15 +3,15 @@
   "slug": "sonoma",
   "county": "Sonoma",
   "tier": "full",
-  "snapshot": "2026-10-22",
+  "snapshot": "2026-10-23",
   "method": 1,
-  "generated": "2026-10-22T20:18:24Z",
+  "generated": "2026-10-23T08:31:24Z",
   "license": {
     "id": "CC-BY-4.0",
     "name": "Creative Commons Attribution 4.0 International",
     "url": "https://creativecommons.org/licenses/by/4.0/"
   },
-  "attribution": "California Sea Change Atlas. (2026, October 22). Sonoma County coastal county profile. https://seachangeatlas.org/county-profiles/county/sonoma/2026-10-22/",
+  "attribution": "California Sea Change Atlas. (2026, October 23). Sonoma County coastal county profile. https://seachangeatlas.org/county-profiles/county/sonoma/2026-10-23/",
   "gauge": {
     "id": "point-reyes",
     "name": "Point Reyes",
@@ -93,7 +93,7 @@
         "end": "2024-07-31"
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "acs": {
       "label": "Census ACS 5-year estimates (2020–2024)",
@@ -103,7 +103,7 @@
         "year": 2024
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "tiger": {
       "label": "Census 2020 tabulation blocks (TIGERweb)",
@@ -113,7 +113,7 @@
         "year": 2020
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "usgs": {
       "label": "USGS National Structures Dataset",
@@ -122,8 +122,8 @@
         "kind": "date",
         "date": "2026-07-19"
       },
-      "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "retrieved": "2026-10-23",
+      "verified": "2026-10-23"
     },
     "openfema": {
       "label": "OpenFEMA NFIP claims",
@@ -133,7 +133,7 @@
         "date": "2026-09-08"
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "slr": {
       "label": "NOAA Sea Level Rise Viewer inundation extents",
@@ -143,7 +143,7 @@
         "year": 2026
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "lodes": {
       "label": "LEHD LODES8 workplace area characteristics",
@@ -153,7 +153,7 @@
         "year": 2023
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "ccap": {
       "label": "NOAA C-CAP regional land cover",
@@ -164,7 +164,7 @@
         "end": "2021-12-31"
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "opc": {
       "label": "California Ocean Protection Council, State of California Sea Level Rise Guidance: 2024 Science & Policy Update, Appendix 2",
@@ -173,8 +173,8 @@
         "kind": "year",
         "year": 2024
       },
-      "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "retrieved": "2026-10-23",
+      "verified": "2026-10-23"
     },
     "qcew": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages)",
@@ -184,7 +184,7 @@
         "year": 2025
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "qcew-wages": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
@@ -194,7 +194,7 @@
         "year": 2024
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "bea-marine": {
       "label": "BEA GDP by state and industry (SAGDP2), California",
@@ -204,7 +204,7 @@
         "year": 2025
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "zbp": {
       "label": "Census ZIP Code Business Patterns and shoreline-adjacent ZIP codes",
@@ -214,7 +214,7 @@
         "year": 2023
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "open-enow": {
       "label": "NOAA Open ENOW (California and All Coastal States)",
@@ -224,7 +224,7 @@
         "year": 2024
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "enow-self": {
       "label": "NOAA ENOW self-employed workers",
@@ -234,7 +234,7 @@
         "year": 2021
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "qcew-total-wages": {
       "label": "BLS Quarterly Census of Employment and Wages (annual averages), wages comparison year",
@@ -244,7 +244,7 @@
         "year": 2023
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "bea-total": {
       "label": "BEA GDP by state and industry (SAGDP2), California",
@@ -254,7 +254,7 @@
         "year": 2025
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "coastal-economy": {
       "label": "NOAA Total Economy (Coastal), shoreline counties of California and of the U.S.",
@@ -264,7 +264,7 @@
         "year": 2023
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "nes": {
       "label": "Census Nonemployer Statistics",
@@ -274,7 +274,7 @@
         "year": 2024
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     }
   },
   "topics": {
@@ -337,7 +337,7 @@
               {
                 "label": "Schools",
                 "inside": 2,
-                "outside": 183
+                "outside": 184
               },
               {
                 "label": "Police stations",
@@ -559,7 +559,7 @@
               {
                 "label": "Schools",
                 "unit": "facilities",
-                "total": 185,
+                "total": 186,
                 "counts": [
                   0,
                   0,

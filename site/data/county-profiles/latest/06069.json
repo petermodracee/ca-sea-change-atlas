@@ -3,15 +3,15 @@
   "slug": "san-benito",
   "county": "San Benito",
   "tier": "flood-only",
-  "snapshot": "2026-09-24",
+  "snapshot": "2026-10-23",
   "method": 1,
-  "generated": "2026-10-22T20:31:56Z",
+  "generated": "2026-10-23T08:30:26Z",
   "license": {
     "id": "CC-BY-4.0",
     "name": "Creative Commons Attribution 4.0 International",
     "url": "https://creativecommons.org/licenses/by/4.0/"
   },
-  "attribution": "California Sea Change Atlas. (2026, September 24). San Benito County coastal county profile. https://seachangeatlas.org/county-profiles/county/san-benito/2026-09-24/",
+  "attribution": "California Sea Change Atlas. (2026, October 23). San Benito County coastal county profile. https://seachangeatlas.org/county-profiles/county/san-benito/2026-10-23/",
   "gauge": null,
   "geometry": null,
   "sources": {
@@ -24,7 +24,7 @@
         "end": "2009-04-16"
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "acs": {
       "label": "Census ACS 5-year estimates (2020–2024)",
@@ -34,7 +34,7 @@
         "year": 2024
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "tiger": {
       "label": "Census 2020 tabulation blocks (TIGERweb)",
@@ -44,7 +44,7 @@
         "year": 2020
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "usgs": {
       "label": "USGS National Structures Dataset",
@@ -53,8 +53,8 @@
         "kind": "date",
         "date": "2026-04-22"
       },
-      "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "retrieved": "2026-10-23",
+      "verified": "2026-10-23"
     },
     "openfema": {
       "label": "OpenFEMA NFIP claims",
@@ -64,7 +64,7 @@
         "date": "2026-09-08"
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "lodes": {
       "label": "LEHD LODES8 workplace area characteristics",
@@ -74,7 +74,7 @@
         "year": 2023
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     },
     "ccap": {
       "label": "NOAA C-CAP regional land cover",
@@ -85,7 +85,7 @@
         "end": "2021-12-31"
       },
       "retrieved": "2026-10-22",
-      "verified": "2026-10-22"
+      "verified": "2026-10-23"
     }
   },
   "topics": {
@@ -148,7 +148,7 @@
               {
                 "label": "Schools",
                 "inside": 1,
-                "outside": 24
+                "outside": 25
               },
               {
                 "label": "Police stations",
