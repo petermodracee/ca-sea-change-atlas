@@ -1,14 +1,15 @@
 {#- The data changelog: one entry per dated snapshot directory, newest first, built at build time from the archive by
     scripts/county-profiles/data-changelog.js (countyProfiles.dataChangelog). The words, and any notes per refresh
-    and per county, are in site/_data/countyProfileChangelog.json. Each county's detail is collapsed under its
-    summary line; the county name links its dated page. -#}
+    and per county, are in site/_data/countyProfileChangelog.json. An entry shows its note, source updates and one
+    summary line across counties; its county list is collapsed, and inside it each county's detail is collapsed again
+    under its own summary line. The county name links its dated page. The Atom feed keeps the full list. -#}
 {%- set w = countyProfileChangelog %}
 <section class="cp-topic" id="data-changelog">
 <h2>{{ w.heading }}</h2>
 <p>{{ w.intro }}</p>
 <dl class="cp-reasons about-changelog data-changelog">
 {%- for e in countyProfiles.dataChangelog %}
-<div id="data-{{ e.date }}"><dt>{{ e.label }} <span class="cp-muted"><time datetime="{{ e.date }}">{{ e.date }}</time> · {{ e.countyCount }} {{ w.countyCount.one if e.countyCount == 1 else w.countyCount.many }}</span></dt>
+<div id="data-{{ e.date }}"><dt>{{ e.label }} <span class="cp-muted">· <time datetime="{{ e.date }}">{{ e.date }}</time> · {{ e.countyCount }} {{ w.countyCount.one if e.countyCount == 1 else w.countyCount.many }}</span></dt>
 <dd>
 {%- if e.note %}<p>{{ e.note }}</p>{% endif %}
 {%- if e.vintages.length %}
@@ -17,11 +18,13 @@
 {%- for v in e.vintages %}<li>{{ v }}</li>{% endfor %}
 </ul>
 {%- endif %}
+{%- if e.summary %}<p>{{ e.summary }}</p>{% endif %}
+{%- if e.notedCounties.length %}<p class="cp-muted">{{ w.notesFor | replace("{counties}", e.notedCounties | join(", ")) }}</p>{% endif %}
 {%- if e.counties.length %}
-<p class="data-changelog-label">{{ w.countiesHeading }}</p>
+<details class="data-changelog-list"><summary>{{ w.countiesSummary | replace("{count}", e.counties.length) }}</summary>
 <ul class="data-changelog-counties">
 {%- for c in e.counties %}
-<li><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/' ~ e.date ~ '/') | url }}">{{ c.name }}</a>{% if c.kind != "data" %} <span class="cp-muted">({{ c.kindLabel }})</span>{% endif %}: {{ c.summary }}
+<li><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/' ~ e.date ~ '/') | url }}">{{ c.name }}</a>{% if c.kind != e.kind %} <span class="cp-muted">({{ c.kindLabel }})</span>{% endif %}: {{ c.summary }}
 {%- if c.note %}<br><span class="cp-muted">{{ c.note }}</span>{% endif %}
 {%- if c.correction %}<br><span class="cp-muted"><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/' ~ c.correction.snapshot ~ '/') | url }}">{{ w.correction | replace("{snapshot}", c.correction.snapshot) }}</a> {{ c.correction.note }}</span>{% endif %}
 <details class="data-changelog-detail"><summary>{{ w.detailSummary | replace("{previous}", c.previous) }}</summary>
@@ -48,6 +51,7 @@
 </li>
 {%- endfor %}
 </ul>
+</details>
 {%- endif %}
 </dd></div>
 {%- endfor %}

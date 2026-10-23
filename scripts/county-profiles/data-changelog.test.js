@@ -25,6 +25,16 @@ test("an initial release, then a comparison with each county's own previous snap
   assert.equal(entries[1].counties[0].summary, "GDP figures changed in Total economy (Measuring, Diversity) and Marine economy (Measuring, Diversity).");
   assert.deepEqual(entries[1].vintages, ["BEA GDP by industry (marine detail): 2024 to 2025, 1 county"]);
   assert.equal(entries[1].label, "New source data");
+  assert.equal(entries[1].summary, "GDP figures changed in 1 county.");
+  assert.equal(entries[2].summary, null);
+});
+
+test("an entry's summary counts counties per figure family and names the counties with notes", () => {
+  const archive = { "2026-09-24": { [SF]: snap("2026-09-24", SF), [NAPA]: snap("2026-09-24", NAPA) }, "2026-10-22": { [SF]: snap("2026-10-22", SF), [NAPA]: snap("2026-10-22", NAPA) } };
+  const [e] = buildDataChangelog({ archive, spine, corrections: [], wording: { ...wording, notes: { "2026-10-22": { counties: { [NAPA]: "x" } } } } });
+  // Napa's line names facility and GDP figures, San Francisco's GDP figures only.
+  assert.equal(e.summary, "GDP figures changed in 2 counties; facility figures in 1.");
+  assert.deepEqual(e.notedCounties, ["Napa"]);
 });
 
 test("a correction is labelled as one, never as no figure moved", () => {
@@ -36,6 +46,16 @@ test("a correction is labelled as one, never as no figure moved", () => {
   assert.equal(changelogKind("correction", wording), "Correction");
   assert.equal(changelogKind("tooling", wording), "No figure moved");
   assert.throws(() => changelogKind("update", wording), /not one of/);
+});
+
+test("a note's kind labels a correction with no notice", () => {
+  const archive = { "2026-09-24": { [SF]: snap("2026-09-24", SF) }, "2026-10-22": { [SF]: snap("2026-10-22", SF) } };
+  const [e] = buildDataChangelog({ archive, spine, corrections: [], wording: { ...wording, notes: { "2026-10-22": { kind: "correction" } } } });
+  assert.equal(e.kind, "correction");
+  assert.equal(e.label, "Correction");
+  assert.equal(e.counties[0].kind, "correction");
+  assert.equal(e.counties[0].correction, null);
+  assert.throws(() => buildDataChangelog({ archive, spine, corrections: [], wording: { ...wording, notes: { "2026-10-22": { kind: "method" } } } }), /not one of data, correction/);
 });
 
 test("the build fails rather than skipping an entry it cannot build", () => {

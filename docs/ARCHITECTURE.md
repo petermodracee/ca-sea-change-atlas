@@ -51,7 +51,7 @@ Front-matter keys the layout understands:
 | `bodyClass` | Class on `<body>` (`map-page` switches the footer to its compact form) |
 | `leaflet: true` | Loads Leaflet, esri-leaflet and leaflet.locatecontrol (CSS and JS) |
 | `mapModuleEntry` | Adds a `<script type="module">` for the map entry point |
-| `extraScripts` | Extra plain `<script>` files (`compare/index.njk`, `compare/side-by-side.njk`, and `toc.js` on pages with a table of contents) |
+| `extraScripts` | Extra plain `<script>` files (`compare/index.njk`, `compare/side-by-side.njk`, `toc.js` on pages with a table of contents, and `print-details.js` on the County Profiles changelog) |
 | `subtitle`, `subtitleLink` | A hero subtitle: `subtitle` is the page's own text, `subtitleLink` is `{text, href}` (a site path, run through `url`) appended by `_includes/hero-subtitle.njk`, which a hero includes after its `<h1>`. A subtitle starting "PETER:" is a placeholder: it renders and the build warns, naming the page |
 | `canonical` | Overrides the canonical and Open Graph URL with a full URL (the dated County Profiles snapshot and print pages point at the current profile); takes precedence over `canonicalPath` |
 | `embed: true` | Skips the header and footer includes (the embed page) |
