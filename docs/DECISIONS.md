@@ -1986,6 +1986,13 @@ Both scripts are on demand (not part of the build or the workflow), read-only, a
 - **Descriptions follow the slides, with two choices.** The headline is taken from the section models, never recomputed. Two topics lead with a value the slide prints rather than its callout's figure, as the brief asked: flood hazard with the population in the floodplain (the People at Risk ring; the callout states the share of land) and the marine economy with its total jobs (the stats tile; the callout states the share of employment, which the sentence also gives). Where the marine jobs total is a floor (16 of 23 counties), the description states the floor as the slide does ("More than 0.9% of total employment in Napa County is in the marine economy"); all 16 are share floors. It falls back further (the largest sector, then the self-employment figure) only when there is no floor either. An earlier version skipped the floor and led 16 decks with self-employment, which named a different measure from the slide's headline.
 - **Post-build checks read the real output directory.** The `eleventy.after` hooks used `dir.output`, which Eleventy 3 leaves as the configured `_site/` even with `--output`, so building elsewhere (as `AGENTS.md` recommends while a dev server runs) checked a stale `_site/`. They now use `directories.output`.
 
+### One comparison for the data PR and the data changelog
+PR #45, the first real data PR, said a snapshot was minted but not what changed; the only way to find out was the raw JSON diff, where three source entries that had only moved position showed as a deleted block and the real change (GDP only) was hard to see. Both the PR body and the site now say what changed, from one module, `snapshot-diff.js`, so the two cannot disagree. It ignores the stamps `archive.js` ignores, by calling the same `contentOf()`.
+
+The site's data changelog is generated from the committed archive at build time rather than written into a file by the workflow: merging a data PR is enough, `deploy.yml` rebuilds the page, and there is no commit step and nothing to hand-edit or forget. Refreshes that changed only stamps mint no dated snapshot, so they leave nothing in the archive and are not listed; the section says so. Notes for what the data cannot explain (a LOMR, a deleted USGS record) are kept by hand in a data file, keyed by date and checked against the archive.
+
+Details in [`COUNTY-PROFILES.md`](COUNTY-PROFILES.md#comparing-two-snapshots).
+
 ## Behavior
 
 ### Nominatim: submit only

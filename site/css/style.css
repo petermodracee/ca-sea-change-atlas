@@ -868,6 +868,19 @@ body.map-embed-locked .layer-panel{display:none !important;}
 .cp-reasons dt,.cp-tiers dt{font-weight:600;font-size:14.5px;}
 .cp-reasons dd,.cp-tiers dd{margin:2px 0 0;font-size:14px;color:var(--ink-soft);max-width:72ch;}
 .cp-tier-count{font-weight:400;font-size:12.5px;color:var(--ink-soft);margin-left:6px;}
+/* The generated data changelog (site/_includes/county-profiles/data-changelog.njk). Its detail tables sit inside a
+   .cp-reasons entry, so the entry's own div rule is undone for their wrapper. */
+.data-changelog dd{max-width:none;}
+.data-changelog dd>p,.data-changelog dd>ul,.data-changelog-detail>p,.data-changelog-detail>ul{max-width:72ch;}
+.data-changelog ul{margin:2px 0 6px;padding-left:20px;}
+.data-changelog-counties>li{margin:8px 0;}
+.data-changelog-label{margin:10px 0 2px;font-weight:600;color:var(--ink);}
+.data-changelog-detail{margin:4px 0 2px;}
+.data-changelog-detail summary{cursor:pointer;color:var(--teal-text);}
+.data-changelog .cp-table-wrap{padding:0;border-bottom:0;}
+.data-changelog-detail table{font-size:13px;border-collapse:collapse;}
+.data-changelog-detail th,.data-changelog-detail td{text-align:left;padding:4px 12px 4px 0;border-bottom:1px solid var(--line);vertical-align:top;}
+.data-changelog-detail th:last-child,.data-changelog-detail td:last-child{text-align:right;white-space:nowrap;padding-right:0;}
 .cp-stamp{display:flex;flex-wrap:wrap;gap:8px 32px;margin:0 0 10px;}
 .cp-stamp dt{font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);}
 .cp-stamp dd{margin:0;font-family:'Spectral',Georgia,serif;font-size:20px;font-weight:600;}

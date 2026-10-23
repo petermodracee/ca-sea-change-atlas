@@ -135,12 +135,14 @@
         {
           "id": "people-at-risk",
           "title": "People at Risk",
+          "short": "People at Risk",
           "prose": ["Rising populations in flood prone areas exacerbate flooding risk. Impacts can be greater to the elderly or those with a low income, as these citizens may not have the resources to adequately prepare or recover."],
           "kind": "rings"
         },
         {
           "id": "critical-facilities",
           "title": "Flooded Facilities Can't Provide Critical Services",
+          "short": "Flooded Facilities",
           "prose": ["First responders. Hospitals. Shelters. All play a central role in response and recovery. Incorporating vulnerability information into planning efforts save lives (fewer instances where critical services are made unavailable) and is cost effective (fewer damages to facilities)."],
           "kind": "inside-outside",
           "caption": "Critical facilities, by type."
@@ -148,6 +150,7 @@
         {
           "id": "homes-at-risk",
           "title": "Homes at Risk",
+          "short": "Homes at Risk",
           "prose": ["Flooding is costly for homeowners, no doubt. But the community also shares in the cost as lowered property values negatively affect tax revenues."],
           "kind": "payouts",
           "caption": "NFIP payouts by five-year period."
@@ -155,6 +158,7 @@
         {
           "id": "jobs-at-risk",
           "title": "Being Underwater Is Not a Good Business Plan",
+          "short": "Jobs at Risk",
           "prose": [
             "Flood-related losses of services, revenues, and salaries can hit a community hard."],
           "kind": "single-share"
@@ -162,6 +166,7 @@
         {
           "id": "natural-features",
           "title": "A Better Future is a Greener Future",
+          "short": "Greener Future",
           "prose": ["How do past development trends in your county compare to today’s approach? Development in flood-prone areas should be kept to a minimum. Creating more greenspace, which acts as a flooding buffer, lowers flood risk. Adding more impervious surfaces (even outside of the floodplain) can increase runoff and exacerbate flooding."],
           "kind": "rings",
           "caption": "Development added, 1996–2021, as a share of land developed by 2021."
@@ -178,6 +183,7 @@
         {
           "id": "people-at-risk",
           "title": "People at Risk",
+          "short": "People at Risk",
           "prose": ["Rising population numbers exacerbate potential flooding risk; impacts can be even greater when social vulnerability factors (age, income, capabilities) are involved, as these citizens may not be able to adequately prepare and respond."],
           "kind": "increment-bars",
           "caption": "Residents exposed at each increment of sea level rise."
@@ -185,6 +191,7 @@
         {
           "id": "critical-facilities",
           "title": "Flooded Facilities Can't Provide Critical Services",
+          "short": "Flooded Facilities",
           "prose": ["Fire and police stations. Hospitals. Shelters. These facilities play a central role in response and recovery. Understanding future exposure can help reduce damages and the conditions that make these services unavailable."],
           "kind": "increment-bars",
           "caption": "Facilities exposed at each increment of sea level rise."
@@ -192,6 +199,7 @@
         {
           "id": "jobs-at-risk",
           "title": "Being Underwater Is Not a Good Business Plan",
+          "short": "Jobs at Risk",
           "prose": [
             "Flood-related losses of services, revenues, and salaries can hit a community hard."],
           "kind": "increment-single",
@@ -200,6 +208,7 @@
         {
           "id": "natural-landscapes",
           "title": "Creating a Better Future: Yes, It Can Be Done",
+          "short": "Better Future",
           "prose": ["Make it a goal: more natural areas (wetlands, forests, parks, dunes, etc.) to absorb floodwaters and protect the community, and less development in flood-prone areas. Consider not only today’s floodplain, but also the floodplain extent projected for the future."],
           "kind": "increment-composition",
           "caption": "Land cover inundated at each increment of sea level rise."
@@ -207,6 +216,7 @@
         {
           "id": "when-to-act",
           "title": "When Is the Time to Act? Now!",
+          "short": "Time to Act",
           "prose": ["Because a number of factors are involved, sea level rise projections are often expressed as scenarios. For projects involving structures with a long lifespan or where a loss would be catastrophic (power plants, ports, hospitals), the higher sea level rise scenarios should be considered. For projects with a shorter lifespan (bike paths, golf courses, parks), lower sea level rise scenarios may be appropriate."],
           "kind": "timing",
           "graph": { "ui": true, "pdf": false, "present": true }
@@ -223,12 +233,14 @@
         {
           "id": "measuring",
           "title": "If You Can't Measure It, You Can't Protect It",
+          "short": "Measuring",
           "prose": [],
           "kind": "stats"
         },
         {
           "id": "diversity",
           "title": "Diverse Economies are Resilient Economies",
+          "short": "Diversity",
           "prose": ["An economy comprised of multiple sectors can better handle disruptions, including storms and economic downturns. Understanding how each sector is represented in your coastal county is important, particularly for hazard mitigation planning."],
           "kind": "sector-measures",
           "caption": "Share of the county total, by sector."
@@ -236,6 +248,7 @@
         {
           "id": "jobs-at-risk",
           "title": "Coastal Jobs Are Vulnerable",
+          "short": "Coastal Jobs",
           "prose": [
             "Many jobs in coastal counties are vulnerable to flooding. This graphic shows the number of jobs threatened by two flood scenarios: current flooding (the 100-year floodplain) and future flooding (six feet of sea level rise)."],
           "kind": "stat-pair"
@@ -243,6 +256,7 @@
         {
           "id": "wages",
           "title": "Wages",
+          "short": "Wages",
           "prose": ["Understanding the economic vulnerability of the workforce helps leaders better understand the long- and short-term impact of coastal storms, economic downturns, etc. In general, the sectors with the lowest average wages are more likely to be affected."],
           "kind": "sector-wages",
           "caption": "Average wage per job, by sector."
@@ -250,6 +264,7 @@
         {
           "id": "total-jobs",
           "title": "Total Jobs",
+          "short": "Total Jobs",
           "prose": ["Many economic reports don't include the self-employed in their job numbers, yet this group can play an important role in the local economy. Most commercial fishermen, for instance, are self-employed."],
           "kind": "jobs-pair"
         }
@@ -265,12 +280,14 @@
         {
           "id": "measuring",
           "title": "If You Can't Measure It, You Can't Protect It",
+          "short": "Measuring",
           "prose": [],
           "kind": "stats"
         },
         {
           "id": "diversity",
           "title": "Business Diversity",
+          "short": "Diversity",
           "prose": ["Understanding the types and amounts of businesses in the marine economy will inform community planning and management initiatives. This graphic highlights the six sectors that make up the marine economy."],
           "kind": "sector-measures",
           "caption": "Share of the county total, by sector."
@@ -278,6 +295,7 @@
         {
           "id": "wages",
           "title": "Wages",
+          "short": "Wages",
           "prose": ["Understanding wage vulnerability helps leaders better understand the long and short-term impact of coastal storms, economic downturns, etc. Lower wage sectors are usually affected the most."],
           "kind": "sector-wages",
           "caption": "Average wage per job, by sector."
@@ -285,6 +303,7 @@
         {
           "id": "total-jobs",
           "title": "Total Jobs",
+          "short": "Total Jobs",
           "prose": ["Many economic reports don't include the self-employed in their job numbers, yet this group can play an important role in the local economy. Most commercial fishermen, for instance, are self-employed."],
           "kind": "jobs-pair"
         }

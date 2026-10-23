@@ -13,6 +13,8 @@ const { iconByName } = require("../../scripts/county-profiles/sector-icons.js");
 const { ESTIMATED_SHARE_THRESHOLD, WITHHOLD_WEAK_SHARE } = require("../../scripts/county-profiles/estimated.js");
 const { MAP_LINKS } = require("../../scripts/county-profiles/map-links.js");
 const { SHORE_TOLERANCE_M } = require("../../scripts/county-profiles/pipeline/enow-def.js");
+const { buildDataChangelog } = require("../../scripts/county-profiles/data-changelog.js");
+const changelogWording = require("./countyProfileChangelog.json");
 
 // Everything the County Profiles pages need, derived from the spine, the schema, the OPC reference
 // table and the snapshot files. Validation and the assertions below run here, so a malformed
@@ -310,6 +312,8 @@ const sourceYear = (key) => { const p = counties.find((x) => x.profile && x.prof
 
 module.exports = {
   mapLinkRows,
+  // The generated data changelog on /county-profiles/about/changelog/: one entry per dated snapshot directory, newest first.
+  dataChangelog: buildDataChangelog({ archive, spine, corrections, wording: changelogWording }),
   lodesYear: sourceYear("lodes"),
   acsYear: sourceYear("acs"),
   // The DOI of a dated snapshot (a string), or null when none has been minted; and the concept DOI covering all versions.
