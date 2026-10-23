@@ -31,6 +31,9 @@ Moving a page from a root-level file to a nested directory (`/sources.html` → 
 ### `LICENSE-CONTENT.md` isn't served
 It used to be passthrough-copied and linked from the licenses page as CC BY-SA 4.0's "full text," but it never contained the full text — it's a 43-line summary that itself links out to creativecommons.org for the real legal text. The licenses page now links straight to that legal text instead. `LICENSE-CONTENT.md` stays in the repo unpassed-through, since it's a GitHub-browsing convenience (GitHub auto-detects `LICENSE` for the code license; this is the equivalent declaration for the separately-licensed written content, for anyone reading the repo rather than the live site).
 
+### AI-crawler rules live in Cloudflare, not `robots.txt`
+AI-crawler preferences are managed in Cloudflare's AI Crawl Control. Blocking a crawler there is enforced at the edge, and Bot Preference Sync prepends a matching `Disallow` group to the served `robots.txt`, so the file in the repo holds only the allow-all rule and the sitemap. A `site/robots.txt` with its own AI-crawler block list used to sit alongside it but was never published (`.eleventy.js` passes through the root `robots.txt`), so it was deleted rather than left to drift.
+
 ### Content license: CC BY 4.0, not CC BY-SA
 The project's own written content moved from CC BY-SA 4.0 to CC BY 4.0 (Peter's decision, October 2026). The code stays GPLv3. The reasons:
 - The site is meant to be reused by planners, agencies, consultants and researchers. Share-alike adds friction for exactly that use (a paragraph lifted into a report, a slide deck or a journal article would pull the whole work under BY-SA) while protecting little.
