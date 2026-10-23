@@ -47,7 +47,7 @@
     "2026-10-22": {
       "note": "Marine economy GDP moved from 2024 to 2025. BEA revised its 2025 GDP by industry, so total economy GDP changed with no change of source year.",
       "counties": {
-        "06013": "FEMA Letter of Map Revision 25-09-0871P (effective 2026-10-13). USGS deleted two records: Contra Costa College Campus Police and CHP Golden Gate Division Martinez.",
+        "06013": "FEMA Letter of Map Revision 25-09-0871P (effective 2026-10-13). One police station record was removed from USGS’s structures data: Contra Costa College Campus Police or CHP Golden Gate Division Martinez (both are now absent; the source does not show which was removed first).",
         "06059": "FEMA Letter of Map Revision 25-09-0579P (effective 2026-09-28).",
         "06055": "USGS deleted one record: Rutherford Fire Department.",
         "06077": "FEMA Letters of Map Revision 25-09-0568P and 26-09-0283P (effective 2026-09-28)."
