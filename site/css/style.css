@@ -879,8 +879,8 @@ body.map-embed-locked .layer-panel{display:none !important;}
 .data-changelog-list>summary{cursor:pointer;font-weight:600;color:var(--teal-text);}
 .data-changelog-detail{margin:4px 0 2px;}
 .data-changelog-detail summary{cursor:pointer;color:var(--teal-text);}
-/* Print every entry's county list and each county's detail, open or not. Browsers without ::details-content print
-   only the summaries. */
+/* Print every entry's county list and each county's detail, open or not. Browsers without ::details-content get the
+   same from js/print-details.js, which opens them on beforeprint. */
 @media print{
   .data-changelog details::details-content{content-visibility:visible;display:block;}
 }

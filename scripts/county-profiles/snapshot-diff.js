@@ -313,7 +313,7 @@ const topicSections = (entries) => {
 };
 
 // A county's changed figures grouped by family, the set of measures one topic changed ("GDP figures", "population
-// and job figures"), in topic order: the clauses of its summary line and what entrySummary counts.
+// and job figures"), in topic order: the clauses of its summary line.
 function figureFamilies(figures) {
   const byTopic = new Map();
   for (const f of figures) { if (!byTopic.has(f.topicId)) byTopic.set(f.topicId, []); byTopic.get(f.topicId).push(f); }
@@ -364,15 +364,15 @@ function sharedVintages(diffs) {
   }).sort((x, y) => y.counties.length - x.counties.length || x.name.localeCompare(y.name));
 }
 
-// One line across the counties of one refresh: the counties per figure family, most first, then the figures that
-// changed state. "GDP figures changed in 23 counties; facility figures in 6; 9 figures changed state." Null when no
-// figure moved in any county.
+// One line across the counties of one refresh: for each kind of figure (GDP, job, facility, ...), the counties where
+// one changed, most first and ties in the per-county summaries' order (NOUN_ORDER); a county counts once under each
+// kind it changed. Then the figures that changed state. "GDP figures changed in 23 counties; facility figures in 6;
+// 9 figures changed state." Null when no figure moved in any county.
 function entrySummary(diffs) {
   const counts = new Map();
-  for (const d of diffs) for (const key of figureFamilies(d.figures).keys()) counts.set(key, (counts.get(key) || 0) + 1);
-  const firstNoun = (key) => NOUN_ORDER.findIndex((n) => key.startsWith(n));
-  const families = [...counts.entries()].sort((x, y) => y[1] - x[1] || firstNoun(x[0]) - firstNoun(y[0]) || x[0].localeCompare(y[0]));
-  const parts = families.map(([key, n], i) => key + (i === 0 ? " changed in " : " in ") + (i === 0 ? plural(n, "county", "counties") : n));
+  for (const d of diffs) for (const noun of new Set(d.figures.map((f) => f.noun))) counts.set(noun, (counts.get(noun) || 0) + 1);
+  const nouns = [...counts.entries()].sort((x, y) => y[1] - x[1] || NOUN_ORDER.indexOf(x[0]) - NOUN_ORDER.indexOf(y[0]));
+  const parts = nouns.map(([noun, n], i) => noun + " figures" + (i === 0 ? " changed in " + plural(n, "county", "counties") : " in " + n));
   const states = diffs.reduce((n, d) => n + d.figures.filter((f) => f.type === "state").length, 0);
   if (states) parts.push(plural(states, "figure", "figures") + " changed state");
   return parts.length ? upper(parts.join("; ")) + "." : null;
