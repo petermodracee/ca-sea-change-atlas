@@ -9,7 +9,7 @@
 // does not have, or a note whose `kind` is not "data" or "correction". A refresh that changed no figures mints no
 // dated snapshot, so it has no entry.
 
-const { diffSnapshots, sharedVintages } = require("./snapshot-diff");
+const { diffSnapshots, sharedVintages, entrySummary } = require("./snapshot-diff");
 const { sameContent } = require("./pipeline/archive");
 
 // Every kind of changelog entry and the label it shows. The methodology changelog (site/_data/changelog/) uses the
@@ -56,7 +56,7 @@ function buildDataChangelog({ archive, spine, corrections, wording }) {
     const note = notes[date] || {};
     const entryKind = note.kind || "data";
     const base = { date, kind: entryKind, countyCount: fipsList.length, note: note.note || null };
-    if (i === 0) return { ...base, initial: true, label: wording.initialRelease, counties: [], vintages: [] };
+    if (i === 0) return { ...base, initial: true, label: wording.initialRelease, counties: [], vintages: [], summary: null, notedCounties: [] };
     const counties = fipsList.map((fips) => {
       const c = byFips.get(fips);
       const prevDate = dates.slice(0, i).reverse().find((d) => archive[d][fips]);
@@ -69,7 +69,8 @@ function buildDataChangelog({ archive, spine, corrections, wording }) {
       return { fips, name: c.name, slug: c.slug, previous: prevDate, kind, kindLabel: changelogKind(kind, wording), summary: diff.summary, note: (note.counties || {})[fips] || null, correction, diff, detail: detailOf(diff) };
     });
     const kinds = [...new Set(counties.map((c) => c.kind))].sort((a, b) => ["data", "correction", "method"].indexOf(a) - ["data", "correction", "method"].indexOf(b));
-    return { ...base, initial: false, label: kinds.map((k) => changelogKind(k, wording)).join(", "), counties, vintages: sharedVintages(counties.map((c) => c.diff)).map((v) => v.text) };
+    const diffs = counties.map((c) => c.diff);
+    return { ...base, initial: false, label: kinds.map((k) => changelogKind(k, wording)).join(", "), counties, vintages: sharedVintages(diffs).map((v) => v.text), summary: entrySummary(diffs), notedCounties: counties.filter((c) => c.note).map((c) => c.name) };
   });
   return entries.reverse();
 }

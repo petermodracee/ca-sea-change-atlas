@@ -312,6 +312,20 @@ const topicSections = (entries) => {
   });
 };
 
+// A county's changed figures grouped by family, the set of measures one topic changed ("GDP figures", "population
+// and job figures"), in topic order: the clauses of its summary line and what entrySummary counts.
+function figureFamilies(figures) {
+  const byTopic = new Map();
+  for (const f of figures) { if (!byTopic.has(f.topicId)) byTopic.set(f.topicId, []); byTopic.get(f.topicId).push(f); }
+  const families = new Map();
+  for (const [t, fs] of [...byTopic.entries()].sort((x, y) => TOPIC_ORDER.indexOf(x[0]) - TOPIC_ORDER.indexOf(y[0]))) {
+    const key = nounPhrase([...new Set(fs.map((f) => f.noun))]);
+    if (!families.has(key)) families.set(key, []);
+    families.get(key).push(...fs);
+  }
+  return families;
+}
+
 function summarize(d) {
   if (d.first) return "First snapshot of this county.";
   if (d.stampsOnly) return "No figures changed; sources re-verified.";
@@ -319,14 +333,7 @@ function summarize(d) {
   if (d.method) parts.push("Methodology version " + d.method.from + " to " + d.method.to + ".");
   if (d.figures.length) {
     // One clause per set of measures, naming the topics and sections where that set changed.
-    const byTopic = new Map();
-    for (const f of d.figures) { if (!byTopic.has(f.topicId)) byTopic.set(f.topicId, []); byTopic.get(f.topicId).push(f); }
-    const clauses = new Map();
-    for (const [t, fs] of [...byTopic.entries()].sort((x, y) => TOPIC_ORDER.indexOf(x[0]) - TOPIC_ORDER.indexOf(y[0]))) {
-      const key = nounPhrase([...new Set(fs.map((f) => f.noun))]);
-      if (!clauses.has(key)) clauses.set(key, []);
-      clauses.get(key).push(...fs);
-    }
+    const clauses = figureFamilies(d.figures);
     parts.push(upper([...clauses.entries()].map(([nouns, fs]) => nouns + " changed in " + listNames(topicSections(fs))).join("; ")) + ".");
     const states = d.figures.filter((f) => f.type === "state").length;
     if (states) parts.push(upper(plural(states, "figure", "figures")) + " changed state.");
@@ -357,4 +364,18 @@ function sharedVintages(diffs) {
   }).sort((x, y) => y.counties.length - x.counties.length || x.name.localeCompare(y.name));
 }
 
-module.exports = { diffSnapshots, summarize, sharedVintages, changeText, stateName, NOTABLE_CHANGE };
+// One line across the counties of one refresh: the counties per figure family, most first, then the figures that
+// changed state. "GDP figures changed in 23 counties; facility figures in 6; 9 figures changed state." Null when no
+// figure moved in any county.
+function entrySummary(diffs) {
+  const counts = new Map();
+  for (const d of diffs) for (const key of figureFamilies(d.figures).keys()) counts.set(key, (counts.get(key) || 0) + 1);
+  const firstNoun = (key) => NOUN_ORDER.findIndex((n) => key.startsWith(n));
+  const families = [...counts.entries()].sort((x, y) => y[1] - x[1] || firstNoun(x[0]) - firstNoun(y[0]) || x[0].localeCompare(y[0]));
+  const parts = families.map(([key, n], i) => key + (i === 0 ? " changed in " : " in ") + (i === 0 ? plural(n, "county", "counties") : n));
+  const states = diffs.reduce((n, d) => n + d.figures.filter((f) => f.type === "state").length, 0);
+  if (states) parts.push(plural(states, "figure", "figures") + " changed state");
+  return parts.length ? upper(parts.join("; ")) + "." : null;
+}
+
+module.exports = { diffSnapshots, summarize, sharedVintages, entrySummary, changeText, stateName, NOTABLE_CHANGE };
