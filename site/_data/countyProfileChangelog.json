@@ -52,6 +52,9 @@
         "06055": "USGS deleted one record: Rutherford Fire Department.",
         "06077": "FEMA Letters of Map Revision 25-09-0568P and 26-09-0283P (effective 2026-09-28)."
       }
+    },
+    "2026-10-23": {
+      "note": "Correction: school counts. The pipeline matched USGS structure records by location rather than ID, so schools sharing one point were counted once."
     }
   }
 }
