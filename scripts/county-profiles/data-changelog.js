@@ -6,7 +6,8 @@
 //
 // The build fails when an entry cannot be built: a dated snapshot with no earlier one that is not in the initial
 // release, a dated snapshot whose content equals its previous one, or a note naming a date or county the archive
-// does not have. A refresh that changed no figures mints no dated snapshot, so it has no entry.
+// does not have, or a note whose `kind` is not "data" or "correction". A refresh that changed no figures mints no
+// dated snapshot, so it has no entry.
 
 const { diffSnapshots, sharedVintages } = require("./snapshot-diff");
 const { sameContent } = require("./pipeline/archive");
@@ -34,12 +35,18 @@ function detailOf(d) {
   };
 }
 
+// A date's note may set the entry's kind: "data" (the default) or "correction", for a correction too small for a
+// notice in countyProfileCorrections.json. It sets the label only; a notice, and the banner on old dated pages, comes
+// from countyProfileCorrections.json alone.
+const NOTE_KINDS = ["data", "correction"];
+
 function buildDataChangelog({ archive, spine, corrections, wording }) {
   const dates = Object.keys(archive).sort();
   const byFips = new Map(spine.counties.map((c) => [c.fips, c]));
   const notes = wording.notes || {};
   for (const [date, n] of Object.entries(notes)) {
     if (!archive[date]) throw new Error("countyProfileChangelog.json: a note names " + date + ", which has no dated snapshot directory");
+    if (n.kind !== undefined && !NOTE_KINDS.includes(n.kind)) throw new Error("countyProfileChangelog.json: the note for " + date + " has kind \"" + n.kind + "\", which is not one of " + NOTE_KINDS.join(", "));
     for (const fips of Object.keys(n.counties || {})) if (!archive[date][fips]) throw new Error("countyProfileChangelog.json: a note for " + date + " names county " + fips + ", which has no snapshot that date");
   }
   for (const k of ["data", "correction", "method", "tooling"]) changelogKind(k, wording);
@@ -47,7 +54,8 @@ function buildDataChangelog({ archive, spine, corrections, wording }) {
   const entries = dates.map((date, i) => {
     const fipsList = Object.keys(archive[date]).sort((a, b) => byFips.get(a).name.localeCompare(byFips.get(b).name));
     const note = notes[date] || {};
-    const base = { date, countyCount: fipsList.length, note: note.note || null };
+    const entryKind = note.kind || "data";
+    const base = { date, kind: entryKind, countyCount: fipsList.length, note: note.note || null };
     if (i === 0) return { ...base, initial: true, label: wording.initialRelease, counties: [], vintages: [] };
     const counties = fipsList.map((fips) => {
       const c = byFips.get(fips);
@@ -57,7 +65,7 @@ function buildDataChangelog({ archive, spine, corrections, wording }) {
       if (sameContent(before, after)) throw new Error("data changelog: " + date + "/" + fips + ".json has the same content as " + prevDate + "/" + fips + ".json; a dated snapshot is minted only when its content changes");
       const diff = diffSnapshots(before, after);
       const correction = corrections.find((x) => x.fips === fips && x.supersededBy === date) || null;
-      const kind = diff.method ? "method" : correction ? "correction" : "data";
+      const kind = diff.method ? "method" : correction ? "correction" : entryKind;
       return { fips, name: c.name, slug: c.slug, previous: prevDate, kind, kindLabel: changelogKind(kind, wording), summary: diff.summary, note: (note.counties || {})[fips] || null, correction, diff, detail: detailOf(diff) };
     });
     const kinds = [...new Set(counties.map((c) => c.kind))].sort((a, b) => ["data", "correction", "method"].indexOf(a) - ["data", "correction", "method"].indexOf(b));

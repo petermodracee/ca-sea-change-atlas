@@ -21,7 +21,7 @@
 <p class="data-changelog-label">{{ w.countiesHeading }}</p>
 <ul class="data-changelog-counties">
 {%- for c in e.counties %}
-<li><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/' ~ e.date ~ '/') | url }}">{{ c.name }}</a>{% if c.kind != "data" %} <span class="cp-muted">({{ c.kindLabel }})</span>{% endif %}: {{ c.summary }}
+<li><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/' ~ e.date ~ '/') | url }}">{{ c.name }}</a>{% if c.kind != e.kind %} <span class="cp-muted">({{ c.kindLabel }})</span>{% endif %}: {{ c.summary }}
 {%- if c.note %}<br><span class="cp-muted">{{ c.note }}</span>{% endif %}
 {%- if c.correction %}<br><span class="cp-muted"><a href="{{ ('/county-profiles/county/' ~ c.slug ~ '/' ~ c.correction.snapshot ~ '/') | url }}">{{ w.correction | replace("{snapshot}", c.correction.snapshot) }}</a> {{ c.correction.note }}</span>{% endif %}
 <details class="data-changelog-detail"><summary>{{ w.detailSummary | replace("{previous}", c.previous) }}</summary>

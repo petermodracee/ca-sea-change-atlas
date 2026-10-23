@@ -38,6 +38,16 @@ test("a correction is labelled as one, never as no figure moved", () => {
   assert.throws(() => changelogKind("update", wording), /not one of/);
 });
 
+test("a note's kind labels a correction with no notice", () => {
+  const archive = { "2026-09-24": { [SF]: snap("2026-09-24", SF) }, "2026-10-22": { [SF]: snap("2026-10-22", SF) } };
+  const [e] = buildDataChangelog({ archive, spine, corrections: [], wording: { ...wording, notes: { "2026-10-22": { kind: "correction" } } } });
+  assert.equal(e.kind, "correction");
+  assert.equal(e.label, "Correction");
+  assert.equal(e.counties[0].kind, "correction");
+  assert.equal(e.counties[0].correction, null);
+  assert.throws(() => buildDataChangelog({ archive, spine, corrections: [], wording: { ...wording, notes: { "2026-10-22": { kind: "method" } } } }), /not one of data, correction/);
+});
+
 test("the build fails rather than skipping an entry it cannot build", () => {
   const base = { spine, corrections: [], wording: { ...wording, notes: {} } };
   // A county first seen after the initial release has nothing to compare with.
