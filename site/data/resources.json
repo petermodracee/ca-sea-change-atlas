@@ -170,7 +170,7 @@
     },
     {
       "id": "cc-screening",
-      "name": "Coastal Risk Screening Resource",
+      "name": "Coastal Risk Screening Tool",
       "org": "Climate Central",
       "scope": "national",
       "scopeLabel": "United States (national)",
@@ -272,7 +272,7 @@
     },
     {
       "id": "nfwf-crest",
-      "name": "Coastal Resilience Evaluation and Siting Resource (CREST)",
+      "name": "Coastal Resilience Evaluation and Siting Tool (CREST)",
       "org": "National Fish and Wildlife Federation, with partners",
       "scope": "statewide",
       "scopeLabel": "California coast",
@@ -588,7 +588,7 @@
     },
     {
       "id": "nasa-slr-scenario-tool",
-      "name": "Interagency Sea Level Rise Scenario Resource",
+      "name": "Interagency Sea Level Rise Scenario Tool",
       "org": "Interagency Sea Level Rise Task Force (hosted by NASA)",
       "scope": "national",
       "scopeLabel": "U.S. coasts, including California (13 California tide gauges)",
