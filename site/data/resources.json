@@ -4,7 +4,7 @@
     "compiled": "2026-09-16",
     "note": "Descriptions, scopes, and links are a good-faith summary compiled from each provider's own public materials, not the original agency content. Verify before using for a real planning decision. Entries with url: null could not be confirmed to have a stable current public link."
   },
-  "tools": [
+  "resources": [
     {
       "id": "art-bay",
       "name": "Adapting to Rising Tides: Bay Shoreline Flood Explorer",
@@ -47,13 +47,13 @@
       "reportsData": "Downloadable GIS layers and methodology notes.",
       "slrModel": "Extension of the Bay Area total-water-level dataset to Delta conditions.",
       "strengths": [
-        "Fills a data gap for a Delta-adjacent area other Bay tools skip",
+        "Fills a data gap for a Delta-adjacent area other Bay resources skip",
         "Consistent methodology with the Bay-wide Flood Explorer",
         "Locally reviewed data"
       ],
       "limitations": [
         "Very narrow geography",
-        "Same today's-shoreline limitation as the Bay-wide tool",
+        "Same today's-shoreline limitation as the Bay-wide resource",
         "Lives on its own subdomain, so it's easy to miss from the Bay explorer's main page"
       ],
       "keyFeatures": [
@@ -88,7 +88,7 @@
       },
       "screenshots": [
         {
-          "src": "/img/tools/todo-screenshot-1.svg",
+          "src": "/img/resources/todo-screenshot-1.svg",
           "alt": "TODO: alt text describing screenshot 1",
           "caption": "TODO: caption for screenshot 1",
           "credit": "TODO: publisher name",
@@ -96,7 +96,7 @@
           "capturedOn": "2026-09-20"
         },
         {
-          "src": "/img/tools/todo-screenshot-2.svg",
+          "src": "/img/resources/todo-screenshot-2.svg",
           "alt": "TODO: alt text describing screenshot 2",
           "caption": "TODO: caption for screenshot 2",
           "credit": "TODO: publisher name",
@@ -114,7 +114,7 @@
       "implementationStatus": "implemented",
       "released": "2018, relaunched 2022",
       "url": "https://cmip5.cal-adapt.org/tools/slr-coastal-inundation/",
-      "description": "Cal-Adapt's original CalFloD-3D viewer now lives inside the SLR \u2013 Coastal Inundation Scenarios tool, which compares two dynamic flood models (CalFloD3D-TFS and CoSMoS) side by side for the same storm and SLR scenario.",
+      "description": "Cal-Adapt's original CalFloD-3D viewer now lives inside the SLR \u2013 Coastal Inundation Scenarios resource, which compares two dynamic flood models (CalFloD3D-TFS and CoSMoS) side by side for the same storm and SLR scenario.",
       "processes": ["SLR inundation", "Storm surge / extreme tide", "Dynamic hydrodynamic modeling"],
       "exposure": [],
       "floodInfo": ["Storm surge / extreme tide", "Near-100-year storm scenario"],
@@ -159,7 +159,7 @@
       },
       "screenshots": [
         {
-          "src": "/img/tools/todo-screenshot-1.svg",
+          "src": "/img/resources/todo-screenshot-1.svg",
           "alt": "TODO: alt text describing screenshot 1",
           "caption": "TODO: caption for screenshot 1",
           "credit": "TODO: publisher name",
@@ -170,7 +170,7 @@
     },
     {
       "id": "cc-screening",
-      "name": "Coastal Risk Screening Tool",
+      "name": "Coastal Risk Screening Resource",
       "org": "Climate Central",
       "scope": "national",
       "scopeLabel": "United States (national)",
@@ -192,7 +192,7 @@
       "limitations": [
         "Simplified \u201cbathtub\u201d style mapping, not a dynamic flood model",
         "Not built for detailed infrastructure or economic exposure analysis",
-        "Less California-specific detail than the state-built tools"
+        "Less California-specific detail than the state-built resources"
       ]
     },
     {
@@ -219,7 +219,7 @@
       "limitations": [
         "Still largely elevation-based rather than a dynamic hydrodynamic model",
         "National-scale approach can miss California-specific factors like levees",
-        "Some layers are coarser than California-built tools"
+        "Some layers are coarser than California-built resources"
       ],
       "keyFeatures": [
         "TODO: key feature 1",
@@ -253,7 +253,7 @@
       },
       "screenshots": [
         {
-          "src": "/img/tools/todo-screenshot-1.svg",
+          "src": "/img/resources/todo-screenshot-1.svg",
           "alt": "TODO: alt text describing screenshot 1",
           "caption": "TODO: caption for screenshot 1",
           "credit": "TODO: publisher name",
@@ -261,7 +261,7 @@
           "capturedOn": "2026-09-20"
         },
         {
-          "src": "/img/tools/todo-screenshot-2.svg",
+          "src": "/img/resources/todo-screenshot-2.svg",
           "alt": "TODO: alt text describing screenshot 2",
           "caption": "TODO: caption for screenshot 2",
           "credit": "TODO: publisher name",
@@ -272,7 +272,7 @@
     },
     {
       "id": "nfwf-crest",
-      "name": "Coastal Resilience Evaluation and Siting Tool (CREST)",
+      "name": "Coastal Resilience Evaluation and Siting Resource (CREST)",
       "org": "National Fish and Wildlife Federation, with partners",
       "scope": "statewide",
       "scopeLabel": "California coast",
@@ -280,14 +280,14 @@
       "mapEligibility": "excluded",
       "released": "\u224818, exact date unverified",
       "url": null,
-      "description": "Built to help practitioners screen and site nature-based shoreline projects \u2014 living shorelines, marsh restoration, dune enhancement \u2014 against sea-level-rise and flood exposure. External tool only: its underlying federal hazard inputs are public domain, but the Resilience Hub composite output is NFWF/NEMAC\u2019s own derived work with no stated license.",
+      "description": "Built to help practitioners screen and site nature-based shoreline projects (living shorelines, marsh restoration, dune enhancement) against sea-level-rise and flood exposure. External resource only: its underlying federal hazard inputs are public domain, but the Resilience Hub composite output is NFWF/NEMAC\u2019s own derived work with no stated license.",
       "processes": ["SLR inundation", "Marsh migration / habitat change", "Erosion / shoreline change"],
       "exposure": ["Natural resources / habitats"],
       "floodInfo": ["Marsh migration space"],
       "reportsData": "Site-suitability screening outputs for nature-based adaptation projects.",
       "slrModel": "Built on state SLR guidance scenarios; exact model not independently confirmed.",
       "strengths": [
-        "Focused specifically on nature-based / green-infrastructure siting, a gap in most other tools",
+        "Focused specifically on nature-based / green-infrastructure siting, a gap in most other resources",
         "Brings habitat and marsh-migration data into flood planning",
         "Aimed directly at practitioners, not just the public"
       ],
@@ -318,7 +318,7 @@
         "Well documented and actively maintained by a federal agency"
       ],
       "limitations": [
-        "National tool, so California-specific nuance like local subsidence is limited",
+        "National resource, so California-specific nuance like local subsidence is limited",
         "Elevation-based flood layers, not a full dynamic storm model",
         "Interface can feel dense for first-time users"
       ]
@@ -341,7 +341,7 @@
       "strengths": [
         "Most widely used and cited U.S. sea-level-rise viewer",
         "Explicitly communicates mapping uncertainty",
-        "Includes marsh-migration projections most tools omit"
+        "Includes marsh-migration projections most resources omit"
       ],
       "limitations": [
         "Does not include beach or dune erosion",
@@ -358,19 +358,19 @@
       "implementationStatus": "implemented",
       "released": "2013, updated regularly",
       "url": "https://ourcoastourfuture.org/",
-      "description": "Built on USGS's Coastal Storm Modeling System, this tool dynamically models waves, storm surge, and sea-level rise together to map coastal flooding and erosion at high resolution.",
+      "description": "Built on USGS's Coastal Storm Modeling System, this resource dynamically models waves, storm surge, and sea-level rise together to map coastal flooding and erosion at high resolution.",
       "processes": ["SLR inundation", "Storm surge / extreme tide", "Wave run-up", "Erosion / shoreline change"],
       "exposure": ["Infrastructure & buildings", "Natural resources / habitats"],
       "floodInfo": ["Storm surge / extreme tide", "Wave run-up", "Erosion projections"],
       "reportsData": "Downloadable, high-resolution flood and erosion GIS layers.",
       "slrModel": "USGS CoSMoS dynamic wave / surge / SLR model (Barnard et al.).",
       "strengths": [
-        "One of the few tools that dynamically models waves and erosion, not just static SLR",
+        "One of the few resources that dynamically models waves and erosion, not just static SLR",
         "Very high spatial resolution, down to about 2 meters",
         "Actively maintained by USGS with regular updates"
       ],
       "limitations": [
-        "Heavier, more technical map interface than screening tools",
+        "Heavier, more technical map interface than screening resources",
         "Statewide coverage was built out over years, so some regions arrived later",
         "Large data layers can be slow to load"
       ]
@@ -476,7 +476,7 @@
       ],
       "limitations": [
         "Coverage and data depth vary a lot by region depending on local partners",
-        "Less standardized methodology than a single-model tool",
+        "Less standardized methodology than a single-model resource",
         "Can lag in areas without an active regional project"
       ]
     },
@@ -490,7 +490,7 @@
       "mapEligibility": "excluded",
       "released": "2016, availability has varied since",
       "url": null,
-      "description": "A UC Irvine research project modeling compound flooding from sea-level rise, storm surge, and inland stormwater runoff together for Orange County's Newport Bay \u2014 showing how these hazards interact rather than treating them separately. External tool only: no data-reuse license was found. Its UCI Blum Center project page carries an \u201cAll Rights Reserved\u201d copyright footer, and no terms of use were found for its live flood hazard viewers, which are hosted on a floodrise.uci.edu subdomain.",
+      "description": "A UC Irvine research project modeling compound flooding from sea-level rise, storm surge, and inland stormwater runoff together for Orange County's Newport Bay, showing how these hazards interact rather than treating them separately. External resource only: no data-reuse license was found. Its UCI Blum Center project page carries an \u201cAll Rights Reserved\u201d copyright footer, and no terms of use were found for its live flood hazard viewers, which are hosted on a floodrise.uci.edu subdomain.",
       "processes": ["SLR inundation", "Storm surge / extreme tide", "Compound flooding with stormwater runoff"],
       "exposure": ["Infrastructure & buildings", "Population / demographics"],
       "floodInfo": ["Storm surge / extreme tide", "Stormwater / compound flooding"],
@@ -504,7 +504,7 @@
       "limitations": [
         "Very limited geographic coverage (Newport Bay area only)",
         "As a university research project, long-term public hosting isn't guaranteed",
-        "No current public tool link could be confirmed"
+        "No current public resource link could be confirmed"
       ]
     },
     {
@@ -517,7 +517,7 @@
       "mapEligibility": "excluded",
       "released": "2017, expanded since",
       "url": "https://www.usgs.gov/apps/hera",
-      "description": "A USGS exposure-analytics tool built on top of CoSMoS hazard zones (coastal flooding, groundwater, and shoreline change), which this atlas already maps directly. Users pick an SLR-plus-storm scenario, and HERA adds population (Census), economic asset (InfoGroup), parcel value, land cover (NLCD), and infrastructure (roads, rail, critical facilities) exposure estimates, comparable across communities and scenarios. It provides exposure estimates rather than new flood-extent geometry. External tool only: its data is public domain, but it is redundant with the CoSMoS layer, so it won’t get its own map layer.",
+      "description": "A USGS exposure-analytics resource built on top of CoSMoS hazard zones (coastal flooding, groundwater, and shoreline change), which this atlas already maps directly. Users pick an SLR-plus-storm scenario, and HERA adds population (Census), economic asset (InfoGroup), parcel value, land cover (NLCD), and infrastructure (roads, rail, critical facilities) exposure estimates, comparable across communities and scenarios. It provides exposure estimates rather than new flood-extent geometry. External resource only: its data is public domain, but it is redundant with the CoSMoS layer, so it won’t get its own map layer.",
       "processes": ["SLR inundation", "Storm surge / extreme tide", "Coastal groundwater", "Shoreline erosion"],
       "exposure": ["Population / demographics", "Infrastructure & buildings", "Economic / property value", "Critical facilities"],
       "floodInfo": ["Storm surge / extreme tide", "Coastal groundwater flooding", "Shoreline erosion"],
@@ -530,7 +530,7 @@
       ],
       "limitations": [
         "Requires picking a scenario first, which assumes some baseline knowledge",
-        "National tool, so hyper-local California factors may be generalized",
+        "National resource, so hyper-local California factors may be generalized",
         "Dashboard-heavy interface takes more clicks than a simple map"
       ]
     },
@@ -544,7 +544,7 @@
       "mapEligibility": "excluded",
       "released": "Ongoing",
       "url": "https://tidesandcurrents.noaa.gov/inundationdb/",
-      "description": "A station-based dashboard of real-time, forecast and historical water levels at 200+ NOAA tide gauges, with each station's minor, moderate and major flood thresholds. It shows gauge readings rather than flood-extent areas; its sea-level-rise mapping comes from NOAA's Sea Level Rise Viewer. External tool only: it is public-domain federal data, but this atlas already maps the same gauge thresholds and the Sea Level Rise Viewer, so it won’t get its own map layer.",
+      "description": "A station-based dashboard of real-time, forecast and historical water levels at 200+ NOAA tide gauges, with each station's minor, moderate and major flood thresholds. It shows gauge readings rather than flood-extent areas; its sea-level-rise mapping comes from NOAA's Sea Level Rise Viewer. External resource only: it is public-domain federal data, but this atlas already maps the same gauge thresholds and the Sea Level Rise Viewer, so it won’t get its own map layer.",
       "processes": ["High tide flooding", "Tide-gauge monitoring", "Storm surge / extreme tide"],
       "exposure": [],
       "floodInfo": ["High tide flooding thresholds (minor/moderate/major)", "Storm surge / extreme tide"],
@@ -570,7 +570,7 @@
       "mapEligibility": "excluded",
       "released": "2015, no longer updated",
       "url": "https://coast.noaa.gov/snapshots/",
-      "description": "County-level report pages (Flood Exposure, Exposure to Sea Level Rise, Marine Economy, Total Economy) that turn FEMA flood hazard, NOAA sea level rise, Census, labor and land-cover data into printable charts and maps. NOAA states the datasets are no longer updated, so the reports do not reflect the most current conditions. External tool only: it is a per-county report, not a queryable map service, and its flood inputs are already mapped here.",
+      "description": "County-level report pages (Flood Exposure, Exposure to Sea Level Rise, Marine Economy, Total Economy) that turn FEMA flood hazard, NOAA sea level rise, Census, labor and land-cover data into printable charts and maps. NOAA states the datasets are no longer updated, so the reports do not reflect the most current conditions. External resource only: it is a per-county report, not a queryable map service, and its flood inputs are already mapped here.",
       "processes": ["SLR inundation", "Riverine and coastal flood zones"],
       "exposure": ["Population / demographics", "Economic / property value", "Critical facilities"],
       "floodInfo": ["FEMA flood zones"],
@@ -588,7 +588,7 @@
     },
     {
       "id": "nasa-slr-scenario-tool",
-      "name": "Interagency Sea Level Rise Scenario Tool",
+      "name": "Interagency Sea Level Rise Scenario Resource",
       "org": "Interagency Sea Level Rise Task Force (hosted by NASA)",
       "scope": "national",
       "scopeLabel": "U.S. coasts, including California (13 California tide gauges)",

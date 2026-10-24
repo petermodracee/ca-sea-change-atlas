@@ -1,13 +1,13 @@
 const fs = require("fs");
 const path = require("path");
-const { tools } = require("../data/tools.json");
+const { resources } = require("../data/resources.json");
 
-// Fail the build early on a malformed `screenshots` entry (see docs/TOOLS.md).
-for (const tool of tools) {
-  if (tool.screenshots === undefined) continue;
-  const fail = (msg) => { throw new Error("data/tools.json: " + tool.id + " screenshots: " + msg); };
-  if (!Array.isArray(tool.screenshots) || tool.screenshots.length > 2) fail("must be an array of at most 2");
-  tool.screenshots.forEach((s, i) => {
+// Fail the build early on a malformed `screenshots` entry (see docs/RESOURCES.md).
+for (const resource of resources) {
+  if (resource.screenshots === undefined) continue;
+  const fail = (msg) => { throw new Error("data/resources.json: " + resource.id + " screenshots: " + msg); };
+  if (!Array.isArray(resource.screenshots) || resource.screenshots.length > 2) fail("must be an array of at most 2");
+  resource.screenshots.forEach((s, i) => {
     for (const key of ["src", "alt", "caption", "credit", "capturedOn"]) {
       if (typeof s[key] !== "string" || !s[key].trim()) fail("#" + (i + 1) + " needs a non-empty " + key);
     }
@@ -17,4 +17,4 @@ for (const tool of tools) {
   });
 }
 
-module.exports = tools;
+module.exports = resources;

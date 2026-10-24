@@ -6,7 +6,7 @@ import { buildWmsIdentifyUrl } from "../shared/identify-url.js";
 import { buildButtonGrid } from "../shared/button-grid.js";
 
 // --- USGS CoSMoS / Our Coast, Our Future -----------------------------------
-// The real "Our Coast, Our Future" (OCOF) tool — the reference UI this
+// The real "Our Coast, Our Future" (OCOF) resource — the reference UI this
 // layer replicates — is not an ArcGIS REST service at all: its own network
 // traffic shows it's backed by Point Blue Conservation Science's own
 // GeoServer/tile infrastructure (geo.pointblue.org), serving the same

@@ -8,7 +8,7 @@ import { SCENARIOS, loadCaliforniaProjections } from "../shared/zenodo-projectio
 // California's tide gauges. Data: the task force's 2022 Technical Report
 // projections on Zenodo (CC BY 4.0), read live, see shared/zenodo-projections.js.
 // Values are relative sea level in feet above the year-2000 level. They come
-// from the report's published data and can differ from what NASA's tool shows.
+// from the report's published data and can differ from what NASA's resource shows.
 const MM_PER_FOOT = 304.8;
 const MARKER_COLOR = "#2B6CB0";
 const CLICK_RADIUS_M = 80000;

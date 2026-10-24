@@ -5,17 +5,17 @@ const state = {
   compare: []
 };
 
-let TOOLS = [];
+let RESOURCES = [];
 
-async function loadTools(){
-  const res = await fetch("../data/tools.json");
+async function loadResources(){
+  const res = await fetch("../data/resources.json");
   const data = await res.json();
-  TOOLS = data.tools;
+  RESOURCES = data.resources;
 }
 
 function uniqueSorted(key){
   const s = new Set();
-  TOOLS.forEach(t => t[key].forEach(v => s.add(v)));
+  RESOURCES.forEach(t => t[key].forEach(v => s.add(v)));
   return Array.from(s).sort();
 }
 
@@ -45,10 +45,10 @@ document.getElementById("clearBtn").addEventListener("click", () => {
   render();
 });
 
-function matches(tool){
-  if(state.process.size && ![...state.process].every(p => tool.processes.includes(p))) return false;
-  if(state.exposure.size && ![...state.exposure].every(e => tool.exposure.includes(e))) return false;
-  if(state.flood.size && ![...state.flood].every(f => tool.floodInfo.includes(f))) return false;
+function matches(resource){
+  if(state.process.size && ![...state.process].every(p => resource.processes.includes(p))) return false;
+  if(state.exposure.size && ![...state.exposure].every(e => resource.exposure.includes(e))) return false;
+  if(state.flood.size && ![...state.flood].every(f => resource.floodInfo.includes(f))) return false;
   return true;
 }
 
@@ -62,42 +62,42 @@ function toggleCompare(id){
 function render(){
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
-  const visible = TOOLS.filter(matches);
-  document.getElementById("countLabel").textContent = visible.length + " of " + TOOLS.length + " tools shown";
+  const visible = RESOURCES.filter(matches);
+  document.getElementById("countLabel").textContent = visible.length + " of " + RESOURCES.length + " resources shown";
   document.getElementById("emptyMsg").style.display = visible.length ? "none" : "block";
 
-  visible.forEach(tool => {
+  visible.forEach(resource => {
     const card = document.createElement("div");
     card.className = "card";
 
     const org = document.createElement("div");
     org.className = "org";
-    org.textContent = tool.org;
+    org.textContent = resource.org;
     card.appendChild(org);
 
     const h3 = document.createElement("h3");
-    h3.textContent = tool.name;
+    h3.textContent = resource.name;
     card.appendChild(h3);
 
     const desc = document.createElement("div");
     desc.className = "desc";
-    desc.textContent = tool.description;
+    desc.textContent = resource.description;
     card.appendChild(desc);
 
     const statusTag = document.createElement("span");
-    const implemented = tool.implementationStatus === "implemented";
-    const excluded = tool.mapEligibility === "excluded";
+    const implemented = resource.implementationStatus === "implemented";
+    const excluded = resource.mapEligibility === "excluded";
     statusTag.className = "tag status " + (implemented ? "status-implemented" : excluded ? "status-excluded" : "status-not-implemented");
-    statusTag.textContent = implemented ? "✓ Implemented in the map tool" : excluded ? "External tool only" : "Not implemented in the map tool";
+    statusTag.textContent = implemented ? "✓ Implemented in the map tool" : excluded ? "External resource only" : "Not implemented in the map tool";
     card.appendChild(statusTag);
 
     const tags = document.createElement("div");
     tags.className = "tagrow";
     const scopeTag = document.createElement("span");
     scopeTag.className = "tag scope";
-    scopeTag.textContent = tool.scopeLabel;
+    scopeTag.textContent = resource.scopeLabel;
     tags.appendChild(scopeTag);
-    tool.processes.slice(0,2).forEach(p => {
+    resource.processes.slice(0,2).forEach(p => {
       const t = document.createElement("span");
       t.className = "tag";
       t.textContent = p;
@@ -109,7 +109,7 @@ function render(){
     foot.className = "card-foot";
     const yr = document.createElement("span");
     yr.className = "yr";
-    yr.textContent = tool.released;
+    yr.textContent = resource.released;
     foot.appendChild(yr);
 
     const actions = document.createElement("div");
@@ -117,17 +117,17 @@ function render(){
 
     const details = document.createElement("a");
     details.className = "linkbtn";
-    details.href = "tool/" + tool.id + "/";
+    details.href = "resource/" + resource.id + "/";
     details.textContent = "Details";
     actions.appendChild(details);
 
-    if(tool.url){
+    if(resource.url){
       const a = document.createElement("a");
       a.className = "linkbtn";
-      a.href = tool.url;
+      a.href = resource.url;
       a.target = "_blank";
       a.rel = "noopener";
-      a.textContent = "Open tool ↗";
+      a.textContent = "Open resource ↗";
       actions.appendChild(a);
     } else {
       const span = document.createElement("span");
@@ -138,11 +138,11 @@ function render(){
 
     const cmpBtn = document.createElement("button");
     cmpBtn.type = "button";
-    const inCompare = state.compare.includes(tool.id);
+    const inCompare = state.compare.includes(resource.id);
     cmpBtn.className = "cmp-btn" + (inCompare ? " on" : "");
     cmpBtn.textContent = inCompare ? "✓ Comparing" : "Compare";
     cmpBtn.disabled = !inCompare && state.compare.length >= 3;
-    cmpBtn.addEventListener("click", () => toggleCompare(tool.id));
+    cmpBtn.addEventListener("click", () => toggleCompare(resource.id));
     actions.appendChild(cmpBtn);
 
     foot.appendChild(actions);
@@ -160,25 +160,25 @@ function renderCompareBar(){
   if(!state.compare.length){ bar.style.display = "none"; return; }
   bar.style.display = "block";
   state.compare.forEach(id => {
-    const tool = TOOLS.find(t=>t.id===id);
+    const resource = RESOURCES.find(t=>t.id===id);
     const slot = document.createElement("span");
     slot.className = "slot";
     const label = document.createElement("span");
-    label.textContent = tool.name.length > 34 ? tool.name.slice(0,32)+"…" : tool.name;
+    label.textContent = resource.name.length > 34 ? resource.name.slice(0,32)+"…" : resource.name;
     const btn = document.createElement("button");
     btn.type = "button";
     btn.textContent = "×";
-    btn.setAttribute("aria-label","Remove " + tool.name + " from comparison");
+    btn.setAttribute("aria-label","Remove " + resource.name + " from comparison");
     btn.addEventListener("click", () => toggleCompare(id));
     slot.appendChild(label);
     slot.appendChild(btn);
     slots.appendChild(slot);
   });
-  document.getElementById("compareLink").href = "side-by-side/?tools=" + state.compare.map(encodeURIComponent).join(",");
+  document.getElementById("compareLink").href = "side-by-side/?resources=" + state.compare.map(encodeURIComponent).join(",");
 }
 
 async function main(){
-  await loadTools();
+  await loadResources();
   buildFieldset("f-process", uniqueSorted("processes"), "process");
   buildFieldset("f-exposure", uniqueSorted("exposure"), "exposure");
   buildFieldset("f-flood", uniqueSorted("floodInfo"), "flood");

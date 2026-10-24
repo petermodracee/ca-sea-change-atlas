@@ -76,7 +76,7 @@ Why unlocked by default, and why no locate button or address search: see [`DECIS
 | NOAA Coastal Flood Exposure Mapper | `CfemCompositeLayer` (`cfem-composite-layer.js`) constructs `CfemStormSurgeLayer` and three `CfemHazardLayer`s | `cfem` | Composite hazard overlap, hurricane storm surge, and CFEM's own High Tide Flooding, FEMA Flood Zones and Tsunami Run-up. The hazard layers have legends only. |
 | Geo / demographic info | `initGeoInfoLayers` (`geo-info-layer.js`) | `geoPeople`, `geoFacilities`, `geoLand` | Context layers from EPA, CDC/ATSDR, USGS, NOAA C-CAP and Caltrans. People and Land sections are dropdowns (one layer at a time, `data-layer-select`); Facilities are checkboxes; Critical facilities add a heat overview below zoom 11 (see [Facility heat overview](#facility-heat-overview)). Config-driven: each entry declares its service, legend and popup rows. |
 
-Tool status (implemented, comparison-only) is in `site/data/tools.json`, not here. Note that one panel group can cover several tools (CFEM contains the storm-surge overlay, which also has its own tool entry), so the panel and the dataset are not one-to-one.
+Tool status (implemented, comparison-only) is in `site/data/resources.json`, not here. Note that one panel group can cover several tools (CFEM contains the storm-surge overlay, which also has its own tool entry), so the panel and the dataset are not one-to-one.
 
 ## Click-to-inspect
 
@@ -172,14 +172,14 @@ Baseline: Leaflet 1.9.4 and esri-leaflet 3.1.0 plus the custom code above.
 
 ## Adding a layer
 
-1. **Licensing first.** Confirm the source is openly licensed ([`CONTRIBUTING.md`](../CONTRIBUTING.md#licensing-requirements)). If it isn't, it belongs on the comparison page only; mark it `mapEligibility: "excluded"` in `site/data/tools.json` and record why in [`LICENSING.md`](LICENSING.md).
+1. **Licensing first.** Confirm the source is openly licensed ([`CONTRIBUTING.md`](../CONTRIBUTING.md#licensing-requirements)). If it isn't, it belongs on the comparison page only; mark it `mapEligibility: "excluded"` in `site/data/resources.json` and record why in [`LICENSING.md`](LICENSING.md).
 2. **Layer class** in `site/js/map/layers/`, extending `BaseLayer`. Implement `buildLayer()` for a single sublayer, or override `refresh()` like BCDC and CoSMoS for several. Build layers with `pane: groupPane(map, "<key>")`.
 3. **Pane key**: add it to `GROUP_PANE_KEYS` and the JSDoc union in `shared/panes.js`.
 4. **Panel markup** in `site/_includes/map-panel.njk` (shared with the embed): a `.layer-group` with a collapsible title and body, an opacity slider carrying `data-pane="<key>"`, and controls whose ids the class reads.
 5. **Init** it in `site/js/map/index.js` (order sets popup section order).
 6. **Popup provider** via `registerPopupProvider` if the source supports a point query.
 7. **Permalink**: add any new slider/select id to `VALUE_CONTROL_IDS` in `permalink.js` (and to [Linkable control ids](#linkable-control-ids) if County Profiles should link to it); checkboxes with an id are tracked automatically.
-8. **Data and credits**: add or update the entry in `site/data/tools.json` ([`TOOLS.md`](TOOLS.md#adding-a-tool)) and an entry in `site/_data/credits.json`.
+8. **Data and credits**: add or update the entry in `site/data/resources.json` ([`RESOURCES.md`](RESOURCES.md#adding-a-tool)) and an entry in `site/_data/credits.json`.
 9. **Attribution**: set `attribution` on the Leaflet layer and add the credit to `footerAttribution` in `site/map/index.njk`.
 10. Verify against the live service directly before trusting an assumption about it; see [`DECISIONS.md`](DECISIONS.md) for how that has gone wrong before.
 

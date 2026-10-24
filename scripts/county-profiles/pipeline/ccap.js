@@ -201,7 +201,7 @@ async function computeCcap({ blocks, sfha, slr, low, increments, log }, source =
       developedOutsideSqMi: sq(devOut), addedOutsideSqMi: sq(addedOut),
     },
     slr: comp.map((t) => ({ wetland: sq(t.wet), upland: sq(t.up), other: sq(t.other), land: sq(t.land) })),
-    // Diagnostics only: the ocean-connected part alone, for comparison with NOAA's published tool.
+    // Diagnostics only: the ocean-connected part alone, for comparison with NOAA's published resource.
     slrConnectedOnly: connectedOnly.map((t) => ({ wetland: sq(t.wet), upland: sq(t.up), other: sq(t.other), land: sq(t.land) })),
     increments,
   };

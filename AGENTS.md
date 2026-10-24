@@ -23,9 +23,9 @@ npm test        # unit tests (node:test)
 | Page templates and front-matter keys | `site/**/*.njk`, `site/_includes/`; [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
 | The map (modules, layer table, popups, permalink) | `site/js/map/`, `site/map/index.njk`, `site/map/embed/index.njk`, `site/_includes/map-panel.njk`; [`docs/MAP.md`](docs/MAP.md) |
 | One map layer | `site/js/map/layers/<source>-layer.js` |
-| The tool dataset (and per-tool status) | `site/data/tools.json`; [`docs/TOOLS.md`](docs/TOOLS.md) |
+| The tool dataset (and per-tool status) | `site/data/resources.json`; [`docs/RESOURCES.md`](docs/RESOURCES.md) |
 | Tool list page | `site/compare/index.njk`, `site/js/sources.js` |
-| Tool page and compare page | `site/compare/tool.njk`; `site/compare/side-by-side.njk`, `site/js/compare.js`; layout in `site/data/toolDetailSchema.json`, resolved by `site/js/tool-detail.js` |
+| Tool page and compare page | `site/compare/resource.njk`; `site/compare/side-by-side.njk`, `site/js/compare.js`; layout in `site/data/resourceDetailSchema.json`, resolved by `site/js/resource-detail.js` |
 | County profiles tool | `site/county-profiles/`, `site/data/countyProfileSchema.json`, `site/_data/countySpine.json`, `site/_data/opcGaugeProjections.json`, `site/_data/countyProfileSeo.json` (Dataset text, link descriptions, preview-card words), `scripts/county-profiles/`; [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md) |
 | About sections (shared layout and per-tool subpages) | `site/_includes/about-section.njk`, `site/_data/aboutSections.json`, `site/county-profiles/about/`; [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#about-sections) |
 | Issue templates (the County Profiles data-problem form) | `.github/ISSUE_TEMPLATE/`, `scripts/county-profiles/report-link.js`; [`docs/COUNTY-PROFILES.md`](docs/COUNTY-PROFILES.md#reporting-a-problem) |
@@ -35,8 +35,8 @@ npm test        # unit tests (node:test)
 
 ## Invariants
 
-- **`site/data/tools.json` is the single source of truth for per-tool status** (`implementationStatus`, `mapEligibility`). Never restate status or tool counts in prose or other data; link or derive in a template.
-- **`site/data/toolDetailSchema.json` is the single source of truth for the tool page's and compare page's section/row layout.** Add or reorder sections there, not in `compare/tool.njk` or `compare.js`.
+- **`site/data/resources.json` is the single source of truth for per-tool status** (`implementationStatus`, `mapEligibility`). Never restate status or tool counts in prose or other data; link or derive in a template.
+- **`site/data/resourceDetailSchema.json` is the single source of truth for the tool page's and compare page's section/row layout.** Add or reorder sections there, not in `compare/resource.njk` or `compare.js`.
 - **Never overlay a comparison-only source's data.** No fetching, proxying or embedding of a tool marked `mapEligibility: "excluded"`. See `docs/LICENSING.md`.
 - Every source or library needs an entry in `site/_data/credits.json`, and only openly licensed material is added (`CONTRIBUTING.md`). The exception is small, credited, dated tool screenshots (`docs/LICENSING.md#screenshots`).
 - Map data is loaded live from publishers' servers, never copied into the repo. The one exception is County Profiles' derived statistics (`site/data/county-profiles/`), which are computed, not copied (`docs/DECISIONS.md`).

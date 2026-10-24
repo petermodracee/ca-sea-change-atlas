@@ -25,7 +25,7 @@ module.exports = async function (eleventyConfig) {
     }
     return text;
   });
-  eleventyConfig.addFilter("toolSections", require("./site/js/tool-detail.js").toolSections);
+  eleventyConfig.addFilter("resourceSections", require("./site/js/resource-detail.js").resourceSections);
 
   // County Profiles chart maths (d3-scale/d3-array are ESM-only, hence the dynamic import).
   const helpers = await import("./scripts/county-profiles/template-helpers.mjs");

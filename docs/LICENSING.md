@@ -6,7 +6,7 @@ The project's own licenses (GPLv3 code, CC BY 4.0 content; see [`DECISIONS.md`](
 
 ## The rule
 
-A source goes on the map only if it has a confirmed, documented path to reuse. Layers are always loaded live from the publisher's own server and never copied into this repository. A source that fails the test stays on the comparison page only ("external tool only"), and `site/data/tools.json` records `mapEligibility: "excluded"`; the reason is recorded here.
+A source goes on the map only if it has a confirmed, documented path to reuse. Layers are always loaded live from the publisher's own server and never copied into this repository. A source that fails the test stays on the comparison page only ("external resource only"), and `site/data/resources.json` records `mapEligibility: "excluded"`; the reason is recorded here.
 
 **Do not fetch, proxy, scrape or embed the data of a comparison-only source**, however technically reachable it is. That is a permissions problem, not a technical one.
 
@@ -59,7 +59,7 @@ Screenshots on tool pages are their own category, not data or code, and are not 
 - they are small, at-a-glance images (about 800px wide);
 - they are no substitute for the original tool, which every page links to.
 
-So every tool, comparison-only ones included, can have up to two. Each one must carry a credit, a capture date and, where the publisher states one, a copyright notice (`credit`, `capturedOn`, `copyright` in `site/data/tools.json`). Capture them by hand and store them in `site/img/tools/`; never hotlink an image from a publisher's server.
+So every tool, comparison-only ones included, can have up to two. Each one must carry a credit, a capture date and, where the publisher states one, a copyright notice (`credit`, `capturedOn`, `copyright` in `site/data/resources.json`). Capture them by hand and store them in `site/img/resources/`; never hotlink an image from a publisher's server.
 
 The ban on fetching or embedding a comparison-only source's data is unchanged: it is about live data, and a hand-captured screenshot is neither. This is the project's policy, not legal advice. If a publisher objects to a screenshot, remove it.
 

@@ -1,0 +1,115 @@
+---
+layout: base.njk
+pagination:
+  data: resources
+  size: 1
+  alias: resource
+  addAllPagesToCollections: true
+permalink: "compare/resource/{{ resource.id }}/index.html"
+nav: compare
+eleventyComputed:
+  title: "{{ resource.name }} | CA Sea Change Atlas"
+  description: "{{ resource.description }}"
+---
+{%- set schema = {
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": resource.name,
+  "description": resource.description,
+  "creator": { "@type": "Organization", "name": resource.org },
+  "url": resource.url,
+  "spatialCoverage": resource.scopeLabel
+} %}
+<script type="application/ld+json">{{ schema | jsonify | safe }}</script>
+
+<div class="main">
+<div class="wrap resource-detail">
+
+<div class="resource-detail-sticky">
+<p class="hero-nav"><a href="{{ '/compare/' | url }}">Back to Compare resources</a></p>
+
+<div class="resource-detail-head">
+{%- if resource.implementationStatus == 'implemented' %}
+<span class="tag status status-implemented">Implemented in the map tool</span>
+{%- elif resource.mapEligibility == 'excluded' %}
+<span class="tag status status-excluded">External resource only</span>
+{%- else %}
+<span class="tag status status-not-implemented">Not implemented in the map tool</span>
+{%- endif %}
+<h1>{{ resource.name }}</h1>
+<div class="org">{{ resource.org }}{% if resource.released %} · released {{ resource.released }}{% endif %}</div>
+{%- if resource.url %}
+<a class="landing-card-cta" href="{{ resource.url }}" target="_blank" rel="noopener">Visit {{ resource.name }}</a>
+{%- endif %}
+</div>
+</div>
+
+
+{%- set sections = resource | resourceSections(resourceDetailSchema, resourceTagMasters) %}
+<div class="resource-detail-layout">
+<nav class="resource-detail-toc" aria-label="On this page">
+<h2>On this page</h2>
+<ul>{% if resource.keyFeatures and resource.keyFeatures.length %}<li><a href="#key-features">Key features</a></li>{% endif %}{% if resource.screenshots and resource.screenshots.length %}<li><a href="#screenshots">Screenshots</a></li>{% endif %}{% for section in sections %}<li><a href="#{{ section.id }}">{{ section.title }}</a></li>{% endfor %}</ul>
+</nav>
+<div class="resource-detail-grid">
+<p class="resource-detail-lede">{{ resource.description }}</p>
+{%- if resource.keyFeatures and resource.keyFeatures.length %}
+<section class="resource-detail-section" id="key-features">
+<h2>Key features</h2>
+<ul class="resource-key-features">{% for f in resource.keyFeatures %}<li>{{ f }}</li>{% endfor %}</ul>
+</section>
+{%- endif %}
+{%- if resource.screenshots and resource.screenshots.length %}
+<section class="resource-detail-section" id="screenshots">
+<h2>Screenshots</h2>
+<div class="resource-screenshots">
+{%- for shot in resource.screenshots %}
+<figure>
+<a href="{{ shot.src | url }}" target="_blank" rel="noopener" title="Open full-size image"><img src="{{ shot.src | url }}" alt="{{ shot.alt }}" loading="lazy" decoding="async"></a>
+<figcaption>{{ shot.caption }}<span class="resource-screenshot-credit">Screenshot: {{ shot.credit }}{% if shot.copyright %} · {{ shot.copyright }}{% endif %} · captured {{ shot.capturedOn }}</span></figcaption>
+</figure>
+{%- endfor %}
+</div>
+</section>
+{%- endif %}
+{%- for section in sections %}
+<section class="resource-detail-section" id="{{ section.id }}">
+<h2>{{ section.title }}</h2>
+<dl class="resource-detail-rows">
+{%- if section.tags %}
+{%- for t in section.tags %}
+<div class="resource-detail-row">
+<dt>{{ t.label }}</dt>
+<dd>{% if t.yes %}<strong>Yes</strong>{% if t.detail %} — {{ t.detail }}{% endif %}{% else %}No{% endif %}</dd>
+</div>
+{%- endfor %}
+{%- else %}
+{%- for row in section.rows %}
+<div class="resource-detail-row">
+<dt>{{ row.label }}</dt>
+<dd>
+{%- if row.kind == "list" %}<ul>{% for item in row.items %}<li>{{ item }}</li>{% endfor %}</ul>
+{%- elif row.kind == "link" %}<a href="{{ row.href }}" target="_blank" rel="noopener">{{ row.href }}</a>
+{%- else %}{{ row.text }}{% endif -%}
+</dd>
+</div>
+{%- endfor %}
+{%- endif %}
+</dl>
+</section>
+{%- endfor %}
+</div>
+</div>
+</div>
+</div>
+<script>
+// Offset the sticky contents box and anchor targets by the sticky header's height.
+(function () {
+  var head = document.querySelector(".resource-detail-sticky");
+  var root = document.querySelector(".resource-detail");
+  if (!head || !root || !window.ResizeObserver) return;
+  new ResizeObserver(function () {
+    root.style.setProperty("--resource-sticky-h", head.offsetHeight + "px");
+  }).observe(head);
+})();
+</script>

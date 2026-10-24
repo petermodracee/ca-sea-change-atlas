@@ -1,5 +1,5 @@
 {
-  "_meta": "Single source for /licenses.html. Every third-party library, dataset and service the site loads or credits belongs here, listed alphabetically within each category (scripts/ checks will enforce this). 'licenses' are keys into _data/licenseTypes.json, which holds each license's name and a link to its text. 'attribution' is present ONLY where the license or terms require a credit line, and mirrors what the map's attribution strip shows; public-domain sources are listed for transparency and carry none. 'toolId' links an entry to data/tools.json. Comparison-only tools use no data, so they are not listed. Rationale and ToU clauses live in docs/LICENSING.md.",
+  "_meta": "Single source for /about/licenses/. Every third-party library, dataset and service the site loads or credits belongs here, listed alphabetically within each category (scripts/ checks will enforce this). 'licenses' are keys into _data/licenseTypes.json, which holds each license's name and a link to its text. 'attribution' is present ONLY where the license or terms require a credit line, and mirrors what the map's attribution strip shows; public-domain sources are listed for transparency and carry none. 'resourceId' links an entry to data/resources.json. Comparison-only resources use no data, so they are not listed. Rationale and ToU clauses live in docs/LICENSING.md.",
   "categories": [
     {
       "id": "flood",
@@ -9,7 +9,7 @@
         {
           "name": "BCDC Adapting to Rising Tides — Bay Shoreline Flood Explorer",
           "url": "https://explorer.adaptingtorisingtides.org/",
-          "toolId": "art-bay",
+          "resourceId": "art-bay",
           "note": "Served via the Caltrans open data portal. Planning-level only. Displaying it as a live layer is fine; a redistributed copy of the dataset itself must stay share-alike.",
           "links": [
             {
@@ -25,7 +25,7 @@
         {
           "name": "BCDC East Contra Costa Shoreline Flood Explorer",
           "url": "https://eccexplorer.adaptingtorisingtides.org/",
-          "toolId": "art-ecc",
+          "resourceId": "art-ecc",
           "note": "Same program, WMS server and terms as the Bay explorer. Planning-level only.",
           "links": [
             {
@@ -41,19 +41,19 @@
         {
           "name": "Cal-Adapt Sea Level Rise – Coastal Inundation Scenarios",
           "url": "https://cmip5.cal-adapt.org/tools/slr-coastal-inundation/",
-          "toolId": "cal-adapt-slr",
+          "resourceId": "cal-adapt-slr",
           "note": "Flood-extent tiles for two models, mosaicked and served by Cal-Adapt (UC Berkeley Geospatial Innovation Facility). The CoSMoS component is USGS (public domain). Please cite the studies below.",
           "studies": [
             "Barnard, P.L., Erikson, L.H., Foxgrover, A.C., Finzi Hart, J.A., Limber, P., O'Neill, A.C., van Ormondt, M., Vitousek, S., Wood, N., Hayden, M.K., & Jones, J.M. (2019). Dynamic flood modeling essential to assess the coastal impacts of climate change. Scientific Reports, 9, Article 4309. https://doi.org/10.1038/s41598-019-40742-z",
             "Radke, J., et al. (2018). Assessing extreme weather-related vulnerability and identifying resilience options for California's interdependent transportation fuel sector. California's Fourth Climate Change Assessment, California Energy Commission, CCCA4-CEC-2018-012. https://www.energy.ca.gov/sites/default/files/2019-11/Energy_CCCA4-CEC-2018-012_ADA.pdf"
           ],
           "licenses": [],
-          "licenseNote": "No separate license stated by the tool"
+          "licenseNote": "No separate license stated by the resource"
         },
         {
           "name": "FEMA National Flood Hazard Layer",
           "url": "https://www.fema.gov/flood-maps/national-flood-hazard-layer",
-          "toolId": "fema-nfhl",
+          "resourceId": "fema-nfhl",
           "licenses": [
             "pd-us"
           ],
@@ -62,7 +62,7 @@
         {
           "name": "Interagency Sea Level Rise Technical Report scenarios",
           "url": "https://zenodo.org/records/6067895",
-          "toolId": "nasa-slr-scenario-tool",
+          "resourceId": "nasa-slr-scenario-tool",
           "note": "Tide-gauge sea level projections from the Interagency Sea Level Rise Task Force (NOAA, NASA, EPA, USGS, USACE, FEMA, DoD), read live from the task force's Zenodo record (version 1.1). Values can differ from NASA's Interagency Sea Level Rise Scenario Tool.",
           "studies": [
             "Sweet, W.V., Hamlington, B.D., Kopp, R.E., Weaver, C.P., Barnard, P.L., et al. (2022). Global and Regional Sea Level Rise Scenarios for the United States: Updated Mean Projections and Extreme Water Level Probabilities Along U.S. Coastlines. NOAA Technical Report NOS 01. https://oceanservice.noaa.gov/hazards/sealevelrise/sealevelrise-tech-report.html"
@@ -75,7 +75,7 @@
         {
           "name": "NOAA Coastal Flood Exposure Mapper",
           "url": "https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html",
-          "toolId": "noaa-cfem",
+          "resourceId": "noaa-cfem",
           "note": "Hazard-overlap composite, High Tide Flooding, FEMA Flood Zones and Tsunami Run-up overlays.",
           "licenses": [
             "pd-us"
@@ -84,7 +84,7 @@
         {
           "name": "NOAA High Tide Flooding stations",
           "url": "https://coast.noaa.gov/slr/",
-          "toolId": "noaa-htf-stations",
+          "resourceId": "noaa-htf-stations",
           "note": "NOAA CO-OPS tide-gauge flood thresholds, from the Sea Level Rise Viewer's point-layer service.",
           "licenses": [
             "pd-us"
@@ -93,7 +93,7 @@
         {
           "name": "NOAA Sea Level Rise Viewer",
           "url": "https://coast.noaa.gov/slr/",
-          "toolId": "noaa-slrv",
+          "resourceId": "noaa-slrv",
           "note": "The sea-level-rise scenario overlay.",
           "licenses": [
             "pd-us"
@@ -102,7 +102,7 @@
         {
           "name": "NOAA/NWS/NHC National Storm Surge Risk Maps",
           "url": "https://www.nhc.noaa.gov/nationalsurge/",
-          "toolId": "nhc-storm-surge",
+          "resourceId": "nhc-storm-surge",
           "note": "Hurricane storm surge overlay (Category 1–2, Southern California only).",
           "licenses": [
             "pd-us"
@@ -111,7 +111,7 @@
         {
           "name": "USGS CoSMoS / Our Coast, Our Future",
           "url": "https://www.usgs.gov/centers/pcmsc/science/coastal-storm-modeling-system-cosmos",
-          "toolId": "cosmos",
+          "resourceId": "cosmos",
           "note": "Served through Point Blue Conservation Science's tile/WMS infrastructure (geo.pointblue.org), which asks for a courtesy citation.",
           "licenses": [
             "pd-us"
@@ -181,7 +181,7 @@
         {
           "name": "NOAA Coastal County Snapshots (section text)",
           "url": "https://coast.noaa.gov/digitalcoast/tools/snapshots.html",
-          "toolId": "noaa-coastal-county-snapshots",
+          "resourceId": "noaa-coastal-county-snapshots",
           "note": "The explanatory prose of each County Profiles section is NOAA's own, reused with the adaptations listed in docs/COUNTY-PROFILES.md. NOAA's figures are not used.",
           "licenses": [
             "pd-us"

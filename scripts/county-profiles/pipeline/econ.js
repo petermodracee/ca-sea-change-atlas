@@ -3,7 +3,7 @@
 // Nonemployer Statistics (self-employed workers for the total economy).
 //
 // The first three are served by the Digital Coast data API behind NOAA's Quick Report tool
-// (coast.noaa.gov/enow/api/v1/...), which is what the tool's own "Download data" runs on. What the
+// (coast.noaa.gov/enow/api/v1/...), which is what the resource's own "Download data" runs on. What the
 // API returns, checked against every county: a suppressed value is the string "SUP" (a true zero is
 // 0); a county outside a dataset's footprint returns an empty list. The pipeline never guesses at
 // that footprint. It asks: an empty ENOW answer means the county is outside ENOW, an empty

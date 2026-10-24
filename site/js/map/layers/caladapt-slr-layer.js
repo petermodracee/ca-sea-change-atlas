@@ -3,20 +3,20 @@ import { groupPane } from "../shared/panes.js";
 import { renderSwatchLegendBlock } from "../shared/legend.js";
 
 // --- Cal-Adapt: Sea Level Rise – Coastal Inundation Scenarios (SLR-CIS) ------
-// Confirmed directly against the live tool (cmip5.cal-adapt.org/tools/slr-coastal-inundation/,
+// Confirmed directly against the live resource (cmip5.cal-adapt.org/tools/slr-coastal-inundation/,
 // its network traffic and its own JS chunk). It is NOT an ArcGIS REST service and
 // does NOT call CNRA's gis.cnra.ca.gov `CSMW_Sea_Level_Rise` MapServer — that
 // service is a separate, older (Third Assessment-era, ESA/PWA) dataset, so it
-// isn't used here. The tool draws pre-rendered XYZ raster tiles from Cal-Adapt's
+// isn't used here. The resource draws pre-rendered XYZ raster tiles from Cal-Adapt's
 // own API, `https://api.cal-adapt.org/tiles/{slug}/{z}/{x}/{y}.png?style=...`,
 // where each `slug` is one "rstore" (raster mosaic) from the API's
-// `/api/rstores/` listing (72 in total; the tool's own metadata calls confirm the
-// naming below). Two independent models, exactly as the real tool shows them
+// `/api/rstores/` listing (72 in total; the resource's own metadata calls confirm the
+// naming below). Two independent models, exactly as the real resource shows them
 // together with a per-model checklist, so this is one combined layer group:
 //   - CoSMoS: eight regional mosaics (`cosmosflooding_{period}_{scenario}_mosaic_{region}`)
 //   - CalFloD3D-TFS: three 5 m regional mosaics (LA, SD, SF Bay) plus one 50 m statewide mosaic
 // `period` is 2020-2040 or 2080-2100 and `scenario` is min / med / max, the
-// same three-way pickers the tool has. Tile colors come from the tool's own
+// same three-way pickers the resource has. Tile colors come from the resource's own
 // `rsgreen` (CoSMoS) and `rsblue` (CalFloD3D-TFS) styles; the depth-colormap
 // default style isn't a documented scale, so it isn't offered.
 //
@@ -76,7 +76,7 @@ function tileAt(latlng, z){
 }
 
 /**
- * The Cal-Adapt SLR-CIS group: a checklist of the tool's three model layers
+ * The Cal-Adapt SLR-CIS group: a checklist of the resource's three model layers
  * (they can be shown together to see where the models agree), plus its time
  * period and flood-scenario pickers. Manages several tile layers at once (one
  * per regional mosaic of each checked model), grouped in a single L.layerGroup

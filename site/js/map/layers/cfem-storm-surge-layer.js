@@ -4,7 +4,7 @@ import { renderImageLegendBlock } from "../shared/legend.js";
 import { buildButtonGrid } from "../shared/button-grid.js";
 
 // The genuinely new, addable layer: Storm Surge, traced from the live
-// tool's own network traffic to a separate ArcGIS Online hosted tile
+// resource's own network traffic to a separate ArcGIS Online hosted tile
 // service (not under coast.noaa.gov/arcgis at all), published by
 // NOAA/NWS/NHC's Storm Surge Unit: SLOSH-model "Maximum of MEOWs"
 // near-worst-case inundation, one tiled MapServer per hurricane category.

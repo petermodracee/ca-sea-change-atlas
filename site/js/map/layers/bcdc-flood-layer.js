@@ -324,7 +324,7 @@ export class BcdcFloodLayer extends BaseLayer {
     }
     const idx = nearestLevelIndex(this.selectedSlrInches + this.selectedStormInches);
     this.setLevelIndex(idx);
-    this.scenarioResultEl.textContent = `Closest matching Total Water Level: ${this.currentInches()}" above MHHW (regional approximation — BCDC's own tool uses county-specific storm-tide data).`;
+    this.scenarioResultEl.textContent = `Closest matching Total Water Level: ${this.currentInches()}" above MHHW (regional approximation; BCDC's own resource uses county-specific storm-tide data).`;
   }
 
   init(){
