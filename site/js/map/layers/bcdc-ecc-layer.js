@@ -7,18 +7,18 @@ import { buildButtonGrid } from "../shared/button-grid.js";
 import { BCDC_WMS_URL, buildBcdcWmsLayer, parseGmlFeatures } from "./bcdc-flood-layer.js";
 
 // --- East Contra Costa Shoreline Flood Explorer (BCDC / SFEI) ---------------
-// Confirmed directly against the live tool at eccexplorer.adaptingtorisingtides.org:
+// Confirmed directly against the live resource at eccexplorer.adaptingtorisingtides.org:
 // its own `query.php?q=getConfig` returns the same `mapServerUrls.local` /
 // `mapFilePath` as the Bay Shoreline Flood Explorer (mapserver.adaptingtorisingtides.org,
 // bcdc.map), so this is the *same* WMS server and mapfile as BcdcFloodLayer —
 // only the layer names differ (`ecc{inundation|overtopping|lowlying}{inches}`,
 // with a `flood100` suffix for the 100-year storm variant). Layer names and
-// the five SLR stops below were read from the tool's own build/slr.js and
+// the five SLR stops below were read from the resource's own build/slr.js and
 // checked against the server's GetCapabilities; GetMap and GetFeatureInfo
 // were both exercised against real flooded points. It therefore shares
 // BCDC's WMS URL, tile cache, and GetFeatureInfo/GML parsing.
 //
-// Unlike the Bay tool this one has no consequence layers and no storm-surge
+// Unlike the Bay resource this one has no consequence layers and no storm-surge
 // scenario picker: just an SLR slider, a single on/off "100-year storm event"
 // toggle, and the three flood layers.
 const ECC_SLR_INCHES = [0, 12, 24, 36, 83];
@@ -28,7 +28,7 @@ const ECC_LAYER_TYPES = {
   overtopping: { opacity: 0.9, color: "#C0392B" },
   lowlying: { opacity: 0.6, color: "#5513C7", dashed: true }
 };
-// Legend content from the tool's own build/slr.js legend config (the low-lying
+// Legend content from the resource's own build/slr.js legend config (the low-lying
 // hatch is purple here, unlike the Bay explorer's green).
 const ECC_LEGENDS = {
   inundation: {
@@ -144,7 +144,7 @@ export class BcdcEccLayer extends BaseLayer {
   }
 
   // Field names (value_0 = flood depth in inches, ot_ft = overtopping feet) come from the
-  // tool's own click handler in build/slr.js — the same ones the Bay explorer uses.
+  // resource's own click handler in build/slr.js — the same ones the Bay explorer uses.
   async fetchFeatures(layerName, latlng){
     const url = buildWmsIdentifyUrl(this.map, BCDC_WMS_URL, layerName, latlng);
     return cachedFetch(url, async res => parseGmlFeatures(await res.text(), layerName));
@@ -154,7 +154,7 @@ export class BcdcEccLayer extends BaseLayer {
     const cb = document.querySelector('[data-ecc-layer="inundation"]');
     if(!cb.checked) return null;
     const features = await this.fetchFeatures(this.layerName("inundation"), latlng);
-    // An empty result can mean "not flooded" or "outside this tool's small extent"; the response can't tell them apart, so stay silent rather than claim either.
+    // An empty result can mean "not flooded" or "outside this resource's small extent"; the response can't tell them apart, so stay silent rather than claim either.
     if(!features.length) return null;
     const depthFt = Number(features[0].value_0) / 12;
     return { title: "East Contra Costa — Depth of Flooding", rows: [{ label: "Depth", value: `${fmtNum(depthFt, 2)} feet` }] };

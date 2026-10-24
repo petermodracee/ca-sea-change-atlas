@@ -47,7 +47,7 @@ Notes:
 Before a new source or library is merged:
 
 - add it to [`site/_data/credits.json`](site/_data/credits.json) with its license and the attribution it requires (this feeds `/about/licenses/`);
-- for a tool, add or update its entry in [`site/data/tools.json`](site/data/tools.json) (`mapEligibility: "excluded"` if it can't go on the map);
+- for a tool, add or update its entry in [`site/data/resources.json`](site/data/resources.json) (`mapEligibility: "excluded"` if it can't go on the map);
 - record why a source was excluded, with the ToU clause or how you verified it, in [`docs/LICENSING.md`](docs/LICENSING.md).
 
 ## Reporting a data problem
@@ -60,11 +60,11 @@ Questions and ideas go to [Discussions](https://github.com/petermodracee/ca-sea-
 
 ## Documentation rules
 
-- Per-tool status lives in `site/data/tools.json`. Don't restate it, or counts of tools, in prose; link to it.
+- Per-tool status lives in `site/data/resources.json`. Don't restate it, or counts of tools, in prose; link to it.
 - Docs describe what the code does now. Verify names and paths, and remove text that no longer applies rather than annotating it.
 - Findings about a live service that weren't obvious go in [`docs/DECISIONS.md`](docs/DECISIONS.md), briefly.
 
 ## Common tasks
 
 - **Add a map layer:** [`docs/MAP.md`](docs/MAP.md#adding-a-layer)
-- **Add or edit a tool:** [`docs/TOOLS.md`](docs/TOOLS.md#adding-a-tool)
+- **Add or edit a tool:** [`docs/RESOURCES.md`](docs/RESOURCES.md#adding-a-tool)

@@ -6,7 +6,7 @@ import { fetchLegendItems, renderGradientLegendBlock, renderImageLegendBlock, re
 import { FacilityOverviewLayer, FACILITY_MARKER_MIN_ZOOM, FACILITY_HEAT_MIN_ZOOM, FACILITY_HEAT_GRADIENT } from "./facility-overview-layer.js";
 
 // --- Geo / demographic info -------------------------------------------------
-// Context layers that aren't flood tools themselves, so any flood layer can be
+// Context layers that aren't flood resources themselves, so any flood layer can be
 // overlaid on them. Each one is pulled from the agency that publishes the
 // underlying data (federal/state government), not from a third-party
 // re-packaging, so the licensing is the publisher's own:

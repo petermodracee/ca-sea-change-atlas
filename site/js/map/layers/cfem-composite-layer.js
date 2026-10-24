@@ -21,7 +21,7 @@ const CFEM_COMPOSITE_LAYER_ID = 42;
 const CFEM_COLOR = "#B26A00";
 const CFEM_ATTRIBUTION = 'Hazard overlap: <a href="https://coast.noaa.gov/digitalcoast/tools/flood-exposure.html" target="_blank" rel="noopener">NOAA Office for Coastal Management, Coastal Flood Exposure Mapper</a>';
 
-// The real CFEM tool (coast.noaa.gov/floodexposure) exposes several more
+// The real CFEM resource (coast.noaa.gov/floodexposure) exposes several more
 // hazard layers beyond the composite: High Tide Flooding, FEMA Flood
 // Zones, Tsunami, Storm Surge, Sea Level Rise, Great Lakes Water Levels.
 // This is a comparison site, so "another layer group already shows

@@ -1,11 +1,11 @@
 (function(){
 const MAX = 3;
-const TD = window.ToolDetail;
+const TD = window.ResourceDetail;
 
-let TOOLS = [];
+let RESOURCES = [];
 let SCHEMA = [];
 let MASTERS = {};
-let selected = [];   // chosen tool ids; the table compares these
+let selected = [];   // chosen resource ids; the table compares these
 let focusSlot = null;  // header select to refocus after a re-render
 
 const el = (tag, cls, text) => {
@@ -16,24 +16,24 @@ const el = (tag, cls, text) => {
 };
 
 function idsFromUrl(){
-  const raw = new URLSearchParams(location.search).get("tools") || "";
+  const raw = new URLSearchParams(location.search).get("resources") || "";
   const ids = [], unknown = [];
   raw.split(",").map(s => s.trim()).filter(Boolean).forEach(id => {
     if(ids.includes(id) || unknown.includes(id)) return;
-    if(TOOLS.some(t => t.id === id)) ids.push(id); else unknown.push(id);
+    if(RESOURCES.some(t => t.id === id)) ids.push(id); else unknown.push(id);
   });
   return { ids: ids.slice(0, MAX), unknown };
 }
 
 function syncUrl(){
-  history.replaceState(null, "", location.pathname + (selected.length ? "?tools=" + selected.map(encodeURIComponent).join(",") : ""));
+  history.replaceState(null, "", location.pathname + (selected.length ? "?resources=" + selected.map(encodeURIComponent).join(",") : ""));
 }
 
 function statusTag(t){
   const implemented = t.implementationStatus === "implemented";
   const excluded = t.mapEligibility === "excluded";
   return el("span", "tag status " + (implemented ? "status-implemented" : excluded ? "status-excluded" : "status-not-implemented"),
-    implemented ? "✓ Implemented in the map tool" : excluded ? "External tool only" : "Not implemented in the map tool");
+    implemented ? "✓ Implemented in the map tool" : excluded ? "External resource only" : "Not implemented in the map tool");
 }
 
 function fillValue(td, v){
@@ -64,8 +64,8 @@ function fillCell(td, cell){
   fillValue(td, cell);
 }
 
-// Rows for one section across all selected tools: [{label, cells:[value|null per tool]}].
-function sectionRows(section, tools, resolved){
+// Rows for one section across all selected resources: [{label, cells:[value|null per resource]}].
+function sectionRows(section, resources, resolved){
   if(section.kind === "tag-table"){
     return (MASTERS[section.tagField] || []).map(tag => ({
       label: tag,
@@ -74,16 +74,16 @@ function sectionRows(section, tools, resolved){
   }
   return section.rows.map(row => ({
     label: row.label,
-    cells: tools.map(t => TD.resolveRow(t, row))
+    cells: resources.map(t => TD.resolveRow(t, row))
   })).filter(r => r.cells.some(Boolean));
 }
 
-function renderSection(section, tools){
-  const resolved = tools.map(t => TD.resolveSection(t, section, MASTERS));
-  if(!resolved.some(Boolean)) return null;   // nothing for any selected tool: omit the section
-  const rows = sectionRows(section, tools, resolved);
+function renderSection(section, resources){
+  const resolved = resources.map(t => TD.resolveSection(t, section, MASTERS));
+  if(!resolved.some(Boolean)) return null;   // nothing for any selected resource: omit the section
+  const rows = sectionRows(section, resources, resolved);
 
-  const details = el("details", "tool-detail-section");
+  const details = el("details", "resource-detail-section");
   details.open = true;
   details.id = TD.slug(section.title);
   details.appendChild(el("summary", null, section.title));
@@ -94,9 +94,9 @@ function renderSection(section, tools){
     const th = el("th", null, r.label);
     th.scope = "row";
     tr.appendChild(th);
-    tools.forEach((t, ti) => {
+    resources.forEach((t, ti) => {
       if(!resolved[ti]){
-        // This tool has nothing in the section: one spanning cell keeps the columns aligned.
+        // This resource has nothing in the section: one spanning cell keeps the columns aligned.
         if(ri === 0){
           const td = el("td", "cmp-none", "No data available");
           td.rowSpan = rows.length;
@@ -114,11 +114,11 @@ function renderSection(section, tools){
   return details;
 }
 
-function toolSelect(label, value, slotIndex, taken, placeholder){
+function resourceSelect(label, value, slotIndex, taken, placeholder){
   const sel = document.createElement("select");
   sel.setAttribute("aria-label", label);
   if(!value) sel.appendChild(new Option(placeholder, ""));
-  TOOLS.forEach(t => {
+  RESOURCES.forEach(t => {
     const o = new Option(t.name, t.id);
     o.disabled = taken.includes(t.id) && t.id !== value;
     sel.appendChild(o);
@@ -143,28 +143,28 @@ function render(note){
   head.innerHTML = "";
   sections.innerHTML = "";
 
-  // Header cells: one per chosen tool, padded with empty pickers up to two.
+  // Header cells: one per chosen resource, padded with empty pickers up to two.
   const cells = selected.slice();
   while(cells.length < 2) cells.push("");
   const grid = el("div", "cmp-head");
   grid.style.setProperty("--cmp-cols", cells.length);
 
   const corner = el("div", "cmp-head-corner");
-  const back = el("a", "cmp-top", "Back to tool list");
+  const back = el("a", "cmp-top", "Back to resource list");
   back.href = "../";
   corner.appendChild(back);
   if(selected.length === 2){
-    const add = toolSelect("Add a third tool", "", "add", selected, "+ Add a third tool");
+    const add = resourceSelect("Add a third resource", "", "add", selected, "+ Add a third resource");
     add.addEventListener("change", () => { if(add.value) setSelected(selected.concat(add.value), selected.length); });
     corner.appendChild(add);
   }
   grid.appendChild(corner);
 
   cells.forEach((id, i) => {
-    const t = TOOLS.find(x => x.id === id);
-    const cell = el("div", "cmp-head-tool");
+    const t = RESOURCES.find(x => x.id === id);
+    const cell = el("div", "cmp-head-resource");
     if(t) cell.appendChild(statusTag(t));
-    const sel = toolSelect("Tool " + (i + 1), id, i, selected, "Choose a tool…");
+    const sel = resourceSelect("Resource " + (i + 1), id, i, selected, "Choose a resource…");
     sel.addEventListener("change", () => {
       if(!sel.value) return;
       const next = selected.slice();
@@ -178,7 +178,7 @@ function render(note){
       cell.appendChild(org);
       const links = el("div", "cmp-head-links");
       const d = el("a", "linkbtn", "Details");
-      d.href = "../tool/" + encodeURIComponent(t.id) + "/";
+      d.href = "../resource/" + encodeURIComponent(t.id) + "/";
       links.appendChild(d);
       if(selected.length > 2){
         const rm = el("button", "linkbtn", "Remove");
@@ -194,12 +194,12 @@ function render(note){
   head.appendChild(grid);
 
   if(selected.length < 2){
-    msg.textContent = (note ? note + " " : "") + "Choose at least two tools to compare them.";
+    msg.textContent = (note ? note + " " : "") + "Choose at least two resources to compare them.";
   } else {
     msg.textContent = note;
-    const tools = selected.map(id => TOOLS.find(t => t.id === id));
+    const resources = selected.map(id => RESOURCES.find(t => t.id === id));
     SCHEMA.forEach(section => {
-      const d = renderSection(section, tools);
+      const d = renderSection(section, resources);
       if(d) sections.appendChild(d);
     });
   }
@@ -216,20 +216,20 @@ function render(note){
 async function main(){
   const msg = document.getElementById("cmpMsg");
   try {
-    const [tools, schema] = await Promise.all([
-      fetch("../../data/tools.json").then(r => r.json()),
-      fetch("../../data/toolDetailSchema.json").then(r => r.json())
+    const [resources, schema] = await Promise.all([
+      fetch("../../data/resources.json").then(r => r.json()),
+      fetch("../../data/resourceDetailSchema.json").then(r => r.json())
     ]);
-    TOOLS = tools.tools;
+    RESOURCES = resources.resources;
     SCHEMA = schema;
   } catch(e) {
-    msg.textContent = "Couldn't load the tool data. Try reloading the page.";
+    msg.textContent = "Couldn't load the resource data. Try reloading the page.";
     return;
   }
-  MASTERS = TD.tagMasters(TOOLS, SCHEMA);
+  MASTERS = TD.tagMasters(RESOURCES, SCHEMA);
   const { ids, unknown } = idsFromUrl();
   selected = ids;
-  render(unknown.length ? "Ignored unknown tool id" + (unknown.length > 1 ? "s" : "") + ": " + unknown.join(", ") + "." : "");
+  render(unknown.length ? "Ignored unknown resource id" + (unknown.length > 1 ? "s" : "") + ": " + unknown.join(", ") + "." : "");
 }
 
 main();
